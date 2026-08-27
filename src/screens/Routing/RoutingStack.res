@@ -80,7 +80,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
           },
         ])
       : baseTabs
-  }, (routingType, debitRoutingValue, isCutover, connectorList))
+  }, (routingType, debitRoutingValue, isCutover, connectorList, profileId))
 
   let fetchRoutingRecords = async activeIds => {
     try {

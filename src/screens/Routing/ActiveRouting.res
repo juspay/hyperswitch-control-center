@@ -139,8 +139,13 @@ module ActiveSection = {
           onClick={_ => {
             let decisionEngineTarget = activeRoutingType->decisionEngineRoutingTarget
 
+            let ruleId = switch activeRoutingType {
+            | ADVANCED | VOLUME_SPLIT => activeRoutingId
+            | _ => ""
+            }
+
             if isCutover && decisionEngineTarget->isNonEmptyString {
-              onDecisionEngineRedirect(decisionEngineTarget, activeRoutingId)
+              onDecisionEngineRedirect(decisionEngineTarget, ruleId)
             } else {
               switch activeRoutingType {
               | DEFAULTFALLBACK =>

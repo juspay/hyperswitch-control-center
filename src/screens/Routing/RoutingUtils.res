@@ -297,7 +297,7 @@ let decisionEngineHandoffFragment = (
     )
 
   let params = []
-  if connectors->Array.length > 0 {
+  if connectors->isNonEmptyArray {
     params->Array.push((
       "connectors",
       connectors->JSON.Encode.array->JSON.stringify->encodeURIComponent,
@@ -307,10 +307,9 @@ let decisionEngineHandoffFragment = (
     params->Array.push(("rule_id", ruleId->encodeURIComponent))
   }
 
-  switch params->Array.length {
-  | 0 => ""
-  | _ => `#${params->Array.map(((key, value)) => `${key}=${value}`)->Array.joinWith("&")}`
-  }
+  params->isEmptyArray
+    ? ""
+    : `#${params->Array.map(((key, value)) => `${key}=${value}`)->Array.joinWith("&")}`
 }
 
 let filterConnectorListJson = (json, ~retainInList) => {
