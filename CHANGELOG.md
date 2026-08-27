@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.08.27.0
+
+### Features
+
+- Add Citigate, Ilixium and Worldpay Raft connectors in dashboard ([#5459](https://github.com/juspay/hyperswitch-control-center/pull/5459)) ([`7aeb4e6`](https://github.com/juspay/hyperswitch-control-center/commit/7aeb4e60a00e1cac650ea99e5bcafeb4ab6c3e0b))
+- Support adding and deleting single blocklist entries ([#5345](https://github.com/juspay/hyperswitch-control-center/pull/5345)) ([`2f84a92`](https://github.com/juspay/hyperswitch-control-center/commit/2f84a922c11053cfbb72ff3c11cf6daecc37f931))
+- Support regex transformation rule on recon datetime fields ([#5463](https://github.com/juspay/hyperswitch-control-center/pull/5463)) ([`9a68ec7`](https://github.com/juspay/hyperswitch-control-center/commit/9a68ec7826564330fbc4926de1a844ca9afdf3df))
+
+### Bug Fixes
+
+- Enforce blocklist CSV upload limits ([#5319](https://github.com/juspay/hyperswitch-control-center/pull/5319)) ([`85aed66`](https://github.com/juspay/hyperswitch-control-center/commit/85aed66807a25ed6866336a430c02479d56e6595))
+
+**Full Changelog:** [`2026.08.25.1...2026.08.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.25.1...2026.08.27.0)
+
+- - -
+
 ## 2026.08.25.1
 
 ### Features

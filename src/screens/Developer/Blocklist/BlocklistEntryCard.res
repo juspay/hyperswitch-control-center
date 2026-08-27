@@ -97,53 +97,55 @@ let make = (~operation, ~title, ~description, ~buttonText, ~eventName) => {
     checked: true,
   }
 
-  <section className="max-w-3xl py-8 flex flex-col gap-4">
-    <div>
-      <p className={`${body.lg.semibold} text-nd_gray-700`}> {title->React.string} </p>
-      <p className={`${body.md.medium} text-nd_gray-400 pt-2`}> {description->React.string} </p>
-    </div>
-    <div className="flex flex-col sm:flex-row gap-4 sm:items-end">
-      <div className="w-full sm:w-44 min-w-0 sm:mb-6">
-        <p className={`text-nd_gray-700 mb-1 ${body.sm.medium}`}> {"Type"->React.string} </p>
-        <SelectBoxAdapter.BaseDropdown
-          buttonText="Select type"
-          allowMultiSelect=false
-          input=typeDropdownInput
-          options=blocklistDataKindOptions
-          hideMultiSelectButtons=true
-          deselectDisable=true
-          fullLength=true
-          showSelectionAsChips=false
-          showClearAll=false
-          showSelectAll=false
-          customButtonStyle="!rounded-lg"
-          dropdownCustomWidth="w-44"
-          fixedDropDownDirection=BottomRight
-        />
+  <div className="max-w-3xl">
+    <section className="border border-nd_gray-200 rounded-lg bg-white p-5 flex flex-col gap-4">
+      <div>
+        <h2 className={`text-nd_gray-700 ${body.lg.semibold}`}> {title->React.string} </h2>
+        <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}> {description->React.string} </p>
       </div>
-      <div className="w-full sm:w-80 min-w-0">
-        <p className={`text-nd_gray-700 mb-1 ${body.sm.medium}`}> {"Data"->React.string} </p>
-        <TextInputAdapter
-          input=dataInput
-          placeholder={dataKind->blocklistEntryPlaceholder}
-          description=""
-          inputMode={dataKind->blocklistEntryInputMode}
-          maxLength=?{dataKind->blocklistEntryMaxLength}
-          shouldSubmitForm=false
-          customWidth="w-full"
-        />
-        <p className={`mt-1 min-h-5 ${dataHelperClass} ${body.sm.medium}`}>
-          {dataHelperText->React.string}
-        </p>
+      <div className="flex flex-col sm:flex-row gap-4 sm:items-end">
+        <div className="w-full sm:w-44 min-w-0 sm:mb-6">
+          <p className={`text-nd_gray-700 mb-1 ${body.sm.medium}`}> {"Type"->React.string} </p>
+          <SelectBoxAdapter.BaseDropdown
+            buttonText="Select type"
+            allowMultiSelect=false
+            input=typeDropdownInput
+            options=blocklistDataKindOptions
+            hideMultiSelectButtons=true
+            deselectDisable=true
+            fullLength=true
+            showSelectionAsChips=false
+            showClearAll=false
+            showSelectAll=false
+            customButtonStyle="!rounded-lg"
+            dropdownCustomWidth="w-44"
+            fixedDropDownDirection=BottomRight
+          />
+        </div>
+        <div className="w-full sm:w-80 min-w-0">
+          <p className={`text-nd_gray-700 mb-1 ${body.sm.medium}`}> {"Data"->React.string} </p>
+          <TextInputAdapter
+            input=dataInput
+            placeholder={dataKind->blocklistEntryPlaceholder}
+            description=""
+            inputMode={dataKind->blocklistEntryInputMode}
+            maxLength=?{dataKind->blocklistEntryMaxLength}
+            shouldSubmitForm=false
+            customWidth="w-full"
+          />
+          <p className={`mt-1 min-h-5 ${dataHelperClass} ${body.sm.medium}`}>
+            {dataHelperText->React.string}
+          </p>
+        </div>
+        <div className="w-full sm:w-auto min-w-0 sm:mb-6">
+          <ACLButton
+            text=buttonText
+            onClick
+            buttonState=actionButtonState
+            authorization={userHasAccess(~groupAccess=AccountManage)}
+          />
+        </div>
       </div>
-      <div className="w-full sm:w-auto min-w-0 sm:mb-6">
-        <ACLButton
-          text=buttonText
-          onClick
-          buttonState=actionButtonState
-          authorization={userHasAccess(~groupAccess=AccountManage)}
-        />
-      </div>
-    </div>
-  </section>
+    </section>
+  </div>
 }
