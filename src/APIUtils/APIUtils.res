@@ -774,6 +774,12 @@ let useGetURL = () => {
           }
         | _ => Default("")
         }
+      | ORG_ACTIVITY_LOGS =>
+        switch methodType {
+        | Post => Default(`analytics/v1/org/activity_logs`)
+        | Get => Default(`analytics/v1/org/activity_logs/filters`)
+        | _ => Default("")
+        }
       | ANALYTICS_SANKEY =>
         switch methodType {
         | Post =>

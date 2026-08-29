@@ -147,6 +147,14 @@ let make = (~setScreenState) => {
         isEnabled={checkUserEntity([#Organization])}>
         <OrganizationSettings />
       </AccessControl>
+    | list{"audit-trail"} =>
+      <AccessControl
+        authorization={userHasAccess(~groupAccess=AnalyticsView)}
+        isEnabled={checkUserEntity([#Organization])}>
+        <FilterContext key="audit-trail" index="audit-trail">
+          <AuditTrail />
+        </FilterContext>
+      </AccessControl>
     | list{"search"} => <SearchResultsPage />
     | list{"payment-attempts"} =>
       <AccessControl
