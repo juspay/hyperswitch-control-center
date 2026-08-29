@@ -76,7 +76,12 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
         let _ = await fetchConnectorList()
         setInitialValues(_ => response)
         setScreenState(_ => Success)
-        setCurrentStep(_ => ConnectorTypes.SummaryAndTest)
+        // TODO: Gate webhook details on the WASM value. Blocked: useGetFilterDictFromUrl is initially empty when the WASM value is called.
+        let nextStep =
+          connector->getConnectorNameTypeFromString == Processors(SANTANDER) && !isUpdateFlow
+            ? ConnectorTypes.WebhookRegistration
+            : ConnectorTypes.SummaryAndTest
+        setCurrentStep(_ => nextStep)
         showToast(
           ~message=!isUpdateFlow ? "Connector Created Successfully!" : "Details Updated!",
           ~toastType=ToastSuccess,
