@@ -9,6 +9,14 @@ IMAGE_REPO="juspaydotin/hyperswitch-router"
 REGISTRY="docker.juspay.io"
 IMAGE="${REGISTRY}/${IMAGE_REPO}"
 MAX_TRIES=5
+# Auto-discovery walks tags newest-first. Tags with no published router image cost
+# nothing to skip, so they are not counted against MAX_TRIES; MAX_SCAN bounds how far
+# back the walk goes when a long run of tags has no image (e.g. registry outage).
+MAX_SCAN=25
+# Last tag known to boot cleanly. Tried once as a last resort when auto-discovery is
+# exhausted, so that a run of broken recent tags does not fail the suite outright.
+# Bump this when a newer tag has been verified.
+KNOWN_GOOD_TAG="${HYPERSWITCH_KNOWN_GOOD_TAG:-2026.08.21.0}"
 
 # Optional override: pin a known-good tag and skip auto-discovery.
 # Useful when all of the most-recent tags fail to boot but an older tag is known to work.
@@ -70,10 +78,11 @@ try_tag() {
   tag="$1"
   echo "==== Trying tag: $tag ===="
 
-  # Skip tags that have no published router image.
+  # Skip tags that have no published router image. Returns 2, not 1: nothing was
+  # booted, so the caller must not count this against its boot-attempt budget.
   if ! docker manifest inspect "$IMAGE:$tag" >/dev/null 2>&1; then
     echo "Docker image not available for $tag"
-    return 1
+    return 2
   fi
 
   echo "Checking out tag $tag..."
@@ -149,17 +158,37 @@ fi
 # ---------------------------------------------------------------------------
 
 attempt=0
+scanned=0
 
 for tag in $(git tag --sort=-creatordate); do
   [ "$attempt" -ge "$MAX_TRIES" ] && break
+  [ "$scanned" -ge "$MAX_SCAN" ] && break
+  scanned=$((scanned+1))
 
-  if try_tag "$tag"; then
-    exit 0
-  fi
+  status=0
+  try_tag "$tag" || status=$?
 
-  attempt=$((attempt+1))
-
+  case "$status" in
+    0) exit 0 ;;
+    # No published image: nothing was attempted, so keep the budget for tags that
+    # can actually boot. Counting these was letting a short run of image-less
+    # hotfix tags exhaust MAX_TRIES before any bootable tag was reached.
+    2) continue ;;
+    *) attempt=$((attempt+1)) ;;
+  esac
 done
 
-echo "No working tag found in last $MAX_TRIES attempts"
+echo "Auto-discovery exhausted after $attempt boot attempt(s) across $scanned tag(s)"
+
+# Last resort. Auto-discovery only ever sees the newest tags, so when those are all
+# broken it never reaches an older one that works.
+if [ -n "$KNOWN_GOOD_TAG" ]; then
+  echo "Falling back to known-good tag $KNOWN_GOOD_TAG"
+  if try_tag "$KNOWN_GOOD_TAG"; then
+    exit 0
+  fi
+  echo "Known-good tag $KNOWN_GOOD_TAG failed to boot"
+fi
+
+echo "No working tag found"
 exit 1
