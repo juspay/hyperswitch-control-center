@@ -1103,6 +1103,11 @@ let useGetURL = () => {
           | Post => Default(`${reconBaseURL}/transactions/v2/list`)
           | _ => Default("")
           }
+        | #PROCESSED_ENTRIES_LIST =>
+          switch methodType {
+          | Post => Default(`${reconBaseURL}/entries/list`)
+          | _ => Default("")
+          }
         | #PROCESSED_ENTRIES_LIST_WITH_ACCOUNT =>
           switch methodType {
           | Get =>
@@ -1394,6 +1399,11 @@ let useGetURL = () => {
               Default(`${reconBaseURL}/overview/staging_entries?${queryParams}`)
             | None => Default(`${reconBaseURL}/overview/staging_entries`)
             }
+          | _ => Default("")
+          }
+        | #RECON_ENGINE_STATUS =>
+          switch methodType {
+          | Get => Default(`${reconBaseURL}/business_profiles/${profileId}/recon_engine/status`)
           | _ => Default("")
           }
         | #NONE => Default("")
