@@ -668,7 +668,7 @@ let generateDropdownOptionsCustomComponent = (
             item.productType
             ->Option.getOr(ProductTypes.Orchestration(UserInfoTypes.V1))
             ->ProductUtils.getProductDisplayName
-          Some((displayName->isEmptyString ? "Others" : displayName)->String.toUpperCase)
+          Some(displayName->getNonEmptyString->Option.getOr("Others")->String.toUpperCase)
         } else {
           None
         }

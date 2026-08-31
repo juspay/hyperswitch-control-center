@@ -18,6 +18,17 @@ let getProductVariantFromString = (product, ~version: UserInfoTypes.version) => 
   }
 }
 
+let productSortOrder = [
+  Orchestration(V1),
+  Orchestration(V2),
+  Recon(V1),
+  Recon(V2),
+  Recovery,
+  Vault,
+  CostObservability,
+  DynamicRouting,
+]
+
 let getProductDisplayName = product =>
   switch product {
   | Recon(V2) => "Recon"
