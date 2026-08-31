@@ -83,8 +83,7 @@ let isMetadataValue = (v: value): bool =>
   | _ => false
   }
 
-let operatorToBEKey = (operator: operator): string =>
-  operator->Identity.genericTypeToJson->getStringFromJson("")
+let operatorToBEKey = (operator: operator): string => (operator :> string)
 
 let valueTypeKey = (v: value): string =>
   v->Identity.genericTypeToJson->getDictFromJsonObject->getString("type", "")
@@ -381,17 +380,6 @@ let connectorSelectionError = (selectionJson: JSON.t) =>
     }
   }
 
-let requiredTextError = (value: string, ~label: string, ~maxLength: int): option<string> => {
-  let trimmed = value->String.trim
-  if trimmed->isEmptyString {
-    Some(`Please provide ${label}`)
-  } else if trimmed->String.length > maxLength {
-    Some(`${label} cannot exceed ${maxLength->Int.toString} characters`)
-  } else {
-    None
-  }
-}
-
 let setErrorIfPresent = (errors, key, errorOpt) =>
   switch errorOpt {
   | Some(err) => errors->Dict.set(key, err->JSON.Encode.string)
@@ -402,13 +390,10 @@ let validate = (values: JSON.t): JSON.t => {
   let errors = Dict.make()
   let dict = values->getDictFromJsonObject
 
-  errors->setErrorIfPresent(
-    "name",
-    dict->getString("name", "")->requiredTextError(~label="Configuration Name", ~maxLength=64),
-  )
-  errors->setErrorIfPresent(
-    "description",
-    dict->getString("description", "")->requiredTextError(~label="Description", ~maxLength=256),
+  AdvancedRoutingUtils.validateNameAndDescription(
+    ~dict,
+    ~errors,
+    ~validateFields=[Name, Description],
   )
 
   let rules = dict->getDictFromNestedDict("algorithm", "data")->getArrayFromDict("rules", [])

@@ -179,11 +179,7 @@ module ValueInput = {
   @react.component
   let make = (~prefix) => {
     let lhs = ReactFinalForm.useField(`${prefix}.lhs`).input.value->getStringFromJson("")
-    let enumArrayType =
-      EnumMany({value: []})
-      ->Identity.genericTypeToJson
-      ->getDictFromJsonObject
-      ->getString("type", "")
+    let enumArrayType = EnumMany({value: []})->valueTypeKey
     let valueType =
       ReactFinalForm.useField(`${prefix}.value.type`).input.value->getStringFromJson("")
     let variantType = variantTypeOfLhs(lhs)
@@ -620,7 +616,9 @@ module ConditionSummaryView = {
     let valueJson = valueDict->Dict.get("value")->Option.getOr(JSON.Encode.null)
     let opLabel = operatorLabelForStoredValue(~lhs, ~comparison=cmpStr, ~valueType=vType)
     let metadataKey =
-      vType === "metadata_variant" ? valueJson->getDictFromJsonObject->getString("key", "") : ""
+      vType === MetadataValue({value: {key: "", value: ""}})->valueTypeKey
+        ? valueJson->getDictFromJsonObject->getString("key", "")
+        : ""
     let valueText = switch valueJson->JSON.Classify.classify {
     | Array(arr) => arr->Array.joinWithUnsafe(", ")
     | String(s) => s
@@ -670,7 +668,9 @@ module RuleSummary = {
               <div
                 className="flex flex-wrap items-center gap-2 rounded-lg bg-nd_gray-25 border border-nd_gray-50 px-3 py-2">
                 {conditions
-                ->Array.mapWithIndex((cond, ci) => <ConditionSummaryView cond condIndex=ci />)
+                ->Array.mapWithIndex((cond, ci) =>
+                  <ConditionSummaryView key={ci->Int.toString} cond condIndex=ci />
+                )
                 ->React.array}
               </div>
             </div>
