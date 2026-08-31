@@ -100,13 +100,45 @@ let toBlendPreset = (
 let formatIsoToFormat = (date: Date.t, format: string) =>
   date->Date.toISOString->TimeZoneHook.formattedISOString(format)
 
-let clampEndDate = (~dateRangeLimit, ~startDate, ~endDate) =>
-  dateRangeLimit->mapOptionOrDefault((endDate, None), days => {
-    let maxEndDate = (startDate->DayJs.getDayJsForJsDate).add(days, "day").toDate()
-    endDate->Date.getTime > maxEndDate->Date.getTime
-      ? (maxEndDate, Some(`Date range should not exceed ${days->Int.toString} days`))
-      : (endDate, None)
-  })
+// Widest span a preset can cover, in days (maxRangeDays doesn't filter presets).
+let presetSpanDays = (day: DateRangeUtils.customDateRange) => {
+  let now = Date.make()
+  switch day {
+  | Today | Yesterday | Tomorrow => 1.
+  | ThisMonth => now->Date.getDate->Int.toFloat
+  | LastMonth =>
+    Date.makeWithYMD(~year=now->Date.getFullYear, ~month=now->Date.getMonth, ~date=0)
+    ->Date.getDate
+    ->Int.toFloat
+  | NextMonth =>
+    Date.makeWithYMD(~year=now->Date.getFullYear, ~month=now->Date.getMonth + 2, ~date=0)
+    ->Date.getDate
+    ->Int.toFloat
+  | LastSixMonths => {
+      let sixMonthsAgo = Date.make()
+      Date.setMonth(sixMonthsAgo, Date.getMonth(sixMonthsAgo) - 6)
+      getDaysDiffForDates(~startDate=sixMonthsAgo->Date.getTime, ~endDate=now->Date.getTime)
+    }
+  | Hour(x) => x /. 24.
+  | Day(x) => x
+  }
+}
+
+let filterPresetsByLimit = (predefinedDays, dateRangeLimit) =>
+  dateRangeLimit->mapOptionOrDefault(predefinedDays, limit =>
+    predefinedDays->Array.filter(day => presetSpanDays(day) <= limit->Int.toFloat)
+  )
+
+// blend's maxRangeDays allows diff == max, so it spans one day more than dateRangeLimit.
+let toMaxRangeDays = dateRangeLimit => dateRangeLimit->Option.map(limit => limit - 1)
+
+let allowedRangeBounds = (allowedDateRange: option<Calendar.dateObj>) => {
+  let toDate = s => s->getNonEmptyString->Option.map(Date.fromString)
+  (
+    allowedDateRange->Option.flatMap(r => r.startDate->toDate),
+    allowedDateRange->Option.flatMap(r => r.endDate->toDate),
+  )
+}
 
 module BlendDateRangePicker = {
   @react.component
@@ -120,10 +152,10 @@ module BlendDateRangePicker = {
     ~predefinedDays: array<DateRangeUtils.customDateRange>,
     ~format: string,
     ~dateRangeLimit: option<int>,
+    ~allowedDateRange: option<Calendar.dateObj>,
   ) => {
     let startInput = useField(startKey).input
     let endInput = useField(endKey).input
-    let showToast = ToastAdapter.useShowToast()
     let blendValue = switch (
       startInput.value->getStringFromJson("")->getNonEmptyString,
       endInput.value->getStringFromJson("")->getNonEmptyString,
@@ -141,19 +173,19 @@ module BlendDateRangePicker = {
     }
 
     let handleChange = React.useCallback((range: DateRangePickerBinding.dateRange) => {
-      let (endDate, limitMessage) = clampEndDate(
-        ~dateRangeLimit,
-        ~startDate=range.startDate,
-        ~endDate=range.endDate->Option.getOr(range.startDate),
-      )
+      let endDate = range.endDate->Option.getOr(range.startDate)
       startInput.onChange(
         formatIsoToFormat(range.startDate, format)->Identity.stringToFormReactEvent,
       )
       endInput.onChange(formatIsoToFormat(endDate, format)->Identity.stringToFormReactEvent)
-      limitMessage->Option.forEach(message => showToast(~message, ~toastType=ToastState.ToastError))
-    }, (startInput.onChange, endInput.onChange, format, dateRangeLimit, showToast))
+    }, (startInput.onChange, endInput.onChange, format))
 
-    let customPresets = predefinedDays->Array.map(day => toBlendPreset(day, ~disableFutureDates))
+    let customPresets =
+      predefinedDays
+      ->filterPresetsByLimit(dateRangeLimit)
+      ->Array.map(day => toBlendPreset(day, ~disableFutureDates))
+
+    let (minDate, maxDate) = allowedRangeBounds(allowedDateRange)
 
     let formatConfig = showTime ? None : Some({DateRangePickerBinding.includeTime: false})
 
@@ -165,6 +197,9 @@ module BlendDateRangePicker = {
       disableFutureDates
       disablePastDates
       customPresets
+      maxRangeDays=?{dateRangeLimit->toMaxRangeDays}
+      ?minDate
+      ?maxDate
       ?formatConfig
     />
   }
@@ -211,6 +246,7 @@ let make = (
         predefinedDays
         format
         dateRangeLimit
+        allowedDateRange
       />
     </RenderIf>
     <RenderIf condition={!isBlendEnabled}>

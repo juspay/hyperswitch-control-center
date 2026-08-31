@@ -18,6 +18,20 @@ const setBlocklistFeatureFlag = async (page: Page, enabled: boolean) => {
   });
 };
 
+const openBlocklistTab = async (page: Page) => {
+  const homePage = new HomePage(page);
+  const blocklist = new Blocklist(page);
+
+  await homePage.developer.click();
+  await homePage.paymentSettings.click();
+  await expect(page).toHaveURL(/.*dashboard\/payment-settings/);
+
+  await expect(blocklist.tab).toBeVisible();
+  await blocklist.tab.click();
+
+  return blocklist;
+};
+
 const makeBlocklistJob = (jobId: string) => ({
   job_id: jobId,
   merchant_id: "merchant_test",
@@ -59,14 +73,8 @@ test.describe("Blocklist", () => {
       });
     });
 
-    const homePage = new HomePage(page);
-    const blocklist = new Blocklist(page);
+    const blocklist = await openBlocklistTab(page);
 
-    await homePage.developer.click();
-    await expect(homePage.blocklist).toBeVisible();
-    await homePage.blocklist.click();
-
-    await expect(page).toHaveURL(/.*dashboard\/blocklist/);
     await expect(blocklist.pageHeading).toBeVisible();
     await expect(blocklist.uploadCsvHeading).toBeVisible();
     await expect(blocklist.uploadFileText).toBeVisible();
@@ -75,7 +83,7 @@ test.describe("Blocklist", () => {
     await expect(blocklist.downloadSampleFileButton).toBeVisible();
     await expect(blocklist.chooseFileButton).toHaveCount(1);
     await expect(blocklist.chooseFileButton).toBeVisible();
-    await expect(blocklist.emptyState).toBeVisible();
+    await expect(blocklist.jobsTable).toBeHidden();
     await expect(page.getByText("CSV sample format")).toBeHidden();
     await expect(page.getByText("type,data,metadata")).toBeHidden();
   });
@@ -91,11 +99,7 @@ test.describe("Blocklist", () => {
       });
     });
 
-    const homePage = new HomePage(page);
-    const blocklist = new Blocklist(page);
-
-    await homePage.developer.click();
-    await homePage.blocklist.click();
+    const blocklist = await openBlocklistTab(page);
 
     const [download] = await Promise.all([
       page.waitForEvent("download"),
@@ -161,11 +165,7 @@ test.describe("Blocklist", () => {
       }
     });
 
-    const homePage = new HomePage(page);
-    const blocklist = new Blocklist(page);
-
-    await homePage.developer.click();
-    await homePage.blocklist.click();
+    const blocklist = await openBlocklistTab(page);
 
     await blocklist.fileInput.setInputFiles({
       name: "blocklist.csv",
@@ -228,10 +228,7 @@ test.describe("Blocklist", () => {
       });
     });
 
-    const homePage = new HomePage(page);
-
-    await homePage.developer.click();
-    await homePage.blocklist.click();
+    await openBlocklistTab(page);
     await expect(page.getByText("blkbatch_01")).toBeVisible();
 
     await page.getByRole("button", { name: "2", exact: true }).click();
@@ -262,11 +259,7 @@ test.describe("Blocklist", () => {
       }
     });
 
-    const homePage = new HomePage(page);
-    const blocklist = new Blocklist(page);
-
-    await homePage.developer.click();
-    await homePage.blocklist.click();
+    const blocklist = await openBlocklistTab(page);
 
     await blocklist.fileInput.setInputFiles({
       name: "blocklist.csv",
@@ -290,11 +283,7 @@ test.describe("Blocklist", () => {
       });
     });
 
-    const homePage = new HomePage(page);
-    const blocklist = new Blocklist(page);
-
-    await homePage.developer.click();
-    await homePage.blocklist.click();
+    const blocklist = await openBlocklistTab(page);
 
     await blocklist.fileInput.setInputFiles({
       name: "blocklist.csv",
@@ -318,11 +307,7 @@ test.describe("Blocklist", () => {
       });
     });
 
-    const homePage = new HomePage(page);
-    const blocklist = new Blocklist(page);
-
-    await homePage.developer.click();
-    await homePage.blocklist.click();
+    const blocklist = await openBlocklistTab(page);
 
     await blocklist.fileInput.setInputFiles({
       name: "blocklist.csv",
@@ -358,11 +343,7 @@ test.describe("Blocklist", () => {
       });
     });
 
-    const homePage = new HomePage(page);
-    const blocklist = new Blocklist(page);
-
-    await homePage.developer.click();
-    await homePage.blocklist.click();
+    const blocklist = await openBlocklistTab(page);
 
     await blocklist.fileInput.setInputFiles({
       name: "blocklist.csv",
@@ -384,11 +365,7 @@ test.describe("Blocklist", () => {
       });
     });
 
-    const homePage = new HomePage(page);
-    const blocklist = new Blocklist(page);
-
-    await homePage.developer.click();
-    await homePage.blocklist.click();
+    const blocklist = await openBlocklistTab(page);
 
     await blocklist.fileInput.setInputFiles({
       name: "blocklist.csv",
@@ -413,11 +390,7 @@ test.describe("Blocklist", () => {
       });
     });
 
-    const homePage = new HomePage(page);
-    const blocklist = new Blocklist(page);
-
-    await homePage.developer.click();
-    await homePage.blocklist.click();
+    const blocklist = await openBlocklistTab(page);
 
     await blocklist.fileInput.setInputFiles({
       name: "blocklist.csv",
@@ -437,11 +410,7 @@ test.describe("Blocklist", () => {
       });
     });
 
-    const homePage = new HomePage(page);
-    const blocklist = new Blocklist(page);
-
-    await homePage.developer.click();
-    await homePage.blocklist.click();
+    const blocklist = await openBlocklistTab(page);
 
     await blocklist.fileInput.setInputFiles({
       name: "blocklist.csv",
@@ -459,7 +428,7 @@ test.describe("Blocklist", () => {
 });
 
 test.describe("Blocklist feature flag", () => {
-  test("should hide sidebar link and block direct route when feature flag is off", async ({
+  test("should hide the blocklist tab when feature flag is off", async ({
     page,
   }) => {
     const email = generateUniqueEmail();
@@ -471,9 +440,10 @@ test.describe("Blocklist feature flag", () => {
     const blocklist = new Blocklist(page);
 
     await homePage.developer.click();
-    await expect(homePage.blocklist).toBeHidden();
+    await homePage.paymentSettings.click();
+    await expect(page).toHaveURL(/.*dashboard\/payment-settings/);
 
-    await page.goto("/dashboard/blocklist");
+    await expect(blocklist.tab).toBeHidden();
     await expect(blocklist.pageHeading).toBeHidden();
   });
 });

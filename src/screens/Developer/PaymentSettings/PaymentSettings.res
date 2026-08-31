@@ -53,6 +53,11 @@ let make = () => {
     renderContent: () => <PaymentSettingsDomainName />,
   }
 
+  let blocklistTab: Tabs.tab = {
+    title: "Block List",
+    renderContent: () => <Blocklist />,
+  }
+
   let additionalTabs: array<Tabs.tab> = [
     {
       title: "Custom Headers",
@@ -82,6 +87,10 @@ let make = () => {
 
     if version == V1 && featureFlagDetails.surchargeProcessor && isBusinessProfileHasSurcharge {
       baseTabs->Array.push(surchargeTab)
+    }
+
+    if version == V1 && featureFlagDetails.devBlocklist {
+      baseTabs->Array.push(blocklistTab)
     }
 
     baseTabs->Array.pushMany(additionalTabs)
