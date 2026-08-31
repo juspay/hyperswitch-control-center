@@ -7,17 +7,17 @@ let make = (~setAppScreenState) => {
   open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
   let (surveyModal, setSurveyModal) = React.useState(_ => false)
-  let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
-  let hasMerchantAccountAccess =
-    hasAnyGroupAccess(
-      userHasAccess(~groupAccess=MerchantDetailsView),
-      userHasAccess(~groupAccess=AccountView),
-    ) === Access
+  let hasMerchantAccountAccess = userHasAccess(~groupAccess=AccountView) === Access
   let fetchMerchantDetails = MerchantDetailsHook.useFetchMerchantDetails(~showErrorToast=false)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  // merchant_name isn't in the bootstrap payload, so don't read it until the fetch lands
+  let (isMerchantDetailsLoaded, setIsMerchantDetailsLoaded) = React.useState(_ =>
+    merchantDetailsTypedValue.publishable_key->LogicUtils.isNonEmptyString
+  )
 
   React.useEffect(() => {
     if (
@@ -27,6 +27,7 @@ let make = (~setAppScreenState) => {
       let loadDetails = async () => {
         try {
           let _ = await fetchMerchantDetails(~version)
+          setIsMerchantDetailsLoaded(_ => true)
         } catch {
         | _ => ()
         }
@@ -44,12 +45,9 @@ let make = (~setAppScreenState) => {
     }}
     <RenderIf
       condition={!featureFlagDetails.isLiveMode &&
-      // TODO: Remove `MerchantDetailsManage` permission in future
-      hasAnyGroupAccess(
-        userHasAccess(~groupAccess=MerchantDetailsManage),
-        userHasAccess(~groupAccess=AccountManage),
-      ) === Access &&
+      userHasAccess(~groupAccess=AccountManage) === Access &&
       !checkUserEntity([#Profile]) &&
+      isMerchantDetailsLoaded &&
       merchantDetailsTypedValue.merchant_name->Option.isNone}>
       <SbxOnboardingSurvey showModal=surveyModal setShowModal=setSurveyModal />
     </RenderIf>
