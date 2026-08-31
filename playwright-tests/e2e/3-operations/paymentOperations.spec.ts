@@ -1216,7 +1216,7 @@ test.describe("Payment Operations", () => {
       });
 
       const advancedListPayloads: string[] = [];
-      await page.route("**/api/payments/advanced/list", async (route) => {
+      await page.route("**/payments/advanced/list", async (route) => {
         advancedListPayloads.push(route.request().postData() ?? "");
         await route.fulfill({
           status: 200,
