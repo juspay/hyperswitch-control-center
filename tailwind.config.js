@@ -116,6 +116,9 @@ module.exports = {
         "50-vh": "50vh",
         "80-vh": "80vh",
       },
+      zIndex: {
+        "above-blend-menu": "1200",
+      },
       inset: {
         "3-px": "3px",
         "5-px": "5px",

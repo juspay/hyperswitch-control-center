@@ -1199,3 +1199,20 @@ let ruleAccountsOverviewMapper: Dict.t<JSON.t> => ruleAccountsOverview = dict =>
     ->Array.map(account => account->getDictFromJsonObject->accountStatusOverviewMapper),
   }
 }
+
+let getReconProcessorStatusVariantFromString = (status: string): reconProcessorStatus => {
+  switch status->String.toLowerCase {
+  | "running" => Running
+  | "stopped" => Stopped
+  | _ => UnknownReconProcessorStatus
+  }
+}
+
+let reconEngineStatusItemToObjMapper = (dict): reconEngineStatusType => {
+  {
+    processor_status: dict
+    ->getString("processor_status", "")
+    ->getReconProcessorStatusVariantFromString,
+    pending_staging_entries: dict->getInt("pending_staging_entries", 0),
+  }
+}

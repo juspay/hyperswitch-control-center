@@ -170,6 +170,7 @@ module BaseDropdown = {
             side=?blendSide
             minMenuWidth={minMenuWidth->Option.getOr(300)}
             maxMenuWidth={maxMenuWidth->Option.getOr(300)}
+            menuFooter=?bottomComponent
           />
         }
       </RenderIf>
@@ -197,6 +198,7 @@ module BaseDropdown = {
             side=?blendSide
             ?minMenuWidth
             ?maxMenuWidth
+            menuFooter=?bottomComponent
           />
         }
       </RenderIf>
