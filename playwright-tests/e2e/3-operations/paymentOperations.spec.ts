@@ -1200,6 +1200,181 @@ test.describe("Payment Operations", () => {
     });
   });
 
+  test.describe("Advanced list filters", () => {
+    // A value these typed fields reject comes back as a 400, which collapses the list into the
+    // generic error screen, so the UI has to catch it before the request goes out.
+    const goToAdvancedList = async (page: Page) => {
+      await page.route("**/dashboard/config/feature?domain=", async (route) => {
+        const response = await route.fetch();
+        const json = await response.json();
+        json.features = {
+          ...json.features,
+          dev_opensearch: true,
+          dev_advanced_payments_view: true,
+        };
+        await route.fulfill({ response, json });
+      });
+
+      const advancedListPayloads: string[] = [];
+      await page.route("**/api/payments/advanced/list", async (route) => {
+        advancedListPayloads.push(route.request().postData() ?? "");
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ count: 0, total_count: 0, data: [] }),
+        });
+      });
+
+      await page.reload();
+
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+      await paymentOperations.advancedSourceTab.click();
+      await expect
+        .poll(() => advancedListPayloads.length)
+        .toBeGreaterThanOrEqual(1);
+
+      return { paymentOperations, advancedListPayloads };
+    };
+
+    const addFilter = async (
+      page: Page,
+      paymentOperations: PaymentOperations,
+      name: string,
+    ) => {
+      await paymentOperations.addFilters.click();
+      await page.getByRole("menuitem", { name }).click({ force: true });
+    };
+
+    test("should reject an invalid customer ID without calling the list API", async ({
+      page,
+    }) => {
+      const { paymentOperations, advancedListPayloads } =
+        await goToAdvancedList(page);
+
+      await addFilter(page, paymentOperations, "Customer Id");
+      const requestsBefore = advancedListPayloads.length;
+
+      await paymentOperations.customerIdInput.fill("abc def@#");
+      await page.keyboard.press("Enter");
+
+      await expect(
+        paymentOperations.filterFieldError(
+          'Customer ID cannot contain " ". Use letters, numbers, hyphens or underscores.',
+        ),
+      ).toBeVisible();
+      expect(advancedListPayloads.length).toBe(requestsBefore);
+
+      await paymentOperations.customerIdInput.fill("cus_valid-123");
+      await page.keyboard.press("Enter");
+
+      await expect
+        .poll(() => advancedListPayloads.length)
+        .toBeGreaterThan(requestsBefore);
+      expect(advancedListPayloads.at(-1)).toContain(
+        '"customer_id":"cus_valid-123"',
+      );
+    });
+
+    test("should reject a customer ID longer than 64 characters", async ({
+      page,
+    }) => {
+      const { paymentOperations, advancedListPayloads } =
+        await goToAdvancedList(page);
+
+      await addFilter(page, paymentOperations, "Customer Id");
+      const requestsBefore = advancedListPayloads.length;
+
+      await paymentOperations.customerIdInput.fill("a".repeat(65));
+      await page.keyboard.press("Enter");
+
+      await expect(
+        paymentOperations.filterFieldError(
+          "Customer ID cannot be longer than 64 characters.",
+        ),
+      ).toBeVisible();
+      expect(advancedListPayloads.length).toBe(requestsBefore);
+    });
+
+    test("should reject a malformed customer email without calling the list API", async ({
+      page,
+    }) => {
+      const { paymentOperations, advancedListPayloads } =
+        await goToAdvancedList(page);
+
+      await addFilter(page, paymentOperations, "Customer Email");
+      const requestsBefore = advancedListPayloads.length;
+
+      await paymentOperations.customerEmailInput.fill("notanemail");
+      await page.keyboard.press("Enter");
+
+      await expect(
+        paymentOperations.filterFieldError(
+          "Enter a valid email address, for example name@example.com.",
+        ),
+      ).toBeVisible();
+      expect(advancedListPayloads.length).toBe(requestsBefore);
+
+      await paymentOperations.customerEmailInput.fill("buyer@example.com");
+      await page.keyboard.press("Enter");
+
+      await expect
+        .poll(() => advancedListPayloads.length)
+        .toBeGreaterThan(requestsBefore);
+      expect(advancedListPayloads.at(-1)).toContain(
+        '"customer_email":"buyer@example.com"',
+      );
+    });
+
+    test("should require exactly four digits for the card last 4 filter", async ({
+      page,
+    }) => {
+      const { paymentOperations, advancedListPayloads } =
+        await goToAdvancedList(page);
+
+      await addFilter(page, paymentOperations, "Card Last 4");
+      const requestsBefore = advancedListPayloads.length;
+
+      await paymentOperations.cardLast4Input.fill("abcd");
+      await page.keyboard.press("Enter");
+
+      await expect(
+        paymentOperations.filterFieldError(
+          "Enter the last 4 digits of the card.",
+        ),
+      ).toBeVisible();
+      expect(advancedListPayloads.length).toBe(requestsBefore);
+
+      await paymentOperations.cardLast4Input.fill("4242");
+      await page.keyboard.press("Enter");
+
+      await expect
+        .poll(() => advancedListPayloads.length)
+        .toBeGreaterThan(requestsBefore);
+      expect(advancedListPayloads.at(-1)).toContain('"card_last_4":["4242"]');
+    });
+
+    test("should send search text that only looks like a payment ID as a free-text query", async ({
+      page,
+    }) => {
+      const { paymentOperations, advancedListPayloads } =
+        await goToAdvancedList(page);
+      const requestsBefore = advancedListPayloads.length;
+
+      await paymentOperations.searchBox.fill("pay_abc def!!");
+      await page.keyboard.press("Enter");
+
+      await expect
+        .poll(() => advancedListPayloads.length)
+        .toBeGreaterThan(requestsBefore);
+      const payload = advancedListPayloads.at(-1) ?? "";
+      expect(payload).toContain('"query":"pay_abc def!!"');
+      expect(payload).not.toContain('"payment_id"');
+    });
+  });
+
   test.describe("Saved Views", () => {
     test("should keep transaction filter controls visible and hide saved views when the feature flag is off", async ({
       page,

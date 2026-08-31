@@ -242,6 +242,23 @@ export class PaymentOperations {
     return this.page.locator('[name="merchant_order_reference_id"]');
   }
 
+  get customerEmailInput(): Locator {
+    return this.page.locator('[name="customer_email"]');
+  }
+
+  get cardLast4Input(): Locator {
+    return this.page.locator('[name="card_last_4"]');
+  }
+
+  // Advanced payments list
+  get advancedSourceTab(): Locator {
+    return this.page.getByText("Advanced", { exact: true });
+  }
+
+  filterFieldError(message: string): Locator {
+    return this.page.getByText(message, { exact: true });
+  }
+
   // Toasts
   get emailSentToast(): Locator {
     return this.page.locator('[data-id="Email Sent"]');
