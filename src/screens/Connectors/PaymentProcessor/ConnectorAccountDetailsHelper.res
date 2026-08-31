@@ -44,6 +44,24 @@ let multiValueInput = (~label, ~fieldName1, ~fieldName2) => {
   )
 }
 
+let pemInput = (~isDisabled) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder) => {
+  let input = {
+    ...input,
+    onBlur: ev => {
+      let value = input.value->LogicUtils.getStringFromJson("")
+      let normalizedValue = value->ConnectorUtils.getNormalizedPemValue
+      if normalizedValue != value {
+        input.onChange(normalizedValue->Identity.stringToFormReactEvent)
+      }
+      input.onBlur(ev)
+    },
+  }
+  InputFields.multiLineTextInput(~isDisabled, ~rows=Some(6), ~cols=None, ~customClass="w-full")(
+    ~input,
+    ~placeholder,
+  )
+}
+
 let inputField = (
   ~name,
   ~field,
@@ -61,7 +79,9 @@ let inputField = (
     ~name,
     ~description,
     ~toolTipPosition,
-    ~customInput=InputFields.textInput(~isDisabled=disabled),
+    ~customInput=connector->ConnectorUtils.checkIsMultiLineField(field)
+      ? pemInput(~isDisabled=disabled)
+      : InputFields.textInput(~isDisabled=disabled),
     ~placeholder=switch getPlaceholder {
     | Some(fun) => fun(label)
     | None => `Enter ${label->LogicUtils.snakeToTitle}`

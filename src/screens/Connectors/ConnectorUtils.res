@@ -1860,6 +1860,24 @@ let checkAuthKeyMapRequiredFields = (connector: connectorTypes, fieldName) => {
   }
 }
 
+// PEM credentials, a single line input strips their newlines on paste
+let checkIsMultiLineField = (connector: connectorTypes, fieldName: string) => {
+  switch (connector, fieldName) {
+  | (PayoutProcessor(DEUTSCHEBANK), "api_secret" | "key2") => true
+  | _ => false
+  }
+}
+
+// Escaped newlines and indentation carried over by a copied value break strict PEM parsing
+let getNormalizedPemValue = value =>
+  value
+  ->stringReplaceAll("\\r\\n", "\n")
+  ->stringReplaceAll("\\n", "\n")
+  ->String.split("\n")
+  ->Array.map(String.trim)
+  ->Array.joinWith("\n")
+  ->String.trim
+
 let getAuthKeyMapFromConnectorAccountFields = connectorAccountFields => {
   let authKeyMap =
     connectorAccountFields
