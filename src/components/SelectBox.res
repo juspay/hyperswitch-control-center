@@ -1315,28 +1315,44 @@ let getHashMappedOptionValues = (options: array<dropdownOptionWithoutOptional>) 
   hashMappedOptions
 }
 
-let getSortedKeys = (hashMappedOptions, ~reverseSort=false, ~customSortOrder=?) => {
+let getSortedKeys = (
+  hashMappedOptions,
+  ~reverseSort=false,
+  ~customSortOrder=?,
+  ~selectedGroup=?,
+) => {
   let keys = hashMappedOptions->Dict.keysToArray
+  let isSelectedGroup = key => selectedGroup->Option.mapOr(false, group => group === key)
 
   switch customSortOrder {
   | Some(order) =>
     keys->Array.toSorted((a, b) => {
-      let aIndex = order->Array.findIndex(item => item === a)
-      let bIndex = order->Array.findIndex(item => item === b)
+      switch (a->isSelectedGroup, b->isSelectedGroup) {
+      | (true, false) => -1.
+      | (false, true) => 1.
+      | (_, _) =>
+        let aIndex = order->Array.findIndex(item => item === a)
+        let bIndex = order->Array.findIndex(item => item === b)
 
-      switch (aIndex, bIndex) {
-      | (-1, -1) => String.compare(a, b)
-      | (-1, _) => 1.
-      | (_, -1) => -1.
-      | (_, _) => Float.fromInt(aIndex - bIndex)
+        switch (aIndex, bIndex) {
+        | (-1, -1) => String.compare(a, b)
+        | (-1, _) => 1.
+        | (_, -1) => -1.
+        | (_, _) => Float.fromInt(aIndex - bIndex)
+        }
       }
     })
   | None =>
     keys->Array.toSorted((a, b) => {
-      switch (a, b) {
-      | ("-", _) => 1.
-      | (_, "-") => -1.
-      | (_, _) => reverseSort ? String.compare(b, a) : String.compare(a, b)
+      switch (a->isSelectedGroup, b->isSelectedGroup) {
+      | (true, false) => -1.
+      | (false, true) => 1.
+      | (_, _) =>
+        switch (a, b) {
+        | ("-", _) => 1.
+        | (_, "-") => -1.
+        | (_, _) => reverseSort ? String.compare(b, a) : String.compare(a, b)
+        }
       }
     })
   }
@@ -1399,8 +1415,22 @@ module BaseRadio = {
     let isNonGrouped =
       hashMappedOptions->Dict.get("-")->Option.getOr([])->Array.length === options->Array.length
 
+    let selectedGroup = if shouldDisplaySelectedOnTop {
+      value
+      ->JSON.Decode.string
+      ->Option.flatMap(str => options->Array.find(option => option.value === str))
+      ->Option.map(option => option.optGroup)
+    } else {
+      None
+    }
+
     let (optgroupKeys, setOptgroupKeys) = React.useState(_ =>
-      getSortedKeys(hashMappedOptions, ~reverseSort=reverseSortGroupKeys, ~customSortOrder?)
+      getSortedKeys(
+        hashMappedOptions,
+        ~reverseSort=reverseSortGroupKeys,
+        ~customSortOrder?,
+        ~selectedGroup?,
+      )
     )
 
     let (searchString, setSearchString) = React.useState(() => "")
@@ -1513,13 +1543,19 @@ module BaseRadio = {
             hashMappedSearchedOptions,
             ~reverseSort=reverseSortGroupKeys,
             ~customSortOrder?,
+            ~selectedGroup?,
           )
           setOptgroupKeys(_ => optgroupKeysForSearch)
           options
         }
       } else {
         setOptgroupKeys(_ =>
-          getSortedKeys(hashMappedOptions, ~reverseSort=reverseSortGroupKeys, ~customSortOrder?)
+          getSortedKeys(
+            hashMappedOptions,
+            ~reverseSort=reverseSortGroupKeys,
+            ~customSortOrder?,
+            ~selectedGroup?,
+          )
         )
         options
       }
