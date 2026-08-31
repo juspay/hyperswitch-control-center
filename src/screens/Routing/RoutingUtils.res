@@ -273,6 +273,43 @@ let filterConnectorList = (
   )
 }
 
+let decisionEngineHandoffFragment = (
+  connectorList: array<ConnectorTypes.connectorPayloadCommonType>,
+  ~profileId,
+  ~ruleId="",
+) => {
+  let connectors =
+    connectorList
+    ->filterConnectorList(~retainInList=PaymentConnector)
+    ->Array.filter(connector =>
+      connector.profile_id === profileId &&
+      !connector.disabled &&
+      connector.connector_name !== "applepay"
+    )
+    ->Array.map(connector =>
+      [
+        ("merchant_connector_id", connector.id->JSON.Encode.string),
+        ("connector_name", connector.connector_name->JSON.Encode.string),
+        ("connector_label", connector.connector_label->JSON.Encode.string),
+      ]->getJsonFromArrayOfJson
+    )
+
+  let params = []
+  if connectors->isNonEmptyArray {
+    params->Array.push((
+      "connectors",
+      connectors->JSON.Encode.array->JSON.stringify->encodeURIComponent,
+    ))
+  }
+  if ruleId->isNonEmptyString {
+    params->Array.push(("rule_id", ruleId->encodeURIComponent))
+  }
+
+  params->isEmptyArray
+    ? ""
+    : `#${params->Array.map(((key, value)) => `${key}=${value}`)->Array.joinWith("&")}`
+}
+
 let filterConnectorListJson = (json, ~retainInList) => {
   json
   ->getArrayFromJson([])

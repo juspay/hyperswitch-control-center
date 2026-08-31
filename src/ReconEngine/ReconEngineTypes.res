@@ -274,6 +274,7 @@ type transactionType = {
   created_at: string,
   effective_at: string,
   data: transactionDataType,
+  discarded_data: option<transactionDataType>,
   linked_transaction: option<linkedTransactionType>,
   modified_by: option<modifiedByType>,
   has_more_entries: bool,
@@ -426,6 +427,7 @@ type majorUnitTransformationRule =
 type dateTimeTransformationRule =
   | DateTimeTrim
   | DateTimeJsonExtract(string)
+  | DateTimeRegex({pattern: string, group: option<int>})
   | UnknownDateTimeTransformationRule
 
 type enumTransformationRule =
@@ -634,4 +636,14 @@ type cursors = {
 type cursorPage<'item> = {
   items: array<'item>,
   cursors: cursors,
+}
+
+type reconProcessorStatus =
+  | Running
+  | Stopped
+  | UnknownReconProcessorStatus
+
+type reconEngineStatusType = {
+  processor_status: reconProcessorStatus,
+  pending_staging_entries: int,
 }

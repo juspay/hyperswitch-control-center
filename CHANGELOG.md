@@ -3,6 +3,40 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.08.28.0
+
+### Features
+
+- Add cursor pagination in transaction details page ([#5441](https://github.com/juspay/hyperswitch-control-center/pull/5441)) ([`d170eef`](https://github.com/juspay/hyperswitch-control-center/commit/d170eef6897b5a8924494dcf61bd13112e67a66b))
+- Add status bar for recon engine ([#5470](https://github.com/juspay/hyperswitch-control-center/pull/5470)) ([`b41c4ec`](https://github.com/juspay/hyperswitch-control-center/commit/b41c4ec5a0ef0c47d74ce458095240393995f57b))
+- Deep-link cut-over routing to the Decision Engine with the profile's connectors ([#5466](https://github.com/juspay/hyperswitch-control-center/pull/5466)) ([`36b3c4e`](https://github.com/juspay/hyperswitch-control-center/commit/36b3c4e5ec0e123b9d33f8db333b24d317c3fd00))
+
+### Bug Fixes
+
+- Auto-select ingestion config in pipelines upload modal when only one exists ([#5447](https://github.com/juspay/hyperswitch-control-center/pull/5447)) ([`d31875b`](https://github.com/juspay/hyperswitch-control-center/commit/d31875bad6778c560792baf57877b18f1be01f3f))
+- Reason and modified by only visible after latest entry ([#5462](https://github.com/juspay/hyperswitch-control-center/pull/5462)) ([`649ee0a`](https://github.com/juspay/hyperswitch-control-center/commit/649ee0a89e0d7d3e1673b3752d14bc4172a39c9a))
+- Allow any 3-day window on the webhooks date filter ([#5468](https://github.com/juspay/hyperswitch-control-center/pull/5468)) ([`48a53cf`](https://github.com/juspay/hyperswitch-control-center/commit/48a53cf7c0f812076576ee8146b4019f6f89ea06))
+
+**Full Changelog:** [`2026.08.27.0...2026.08.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.27.0...2026.08.28.0)
+
+- - -
+
+## 2026.08.27.0
+
+### Features
+
+- Add Citigate, Ilixium and Worldpay Raft connectors in dashboard ([#5459](https://github.com/juspay/hyperswitch-control-center/pull/5459)) ([`7aeb4e6`](https://github.com/juspay/hyperswitch-control-center/commit/7aeb4e60a00e1cac650ea99e5bcafeb4ab6c3e0b))
+- Support adding and deleting single blocklist entries ([#5345](https://github.com/juspay/hyperswitch-control-center/pull/5345)) ([`2f84a92`](https://github.com/juspay/hyperswitch-control-center/commit/2f84a922c11053cfbb72ff3c11cf6daecc37f931))
+- Support regex transformation rule on recon datetime fields ([#5463](https://github.com/juspay/hyperswitch-control-center/pull/5463)) ([`9a68ec7`](https://github.com/juspay/hyperswitch-control-center/commit/9a68ec7826564330fbc4926de1a844ca9afdf3df))
+
+### Bug Fixes
+
+- Enforce blocklist CSV upload limits ([#5319](https://github.com/juspay/hyperswitch-control-center/pull/5319)) ([`85aed66`](https://github.com/juspay/hyperswitch-control-center/commit/85aed66807a25ed6866336a430c02479d56e6595))
+
+**Full Changelog:** [`2026.08.25.1...2026.08.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.25.1...2026.08.27.0)
+
+- - -
+
 ## 2026.08.25.1
 
 ### Features

@@ -488,9 +488,22 @@ let modifiedByItemToObjMapper = (dict): modifiedByType => {
   }
 }
 
+let transactionDataItemToObjMapper = (dict): transactionDataType => {
+  {
+    status: dict->getString("status", "")->getTransactionStatusVariantFromString,
+    matched_data_type: switch dict->getOptionString("matched_data_type") {
+    | Some(matchedDataType) => Some(matchedDataType->getMatchedDataTypeVariantFromString)
+    | None => None
+    },
+    reason: dict->getOptionString("reason"),
+    mismatched_fields: dict->getMismatchedFieldsFromDict,
+  }
+}
+
 let transactionItemToObjMapper = (dict): transactionType => {
   let linkedTransactionDict = dict->getDictfromDict("linked_transaction")
   let modifiedByDict = dict->getDictfromDict("modified_by")
+  let discardedDataDict = dict->getDictfromDict("discarded_data")
   {
     id: dict->getString("id", ""),
     transaction_id: dict->getString("transaction_id", ""),
@@ -504,24 +517,10 @@ let transactionItemToObjMapper = (dict): transactionType => {
     transaction_status: dict
     ->getString("status", "")
     ->getDomainTransactionStatus(dict),
-    data: {
-      status: dict
-      ->getDictfromDict("data")
-      ->getString("status", "")
-      ->getTransactionStatusVariantFromString,
-      matched_data_type: switch dict
-      ->getDictfromDict("data")
-      ->getOptionString("matched_data_type") {
-      | Some(matchedDataType) => Some(matchedDataType->getMatchedDataTypeVariantFromString)
-      | None => None
-      },
-      reason: dict
-      ->getDictfromDict("data")
-      ->getOptionString("reason"),
-      mismatched_fields: dict
-      ->getDictfromDict("data")
-      ->getMismatchedFieldsFromDict,
-    },
+    data: dict->getDictfromDict("data")->transactionDataItemToObjMapper,
+    discarded_data: discardedDataDict->isEmptyDict
+      ? None
+      : Some(discardedDataDict->transactionDataItemToObjMapper),
     discarded_status: dict
     ->getDictfromDict("discarded_status")
     ->getOptionString("status")
@@ -746,6 +745,8 @@ let dateTimeTransformationRuleMapper = (dict): dateTimeTransformationRule => {
   switch dict->getString("transformation_rule_type", "") {
   | "trim" => DateTimeTrim
   | "json_extract" => DateTimeJsonExtract(dict->getString("pointer", ""))
+  | "regex" =>
+    DateTimeRegex({pattern: dict->getString("pattern", ""), group: dict->getOptionInt("group")})
   | _ => UnknownDateTimeTransformationRule
   }
 }
@@ -1196,5 +1197,22 @@ let ruleAccountsOverviewMapper: Dict.t<JSON.t> => ruleAccountsOverview = dict =>
     accounts: dict
     ->getArrayFromDict("accounts", [])
     ->Array.map(account => account->getDictFromJsonObject->accountStatusOverviewMapper),
+  }
+}
+
+let getReconProcessorStatusVariantFromString = (status: string): reconProcessorStatus => {
+  switch status->String.toLowerCase {
+  | "running" => Running
+  | "stopped" => Stopped
+  | _ => UnknownReconProcessorStatus
+  }
+}
+
+let reconEngineStatusItemToObjMapper = (dict): reconEngineStatusType => {
+  {
+    processor_status: dict
+    ->getString("processor_status", "")
+    ->getReconProcessorStatusVariantFromString,
+    pending_staging_entries: dict->getInt("pending_staging_entries", 0),
   }
 }
