@@ -208,6 +208,23 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
     },
   },
 
+  gotyme_sanlam: {
+    label: "gotyme_sanlam",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "gotyme_sanlam_default",
+      },
+      fieldLabels: ["API Key *", "Profile Id *", "Source verification key"],
+    },
+    paymentSections: {
+      BankTransfer: {
+        label: "Bank Transfer",
+        methods: ["payshap", "payshap_proxy"],
+      },
+    },
+  },
+
   loonio: {
     label: "loonio",
     fields: {
