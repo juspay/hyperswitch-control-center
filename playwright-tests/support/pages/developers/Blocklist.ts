@@ -7,6 +7,10 @@ export class Blocklist {
     this.page = page;
   }
 
+  get tab(): Locator {
+    return this.page.getByRole("tab", { name: "Block List", exact: true });
+  }
+
   get pageHeading(): Locator {
     return this.page
       .getByText(
@@ -58,8 +62,8 @@ export class Blocklist {
     return this.page.getByRole("button", { name: "Download Sample File" });
   }
 
-  get emptyState(): Locator {
-    return this.page.getByText("No blocklist batch uploads found");
+  get jobsTable(): Locator {
+    return this.page.getByText("Job ID", { exact: true });
   }
 
   toast(message: string): Locator {
