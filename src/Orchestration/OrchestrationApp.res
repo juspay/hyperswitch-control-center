@@ -105,12 +105,6 @@ let make = (~setScreenState) => {
         isEnabled={!checkUserEntity([#Profile])}>
         <KeyManagement />
       </AccessControl>
-    | list{"blocklist"} =>
-      <AccessControl
-        isEnabled={featureFlagDetails.devBlocklist}
-        authorization={userHasAccess(~groupAccess=AccountManage)}>
-        <Blocklist />
-      </AccessControl>
     | list{"compliance"} =>
       <AccessControl isEnabled=featureFlagDetails.complianceCertificate authorization=Access>
         <Compliance />

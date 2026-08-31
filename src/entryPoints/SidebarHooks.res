@@ -25,7 +25,6 @@ let useGetHsSidebarValues = () => {
     authenticationAnalytics,
     devAltPaymentMethods,
     devWebhooks,
-    devBlocklist,
     threedsExemptionRules,
     routingAnalytics,
     billingProcessor,
@@ -92,9 +91,7 @@ let useGetHsSidebarValues = () => {
     ...standardModules,
     default->developers(
       ~isWebhooksEnabled=devWebhooks,
-      ~isBlocklistEnabled=devBlocklist,
       ~userHasResourceAccess,
-      ~userHasAccess,
       ~checkUserEntity,
       ~paymentLinkThemeConfigurator,
       ~isCurrentMerchantPlatform,

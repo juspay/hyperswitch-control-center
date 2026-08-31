@@ -9,6 +9,7 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod(~showErrorToast=false)
   let updateDetails = useUpdateMethod(~showErrorToast=false)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let showToast = ToastAdapter.useShowToast()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let mixpanelEvent = MixpanelHook.useSendEvent()
@@ -87,7 +88,7 @@ let make = () => {
   React.useEffect(() => {
     fetchJobs()->ignore
     None
-  }, [offset])
+  }, (offset, profileId))
 
   let validateFileContents = (~file, ~selectionToken, event) => {
     if fileSelectionTokenRef.current === selectionToken {
@@ -187,8 +188,6 @@ let make = () => {
     mixpanelEvent(~eventName="blocklist_upload_csv")
     uploadFile()->ignore
   }
-
-  let emptyState = <NoDataFound message="No blocklist batch uploads found" renderType=Painting />
 
   <>
     <PageUtils.PageHeading
@@ -293,20 +292,21 @@ let make = () => {
         </section>
       </div>
       <PageLoaderWrapper screenState sectionHeight="h-60-vh">
-        <LoadedTable
-          title="Blocklist"
-          hideTitle=true
-          actualData={jobs->Array.map(Nullable.make)}
-          totalResults=totalCount
-          resultsPerPage
-          offset
-          setOffset
-          currentFetchCount={jobs->Array.length}
-          entity={BlocklistTableEntity.blocklistEntity(~onRefreshJob=refreshJob)}
-          showSerialNumber=true
-          showAutoScroll=true
-          dataNotFoundComponent=emptyState
-        />
+        <RenderIf condition={jobs->isNonEmptyArray}>
+          <LoadedTable
+            title="Blocklist"
+            hideTitle=true
+            actualData={jobs->Array.map(Nullable.make)}
+            totalResults=totalCount
+            resultsPerPage
+            offset
+            setOffset
+            currentFetchCount={jobs->Array.length}
+            entity={BlocklistTableEntity.blocklistEntity(~onRefreshJob=refreshJob)}
+            showSerialNumber=true
+            showAutoScroll=true
+          />
+        </RenderIf>
       </PageLoaderWrapper>
     </div>
   </>

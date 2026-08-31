@@ -3,56 +3,64 @@ let make = (~id) => {
   open LogicUtils
   open ReconEngineTransactionsUtils
   open ReconEngineTransactionsHelper
+  open ReconEngineRulesUtils
   open APIUtils
 
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (entriesList, setEntriesList) = React.useState(_ => [
-    Dict.make()->transactionsEntryItemToObjMapperFromDict,
-  ])
   let (accountsData, setAccountsData) = React.useState(_ => [])
+  let (ruleAccountIds, setRuleAccountIds) = React.useState(_ => [])
   let (currentTransactionDetails, setCurrentTransactionDetails) = React.useState(_ =>
     Dict.make()->getTransactionsPayloadFromDict
   )
-  let (allTransactionDetails, setAllTransactionDetails) = React.useState(_ => [
-    Dict.make()->getTransactionsPayloadFromDict,
-  ])
-  let getTransactions = ReconEngineHooks.useGetTransactions()
+
+  let getTransactionsV2 = ReconEngineHooks.useGetCursorPage(
+    ~hyperswitchReconType=#TRANSACTIONS_LIST_V2,
+    ~itemMapper=ReconEngineUtils.transactionItemToObjMapper,
+  )
   let getAccounts = ReconEngineHooks.useGetAccounts()
 
   let getTransactionDetails = async _ => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let transactionsList = await getTransactions(~queryParameters=Some(`transaction_id=${id}`))
-      transactionsList->Array.sort(sortByVersion)
-      let currentTransaction =
-        transactionsList->getValueFromArray(0, Dict.make()->getTransactionsPayloadFromDict)
-      let entriesUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#PROCESSED_ENTRIES_LIST_WITH_TRANSACTION,
-        ~id=Some(currentTransaction.transaction_id),
+      let transactionsPage = await getTransactionsV2(
+        ~body=buildTransactionsV2Body(
+          ~filterValueJson=Dict.make(),
+          ~searchType=SearchTransactionId,
+          ~searchText=id,
+          ~ruleId="",
+          ~sortBy={sortField: "id", cursorValue: None},
+          ~direction=#next,
+          ~limit=1,
+          ~includeStatusFilter=false,
+        ),
       )
-      let entriesRes = await fetchDetails(entriesUrl)
-      let entriesList = entriesRes->getArrayDataFromJson(transactionsEntryItemToObjMapperFromDict)
-      let entriesDataArray = currentTransaction.entries->Array.map(entry => {
-        let foundEntry =
-          entriesList
-          ->Array.find(e => entry.entry_id == e.entry_id)
-          ->Option.getOr(Dict.make()->transactionsEntryItemToObjMapperFromDict)
+      let latestTransaction =
+        transactionsPage.items->getValueFromArray(0, Dict.make()->getTransactionsPayloadFromDict)
 
-        {
-          ...foundEntry,
-          account_name: entry.account.account_name,
-        }
-      })
-      let accountData = await getAccounts()
-      setEntriesList(_ => entriesDataArray)
-      setCurrentTransactionDetails(_ => currentTransaction)
-      setAllTransactionDetails(_ => transactionsList)
-      setAccountsData(_ => accountData)
-      setScreenState(_ => PageLoaderWrapper.Success)
+      if latestTransaction.id->isNonEmptyString {
+        let ruleUrl = getURL(
+          ~entityName=V1(HYPERSWITCH_RECON),
+          ~methodType=Get,
+          ~hyperswitchReconType=#RECON_RULES,
+          ~id=Some(latestTransaction.rule.rule_id),
+        )
+        let (ruleRes, accountData) = await Promise.all2((fetchDetails(ruleUrl), getAccounts()))
+        let rule = ruleRes->getDictFromJsonObject->ruleItemToObjMapper
+        let (sourceAccountId, targetAccounts) = getSourceAndTargetAccountDetails(rule.strategy)
+        let accountIds =
+          [sourceAccountId]
+          ->Array.concat(targetAccounts->Array.map(target => target.account_id))
+          ->Array.filter(isNonEmptyString)
+          ->getUniqueArray
+        setCurrentTransactionDetails(_ => latestTransaction)
+        setRuleAccountIds(_ => accountIds)
+        setAccountsData(_ => accountData)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      }
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch transaction details"))
     }
@@ -69,14 +77,19 @@ let make = (~id) => {
       {
         title: "Entries",
         renderContent: () =>
-          <ReconEngineTransactionEntries entriesList={entriesList} accountsData />,
+          <ReconEngineTransactionEntries
+            primaryTransactionId={currentTransactionDetails.id}
+            accountIds=ruleAccountIds
+            accountsData
+          />,
       },
       {
         title: "Audit Trail",
-        renderContent: () => <AuditTrail allTransactionDetails={allTransactionDetails} />,
+        renderContent: () =>
+          <AuditTrailTab transactionId={currentTransactionDetails.transaction_id} />,
       },
     ]
-  }, (allTransactionDetails, entriesList, accountsData))
+  }, (currentTransactionDetails, ruleAccountIds, accountsData))
 
   <div>
     <div className="flex flex-col gap-4 mb-8">
