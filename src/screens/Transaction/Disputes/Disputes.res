@@ -14,10 +14,6 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (offset, setOffset) = React.useState(_ => 0)
 
-  let handleSearchTextChange = val => {
-    setSearchText(val)
-    setOffset(_ => 0)
-  }
   let (filters, setFilters) = React.useState(_ => None)
   let (transactionViewStatuses, setTransactionViewStatuses) = React.useState(_ => [])
 
