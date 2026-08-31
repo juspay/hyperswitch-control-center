@@ -1221,7 +1221,12 @@ test.describe("Payment Operations", () => {
         await route.fulfill({
           status: 200,
           contentType: "application/json",
-          body: JSON.stringify({ count: 0, total_count: 0, data: [] }),
+          body: JSON.stringify({
+            count: 0,
+            index: "sessionizer_payment_intents",
+            hits: [],
+            status: "Success",
+          }),
         });
       });
 
