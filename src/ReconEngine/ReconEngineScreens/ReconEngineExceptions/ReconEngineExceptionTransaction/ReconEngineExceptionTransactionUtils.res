@@ -26,7 +26,6 @@ let initialDisplayFilters = () => {
     CurrencyMismatch,
     SplitMismatch,
     PartiallyReconciled,
-    Expected,
     Missing,
   ])
   [
