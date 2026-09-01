@@ -10,32 +10,8 @@ let make = (~setAppScreenState) => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
-  let hasMerchantAccountAccess = userHasAccess(~groupAccess=AccountView) === Access
-  let fetchMerchantDetails = MerchantDetailsHook.useFetchMerchantDetails(~showErrorToast=false)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
-  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-  // merchant_name isn't in the bootstrap payload, so don't read it until the fetch lands
-  let (isMerchantDetailsLoaded, setIsMerchantDetailsLoaded) = React.useState(_ =>
-    merchantDetailsTypedValue.publishable_key->LogicUtils.isNonEmptyString
-  )
-
-  React.useEffect(() => {
-    if (
-      hasMerchantAccountAccess &&
-      merchantDetailsTypedValue.publishable_key->LogicUtils.isEmptyString
-    ) {
-      let loadDetails = async () => {
-        try {
-          let _ = await fetchMerchantDetails(~version)
-          setIsMerchantDetailsLoaded(_ => true)
-        } catch {
-        | _ => ()
-        }
-      }
-      loadDetails()->ignore
-    }
-    None
-  }, [])
+  let isMerchantDetailsLoaded = MerchantDetailsHook.useLoadMerchantDetails()
 
   <div>
     {switch url.path->urlPath {

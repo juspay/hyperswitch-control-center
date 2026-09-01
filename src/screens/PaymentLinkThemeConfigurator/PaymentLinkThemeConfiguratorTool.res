@@ -154,27 +154,10 @@ module ConfiguratorForm = {
       (a, b) => a == b,
     )
 
-    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-    let fetchMerchantDetails = MerchantDetailsHook.useFetchMerchantDetails(~showErrorToast=false)
     let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(
       HyperswitchAtom.merchantDetailsValueAtom,
     )
-    let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-    let hasMerchantAccountAccess = userHasAccess(~groupAccess=AccountView) === Access
-
-    React.useEffect(() => {
-      if hasMerchantAccountAccess && merchantDetailsTypedValue.publishable_key->isEmptyString {
-        let loadDetails = async () => {
-          try {
-            let _ = await fetchMerchantDetails(~version)
-          } catch {
-          | _ => ()
-          }
-        }
-        loadDetails()->ignore
-      }
-      None
-    }, [])
+    let _ = MerchantDetailsHook.useLoadMerchantDetails()
     let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
       HyperswitchAtom.businessProfileFromIdAtomInterface,
     )
