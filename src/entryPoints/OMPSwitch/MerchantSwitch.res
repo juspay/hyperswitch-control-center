@@ -206,6 +206,13 @@ let make = () => {
   let addItemBtnStyle = `w-full ${borderColor} border-t-0`
   let customScrollStyle = `max-h-72 overflow-scroll px-1 pt-1 ${borderColor}`
   let dropdownContainerStyle = `${roundedClass} border border-1 ${borderColor} ${widthClass}`
+  let customSortOrder = isCurrentOrganizationPlatform
+    ? [#platform, #connected, #standard]->Array.map(ompType =>
+        ompType->OMPSwitchUtils.ompTypeHeading->String.toUpperCase
+      )
+    : ProductUtils.productSortOrder->Array.map(product =>
+        product->ProductUtils.getProductDisplayName->String.toUpperCase
+      )
 
   let subHeading = {currentOMPName(merchantList, merchantId)}
 
@@ -231,6 +238,7 @@ let make = () => {
     let listItem: OMPSwitchTypes.ompListTypesCustom = {
       id: item.id,
       name: item.name,
+      productType: ?item.productType,
       type_: item.type_->Option.getOr(#standard),
       customComponent,
     }
@@ -245,6 +253,7 @@ let make = () => {
       deselectDisable=true
       options={updatedMerchantList->generateDropdownOptionsCustomComponent(
         ~isPlatformOrg=isCurrentOrganizationPlatform,
+        ~groupByProduct={!isCurrentOrganizationPlatform},
       )}
       marginTop={`mt-16 ${borderColor} shadow-generic_shadow ml-2`}
       hideMultiSelectButtons=true
@@ -269,9 +278,7 @@ let make = () => {
       customSearchStyle={`${backgroundColor.sidebarSecondary} ${secondaryTextColor} ${borderColor}`}
       searchInputPlaceHolder="Search Merchant Account or ID"
       placeholderCss={`text-fs-13 ${backgroundColor.sidebarSecondary}`}
-      customSortOrder={[#platform, #connected, #standard]->Array.map(ompType =>
-        ompType->OMPSwitchUtils.ompTypeHeading->String.toUpperCase
-      )}
+      customSortOrder
     />
     <NewMerchantCreationModal setShowModal showModal />
     <LoaderModal
