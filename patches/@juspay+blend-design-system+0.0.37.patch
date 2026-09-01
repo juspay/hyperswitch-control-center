@@ -1,5 +1,5 @@
 diff --git a/node_modules/@juspay/blend-design-system/dist/main.js b/node_modules/@juspay/blend-design-system/dist/main.js
-index 7d7d143..912c38d 100644
+index 7d7d143..c5e7ab6 100644
 --- a/node_modules/@juspay/blend-design-system/dist/main.js
 +++ b/node_modules/@juspay/blend-design-system/dist/main.js
 @@ -23633,7 +23633,7 @@ function kao() {
@@ -20,7 +20,7 @@ index 7d7d143..912c38d 100644
      typeof Map == "function" && Map.prototype != null && typeof Map.prototype.forEach == "function" && typeof Set == "function" && Set.prototype != null && typeof Set.prototype.clear == "function" && typeof Set.prototype.forEach == "function" || console.error(
        "React depends on Map and Set built-in types. Make sure that you load a polyfill in older browsers. https://reactjs.org/link/react-polyfills"
      ), _i.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE = U, _i.createPortal = function(a, p) {
-@@ -88485,10 +88485,12 @@ const Yi = {
+@@ -88485,10 +88485,34 @@ const Yi = {
      return We.YESTERDAY;
    if (L0o(V))
      return We.TOMORROW;
@@ -28,16 +28,38 @@ index 7d7d143..912c38d 100644
 -    return We.THIS_MONTH;
 -  if (D0o(V))
 -    return We.LAST_MONTH;
-+  // PATCH(hyperswitch): detect the relative-time presets before THIS_MONTH/LAST_MONTH.
-+  // Upstream: https://github.com/juspay/blend-design-system/issues/1743
-+  // isThisMonth (M0o) accepts any startDate within TIMEZONE_TOLERANCE_HOURS (25h) of the 1st
-+  // at 00:00, so on the 1st of a month it swallowed Last 30 minutes / 1 hour / 6 hours / 24 hours
-+  // and the trigger rendered "This month". The relative checks below are exact (+/- 60s), so
-+  // running them first cannot steal a genuine calendar-month match.
++  // PATCH(hyperswitch): preset detection reordered. Upstream: juspay/blend-design-system#1743
++  //
++  // Shipped order ran the loose calendar checks (THIS_MONTH / LAST_MONTH) before the
++  // exact ones, and isThisMonth (M0o) accepts any startDate within TIMEZONE_TOLERANCE_HOURS
++  // (25h) of the 1st at 00:00 with an endDate merely in the current month. So on the 1st
++  // every sub-day range was labelled "This month".
++  //
++  // Both blocks below are exact -- end within +/-60s of now, span or both endpoints within
++  // +/-60s -- so neither can steal a genuine calendar-month match. Consumer-supplied
++  // customPresets go first: a preset the caller defined outranks a built-in guess, and
++  // presets with no blend equivalent (our Hour(2.0) -> "Last 2 hours" on webhooks,
++  // insights and analytics) are detectable *only* here.
++  if (l && l.length > 0) {
++    const h = $t.PRESET_DETECTION_TOLERANCE_MS;
++    for (const a of l) {
++      const p = iD(
++        a.preset
++      );
++      if (!p) continue;
++      const n = p.getDateRange();
++      if (n.startDate && n.endDate && Math.abs(
++        o.startDate.getTime() - n.startDate.getTime()
++      ) <= h && Math.abs(
++        o.endDate.getTime() - n.endDate.getTime()
++      ) <= h)
++        return a.preset;
++    }
++  }
    const i = /* @__PURE__ */ new Date(), K = Math.abs(o.endDate.getTime() - i.getTime()), q = $t.PRESET_DETECTION_TOLERANCE_MS;
    if (K <= q) {
      const h = o.endDate.getTime() - o.startDate.getTime(), a = 1800 * 1e3, p = 3600 * 1e3, n = 360 * 60 * 1e3, u = 1440 * 60 * 1e3;
-@@ -88501,6 +88503,10 @@ const Yi = {
+@@ -88501,6 +88525,10 @@ const Yi = {
      if (Math.abs(h - u) <= q)
        return We.LAST_24_HOURS;
    }
@@ -48,3 +70,26 @@ index 7d7d143..912c38d 100644
    const t = Math.round(
      (o.endDate.getTime() - o.startDate.getTime()) / (1440 * 60 * 1e3)
    );
+@@ -88544,22 +88572,6 @@ const Yi = {
+     return We.NEXT_3_MONTHS;
+   if (U && r === 12)
+     return We.NEXT_12_MONTHS;
+-  if (l && l.length > 0) {
+-    const h = $t.PRESET_DETECTION_TOLERANCE_MS;
+-    for (const a of l) {
+-      const p = iD(
+-        a.preset
+-      );
+-      if (!p) continue;
+-      const n = p.getDateRange();
+-      if (n.startDate && n.endDate && Math.abs(
+-        o.startDate.getTime() - n.startDate.getTime()
+-      ) <= h && Math.abs(
+-        o.endDate.getTime() - n.endDate.getTime()
+-      ) <= h)
+-        return a.preset;
+-    }
+-  }
+   return We.CUSTOM;
+ }, G0o = [
+   We.LAST_30_MINUTES,
