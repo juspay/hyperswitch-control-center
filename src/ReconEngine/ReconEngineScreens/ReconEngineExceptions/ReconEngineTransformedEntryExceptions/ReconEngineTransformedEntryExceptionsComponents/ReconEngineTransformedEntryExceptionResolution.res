@@ -73,9 +73,13 @@ module EditEntryModalContent = {
             res->getArrayDataFromJson(transformationConfigItemToObjMapper)
           )
         }
-        if entryDetails.transformation_id->isNonEmptyString {
+        if entryDetails.transformation_config.transformation_config_id->isNonEmptyString {
           let schema =
-            (await fetchMetadataSchema(~transformationId=entryDetails.transformation_id))
+            (
+              await fetchMetadataSchema(
+                ~transformationId=entryDetails.transformation_config.transformation_config_id,
+              )
+            )
             ->getDictFromJsonObject
             ->metadataSchemaItemToObjMapper
           setMetadataSchema(_ => schema)
@@ -120,12 +124,23 @@ module EditEntryModalContent = {
                 ~isRequired=true,
               )}
             />
-            {transformationConfigSelectInputField(
-              ~transformationsList,
-              ~disabled=false,
-              ~setMetadataSchema,
-              ~setIsMetadataLoading,
-            )}
+            <FormRenderer.FieldRenderer
+              labelClass="font-semibold"
+              field={FormRenderer.makeMultiInputFieldInfo(
+                ~label="Transformation Config",
+                ~comboCustomInput=transformationComboSelectInputField(
+                  ~transformationsList,
+                  ~disabled=false,
+                  ~setMetadataSchema,
+                  ~setIsMetadataLoading,
+                ),
+                ~inputFields=[
+                  FormRenderer.makeInputFieldInfo(~name="transformation.transformation_id"),
+                  FormRenderer.makeInputFieldInfo(~name="transformation.transformation_name"),
+                ],
+                ~isRequired=true,
+              )}
+            />
             {entryTypeSelectInputField(~disabled=false)}
             {currencySelectInputField(~entryDetails, ~disabled=false)}
             {amountTextInputField(~disabled=false)}
@@ -143,7 +158,7 @@ module EditEntryModalContent = {
             <FormRenderer.SubmitButton
               text="Save changes"
               buttonType={Primary}
-              showToolTip=false
+              toolTipFullWidth=true
               customSubmitButtonStyle="!w-full"
             />
           </div>

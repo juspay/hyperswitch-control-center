@@ -2,27 +2,32 @@ open Typography
 
 @react.component
 let make = () => {
-  open APIUtils
   open LogicUtils
-  open ReconEngineRulesUtils
+  open ReconEngineRulesTypes
 
   let url = RescriptReactRouter.useUrl()
-  let mixpanelEvent = MixpanelHook.useSendEvent()
+  let basePath = GlobalVars.appendDashboardPath(~url="v1/recon-engine/exceptions/recon")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (accountData, setAccountData) = React.useState(_ => [])
   let (reconRulesList, setReconRulesList) = React.useState(_ => [])
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
+  let (reportModal, setReportModal) = React.useState(_ => false)
+  let getAccounts = ReconEngineHooks.useGetAccounts()
+  let getReconRuleList = ReconEngineHooks.useGetReconRuleList()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
-  let getReconRulesData = async _ => {
+  let onTitleClick = idx => {
+    let url =
+      reconRulesList
+      ->Array.get(idx)
+      ->mapOptionOrDefault(basePath, rule => `${basePath}?rule_id=${rule.rule_id}`)
+    RescriptReactRouter.push(url)
+  }
+
+  let getAccountsAndRulesData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~hyperswitchReconType=#RECON_RULES,
-        ~methodType=Get,
-      )
-      let res = await fetchDetails(url)
-      let ruleDetails = res->getArrayDataFromJson(ruleItemToObjMapper)
+      let (accounts, ruleDetails) = await Promise.all2((getAccounts(), getReconRuleList()))
+      setAccountData(_ => accounts)
       setReconRulesList(_ => ruleDetails)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -36,16 +41,18 @@ let make = () => {
       title: ruleDetails.rule_name,
       renderContent: () => {
         <FilterContext
-          key={`recon-engine-exception-transaction-${ruleDetails.rule_id}`}
-          index={`recon-engine-exception-transaction-${ruleDetails.rule_id}`}>
-          <ReconEngineExceptionTransaction ruleId={ruleDetails.rule_id} />
+          key={`recon-engine-exception-${ruleDetails.rule_id}`}
+          index={`recon-engine-exception-${ruleDetails.rule_id}`}>
+          <ReconEngineExceptionTransaction
+            ruleId={ruleDetails.rule_id} accountData reconRulesList
+          />
         </FilterContext>
       },
     })
-  }, [reconRulesList])
+  }, (accountData, reconRulesList))
 
   React.useEffect(() => {
-    getReconRulesData()->ignore
+    getAccountsAndRulesData()->ignore
     None
   }, [])
 
@@ -62,25 +69,41 @@ let make = () => {
     }
   }, (url.search, reconRulesList))
 
-  <div className="flex flex-col gap-4 w-full">
+  let selectedRule = reconRulesList->Array.get(initialTabIndex)
+
+  <div className="flex flex-col w-full">
     <div className="flex flex-row justify-between items-center">
       <PageUtils.PageHeading
         title="Recon Exceptions"
         customTitleStyle={`${heading.lg.semibold}`}
         customHeadingStyle="py-0"
       />
-      <div className="flex-shrink-0">
-        <Button
-          text="Generate Report"
-          buttonType=Primary
-          buttonSize=Large
-          buttonState=Disabled
-          onClick={_ => {
-            mixpanelEvent(~eventName="recon_engine_exceptions_generate_reports_clicked")
-          }}
-        />
+      <div className="flex flex-row items-center gap-4">
+        <PortalCapture name=ReconEngineFilterUtils.globalDateFilterPortalName customStyle="-mt-1" />
+        <div className="flex-shrink-0">
+          <Button
+            text="Generate Report"
+            buttonType=Primary
+            buttonSize=Large
+            buttonState={selectedRule->Option.isSome ? Normal : Disabled}
+            onClick={_ => {
+              setReportModal(_ => true)
+              mixpanelEvent(~eventName="recon_engine_exceptions_generate_reports_clicked")
+            }}
+          />
+        </div>
       </div>
     </div>
+    {selectedRule->mapOptionOrDefault(React.null, rule =>
+      <ReconEngineGenerateReportModal
+        showModal=reportModal
+        setShowModal=setReportModal
+        rule
+        hyperswitchReconType=#GENERATE_EXCEPTION_REPORT
+        modalHeading="Generate Exception Report"
+      />
+    )}
+    <ReconEngineHelper.GlobalDateFilterBanner />
     <PageLoaderWrapper screenState>
       <RenderIf condition={reconRulesList->Array.length == 0}>
         <div className="my-4">
@@ -92,7 +115,7 @@ let make = () => {
         </div>
       </RenderIf>
       <RenderIf condition={reconRulesList->Array.length > 0}>
-        <Tabs tabs initialIndex={initialTabIndex} />
+        <Tabs tabs initialIndex={initialTabIndex} onTitleClick />
       </RenderIf>
     </PageLoaderWrapper>
   </div>

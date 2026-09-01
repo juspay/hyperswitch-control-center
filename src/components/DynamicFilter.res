@@ -154,9 +154,11 @@ let make = (
   ~initialFixedFilters: array<EntityType.initialFilters<'t>>,
   ~defaultFilterKeys: array<string>,
   ~tabNames: array<string>,
+  ~mandatoryRemoteKeys: array<string>=[],
   ~updateUrlWith=?,
   ~showCustomFilter=true,
   ~customLeftView=React.null,
+  ~customFilterActions=React.null,
   ~filterButtonStyle="",
   ~moduleName="",
   ~customFilterKey="",
@@ -232,8 +234,10 @@ let make = (
       addFilterStyle="pt-4"
       filterButtonStyle
       defaultFilterKeys
+      mandatoryRemoteKeys
       customRightView=customFilters
       customLeftView
+      customFilterActions
       ?updateUrlWith
       ?setOffset
       clearFilters

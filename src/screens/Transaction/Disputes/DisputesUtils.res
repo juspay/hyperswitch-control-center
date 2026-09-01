@@ -1,5 +1,9 @@
 open DisputeTypes
 open LogicUtils
+
+// Page size for server-side pagination; backend allows limit between 1 and 100
+let disputesFetchLimit = 20
+
 let disputeStatusVariantMapper = status => {
   switch status {
   | "dispute_opened" => DisputeOpened
@@ -66,6 +70,17 @@ let getFileTypeFromFileName = fileName => {
   afterDotFileType
 }
 
+let supportedEvidenceFile = ["pdf", "jpeg", "jpg", "png"]
+
+let getMimeTypeFromFileName = fileName => {
+  switch fileName->getFileTypeFromFileName->String.toLowerCase {
+  | "pdf" => "application/pdf"
+  | "jpeg" | "jpg" => "image/jpeg"
+  | "png" => "image/png"
+  | _ => "application/octet-stream"
+  }
+}
+
 let (startTimeFilterKey, endTimeFilterKey) = ("start_time", "end_time")
 
 let getFilterTypeFromString = filterType => {
@@ -110,16 +125,15 @@ let initialFixedFilter = _ => [
           ~startKey=startTimeFilterKey,
           ~endKey=endTimeFilterKey,
           ~format="YYYY-MM-DDTHH:mm:ss[Z]",
-          ~showTime=false,
+          ~showTime=true,
           ~disablePastDates={false},
           ~disableFutureDates={true},
           ~predefinedDays=[
             Hour(0.5),
             Hour(1.0),
-            Hour(2.0),
+            Hour(6.0),
             Today,
             Yesterday,
-            Day(2.0),
             Day(7.0),
             Day(30.0),
             ThisMonth,

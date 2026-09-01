@@ -157,6 +157,10 @@ export class HomePage {
     return this.page.locator('[data-testid="vaultprocessor"]');
   }
 
+  get surchargeConnectors(): Locator {
+    return this.page.locator('[data-testid="surchargeprocessor"]');
+  }
+
   get analytics(): Locator {
     return this.page.locator('[data-testid="analytics"]');
   }
@@ -178,7 +182,9 @@ export class HomePage {
   }
 
   get routing(): Locator {
-    return this.page.locator('[data-testid="routing"]');
+    return this.page
+      .getByTestId("workflow")
+      .getByRole("link", { name: "Routing", exact: true });
   }
 
   get surchargeRouting(): Locator {
@@ -310,7 +316,7 @@ export class HomePage {
   }
 
   get sdkAmountInput(): Locator {
-    return this.page.locator('[name="amount"]');
+    return this.page.getByRole("spinbutton", { name: "Enter amount" });
   }
 
   get sdkCurrencySelectButton(): Locator {
@@ -326,7 +332,7 @@ export class HomePage {
   }
 
   get sdkErrorToast(): Locator {
-    return this.page.getByTestId('paymentStatus');
+    return this.page.getByTestId("paymentStatus");
   }
 
   get sdkIframe(): Locator {
@@ -622,6 +628,10 @@ export class HomePage {
 
   get globalSearchSuggestedFiltersHeader(): Locator {
     return this.page.getByText("SUGGESTED FILTERS", { exact: true });
+  }
+
+  get globalSearchClipboardHeader(): Locator {
+    return this.page.getByText("FROM CLIPBOARD", { exact: true });
   }
 
   get globalSearchValidationError(): Locator {

@@ -2,7 +2,7 @@ import { test, expect } from "../../support/test";
 import type { Page } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { PaymentOperations } from "../../support/pages/operations/PaymentOperations";
-import { DisputesOperations } from "../../support/pages/operations/DisputesOperations";
+import { DisputeOperations } from "../../support/pages/operations/DisputeOperations";
 import { generateUniqueEmail } from "../../support/helper";
 import {
   signupUser,
@@ -48,7 +48,7 @@ test.describe("Disputes List page", () => {
   }) => {
     const homePage = new HomePage(page);
     const paymentOperations = new PaymentOperations(page);
-    const disputesOperations = new DisputesOperations(page);
+    const disputesOperations = new DisputeOperations(page);
 
     const dispute = sampleDispute();
     await mockDisputesList(page, [dispute]);
@@ -65,7 +65,7 @@ test.describe("Disputes List page", () => {
     // PaymentId, CreatedAt] (DisputesEntity.res:4); S.No is td1.
     await expect(disputesOperations.disputeCell(1, 1)).toBeVisible();
     await expect(disputesOperations.disputeCell(1, 2)).toContainText(
-      dispute.dispute_id.slice(0, 20),
+      dispute.dispute_id.slice(0, 24),
     );
     await expect(disputesOperations.disputeCell(1, 3)).toContainText(
       "12.5 USD",
@@ -83,7 +83,7 @@ test.describe("Disputes List page", () => {
   }) => {
     const homePage = new HomePage(page);
     const paymentOperations = new PaymentOperations(page);
-    const disputesOperations = new DisputesOperations(page);
+    const disputesOperations = new DisputeOperations(page);
 
     await mockDisputesList(page, []);
     await goToDisputes(page, homePage);
@@ -100,7 +100,7 @@ test.describe("Disputes List page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
 
       const target = sampleDispute({
         dispute_id: "dp_playwright_search_target",
@@ -115,9 +115,9 @@ test.describe("Disputes List page", () => {
       await disputesOperations.searchInput.fill(target.dispute_id);
       await disputesOperations.searchInput.press("Enter");
 
-      // CopyLinkTableCell truncates to the first 20 chars unless toggled.
+      // CopyLinkTableCell truncates to the first 24 chars unless toggled.
       await expect(disputesOperations.disputeCell(1, 2)).toContainText(
-        target.dispute_id.slice(0, 20),
+        target.dispute_id.slice(0, 24),
       );
       await expect(disputesOperations.disputeCell(2, 2)).not.toBeVisible();
     });
@@ -126,7 +126,7 @@ test.describe("Disputes List page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
 
       const target = sampleDispute({
         dispute_id: "dp_playwright_pay_search",
@@ -152,7 +152,7 @@ test.describe("Disputes List page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
 
       await mockDisputesList(page, [sampleDispute()]);
       await goToDisputes(page, homePage);
@@ -202,7 +202,7 @@ test.describe("Disputes List page", () => {
       // allColumns minus defaultColumns).
       const optionalColumns = [
         "Attempt ID",
-        "Connector Required By",
+        "Challenge Required By",
         "Connector",
         "Connector Created At",
         "Connector Dispute ID",
@@ -246,13 +246,11 @@ test.describe("Disputes List page", () => {
       await mockDisputesList(page, [sampleDispute()]);
       await goToDisputes(page, homePage);
 
-      await paymentOperations.dateSelector.click();
-      await page
-        .locator('[data-daterange-dropdown-value="Last 30 Days"]')
-        .click();
-      await expect(paymentOperations.dateSelector).toContainText(
-        "Last 30 Days",
-      );
+      await paymentOperations.customDateRangeButton.click();
+      await page.getByRole("menuitem", { name: "Last 30 minutes" }).click();
+      await expect(
+        page.getByRole("button", { name: "Last 30 minutes" }),
+      ).toContainText("Last 30 minutes");
     });
   });
 
@@ -262,7 +260,7 @@ test.describe("Disputes List page", () => {
     }) => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
 
       await mockDisputesList(page, [sampleDispute()]);
       await goToDisputes(page, homePage);
@@ -277,7 +275,7 @@ test.describe("Disputes List page", () => {
     }) => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
 
       const opened = sampleDispute({
         dispute_id: "dp_playwright_opened",
@@ -294,29 +292,25 @@ test.describe("Disputes List page", () => {
 
       // Baseline: both rows present.
       await expect(disputesOperations.disputeCell(1, 2)).toContainText(
-        opened.dispute_id.slice(0, 20),
+        opened.dispute_id.slice(0, 24),
       );
       await expect(disputesOperations.disputeCell(2, 2)).toContainText(
-        won.dispute_id.slice(0, 20),
+        won.dispute_id.slice(0, 24),
       );
 
       await paymentOperations.addFilters.click();
-      await page
-        .locator('[data-dropdown-value="Dispute Status"]:visible')
-        .click();
-      await page
-        .locator('[data-component-field-wrapper="field-dispute_status"]')
-        .click();
-      await page.locator('[value="dispute_won"]').click();
+      await page.getByLabel("Add Filters").getByText("Dispute Status").click();
+      await page.locator('[data-id="Select Dispute Status"]').click();
+      await page.getByRole("option", { name: "dispute_won" }).click();
       await paymentOperations.applyButton.click();
       await page.waitForLoadState("networkidle");
 
       await expect(disputesOperations.disputeCell(1, 2)).toContainText(
-        won.dispute_id.slice(0, 20),
+        won.dispute_id.slice(0, 24),
       );
       await expect(disputesOperations.disputeCell(2, 2)).not.toBeVisible();
       await expect(
-        page.getByText(opened.dispute_id.slice(0, 20)),
+        page.getByText(opened.dispute_id.slice(0, 24)),
       ).not.toBeVisible();
     });
   });
@@ -362,6 +356,18 @@ test.describe("Disputes List page", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
+      await page.route("**/dashboard/config/feature?domain=", async (route) => {
+        const response = await route.fetch();
+        const json = await response.json();
+        json.features = {
+          ...json.features,
+          generate_report: false,
+          email: false,
+        };
+        await route.fulfill({ response, json });
+      });
+      await page.reload();
+
       await mockDisputesList(page, [sampleDispute()]);
       await goToDisputes(page, homePage);
 
@@ -386,7 +392,7 @@ test.describe("Dispute detail page", () => {
   const openDisputeDetail = async (
     page: Page,
     homePage: HomePage,
-    disputesOperations: DisputesOperations,
+    disputesOperations: DisputeOperations,
     dispute: ReturnType<typeof sampleDispute>,
   ) => {
     const { profileId } = await ompLineage(page);
@@ -416,7 +422,7 @@ test.describe("Dispute detail page", () => {
   }) => {
     const homePage = new HomePage(page);
     const paymentOperations = new PaymentOperations(page);
-    const disputesOperations = new DisputesOperations(page);
+    const disputesOperations = new DisputeOperations(page);
     const dispute = sampleDispute();
 
     await openDisputeDetail(page, homePage, disputesOperations, dispute);
@@ -444,7 +450,7 @@ test.describe("Dispute detail page", () => {
     // Dates are formatted with the user's locale TZ — assert on the
     // date portion only to keep this stable across machines.
     await expect(
-      paymentOperations.dataLabel("Connector Required By").first(),
+      paymentOperations.dataLabel("Challenge Required By").first(),
     ).toContainText("Jun 08, 2026");
     await expect(
       paymentOperations.dataLabel("Connector").first(),
@@ -474,10 +480,10 @@ test.describe("Dispute detail page", () => {
     await expect(paymentOperations.dataLabel("Currency").first()).toContainText(
       "USD",
     );
-    // CopyLinkTableCell truncates to the first 20 chars unless toggled.
+    // CopyLinkTableCell truncates to the first 24 chars unless toggled.
     await expect(
       paymentOperations.dataLabel("Dispute ID").first(),
-    ).toContainText(dispute.dispute_id.slice(0, 20));
+    ).toContainText(dispute.dispute_id.slice(0, 24));
     await expect(
       paymentOperations.dataLabel("Dispute Status").first(),
     ).toContainText("DISPUTE_OPENED");
@@ -490,7 +496,7 @@ test.describe("Dispute detail page", () => {
     page,
   }) => {
     const homePage = new HomePage(page);
-    const disputesOperations = new DisputesOperations(page);
+    const disputesOperations = new DisputeOperations(page);
     const dispute = sampleDispute({ is_already_refunded: true });
 
     // Inline the openDisputeDetail flow so we can land on the list page
@@ -529,7 +535,7 @@ test.describe("Dispute detail page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute({
         connector: "stripe",
         dispute_status: "dispute_opened",
@@ -550,7 +556,7 @@ test.describe("Dispute detail page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute({
         connector: "checkout",
         dispute_status: "dispute_opened",
@@ -571,7 +577,7 @@ test.describe("Dispute detail page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute({
         connector: "adyen",
         dispute_status: "dispute_opened",
@@ -592,11 +598,22 @@ test.describe("Dispute detail page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute({
         connector: "checkout",
         dispute_status: "dispute_opened",
       });
+
+      await page.route("**/dashboard/config/feature?domain=", async (route) => {
+        const response = await route.fetch();
+        const json = await response.json();
+        json.features = {
+          ...json.features,
+          dispute_evidence_upload: false,
+        };
+        await route.fulfill({ response, json });
+      });
+      await page.reload();
 
       // Flag defaults to false in local config — no mock needed.
       await openDisputeDetail(page, homePage, disputesOperations, dispute);
@@ -613,7 +630,7 @@ test.describe("Dispute detail page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute({
         connector: "checkout",
         dispute_status: "dispute_opened",
@@ -669,7 +686,7 @@ test.describe("Dispute detail page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute({
         connector: "stripe",
         dispute_status: "dispute_opened",
@@ -720,7 +737,7 @@ test.describe("Dispute detail page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute({
         connector: "stripe",
         dispute_status: "dispute_opened",
@@ -820,7 +837,7 @@ test.describe("Dispute detail page", () => {
   test.describe("Events and logs accordion", () => {
     test("should be visible when audit_trail flag is ON", async ({ page }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute();
 
       await page.route("**/dashboard/config/feature?domain=", async (route) => {
@@ -838,7 +855,7 @@ test.describe("Dispute detail page", () => {
 
     test("should be hidden when audit_trail flag is OFF", async ({ page }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute();
 
       await page.route("**/dashboard/config/feature?domain=", async (route) => {

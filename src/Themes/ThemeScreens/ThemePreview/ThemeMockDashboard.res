@@ -4,15 +4,16 @@ open ThemePreviewHelper
 open ThemePreviewTypes
 
 @react.component
-let make = () => {
+let make = (~logoUrl: option<string>=?, ~faviconUrl: option<string>=?) => {
   let formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
   let formValues = formState.values->LogicUtils.getDictFromJsonObject
   let (colorsFromForm, sidebarFromForm, buttonsFromForm) = getThemeFormValues(~formValues)
 
-  <div className="bg-white rounded-lg overflow-hidden w-full shadow-xl h-3/4">
-    <div className="flex h-full">
+  <div className="bg-white rounded-lg overflow-hidden w-full shadow-xl h-full flex flex-col">
+    <MockBrowserChrome faviconUrl />
+    <div className="flex flex-1 min-h-0">
       <MockOrgTiles sidebarFromForm orgs=mockValues.orgs />
       <div
         className="w-36 flex flex-col border-r bg-nd_gray-50"
@@ -43,7 +44,7 @@ let make = () => {
         </div>
       </div>
       <div className="flex-1 flex flex-col overflow-hidden">
-        <MockNavbar />
+        <MockNavbar logoUrl />
         <div className="p-2">
           <span className={`text-nd_gray-800 ${body.sm.semibold}`}>
             {React.string(mockValues.pageHeading)}
@@ -58,26 +59,18 @@ let make = () => {
             {React.string(mockValues.cardDescription)}
           </span>
           <div className={`flex flex-row gap-2 mt-2 ${body.xs.semibold}`}>
-            <button
-              type_="button"
-              className="px-2 py-3 h-4 rounded flex items-center justify-between cursor-pointer"
-              style={ReactDOM.Style.make(
-                ~backgroundColor=buttonsFromForm.primary.backgroundColor,
-                ~color=buttonsFromForm.primary.textColor,
-                (),
-              )}>
-              {React.string(mockValues.primaryButtonText)}
-            </button>
-            <button
-              type_="button"
-              className="px-2 py-3 rounded h-4 flex justify-between items-center cursor-pointer"
-              style={ReactDOM.Style.make(
-                ~backgroundColor=buttonsFromForm.secondary.backgroundColor,
-                ~color=buttonsFromForm.secondary.textColor,
-                (),
-              )}>
-              {React.string(mockValues.secondaryButtonText)}
-            </button>
+            <MockButton
+              text=mockValues.primaryButtonText
+              backgroundColor=buttonsFromForm.primary.backgroundColor
+              hoverBackgroundColor=buttonsFromForm.primary.hoverBackgroundColor
+              textColor=buttonsFromForm.primary.textColor
+            />
+            <MockButton
+              text=mockValues.secondaryButtonText
+              backgroundColor=buttonsFromForm.secondary.backgroundColor
+              hoverBackgroundColor=buttonsFromForm.secondary.hoverBackgroundColor
+              textColor=buttonsFromForm.secondary.textColor
+            />
           </div>
         </div>
         <span

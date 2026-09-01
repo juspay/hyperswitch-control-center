@@ -72,7 +72,7 @@ let toggleInput = (~field: CommonConnectorTypes.inputField, ~formName) => {
   FormRenderer.makeFieldInfo(
     ~name={formName},
     ~label,
-    ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
+    ~customInput=InputFields.switchInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
   )
 }
 
@@ -262,7 +262,7 @@ module ProcessorStatus = {
       form.change("disabled", !isSelected->Identity.genericTypeToJson)
       form.submit()->ignore
     }
-    <BoolInput.BaseComponent
+    <SwitchAdapter
       isSelected={!connectorInfo.disabled}
       setIsSelected={isSelected => updateConnectorStatus(isSelected)}
       isDisabled=false

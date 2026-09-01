@@ -26,6 +26,8 @@ type customPresetConfig = {
   visible: bool,
 }
 
+type dateFormatConfig = {includeTime: bool}
+
 module PresetsConfig = {
   type t
   external fromCustomConfig: customPresetConfig => t = "%identity"
@@ -44,7 +46,9 @@ external make: (
   ~customPresets: array<PresetsConfig.t>=?,
   ~minDate: Date.t=?,
   ~maxDate: Date.t=?,
+  ~maxRangeDays: int=?,
   ~isSingleDatePicker: bool=?,
   ~allowSingleDateSelection: bool=?,
   ~showPresets: bool=?,
+  ~formatConfig: dateFormatConfig=?,
 ) => React.element = "DateRangePicker"

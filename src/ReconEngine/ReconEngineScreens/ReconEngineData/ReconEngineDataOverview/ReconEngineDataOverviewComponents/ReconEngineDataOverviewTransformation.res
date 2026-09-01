@@ -2,7 +2,6 @@
 let make = (
   ~ingestionHistoryId: string,
   ~setSelectedTransformationHistoryId: (string => string) => unit,
-  ~onTransformationStatusChange: option<bool => unit>=?,
   ~transformationHistoryId,
 ) => {
   open ReconEngineHooks
@@ -25,13 +24,6 @@ let make = (
           ~queryParameters=Some(`ingestion_history_id=${ingestionHistoryId}`),
         )
         setTransformationHistoryData(_ => transformationHistoryList)
-
-        let allProcessed =
-          transformationHistoryList->Array.every(entry => entry.status === Processed)
-        switch onTransformationStatusChange {
-        | Some(callback) => callback(allProcessed)
-        | None => ()
-        }
 
         switch transformationHistoryList->getNonEmptyArray {
         | Some(arr) => {
@@ -62,7 +54,6 @@ let make = (
     TransformationHistoryId,
     TransformationStats,
     TransformedAt,
-    TransformationComments,
   ]
 
   let getActiveTabIndex = React.useMemo(() => {

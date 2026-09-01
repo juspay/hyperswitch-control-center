@@ -26,7 +26,6 @@ let make = (
 
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => Success)
-  let (showModal, setShowModal) = React.useState(_ => false)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
 
   let connectorInfoDict = ConnectorInterface.mapDictToTypedConnectorPayload(
@@ -101,10 +100,7 @@ let make = (
       fetchConnectorListResponse()->ignore
       setScreenState(_ => Success)
 
-      switch connector->getConnectorNameTypeFromString(~connectorType=BillingProcessor) {
-      | BillingProcessor(CUSTOMBILLING) => handleClick()
-      | _ => setShowModal(_ => true)
-      }
+      handleClick()
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -112,7 +108,7 @@ let make = (
         let errorMessage = err->safeParse->getDictFromJsonObject->getString("message", "")
         if errorCode === "HE_01" {
           showToast(~message="Connector label already exist!", ~toastType=ToastError)
-          setNextStep(_ => RevenueRecoveryOnboardingUtils.defaultStepBilling)
+          setNextStep(_ => defaultStepBilling)
           setScreenState(_ => Success)
         } else {
           showToast(~message=errorMessage, ~toastType=ToastError)
@@ -157,10 +153,7 @@ let make = (
     let revenue_recovery =
       valueDict->getDictfromDict("feature_metadata")->getDictfromDict("revenue_recovery")
 
-    if (
-      currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant ==
-        (#addAPlatform, #processorSetUp)
-    ) {
+    if currentStep->getSectionVariant == (#addAPlatform, #processorSetUp) {
       let billing_connector_retry_threshold =
         revenue_recovery->getInt("billing_connector_retry_threshold", 0)
       let max_retry_count = revenue_recovery->getInt("max_retry_count", 0)
@@ -196,10 +189,7 @@ let make = (
       }
     }
 
-    if (
-      currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant ==
-        (#addAPlatform, #processorSetUp)
-    ) {
+    if currentStep->getSectionVariant == (#addAPlatform, #processorSetUp) {
       let billing_account_reference =
         revenue_recovery->getObj("billing_account_reference", Dict.make())
 
@@ -223,47 +213,34 @@ let make = (
     )
   }
 
-  let modalBody = {
-    <>
-      <div className="p-2 m-2">
-        <div className="py-5 px-3 flex justify-between align-top">
-          <CardUtils.CardHeader
-            heading="Setup Subscription Webhook"
-            subHeading="Configure this endpoint in the subscription management system dashboard under webhook settings for us to pick up failed payments for recovery."
-            customSubHeadingStyle="w-full !max-w-none pr-10"
-          />
-        </div>
-        <div className="px-3 pb-5">
-          <ConnectorWebhookPreview
-            merchantId
-            connectorName=connectorInfoDict.id
-            textCss="border border-nd_gray-400 font-medium rounded-xl px-4 py-2 text-nd_gray-400 w-full !font-jetbrains-mono"
-            containerClass="flex flex-row items-center justify-between"
-            displayTextLength=38
-            hideLabel=true
-            showFullCopy=true
-          />
-          <Button
-            text="Next"
-            buttonType=Primary
-            onClick={_ => handleClick()}
-            customButtonStyle="w-full mt-8"
-          />
-        </div>
-      </div>
-    </>
-  }
-
   let authKeysSubmit = isLiveMode ? onSubmit : handleAuthKeySubmit
 
   <div>
     <Form onSubmit initialValues>
-      {switch currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant {
+      {switch currentStep->getSectionVariant {
       | (#addAPlatform, #selectAPlatform) =>
+        <PageWrapper
+          title="Choose your Billing Platform"
+          subTitle="Select your subscription management platform to get started.">
+          <PaymentProcessorCards
+            connectorsAvailableForIntegration={isLiveMode
+              ? prodBillingConnectorList
+              : billingConnectorList}
+            configuredConnectors=[]
+            showRequestConnector=false
+            showDummyConnector=false
+            connectorType=ConnectorTypes.BillingProcessor
+            heading="Choose a platform"
+            mixpanelEventPrefix="recovery_billing_connector_click"
+            onCardClick={connectorName => {
+              setConnectorName(_ => connectorName)
+              handleClick()
+            }}
+          />
+        </PageWrapper>
+      | (#addAPlatform, #authenticateBilling) =>
         <BillingConnectorAuthKeys
           initialValues
-          setConnectorName
-          connector
           onSubmit=authKeysSubmit
           validateMandatoryField
           updatedInitialVal
@@ -271,25 +248,14 @@ let make = (
           screenState
         />
       | (#addAPlatform, #processorSetUp) =>
-        <>
-          <BillingProcessorsSetUp
-            initialValues
-            validateMandatoryField
-            connector={paymentConnectorName}
-            billingConnector=connector
-            onSubmit
-            connector_account_reference_id=connectorID
-          />
-          <Modal
-            showModal
-            closeOnOutsideClick=false
-            setShowModal
-            childClass="p-0"
-            borderBottom=true
-            modalClass="w-full max-w-2xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
-            modalBody
-          </Modal>
-        </>
+        <BillingProcessorsSetUp
+          initialValues
+          validateMandatoryField
+          connector={paymentConnectorName}
+          billingConnector=connector
+          onSubmit
+          connector_account_reference_id=connectorID
+        />
       | (#reviewDetails, _) => <BillingProcessorsReviewDetails />
       | _ => React.null
       }}

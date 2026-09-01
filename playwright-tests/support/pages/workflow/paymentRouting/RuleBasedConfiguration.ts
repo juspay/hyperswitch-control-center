@@ -44,15 +44,11 @@ export class RuleBasedConfiguration {
   }
 
   get distributeCheckboxNotSelected(): Locator {
-    return this.page
-      .locator("div")
-      .filter({ hasText: /^Distribute$/ })
-      .nth(1)
-      .locator('[data-selected-checkbox="NotSelected"]');
+    return this.page.locator("#app").getByRole("checkbox");
   }
 
   get distributeCheckboxSelected(): Locator {
-    return this.page.locator('[data-selected-checkbox="Selected"]');
+    return this.page.getByRole("checkbox");
   }
 
   get addConditionButton(): Locator {
@@ -83,13 +79,6 @@ export class RuleBasedConfiguration {
 
   get removeFirstConnectorButton(): Locator {
     return this.page.locator(".w-min > .flex.flex-col").first();
-  }
-
-  dropdownOption(text: string, nth = 5): Locator {
-    return this.page
-      .locator("div")
-      .filter({ hasText: new RegExp(`^${text}$`) })
-      .nth(nth);
   }
 
   percentageInput(name: string | number): Locator {

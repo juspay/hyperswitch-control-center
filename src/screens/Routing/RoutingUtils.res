@@ -1,4 +1,5 @@
 open RoutingTypes
+open AdvancedRoutingUtils
 open LogicUtils
 external toWasm: Dict.t<JSON.t> => wasmModule = "%identity"
 
@@ -23,6 +24,15 @@ let routingTypeName = routingType => {
   | DEFAULTFALLBACK => "default"
   | AUTH_RATE_ROUTING => "auth-rate"
   | NO_ROUTING => ""
+  }
+}
+
+let decisionEngineRoutingTarget = routingType => {
+  switch routingType {
+  | VOLUME_SPLIT => "volume"
+  | ADVANCED => "rule"
+  | AUTH_RATE_ROUTING => "multi_objective"
+  | _ => ""
   }
 }
 
@@ -69,7 +79,7 @@ let getModalObj = (routingType, text) => {
   }
 }
 
-let getContent = routetype =>
+let getContent = (~isCutover=false, routetype) =>
   switch routetype {
   | DEFAULTFALLBACK => {
       heading: "Default Fallback ",
@@ -83,10 +93,16 @@ let getContent = routetype =>
       heading: "Rule Based Configuration",
       subHeading: "Route traffic across processors with advanced logic rules on the basis of various payment parameters",
     }
-  | AUTH_RATE_ROUTING => {
-      heading: "Auth Rate Based Routing",
-      subHeading: "Dynamically route payments to maximise payment authorization rates",
-    }
+  | AUTH_RATE_ROUTING =>
+    isCutover
+      ? {
+          heading: "Multi Objective Routing",
+          subHeading: "Route payments across multiple objectives — authorization rate, cost, and reliability — optimized by the Decision Engine",
+        }
+      : {
+          heading: "Auth Rate Based Routing",
+          subHeading: "Dynamically route payments to maximise payment authorization rates",
+        }
   | _ => {
       heading: "",
       subHeading: "",
@@ -222,7 +238,8 @@ let validateConditionsFor3ds = dict => {
   let decisionValue = dict->getDictfromDict("connectorSelection")->getString("override_3ds", "")
 
   conditionsArray->Array.every(value => {
-    value->validateConditionJson(["comparison", "lhs"])
+    value->validateConditionJson(["comparison", "lhs"]) &&
+      value->getDictFromJsonObject->statementTypeMapper->isStatementMandatoryFieldsPresent
   }) && decisionValue->isNonEmptyString
 }
 
@@ -254,6 +271,43 @@ let filterConnectorList = (
     ->ConnectorUtils.connectorTypeTypedValueToStringMapper
     ->filter(~retainInList)
   )
+}
+
+let decisionEngineHandoffFragment = (
+  connectorList: array<ConnectorTypes.connectorPayloadCommonType>,
+  ~profileId,
+  ~ruleId="",
+) => {
+  let connectors =
+    connectorList
+    ->filterConnectorList(~retainInList=PaymentConnector)
+    ->Array.filter(connector =>
+      connector.profile_id === profileId &&
+      !connector.disabled &&
+      connector.connector_name !== "applepay"
+    )
+    ->Array.map(connector =>
+      [
+        ("merchant_connector_id", connector.id->JSON.Encode.string),
+        ("connector_name", connector.connector_name->JSON.Encode.string),
+        ("connector_label", connector.connector_label->JSON.Encode.string),
+      ]->getJsonFromArrayOfJson
+    )
+
+  let params = []
+  if connectors->isNonEmptyArray {
+    params->Array.push((
+      "connectors",
+      connectors->JSON.Encode.array->JSON.stringify->encodeURIComponent,
+    ))
+  }
+  if ruleId->isNonEmptyString {
+    params->Array.push(("rule_id", ruleId->encodeURIComponent))
+  }
+
+  params->isEmptyArray
+    ? ""
+    : `#${params->Array.map(((key, value)) => `${key}=${value}`)->Array.joinWith("&")}`
 }
 
 let filterConnectorListJson = (json, ~retainInList) => {

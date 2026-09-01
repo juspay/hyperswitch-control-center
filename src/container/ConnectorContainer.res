@@ -13,6 +13,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId()
+  let {isCurrentMerchantPlatform} = OMPSwitchHooks.useOMPType()
 
   let setUpConnectoreContainer = async () => {
     try {
@@ -152,10 +153,7 @@ let make = () => {
         isEnabled={featureFlagDetails.configurePmts}>
         <FilterContext key="ConfigurePmts" index="ConfigurePmts">
           <EntityScaffold
-            entityName="ConfigurePMTs"
-            remainingPath
-            renderList={() => <PaymentMethodList />}
-            renderShow={(_, _) => <PaymentSettings webhookOnly=false showFormOnly=false />}
+            entityName="ConfigurePMTs" remainingPath renderList={() => <PaymentMethodList />}
           />
         </FilterContext>
       </AccessControl>
@@ -189,35 +187,13 @@ let make = () => {
         />
       </AccessControl>
     | list{"payment-settings", ...remainingPath} =>
-      <>
-        <RenderIf condition={featureFlagDetails.paymentSettingsRevamped}>
-          <AccessControl authorization=Access>
-            <EntityScaffold
-              entityName="PaymentSettingsRevamped"
-              remainingPath
-              renderList={() => <PaymentSettingsRevamped />}
-            />
-          </AccessControl>
-        </RenderIf>
-        <RenderIf condition={!featureFlagDetails.paymentSettingsRevamped}>
-          <AccessControl authorization=Access>
-            <EntityScaffold
-              entityName="PaymentSettings" remainingPath renderList={() => <PaymentSettings />}
-            />
-          </AccessControl>
-        </RenderIf>
-      </>
-    | list{"webhooks", ...remainingPath} =>
-      <AccessControl isEnabled={featureFlagDetails.devWebhooks} authorization=Access>
-        <FilterContext key="webhooks" index="webhooks">
-          <EntityScaffold
-            entityName="Webhooks"
-            remainingPath
-            access=Access
-            renderList={() => <Webhooks />}
-            renderShow={(id, _) => <WebhooksDetails id />}
-          />
-        </FilterContext>
+      <AccessControl authorization=Access>
+        <EntityScaffold
+          entityName="PaymentSettings"
+          remainingPath
+          renderList={() =>
+            isCurrentMerchantPlatform ? <PlatformPaymentSettings /> : <PaymentSettings />}
+        />
       </AccessControl>
     | list{"sdk"} =>
       <AccessControl

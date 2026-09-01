@@ -1,6 +1,6 @@
 type connectorSummarySection = AuthenticationKeys | Metadata | PMTs | PaymentConnectors
 open Typography
-open PaymentSettingsRevampedUtils
+open PaymentSettingsUtils
 
 module WebhooksConfiguration = {
   @react.component
@@ -243,11 +243,24 @@ module BillingConnectorDetails = {
               {connectorName->React.string}
             </div>
           </div>
+          <div className="flex flex-col gap-2 ">
+            <h4 className="text-nd_gray-400 "> {"Merchant Connector ID"->React.string} </h4>
+            <HelperComponents.CopyTextCustomComp
+              displayValue={Some(connectorInfodict.id)}
+              customTextCss="!font-jetbrains-mono text-nd_gray-600"
+            />
+          </div>
           <RenderIf
             condition={connectorName->getConnectorNameTypeFromString(
               ~connectorType=BillingProcessor,
             ) != BillingProcessor(CUSTOMBILLING)}>
-            <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
+            <ConnectorWebhookPreview
+              merchantId
+              connectorName=connectorInfodict.connector_name
+              version=V2
+              connectorId=connectorInfodict.id
+              isRecoveryWebhook=true
+            />
           </RenderIf>
         </div>
         {switch connectorName->getConnectorNameTypeFromString(~connectorType=BillingProcessor) {
@@ -447,7 +460,19 @@ module PaymentConnectorDetails = {
                   <h4 className="text-nd_gray-400 "> {"Profile"->React.string} </h4>
                   {connectorInfodict.profile_id->React.string}
                 </div>
-                <ConnectorWebhookPreview merchantId connectorName=connectorInfodict.id />
+                <div className="flex flex-col gap-2 ">
+                  <h4 className="text-nd_gray-400 "> {"Merchant Connector ID"->React.string} </h4>
+                  <HelperComponents.CopyTextCustomComp
+                    displayValue={Some(connectorInfodict.id)}
+                    customTextCss="!font-jetbrains-mono text-nd_gray-600"
+                  />
+                </div>
+                <ConnectorWebhookPreview
+                  merchantId
+                  connectorName=connectorInfodict.connector_name
+                  version=V2
+                  connectorId=connectorInfodict.id
+                />
               </div>
               <div className="flex flex-col gap-4">
                 <div className="flex justify-between border-b pb-4 px-2 items-end">
@@ -475,11 +500,14 @@ module RetriesConfiguration = {
   open LogicUtils
   open APIUtils
   @react.component
-  let make = (~removeFieldsFromResponse) => {
+  let make = (~removeFieldsFromResponse, ~merchantId) => {
     let getURL = useGetURL()
     let fetchDetails = useGetMethod()
+    let updateAPIHook = useUpdateMethod(~showErrorToast=false)
+    let showToast = ToastAdapter.useShowToast()
     let (screenState, setScreenState) = React.useState(_ => Loading)
     let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
+    let (isEditMode, setIsEditMode) = React.useState(_ => false)
 
     let billingConnectorListFromRecoil = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=BillingProcessor,
@@ -522,22 +550,139 @@ module RetriesConfiguration = {
     let billing_connector_retry_threshold =
       revenueRecovery->getInt("billing_connector_retry_threshold", 0)
 
+    let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
+      try {
+        setScreenState(_ => Loading)
+        let connectorUrl = getURL(
+          ~entityName=V2(V2_CONNECTOR),
+          ~methodType=Put,
+          ~id=Some(connectorID),
+        )
+        let dict = RecoveryConnectorUtils.getUpdatableConnectorBody(
+          ~valuesDict=values->getDictFromJsonObject,
+          ~merchantId,
+        )
+        let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put, ~version=V2)
+        setInitialValues(_ => response->removeFieldsFromResponse)
+        setIsEditMode(_ => false)
+        showToast(~message="Retries configuration updated", ~toastType=ToastState.ToastSuccess)
+        setScreenState(_ => Success)
+      } catch {
+      | _ => {
+          setScreenState(_ => Success)
+          showToast(~message="Failed to update", ~toastType=ToastState.ToastError)
+        }
+      }
+      Nullable.null
+    }
+
+    /* mirrors the bounds the onboarding retry step enforces */
+    let validateRetryFields = values => {
+      let errors = Dict.make()
+      let retryValues =
+        values
+        ->getDictFromJsonObject
+        ->getDictfromDict("feature_metadata")
+        ->getDictfromDict("revenue_recovery")
+      let threshold = retryValues->getInt("billing_connector_retry_threshold", 0)
+      let maxRetry = retryValues->getInt("max_retry_count", 0)
+
+      if threshold === 0 {
+        errors->Dict.set(
+          "feature_metadata.revenue_recovery.billing_connector_retry_threshold",
+          "Please enter start retry count"->JSON.Encode.string,
+        )
+      } else if threshold > 15 {
+        errors->Dict.set(
+          "feature_metadata.revenue_recovery.billing_connector_retry_threshold",
+          "Start retry count should be less than 15"->JSON.Encode.string,
+        )
+      }
+
+      if maxRetry === 0 {
+        errors->Dict.set(
+          "feature_metadata.revenue_recovery.max_retry_count",
+          "Please enter max retry count"->JSON.Encode.string,
+        )
+      } else if maxRetry > 15 {
+        errors->Dict.set(
+          "feature_metadata.revenue_recovery.max_retry_count",
+          "Max retry count should be less than 15"->JSON.Encode.string,
+        )
+      }
+
+      errors->JSON.Encode.object
+    }
+
+    let retryField = (~name, ~placeholder) =>
+      FormRenderer.makeFieldInfo(
+        ~label="",
+        ~name,
+        ~placeholder,
+        ~customInput=InputFields.numericTextInput(~customStyle="rounded-xl"),
+        ~isRequired=true,
+      )
+
     <PageLoaderWrapper screenState>
-      <div className="flex flex-col gap-7">
-        <div className="flex justify-between border-b pb-4 px-2 items-end">
-          <p className={heading.md.semibold}> {"Retries configuration"->React.string} </p>
-        </div>
-        <div className="grid grid-cols-3 px-2">
-          <div className="flex flex-col gap-2 ">
-            <h4 className="text-nd_gray-400 "> {"Connector Retry Threshold"->React.string} </h4>
-            {billing_connector_retry_threshold->Int.toString->React.string}
+      <Form onSubmit initialValues validate=validateRetryFields>
+        <div className="flex flex-col gap-7">
+          <div className="flex justify-between border-b pb-4 px-2 items-end">
+            <p className={heading.md.semibold}> {"Retries configuration"->React.string} </p>
+            <div className="flex gap-4">
+              <RenderIf condition={isEditMode}>
+                <Button
+                  text="Cancel"
+                  onClick={_ => setIsEditMode(_ => false)}
+                  buttonType={Secondary}
+                  buttonSize={Small}
+                  customButtonStyle="w-fit"
+                />
+                <FormRenderer.SubmitButton
+                  text="Save" buttonSize={Small} customSubmitButtonStyle="w-fit"
+                />
+              </RenderIf>
+              <RenderIf condition={!isEditMode}>
+                <div
+                  className="flex gap-2 items-center cursor-pointer"
+                  onClick={_ => setIsEditMode(_ => true)}>
+                  <Icon name="nd-edit" size=14 />
+                  <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
+                </div>
+              </RenderIf>
+            </div>
           </div>
-          <div className="flex flex-col gap-2 ">
-            <h4 className="text-nd_gray-400 "> {"Max Retry Count"->React.string} </h4>
-            {max_retry_count->Int.toString->React.string}
+          <div className="grid grid-cols-3 px-2 gap-4">
+            <div className="flex flex-col gap-2 ">
+              <h4 className="text-nd_gray-400 "> {"Connector Retry Threshold"->React.string} </h4>
+              <RenderIf condition={isEditMode}>
+                <FormRenderer.FieldRenderer
+                  field={retryField(
+                    ~name="feature_metadata.revenue_recovery.billing_connector_retry_threshold",
+                    ~placeholder="ex 3",
+                  )}
+                />
+              </RenderIf>
+              <RenderIf condition={!isEditMode}>
+                {billing_connector_retry_threshold->Int.toString->React.string}
+              </RenderIf>
+            </div>
+            <div className="flex flex-col gap-2 ">
+              <h4 className="text-nd_gray-400 "> {"Max Retry Count"->React.string} </h4>
+              <RenderIf condition={isEditMode}>
+                <FormRenderer.FieldRenderer
+                  field={retryField(
+                    ~name="feature_metadata.revenue_recovery.max_retry_count",
+                    ~placeholder="ex 15",
+                  )}
+                />
+              </RenderIf>
+              <RenderIf condition={!isEditMode}>
+                {max_retry_count->Int.toString->React.string}
+              </RenderIf>
+            </div>
           </div>
         </div>
-      </div>
+      </Form>
     </PageLoaderWrapper>
   }
 }
@@ -548,6 +693,12 @@ let make = () => {
   let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let (paymentConnectorId, setPaymentConnectorId) = React.useState(_ => "")
   let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+
+  let billingConnectorListFromRecoil = ConnectorListInterface.useFilteredConnectorList(
+    ~retainInList=BillingProcessor,
+  )
+  let (billingConnectorId, billingConnectorName) =
+    billingConnectorListFromRecoil->BillingProcessorsUtils.getConnectorDetails
 
   let removeFieldsFromResponse = json => {
     let dict = json->getDictFromJsonObject
@@ -566,6 +717,15 @@ let make = () => {
       renderContent: () => {
         <div className="flex flex-col gap-20 mt-10">
           <BillingConnectorDetails removeFieldsFromResponse merchantId setPaymentConnectorId />
+          <RenderIf condition={billingConnectorId->isNonEmptyString}>
+            <RecoveryPaymentProcessorsSection
+              billingConnectorId
+              billingConnectorName
+              merchantId
+              selectedProcessorId=paymentConnectorId
+              onSelectProcessor={id => setPaymentConnectorId(_ => id)}
+            />
+          </RenderIf>
           <PaymentConnectorDetails
             connectorId=paymentConnectorId removeFieldsFromResponse merchantId
           />
@@ -580,7 +740,7 @@ let make = () => {
       title: "Retries Configuration",
       renderContent: () => {
         <div className="flex flex-col gap-20 mt-10">
-          <RetriesConfiguration removeFieldsFromResponse />
+          <RetriesConfiguration removeFieldsFromResponse merchantId />
         </div>
       },
     })

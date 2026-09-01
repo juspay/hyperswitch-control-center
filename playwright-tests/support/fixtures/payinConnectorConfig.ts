@@ -2649,6 +2649,48 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
     },
   },
 
+  tsys_transit: {
+    label: "tsys_transit",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter merchant url": "https://example.com",
+      },
+      fieldLabels: [
+        "Device Id *",
+        "Transaction Key *",
+        "Developer Id *",
+        "Source verification key",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "DinersClub",
+          "Discover",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
   worldline: {
     label: "worldline",
     fields: {
@@ -3432,7 +3474,7 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
         "Username *",
         "Password *",
         "Private Key(Base64 encoded) *",
-        "Trustly's public key",
+        "Trustly's public key(Base64 encoded)",
       ],
     },
     paymentSections: {
@@ -3444,13 +3486,13 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
   },
 
   bambora_apac: {
-    label: "bambora",
+    label: "bamboraapac",
     fields: {
       default: "test_value",
       overrides: {
         "Enter Connector label": "bambora_apac_default",
       },
-      fieldLabels: ["Passcode *", "Merchant Id *"],
+      fieldLabels: ["Username *", "Account Number *", "Password *"],
     },
     paymentSections: {
       Credit: {
@@ -3530,6 +3572,251 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
       Wallet: {
         label: "Wallet",
         methods: ["google_pay", "paypal", "apple_pay"],
+      },
+    },
+  },
+
+  payconex: {
+    label: "payconex",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "payconex_default",
+      },
+      fieldLabels: ["API Key *", "Account Id *"],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: ["Visa", "Mastercard", "AmericanExpress", "Discover"],
+      },
+      Debit: {
+        label: "Debit",
+        methods: ["Visa", "Mastercard", "AmericanExpress", "Discover"],
+      },
+    },
+  },
+
+  coingate: {
+    label: "coingate",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "coingate_default",
+        "Enter ID of the currency in which the refund will be issued": "123",
+        "Enter Platform ID of the currency in which the refund will be issued":
+          "456",
+      },
+      fieldLabels: [
+        "API Key *",
+        "Merchant Token *",
+        "ID of the currency in which the refund will be issued *",
+        "Platform ID of the currency in which the refund will be issued *",
+        "ID of the trader balance associated with the currency in which the refund will be issued *",
+      ],
+    },
+    paymentSections: {
+      Crypto: {
+        label: "Crypto",
+        methods: ["crypto_currency"],
+      },
+    },
+  },
+
+  imerchantsolutions: {
+    label: "imerchantsolutions",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "imerchantsolutions_default",
+      },
+      fieldLabels: ["API Key *", "Source verification key"],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "UnionPay",
+        ],
+      },
+      Wallet: {
+        label: "Wallet",
+        methods: ["google_pay", "apple_pay"],
+      },
+    },
+  },
+
+  givepayments: {
+    label: "givepayments",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "givepayments_default",
+      },
+      fieldLabels: ["API Key *", "Source verification key"],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "DinersClub",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "DinersClub",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
+  authipay: {
+    label: "authipay",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "authipay_default",
+      },
+      fieldLabels: ["API Key *", "API Secret *", "Source verification key"],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: ["Mastercard", "Visa"],
+      },
+      Debit: {
+        label: "Debit",
+        methods: ["Mastercard", "Visa"],
+      },
+    },
+  },
+
+  citigate: {
+    label: "citigate",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "citigate_default",
+      },
+      fieldLabels: ["Merchant Name *", "Merchant Password *"],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Visa",
+          "Mastercard",
+          "AmericanExpress",
+          "DinersClub",
+          "Maestro",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Visa",
+          "Mastercard",
+          "AmericanExpress",
+          "DinersClub",
+          "Maestro",
+        ],
+      },
+    },
+  },
+
+  ilixium: {
+    label: "ilixium",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "ilixium_default",
+      },
+      fieldLabels: [
+        "Digest Calculation Password *",
+        "Merchant Id *",
+        "Account Id *",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "DinersClub",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "DinersClub",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
+  worldpayraft: {
+    label: "worldpayraft",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "worldpayraft_default",
+      },
+      // BodyKey auth (api_key, key1); no connector_webhook_details, so there
+      // is no "Source verification key" field on this form.
+      fieldLabels: [
+        "Worldpay License *",
+        "Worldpay Merchant ID *",
+        "Connector label *",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: ["Visa", "Mastercard", "AmericanExpress", "DinersClub"],
+      },
+      Debit: {
+        label: "Debit",
+        methods: ["Visa", "Mastercard", "AmericanExpress", "DinersClub"],
       },
     },
   },

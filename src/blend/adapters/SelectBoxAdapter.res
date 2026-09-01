@@ -119,6 +119,7 @@ module BaseDropdown = {
     ~showClearButton: option<bool>=?,
     ~onClearAllClick: option<unit => unit>=?,
     ~variant: option<MultiSelectBindings.selectMenuItemVariant>=?,
+    ~selectionTagType: option<MultiSelectBindings.selectionTagType>=?,
   ) => {
     let isBlendEnabled = BlendContext.useBlendEnabled()
     let useBlend = isBlendEnabled && baseComponentMethod->Option.isNone
@@ -160,6 +161,7 @@ module BaseDropdown = {
             ?primaryAction
             ?secondaryAction
             ?variant
+            ?selectionTagType
             ?onFocus
             ?onBlur
             ?showClearButton
@@ -168,6 +170,7 @@ module BaseDropdown = {
             side=?blendSide
             minMenuWidth={minMenuWidth->Option.getOr(300)}
             maxMenuWidth={maxMenuWidth->Option.getOr(300)}
+            menuFooter=?bottomComponent
           />
         }
       </RenderIf>
@@ -195,6 +198,7 @@ module BaseDropdown = {
             side=?blendSide
             ?minMenuWidth
             ?maxMenuWidth
+            menuFooter=?bottomComponent
           />
         }
       </RenderIf>
@@ -388,6 +392,7 @@ let make = (
   ~showClearButton: option<bool>=?,
   ~onClearAllClick: option<unit => unit>=?,
   ~variant: option<MultiSelectBindings.selectMenuItemVariant>=?,
+  ~selectionTagType: option<MultiSelectBindings.selectionTagType>=?,
 ) => {
   let isBlendEnabled = BlendContext.useBlendEnabled()
 
@@ -429,6 +434,7 @@ let make = (
           ?primaryAction
           ?secondaryAction
           ?variant
+          ?selectionTagType
           ?onFocus
           ?onBlur
           ?showClearButton

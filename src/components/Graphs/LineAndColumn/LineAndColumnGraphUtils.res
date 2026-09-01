@@ -15,7 +15,10 @@ let labelFormatter = (
   }
 )->asLegendsFormatter
 
-let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload) => {
+let getLineColumnGraphOptions = (
+  lineColumnGraphOptions: lineColumnGraphPayload,
+  ~onPointClick: option<string => unit>=?,
+) => {
   let {
     categories,
     data,
@@ -143,6 +146,22 @@ let getLineColumnGraphOptions = (lineColumnGraphOptions: lineColumnGraphPayload)
       column: {
         pointWidth: 10, // Adjust width of bars
         borderRadius: 3, // Rounds the top corners
+      },
+      series: switch onPointClick {
+      | Some(clickHandler) =>
+        Some({
+          point: Some({
+            events: Some({
+              click: Some(
+                event => {
+                  let seriesName = event.point.series.name
+                  clickHandler(seriesName)
+                },
+              ),
+            }),
+          }),
+        })
+      | None => None
       },
     },
     series: data,

@@ -37,7 +37,6 @@ let make = () => {
 
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let {logoURL} = React.useContext(ThemeProvider.themeContext)
-  let (isCurrentMerchantPlatform, _) = OMPSwitchHooks.useOMPType()
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
   let hyperSwitchAppSidebars = SidebarHooks.useGetSidebarValuesForCurrentActive()
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
@@ -118,6 +117,11 @@ let make = () => {
   | _ => false
   }
 
+  let showReconEngineStatus = switch activeProduct {
+  | Recon(V1) => featureFlagDetails.devReconEngineV1
+  | _ => false
+  }
+
   let onAskPulseClick = () => {
     mixpanelEvent(~eventName="ask_pulse_clicked")
     RescriptReactRouter.push(appendDashboardPath(~url="/chat-bot"))
@@ -144,11 +148,17 @@ let make = () => {
                     <Navbar
                       headerActions={<div className="relative flex space-around gap-4 my-2 ">
                         <div className="flex gap-4 items-center">
+                          <RenderIf condition={showReconEngineStatus}>
+                            <ReconEngineStatusIndicator />
+                          </RenderIf>
                           <RenderIf condition={showGlobalSearchBar}>
                             <GlobalSearchBar />
                           </RenderIf>
                           <RenderIf condition={isInternalUser}>
                             <SwitchMerchantForInternal />
+                          </RenderIf>
+                          <RenderIf condition={featureFlagDetails.devLaunchSage}>
+                            <LaunchSageButton />
                           </RenderIf>
                           <RenderIf
                             condition={featureFlagDetails.devAiChatBot &&
@@ -194,9 +204,7 @@ let make = () => {
                         }
                         <div className="flex md:gap-4 gap-2 items-center">
                           {logoElement}
-                          <RenderIf condition={!isCurrentMerchantPlatform}>
-                            <ProfileSwitch />
-                          </RenderIf>
+                          <ProfileSwitch />
                           <LiveMode />
                         </div>
                       }

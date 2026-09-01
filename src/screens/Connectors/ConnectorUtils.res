@@ -17,6 +17,10 @@ let getStepName = step => {
   | AutomaticFlow => "AutomaticFlow"
   }
 }
+// Any connector added to these lists must also be added to the matching
+// connector_list_for_live key in the env config otherwise it won't appear
+// once the config-driven list takes over. These lists remain the fallback used
+// when a category is missing from the config.
 
 let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(ADYEN),
@@ -36,6 +40,8 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(TRUELAYER),
   PayoutProcessor(ENVOY),
   PayoutProcessor(TRUSTLY),
+  PayoutProcessor(SANTANDER),
+  PayoutProcessor(DEUTSCHEBANK),
 ]
 
 let payoutConnectorListForLive: array<connectorTypes> = [
@@ -188,6 +194,11 @@ let connectorList: array<connectorTypes> = [
   Processors(TRUSTLY),
   Processors(IMERCHANTSOLUTIONS),
   Processors(PAYCONEX),
+  Processors(TSYSTRANSIT),
+  Processors(GIVEPAYMENTS),
+  Processors(CITIGATE),
+  Processors(ILIXIUM),
+  Processors(WORLDPAYRAFT),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -736,6 +747,26 @@ let payconexInfo = {
   description: "PayConex is Bluefin's payment gateway platform, offering secure card payment processing with PCI-validated point-to-point encryption and tokenization.",
 }
 
+let tsystransitInfo = {
+  description: "TransIT is a RESTful payment gateway for processing transactions and value-added services with real-time reporting.",
+}
+
+let givepaymentsInfo = {
+  description: "GivePayments connects providers, merchants, and customers through a fully integrated ecosystem of payment tools and services with built-in chargeback prevention, automated underwriting, and PCI DSS 4.0-level security.",
+}
+
+let citigateInfo = {
+  description: "Citigate is a multi-interface payment gateway for card transactions and post-authorisation operations, with 3D Secure support and standardised bank response codes.",
+}
+
+let ilixiumInfo = {
+  description: "Ilixium is a secure payment platform for processing card transactions and transaction operations, with tokenisation to ease PCI compliance and native 3D Secure authentication.",
+}
+
+let worldpayraftInfo = {
+  description: "Native RAFT is Worldpay's RESTful API for direct access to their core authorization processing platform, supporting credit, debit, gift card, and alternate payment methods for enterprise merchants in the USA.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -1020,6 +1051,11 @@ let getConnectorNameString = (connector: processorTypes) =>
   | TRUSTLY => "trustly"
   | IMERCHANTSOLUTIONS => "imerchantsolutions"
   | PAYCONEX => "payconex"
+  | TSYSTRANSIT => "tsys_transit"
+  | GIVEPAYMENTS => "givepayments"
+  | CITIGATE => "citigate"
+  | ILIXIUM => "ilixium"
+  | WORLDPAYRAFT => "worldpayraft"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1041,6 +1077,8 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | TRUELAYER => "truelayer"
   | ENVOY => "envoy"
   | TRUSTLY => "trustly"
+  | SANTANDER => "santander"
+  | DEUTSCHEBANK => "deutschebank"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -1230,6 +1268,11 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "trustly" => Processors(TRUSTLY)
     | "imerchantsolutions" => Processors(IMERCHANTSOLUTIONS)
     | "payconex" => Processors(PAYCONEX)
+    | "tsys_transit" => Processors(TSYSTRANSIT)
+    | "givepayments" => Processors(GIVEPAYMENTS)
+    | "citigate" => Processors(CITIGATE)
+    | "ilixium" => Processors(ILIXIUM)
+    | "worldpayraft" => Processors(WORLDPAYRAFT)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1251,6 +1294,8 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "truelayer" => PayoutProcessor(TRUELAYER)
     | "envoy" => PayoutProcessor(ENVOY)
     | "trustly" => PayoutProcessor(TRUSTLY)
+    | "santander" => PayoutProcessor(SANTANDER)
+    | "deutschebank" => PayoutProcessor(DEUTSCHEBANK)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -1416,6 +1461,11 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | TRUSTLY => trustlyInfo
   | IMERCHANTSOLUTIONS => imerchantsolutionsInfo
   | PAYCONEX => payconexInfo
+  | TSYSTRANSIT => tsystransitInfo
+  | GIVEPAYMENTS => givepaymentsInfo
+  | CITIGATE => citigateInfo
+  | ILIXIUM => ilixiumInfo
+  | WORLDPAYRAFT => worldpayraftInfo
   }
 }
 
@@ -1438,6 +1488,8 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | TRUELAYER => truelayerInfo
   | ENVOY => envoyInfo
   | TRUSTLY => trustlyInfo
+  | SANTANDER => santanderInfo
+  | DEUTSCHEBANK => deutscheBankInfo
   }
 }
 
@@ -1578,6 +1630,7 @@ let configKeysToIgnore = [
   "connector_webhook_details",
   "additional_merchant_data",
   "connector_wallets_details",
+  "connector_webhook_register_details",
 ]
 
 let verifyConnectorIgnoreField = [
@@ -2412,6 +2465,11 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | TRUSTLY => "Trustly"
   | IMERCHANTSOLUTIONS => "iMerchant Solutions"
   | PAYCONEX => "PayConex"
+  | TSYSTRANSIT => "TSYS Transit"
+  | GIVEPAYMENTS => "GivePayments"
+  | CITIGATE => "Citigate"
+  | ILIXIUM => "Ilixium"
+  | WORLDPAYRAFT => "Worldpay Raft"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -2433,6 +2491,8 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | TRUELAYER => "Truelayer"
   | ENVOY => "Worldpay Envoy"
   | TRUSTLY => "Trustly"
+  | SANTANDER => "Santander"
+  | DEUTSCHEBANK => "Deutsche Bank"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
@@ -2501,6 +2561,47 @@ let getDisplayNameForConnector = (~connectorType=ConnectorTypes.Processor, conne
     surchargeProcessor->getDisplayNameForSurchargeProcessor
   | UnknownConnector(str) => str
   }
+}
+
+let getConnectorCategory = (connector: connectorTypes): option<connector> =>
+  switch connector {
+  | Processors(_) => Some(Processor)
+  | PayoutProcessor(_) => Some(PayoutProcessor)
+  | ThreeDsAuthenticator(_) => Some(ThreeDsAuthenticator)
+  | FRM(_) => Some(FRMPlayer)
+  | PMAuthenticationProcessor(_) => Some(PMAuthenticationProcessor)
+  | TaxProcessor(_) => Some(TaxProcessor)
+  | BillingProcessor(_) => Some(BillingProcessor)
+  | VaultProcessor(_) => Some(VaultProcessor)
+  | SurchargeProcessor(_) => Some(SurchargeProcessor)
+  | UnknownConnector(_) => None
+  }
+
+let matchesConnectorTypeSearch = (connector: connectorTypes, searchText) => {
+  let connectorName = connector->getConnectorNameString
+  let displayName =
+    connector
+    ->getConnectorCategory
+    ->mapOptionOrDefault(connectorName, connectorType =>
+      connectorName->getDisplayNameForConnector(~connectorType)
+    )
+
+  [connectorName, displayName]->Array.some(value => isContainingStringLowercase(value, searchText))
+}
+
+let matchesConnectorSearch = (
+  ~connectorType=ConnectorTypes.Processor,
+  connector: connectorPayloadCommonType,
+  searchText,
+) => {
+  let displayName = connector.connector_name->getDisplayNameForConnector(~connectorType)
+
+  [
+    connector.connector_name,
+    displayName,
+    connector.id,
+    connector.connector_label,
+  ]->Array.some(value => isContainingStringLowercase(value, searchText))
 }
 
 let getConnectorFilterOptions = (

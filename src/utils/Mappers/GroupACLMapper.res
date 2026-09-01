@@ -7,6 +7,7 @@ let mapGroupAccessTypeToString = groupAccessType =>
   | OperationsManage => "operations_manage"
   | ConnectorsView => "connectors_view"
   | ConnectorsManage => "connectors_manage"
+  | CloneConnectorManage => "clone_connector_manage"
   | WorkflowsView => "workflows_view"
   | WorkflowsManage => "workflows_manage"
   | AnalyticsView => "analytics_view"
@@ -27,6 +28,8 @@ let mapGroupAccessTypeToString = groupAccessType =>
   | ReconRulesManage => "recon_rules_manage"
   | ReconExceptionsView => "recon_exceptions_view"
   | ReconExceptionsManage => "recon_exceptions_manage"
+  | ConfigurationsView => "configurations_view"
+  | ConfigurationsManage => "configurations_manage"
   | UnknownGroupAccess(val) => val
   }
 
@@ -36,6 +39,7 @@ let mapStringToGroupAccessType = val =>
   | "operations_manage" => OperationsManage
   | "connectors_view" => ConnectorsView
   | "connectors_manage" => ConnectorsManage
+  | "clone_connector_manage" => CloneConnectorManage
   | "workflows_view" => WorkflowsView
   | "workflows_manage" => WorkflowsManage
   | "analytics_view" => AnalyticsView
@@ -56,6 +60,8 @@ let mapStringToGroupAccessType = val =>
   | "recon_rules_manage" => ReconRulesManage
   | "recon_exceptions_view" => ReconExceptionsView
   | "recon_exceptions_manage" => ReconExceptionsManage
+  | "configurations_view" => ConfigurationsView
+  | "configurations_manage" => ConfigurationsManage
   | val => UnknownGroupAccess(val)
   }
 
@@ -66,6 +72,7 @@ let mapStringToResourceAccessType = val =>
   | "api_key" => ApiKey
   | "account" => Account
   | "connector" => Connector
+  | "clone_connector" => CloneConnector
   | "routing" => Routing
   | "dispute" => Dispute
   | "mandate" => Mandate
@@ -84,6 +91,7 @@ let mapStringToResourceAccessType = val =>
   | "recon_staging_entry" => ReconStagingEntry
   | "recon_transaction" => ReconTransaction
   | "recon_rule" => ReconRule
+  | "superposition_config" => SuperpositionConfigs
   | _ => UnknownResourceAccess(val)
   }
 
@@ -92,6 +100,7 @@ let defaultValueForGroupAccessJson = {
   operationsManage: NoAccess,
   connectorsView: NoAccess,
   connectorsManage: NoAccess,
+  cloneConnectorManage: NoAccess,
   workflowsView: NoAccess,
   workflowsManage: NoAccess,
   analyticsView: NoAccess,
@@ -112,6 +121,8 @@ let defaultValueForGroupAccessJson = {
   reconRulesManage: NoAccess,
   reconExceptionsView: NoAccess,
   reconExceptionsManage: NoAccess,
+  configurationsView: NoAccess,
+  configurationsManage: NoAccess,
 }
 
 let convertValueToMapGroup = arrayValue => {
@@ -134,6 +145,7 @@ let getGroupAccessJson = groupACL => {
     operationsManage: getAccess(OperationsManage),
     connectorsView: getAccess(ConnectorsView),
     connectorsManage: getAccess(ConnectorsManage),
+    cloneConnectorManage: getAccess(CloneConnectorManage),
     workflowsView: getAccess(WorkflowsView),
     workflowsManage: getAccess(WorkflowsManage),
     analyticsView: getAccess(AnalyticsView),
@@ -154,5 +166,7 @@ let getGroupAccessJson = groupACL => {
     reconRulesManage: getAccess(ReconRulesManage),
     reconExceptionsView: getAccess(ReconExceptionsView),
     reconExceptionsManage: getAccess(ReconExceptionsManage),
+    configurationsView: getAccess(ConfigurationsView),
+    configurationsManage: getAccess(ConfigurationsManage),
   }
 }

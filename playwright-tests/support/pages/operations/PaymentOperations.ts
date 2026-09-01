@@ -8,7 +8,9 @@ export class PaymentOperations {
   }
 
   get transactionView(): Locator {
-    return this.page.locator('[class="grid lg:grid-cols-6 md:grid-cols-3 sm:grid-cols-3 grid-cols-2 gap-6 mb-8"]');
+    return this.page.locator(
+      '[class="grid lg:grid-cols-6 sm:grid-cols-3 md:grid-cols-3 grid-cols-2 gap-6 mb-8"]',
+    );
   }
 
   get searchBox(): Locator {
@@ -16,7 +18,7 @@ export class PaymentOperations {
   }
 
   get dateSelector(): Locator {
-    return this.page.locator('[data-testid="date-range-selector"]');
+    return this.page.getByRole("button", { name: "Date range picker" });
   }
 
   get viewDropdown(): Locator {
@@ -45,7 +47,7 @@ export class PaymentOperations {
 
   // Page header / empty state
   get pageHeader(): Locator {
-    return this.page.locator('[class="flex justify-between items-center"]');
+    return this.page.getByText("Payment Operations");
   }
 
   get pageTitle(): Locator {
@@ -82,7 +84,7 @@ export class PaymentOperations {
   }
 
   get applyButton(): Locator {
-    return this.page.locator('[data-button-text="Apply"]');
+    return this.page.getByRole("button", { name: "Apply" });
   }
 
   get modalCloseIcon(): Locator {
@@ -92,7 +94,7 @@ export class PaymentOperations {
   }
 
   get crossOutlineIcon(): Locator {
-    return this.page.locator('[data-icon="cross-outline"]');
+    return this.page.getByRole("button", { name: "Clear selection" });
   }
 
   get searchExitIcon(): Locator {
@@ -138,8 +140,8 @@ export class PaymentOperations {
     return this.dropdownValue(value);
   }
 
-  visibleDropdownValue(value: string): Locator {
-    return this.page.locator(`[data-dropdown-value="${value}"]:visible`);
+  visibleDropdownValue(_value: string): Locator {
+    return this.page.locator('[data-element="menu-content"]');
   }
 
   tableHeading(column: string): Locator {
@@ -148,9 +150,7 @@ export class PaymentOperations {
 
   // Date picker
   get predefinedDateOptions(): Locator {
-    return this.page.locator(
-      '[data-date-picker-predefined="predefined-options"]',
-    );
+    return this.page.locator('[data-element="menu-content"]');
   }
 
   /**
@@ -168,7 +168,7 @@ export class PaymentOperations {
     await expect(this.dateSelector).toBeVisible();
     await expect(async () => {
       if (!(await this.predefinedDateOptions.isVisible())) {
-        await this.dateSelector.click({ force: true });
+        await this.customRangeOption.click({ force: true });
       }
       await expect(this.predefinedDateOptions).toBeVisible({ timeout: 2000 });
     }).toPass({ timeout: 15000 });
@@ -182,13 +182,52 @@ export class PaymentOperations {
     return this.page.locator('[data-daterange-dropdown-value="Custom Range"]');
   }
 
-  // Filters
-  get filterChipArea(): Locator {
-    return this.page.locator('[class="flex relative  flex-row  flex-wrap"]');
+  get customDateRangeButton(): Locator {
+    return this.page.locator('[data-element="preset-selector"]');
   }
 
-  get filterChipContainer(): Locator {
-    return this.filterChipArea;
+  // Saved views
+  get saveCurrentViewButton(): Locator {
+    return this.page.getByRole("button", { name: "Save Current View" });
+  }
+
+  get savedViewsButton(): Locator {
+    return this.page.getByRole("button", { name: "Saved Views" });
+  }
+
+  get saveViewModal(): Locator {
+    return this.page.locator('[data-component="modal:Save View"]');
+  }
+
+  get savedViewNameInput(): Locator {
+    return this.saveViewModal.locator('[name="viewName"]');
+  }
+
+  get includeDateRangeCheckbox(): Locator {
+    return this.saveViewModal.getByText(/Include date range/i);
+  }
+
+  get saveNewViewButton(): Locator {
+    return this.saveViewModal.getByRole("button", { name: "Save New View" });
+  }
+
+  get overwriteExistingViewButton(): Locator {
+    return this.saveViewModal.getByRole("button", {
+      name: "Overwrite Existing View",
+    });
+  }
+
+  savedViewOption(name: string): Locator {
+    return this.page.locator(`[data-options="${name}"]`);
+  }
+
+  get savedViewDeleteIcon(): Locator {
+    return this.page.locator('[data-icon="trash-outline"]');
+  }
+
+  // Filters
+  filterChipArea(key: string): Locator {
+    return this.page.getByRole("button", { name: `Select ${key}` });
   }
 
   get statusFieldWrapper(): Locator {
@@ -205,17 +244,17 @@ export class PaymentOperations {
 
   // Toasts
   get emailSentToast(): Locator {
-    return this.page.locator('[data-toast="Email Sent"]');
+    return this.page.locator('[data-id="Email Sent"]');
   }
 
   get genericErrorToast(): Locator {
     return this.page.locator(
-      '[data-toast="Something went wrong. Please try again."]',
+      '[data-id="Something went wrong. Please try again."]',
     );
   }
 
   dataToast(text: string): Locator {
-    return this.page.locator(`[data-toast="${text}"]`);
+    return this.page.locator(`[data-id="${text}"]`);
   }
 
   // Data labels (generic)
@@ -262,11 +301,168 @@ export class PaymentOperations {
   }
 
   get refundAmountInput(): Locator {
-    return this.page.locator('[name="amount"]');
+    return this.page.getByRole("spinbutton", { name: "Enter Refund Amount" });
   }
 
   get refundReasonInput(): Locator {
     return this.page.locator('[name="reason"]');
+  }
+
+  // Capture modal (opened from payment details for requires_capture payments)
+  get addCaptureButton(): Locator {
+    return this.page.locator('[data-button-text="+ Capture"]');
+  }
+
+  get captureAmountInput(): Locator {
+    return this.page.getByRole("spinbutton", {
+      name: "Enter Amount to Capture",
+    });
+  }
+
+  get confirmCaptureButton(): Locator {
+    return this.page.getByRole("button", { name: "Capture", exact: true });
+  }
+
+  get captureSuccessToast(): Locator {
+    return this.page.locator('[data-id="Payment captured successfully"]');
+  }
+
+  get captureErrorToast(): Locator {
+    return this.page.locator('[data-id="Failed to capture payment"]');
+  }
+
+  // Void modal (opened from payment details for requires_capture payments)
+  get addVoidButton(): Locator {
+    return this.page.locator('[data-button-text="+ Void"]');
+  }
+
+  get voidModalHeading(): Locator {
+    return this.page.getByText("Confirm Void Payment", { exact: true });
+  }
+
+  get voidWarning(): Locator {
+    return this.page.getByText(
+      "This action is irreversible and cannot be undone.",
+      { exact: true },
+    );
+  }
+
+  get voidPaymentStatus(): Locator {
+    return this.page
+      .getByText("REQUIRES_CAPTURE")
+      .nth(1)
+      .filter({ visible: true })
+      .last();
+  }
+
+  get cancellationReasonInput(): Locator {
+    return this.page.locator('[name="cancellation_reason"]');
+  }
+
+  get confirmVoidButton(): Locator {
+    return this.page.getByRole("button", { name: "Confirm Void" });
+  }
+
+  get cancelVoidButton(): Locator {
+    return this.page.getByRole("button", { name: "Cancel", exact: true });
+  }
+
+  get voidSuccessToast(): Locator {
+    return this.page.locator('[data-id="Payment voided successfully"]');
+  }
+
+  get voidErrorToast(): Locator {
+    return this.page.locator('[data-id="Failed to void payment"]');
+  }
+
+  // Manual status update for payments in Review state
+  get manualAttentionHeading(): Locator {
+    return this.page.getByText("This payment needs manual attention", {
+      exact: true,
+    });
+  }
+
+  get manualAttentionDescription(): Locator {
+    return this.page.getByText(
+      "Hyperswitch received an anomalous response from the connector for this payment. Review it and update the status to Succeeded or Failed.",
+      { exact: true },
+    );
+  }
+
+  get updatePaymentStatusButton(): Locator {
+    return this.page.getByRole("button", { name: "Update Payment Status" });
+  }
+
+  get updatePaymentStatusModal(): Locator {
+    return this.page.locator('[data-component="modal:Update Payment Status"]');
+  }
+
+  get updatePaymentStatusModalHeading(): Locator {
+    return this.updatePaymentStatusModal.getByText("Update Payment Status", {
+      exact: true,
+    });
+  }
+
+  get updatePaymentStatusModalDescription(): Locator {
+    return this.updatePaymentStatusModal.getByText(
+      "Manually set the status for this payment.",
+      { exact: true },
+    );
+  }
+
+  get newStatusLabel(): Locator {
+    return this.updatePaymentStatusModal.getByText("New Status", {
+      exact: true,
+    });
+  }
+
+  get reviewStatusDropdown(): Locator {
+    return this.updatePaymentStatusModal.getByRole("button", {
+      name: "New Status",
+    });
+  }
+
+  reviewStatusOption(status: "Succeeded" | "Failed"): Locator {
+    return this.page.getByRole("menuitem", { name: status, exact: true });
+  }
+
+  get updateStatusButton(): Locator {
+    return this.updatePaymentStatusModal.getByRole("button", {
+      name: "Update Status",
+    });
+  }
+
+  get cancelStatusUpdateButton(): Locator {
+    return this.updatePaymentStatusModal.getByRole("button", {
+      name: "Cancel",
+    });
+  }
+
+  get confirmStatusUpdateHeading(): Locator {
+    return this.page.getByText("Confirm Status Update?", { exact: true });
+  }
+
+  get confirmStatusUpdateButton(): Locator {
+    return this.page.getByRole("button", { name: "Confirm", exact: true });
+  }
+
+  confirmStatusUpdateDescription(status: "Succeeded" | "Failed"): Locator {
+    return this.page.getByText(
+      `You are about to mark this payment as ${status}. This action is final and cannot be undone. Please confirm to proceed.`,
+      { exact: true },
+    );
+  }
+
+  get cancelStatusConfirmationButton(): Locator {
+    return this.page.getByRole("button", { name: "Cancel", exact: true });
+  }
+
+  manualStatusSuccessToast(status: "Succeeded" | "Failed"): Locator {
+    return this.page.locator(`[data-id="Payment marked as ${status}"]`);
+  }
+
+  get manualStatusErrorToast(): Locator {
+    return this.page.locator('[data-id="Failed to update payment status"]');
   }
 
   // Generate Payment Reports modal
@@ -280,7 +476,12 @@ export class PaymentOperations {
     return this.generatePaymentReportsModal;
   }
 
-  // Payment details accordions / section headers
+  // Payment details tabs
+  paymentDetailsTab(name: string): Locator {
+    return this.page.getByRole("tab", { name, exact: true });
+  }
+
+  // Payment details tab content / accordion section headers
   get eventsAndLogsSection(): Locator {
     return this.page
       .locator("div")

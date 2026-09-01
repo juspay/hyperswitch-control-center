@@ -244,7 +244,9 @@ let inviteEmail = FormRenderer.makeFieldInfo(
   ~name="email_list",
   ~customInput=(~input, ~placeholder as _) => {
     let showPlaceHolder = input.value->LogicUtils.getArrayFromJson([])->Array.length === 0
-    <PillInput name="email_list" placeholder={showPlaceHolder ? "Eg: abc.sa@wise.com" : ""} />
+    <PillInput
+      name="email_list" placeholder={showPlaceHolder ? "Eg: abc.sa@wise.com" : ""} singleLine=true
+    />
   },
   ~isRequired=true,
 )

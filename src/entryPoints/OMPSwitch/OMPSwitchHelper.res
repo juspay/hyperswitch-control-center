@@ -491,45 +491,19 @@ module ProfileDropdownItem = {
     }
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
-    let fetchDetails = useGetMethod()
     let showToast = ToastAdapter.useShowToast()
+    let getProfileList = ProfileListHook.useFetchProfileList()
     let {profileId, version} = React.useContext(
       UserInfoProvider.defaultContext,
     ).getCommonSessionDetails()
     let isUnderEdit =
       currentlyEditingId->Option.isSome && currentlyEditingId->Option.getOr(0) == index
-    let (profileList, setProfileList) = Recoil.useRecoilState(HyperswitchAtom.profileListAtom)
+    let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
     let isMobileView = MatchMedia.useMobileChecker()
     let isActive = currentId == profileId
     let setBusinessProfileRecoil =
       HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useSetRecoilState
     let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-
-    let getProfileListV1 = async () => {
-      try {
-        let url = getURL(~entityName=V1(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
-        let response = await fetchDetails(url)
-        setProfileList(_ => response->getArrayDataFromJson(profileItemToObjMapper))
-      } catch {
-      | _ => {
-          setProfileList(_ => [ompDefaultValue(profileId, "")])
-          showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
-        }
-      }
-    }
-
-    let getProfileListV2 = async () => {
-      try {
-        let url = getURL(~entityName=V2(USERS), ~userType=#LIST_PROFILE, ~methodType=Get)
-        let response = await fetchDetails(url, ~version=V2)
-        setProfileList(_ => response->getArrayDataFromJson(profileItemToObjMapper))
-      } catch {
-      | _ => {
-          setProfileList(_ => [ompDefaultValue(profileId, "")])
-          showToast(~message="Failed to fetch profile list", ~toastType=ToastError)
-        }
-      }
-    }
 
     let updateProfileNameV1 = async (~body) => {
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Post, ~id=Some(profileId))
@@ -543,12 +517,6 @@ module ProfileDropdownItem = {
       setBusinessProfileRecoil(_ => mapJsonToCommonType(businessProfileInterfaceV2, response))
     }
 
-    let getProfileList = async () => {
-      switch version {
-      | V1 => await getProfileListV1()
-      | V2 => await getProfileListV2()
-      }
-    }
     let validateInput = (newProfileName: string) => {
       let errors = Dict.make()
       let errorMessage = validateOmpName(

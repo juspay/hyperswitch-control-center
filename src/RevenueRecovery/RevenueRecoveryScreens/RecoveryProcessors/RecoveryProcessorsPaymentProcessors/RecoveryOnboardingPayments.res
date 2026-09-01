@@ -14,8 +14,6 @@ let make = (
   open ConnectorUtils
   open PageLoaderWrapper
   open RevenueRecoveryOnboardingUtils
-  open ConnectProcessorsHelper
-  open Typography
   let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let getURL = useGetURL()
   let showToast = ToastAdapter.useShowToast()
@@ -26,12 +24,6 @@ let make = (
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
   let (screenState, setScreenState) = React.useState(_ => Success)
-  let (arrow, setArrow) = React.useState(_ => false)
-  let (showModal, setShowModal) = React.useState(_ => false)
-
-  let toggleChevronState = () => {
-    setArrow(prev => !prev)
-  }
 
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
 
@@ -114,6 +106,11 @@ let make = (
     try {
       setScreenState(_ => Loading)
       let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Put, ~id=None)
+      let values =
+        RecoveryConnectorUtils.ensureAuthType(
+          ~connectorDetails,
+          ~valuesDict=values->getDictFromJsonObject,
+        )->JSON.Encode.object
       let response = await updateAPIHook(connectorUrl, values, Post, ~version=V2)
       setInitialValues(_ => response)
 
@@ -125,10 +122,7 @@ let make = (
       fetchConnectorListResponse()->ignore
       setScreenState(_ => Success)
 
-      switch connector->getConnectorNameTypeFromString {
-      | Processors(WORLDPAYVANTIV) => handleClick()
-      | _ => setShowModal(_ => true)
-      }
+      handleClick()
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -173,227 +167,48 @@ let make = (
     )
   }
 
-  let input: ReactFinalForm.fieldRenderPropsInput = {
-    name: "name",
-    onBlur: _ => (),
-    onChange: ev => {
-      let value = ev->Identity.formReactEventToString
-      setConnectorName(_ => value)
-      RescriptReactRouter.replace(
-        GlobalVars.appendDashboardPath(~url=`/v2/recovery/onboarding?name=${value}`),
-      )
-    },
-    onFocus: _ => (),
-    value: connector->JSON.Encode.string,
-    checked: true,
-  }
-
-  let options = {
-    open RecoveryConnectorUtils
-    isLiveMode ? recoveryConnectorProdList : recoveryConnectorList
-  }->getOptions
-
-  let customScrollStyle = "max-h-72 overflow-scroll px-1 pt-1 border border-b-0"
-  let dropdownContainerStyle = "rounded-md border border-1 !w-full"
-
-  let recoveryConnectorListProd: array<
-    BillingProcessorsUtils.optionType,
-  > = RecoveryConnectorUtils.recoveryConnectorListProd->Array.map(connector => {
-    let connectorName = connector->getConnectorNameString
-
-    let option: BillingProcessorsUtils.optionType = {
-      name: connectorName->getDisplayNameForConnector(~connectorType=ConnectorTypes.Processor),
-      icon: `/assets/Gateway/${connectorName->String.toUpperCase}.svg`,
-    }
-
-    option
-  })
-
-  let gatewaysBottomComponent = {
-    open BillingProcessorsUtils
-    <RenderIf condition={!isLiveMode}>
-      <p
-        className="text-nd_gray-500 font-semibold leading-3 text-fs-12 tracking-wider bg-white border-t px-5 pt-4">
-        {"Available for Production"->React.string}
-      </p>
-      <div className="p-2">
-        <ReadOnlyOptionsList list=recoveryConnectorListProd headerText="Payment Gateways" />
-        <ReadOnlyOptionsList
-          list=RecoveryConnectorUtils.recoveryConnectorInHouseList headerText="Payment Orchestrator"
-        />
-      </div>
-    </RenderIf>
-  }
-
-  let modalBody = {
-    <>
-      <div className="p-2 m-2">
-        <div className="py-5 px-3 flex justify-between align-top">
-          <CardUtils.CardHeader
-            heading="Setup Payments Webhook"
-            subHeading="Configure this endpoint in the payment processors dashboard under webhook settings for us to receive events from the processor."
-            customSubHeadingStyle="w-full !max-w-none pr-10"
-          />
-        </div>
-        <div className="px-3 pb-5">
-          <ConnectorWebhookPreview
-            merchantId
-            connectorName=connectorInfoDict.id
-            textCss={`border border-nd_gray-400 ${body.md.medium} rounded-xl px-4 py-2 text-nd_gray-400 w-full !font-jetbrains-mono`}
-            containerClass="flex flex-row items-center justify-between"
-            displayTextLength=38
-            hideLabel=true
-            showFullCopy=true
-          />
-          <Button
-            text="Next"
-            buttonType=Primary
-            onClick={_ => handleClick()}
-            customButtonStyle="w-full mt-8"
-          />
-        </div>
-      </div>
-    </>
-  }
-
-  open IntelligentRoutingUtils
   <div>
     {switch currentStep->RevenueRecoveryOnboardingUtils.getSectionVariant {
-    | (#chooseDataSource, _) =>
-      <PageWrapper
-        title="Choose Your Data Source" subTitle="Select a data source to begin your simulation">
-        <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
-          {dataSource
-          ->Array.map(dataSource => {
-            switch dataSource {
-            | Historical =>
-              <>
-                <div className={`text-nd_gray-400 ${body.xs.semibold} tracking-wider`}>
-                  {dataSource
-                  ->dataTypeVariantToString
-                  ->String.toUpperCase
-                  ->React.string}
-                </div>
-                {fileTypes
-                ->Array.map(item => {
-                  let fileTypeHeading = item->getFileTypeHeading
-                  let fileTypeDescription = item->getFileTypeDescription
-                  let fileTypeIcon = item->getFileTypeIconName
-                  let isSelected = item == Sample
-
-                  <StepCard
-                    stepName={fileTypeHeading}
-                    description={fileTypeDescription}
-                    isSelected
-                    onClick={_ => ()}
-                    iconName=fileTypeIcon
-                    isDisabled={item === Upload}
-                    showDemoLabel={item === Sample ? true : false}
-                  />
-                })
-                ->React.array}
-              </>
-            | Realtime =>
-              <>
-                <div className={`text-nd_gray-400  ${body.xs.semibold} tracking-wider`}>
-                  {dataSource
-                  ->dataTypeVariantToString
-                  ->String.toUpperCase
-                  ->React.string}
-                </div>
-                {realtime
-                ->Array.map(item => {
-                  let realtimeHeading = item->getRealtimeHeading
-                  let realtimeDescription = item->getRealtimeDescription
-                  let realtimeIcon = item->getRealtimeIconName
-
-                  <StepCard
-                    stepName={realtimeHeading}
-                    description={realtimeDescription}
-                    isSelected=false
-                    onClick={_ => ()}
-                    iconName=realtimeIcon
-                    isDisabled={item === StreamLive}
-                  />
-                })
-                ->React.array}
-              </>
-            }
-          })
-          ->React.array}
-          <Button
-            text="Next"
-            buttonType=Primary
-            onClick={_ => handleClick()}
-            customButtonStyle="w-full mt-8"
-          />
-        </div>
-      </PageWrapper>
     | (#connectProcessor, #selectProcessor) =>
       <PageWrapper
         title="Where do you process your payments"
         subTitle="Link the payment processor you use for handling subscription transactions.">
+        <PageLoaderWrapper screenState>
+          <PaymentProcessorCards
+            connectorsAvailableForIntegration=RecoveryConnectorUtils.recoverySupportedConnectors
+            configuredConnectors=[]
+            showRequestConnector=false
+            showDummyConnector=false
+            heading="Choose a processor"
+            mixpanelEventPrefix="recovery_connector_click"
+            onCardClick={connectorName => {
+              setConnectorName(_ => connectorName)
+              RescriptReactRouter.replace(
+                GlobalVars.appendDashboardPath(
+                  ~url=`/v2/recovery/onboarding?name=${connectorName}`,
+                ),
+              )
+              handleClick()
+            }}
+          />
+        </PageLoaderWrapper>
+      </PageWrapper>
+    | (#connectProcessor, #authenticateProcessor) =>
+      <PageWrapper
+        title="Authenticate Processor"
+        subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely.">
         <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
           <PageLoaderWrapper screenState>
             <Form onSubmit initialValues validate=validateMandatoryField>
-              <SelectBoxAdapter.BaseDropdown
-                allowMultiSelect=false
-                buttonText="Choose a processor"
-                input
-                deselectDisable=true
-                customButtonStyle="!rounded-xl h-[45px] pr-2"
-                options
-                baseComponent={<ListBaseComp
-                  placeHolder="Choose a processor" heading="Profile" subHeading=connector arrow
-                />}
-                bottomComponent=gatewaysBottomComponent
-                hideMultiSelectButtons=true
-                addButton=false
-                searchable=true
-                customStyle="!w-full"
-                customScrollStyle
-                dropdownContainerStyle
-                toggleChevronState
-                customDropdownOuterClass="!border-none"
-                fullLength=true
-                shouldDisplaySelectedOnTop=true
-                searchInputPlaceHolder="Search Processor"
-              />
-              <RenderIf condition={connector->isNonEmptyString}>
-                <div className="flex flex-col mb-5 mt-7 gap-3 w-full ">
-                  <ConnectorAuthKeys
-                    initialValues={updatedInitialVal}
-                    showVertically=true
-                    updateAccountDetails=isLiveMode
-                  />
-                  <ConnectorLabelV2 isInEditState=true connectorInfo={connectorInfoDict} />
-                  <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />
-                  <ConnectorWebhookDetails isInEditState=true connectorInfo={connectorInfoDict} />
-                  <FormRenderer.SubmitButton
-                    text="Next" buttonSize={Small} customSubmitButtonStyle="!w-full mt-8"
-                  />
-                </div>
-              </RenderIf>
-              <Modal
-                showModal
-                closeOnOutsideClick=false
-                setShowModal
-                childClass="p-0"
-                borderBottom=true
-                modalClass="w-full max-w-2xl mx-auto my-auto dark:!bg-jp-gray-lightgray_background">
-                modalBody
-              </Modal>
-            </Form>
-          </PageLoaderWrapper>
-        </div>
-      </PageWrapper>
-    | (#connectProcessor, #activePaymentMethods) =>
-      <PageWrapper title="Payment Methods" subTitle="Configure your PaymentMethods.">
-        <div className="mb-10 flex flex-col gap-7 w-540-px">
-          <PageLoaderWrapper screenState>
-            <Form onSubmit initialValues validate=validateMandatoryField>
-              <div className="flex flex-col mb-5 gap-3 ">
-                <ConnectorPaymentMethodV2 initialValues isInEditState=true />
+              <div className="flex flex-col mb-5 gap-3 w-full">
+                <ConnectorAuthKeys
+                  initialValues={updatedInitialVal}
+                  showVertically=true
+                  updateAccountDetails=isLiveMode
+                />
+                <ConnectorLabelV2 isInEditState=true connectorInfo={connectorInfoDict} />
+                <ConnectorMetadataV2 isInEditState=true connectorInfo={connectorInfoDict} />
+                <ConnectorWebhookDetails isInEditState=true connectorInfo={connectorInfoDict} />
                 <FormRenderer.SubmitButton
                   text="Next" buttonSize={Small} customSubmitButtonStyle="!w-full mt-8"
                 />

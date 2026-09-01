@@ -8,10 +8,7 @@ let make = () => {
       entityName="Transactions"
       remainingPath
       access=Access
-      renderList={() =>
-        <FilterContext key="recon-engine-transactions" index="recon-engine-transactions">
-          <ReconEngineTransactions />
-        </FilterContext>}
+      renderList={() => <ReconEngineTransactions />}
       renderShow={(id, _) => <ReconEngineTransactionsDetails id />}
     />
   | _ => React.null

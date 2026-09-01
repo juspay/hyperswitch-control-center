@@ -25,7 +25,12 @@ module TopRightIcons = {
 }
 module ActionButtons = {
   @react.component
-  let make = (~routeType: routingType, ~onRedirectBaseUrl) => {
+  let make = (
+    ~routeType: routingType,
+    ~onRedirectBaseUrl,
+    ~isCutover=false,
+    ~onDecisionEngineRedirect=(_, _) => (),
+  ) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
@@ -40,11 +45,15 @@ module ActionButtons = {
         buttonType={Secondary}
         buttonSize=Small
         onClick={_ => {
-          RescriptReactRouter.push(
-            GlobalVars.appendDashboardPath(
-              ~url=`/${onRedirectBaseUrl}/${routingTypeName(routeType)}`,
-            ),
-          )
+          if isCutover {
+            onDecisionEngineRedirect(routeType->decisionEngineRoutingTarget, "")
+          } else {
+            RescriptReactRouter.push(
+              GlobalVars.appendDashboardPath(
+                ~url=`/${onRedirectBaseUrl}/${routingTypeName(routeType)}`,
+              ),
+            )
+          }
           mixpanelEvent(~eventName=`${onRedirectBaseUrl}_setup_${routeType->routingTypeName}`)
         }}
       />
@@ -72,7 +81,13 @@ module ActionButtons = {
 
 module ActiveSection = {
   @react.component
-  let make = (~activeRouting, ~activeRoutingId, ~onRedirectBaseUrl) => {
+  let make = (
+    ~activeRouting,
+    ~activeRoutingId,
+    ~onRedirectBaseUrl,
+    ~isCutover=false,
+    ~onDecisionEngineRedirect=(_, _) => (),
+  ) => {
     open LogicUtils
     let {profileId: currentprofileId} = React.useContext(
       UserInfoProvider.defaultContext,
@@ -92,6 +107,32 @@ module ActiveSection = {
       activeRouting->getDictFromJsonObject->getString("profile_id", "")
     }
 
+    let activeRuleTypeUrl = `/${onRedirectBaseUrl}/${routingTypeName(activeRoutingType)}`
+
+    let handleViewAndManage = _ => {
+      let decisionEngineTarget = activeRoutingType->decisionEngineRoutingTarget
+
+      let ruleId = switch activeRoutingType {
+      | ADVANCED | VOLUME_SPLIT => activeRoutingId
+      | _ => ""
+      }
+
+      if isCutover && decisionEngineTarget->isNonEmptyString {
+        onDecisionEngineRedirect(decisionEngineTarget, ruleId)
+      } else {
+        switch activeRoutingType {
+        | DEFAULTFALLBACK =>
+          RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=activeRuleTypeUrl))
+        | _ =>
+          RescriptReactRouter.push(
+            GlobalVars.appendDashboardPath(
+              ~url=`${activeRuleTypeUrl}?id=${activeRoutingId}&isActive=true`,
+            ),
+          )
+        }
+      }
+    }
+
     <div className="flex flex-1">
       <div className="relative flex flex-1 flex-col bg-white border rounded-lg p-4 pt-10 gap-8">
         <div className=" flex flex-1 flex-col gap-7">
@@ -102,7 +143,7 @@ module ActiveSection = {
           </div>
           <div className={"flex flex-col gap-3"}>
             <p className={`text-nd_gray-600 ${body.md.semibold} w-full whitespace-normal`}>
-              {`${routingName}${getContent(activeRoutingType).heading}`->React.string}
+              {`${routingName}${getContent(~isCutover, activeRoutingType).heading}`->React.string}
             </p>
             <RenderIf condition={profileId->isNonEmptyString}>
               <div
@@ -121,24 +162,7 @@ module ActiveSection = {
           buttonType=Secondary
           customButtonStyle="w-4/3"
           buttonSize={Small}
-          onClick={_ => {
-            switch activeRoutingType {
-            | DEFAULTFALLBACK =>
-              RescriptReactRouter.push(
-                GlobalVars.appendDashboardPath(
-                  ~url=`/${onRedirectBaseUrl}/${routingTypeName(activeRoutingType)}`,
-                ),
-              )
-            | _ =>
-              RescriptReactRouter.push(
-                GlobalVars.appendDashboardPath(
-                  ~url=`/${onRedirectBaseUrl}/${routingTypeName(
-                      activeRoutingType,
-                    )}?id=${activeRoutingId}&isActive=true`,
-                ),
-              )
-            }
-          }}
+          onClick=handleViewAndManage
         />
       </div>
     </div>
@@ -147,42 +171,56 @@ module ActiveSection = {
 
 module LevelWiseRoutingSection = {
   @react.component
-  let make = (~types: array<routingType>, ~onRedirectBaseUrl) => {
+  let make = (
+    ~types: array<routingType>,
+    ~onRedirectBaseUrl,
+    ~isCutover=false,
+    ~onDecisionEngineRedirect=(_, _) => (),
+  ) => {
     let {debitRouting} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let renderCard = (value, key) =>
+      <div key className="flex flex-1 flex-col bg-white border rounded-lg p-4 gap-8">
+        <div className="flex flex-1 flex-col gap-7">
+          <div className="flex w-full items-center flex-wrap justify-between">
+            <TopLeftIcons routeType=value />
+            <TopRightIcons routeType=value />
+          </div>
+          <div className="flex flex-1 flex-col gap-3 text-nd_gray-600">
+            <p className={`${body.md.semibold}`}>
+              {getContent(~isCutover, value).heading->React.string}
+            </p>
+            <p className={`${body.md.medium} opacity-50`}>
+              {getContent(~isCutover, value).subHeading->React.string}
+            </p>
+          </div>
+        </div>
+        <ActionButtons routeType=value onRedirectBaseUrl isCutover onDecisionEngineRedirect />
+      </div>
+    let nonFallbackTypes = types->Array.filter(value => value != DEFAULTFALLBACK)
+    let fallbackTypes = types->Array.filter(value => value == DEFAULTFALLBACK)
     <div className="flex flex-col flex-wrap rounded w-full py-6 gap-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-9">
-        {types
-        ->Array.mapWithIndex((value, index) =>
-          <div
-            key={index->Int.toString}
-            className="flex flex-1 flex-col bg-white border rounded-lg p-4 gap-8">
-            <div className="flex flex-1 flex-col gap-7">
-              <div className="flex w-full items-center flex-wrap justify-between">
-                <TopLeftIcons routeType=value />
-                <TopRightIcons routeType=value />
-              </div>
-              <div className="flex flex-1 flex-col gap-3 text-nd_gray-600">
-                <p className={`${body.md.semibold}`}> {getContent(value).heading->React.string} </p>
-                <p className={`${body.md.medium} opacity-50`}>
-                  {getContent(value).subHeading->React.string}
-                </p>
-              </div>
-            </div>
-            <ActionButtons routeType=value onRedirectBaseUrl />
-          </div>
-        )
+        {nonFallbackTypes
+        ->Array.mapWithIndex((value, index) => renderCard(value, `card-${index->Int.toString}`))
         ->React.array}
         <RenderIf
           condition={debitRouting && onRedirectBaseUrl->getRoutingTypefromString == Routing}>
-          <DebitRouting />
+          <DebitRouting isCutover onDecisionEngineRedirect />
         </RenderIf>
+        {fallbackTypes
+        ->Array.mapWithIndex((value, index) => renderCard(value, `fallback-${index->Int.toString}`))
+        ->React.array}
       </div>
     </div>
   }
 }
 
 @react.component
-let make = (~routingType: array<JSON.t>) => {
+let make = (
+  ~routingType: array<JSON.t>,
+  ~isCutover=false,
+  ~onDecisionEngineRedirect=(_, _) => (),
+) => {
   let {debitRouting} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let debitRoutingValue =
     (
@@ -196,7 +234,12 @@ let make = (~routingType: array<JSON.t>) => {
     ->Array.mapWithIndex((ele, i) => {
       let id = ele->LogicUtils.getDictFromJsonObject->LogicUtils.getString("id", "")
       <ActiveSection
-        key={i->Int.toString} activeRouting={ele} activeRoutingId={id} onRedirectBaseUrl="routing"
+        key={i->Int.toString}
+        activeRouting={ele}
+        activeRoutingId={id}
+        onRedirectBaseUrl="routing"
+        isCutover
+        onDecisionEngineRedirect
       />
     })
     ->React.array}

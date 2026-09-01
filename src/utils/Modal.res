@@ -1,5 +1,6 @@
 open ModalUtils
 open Typography
+open LogicUtils
 
 type modalData = {
   heading: string,
@@ -52,13 +53,13 @@ module ModalHeading = {
     let headerTextClass = isMobileView ? "text-fs-18 font-semibold" : headerTextClass
 
     let descriptionStyle =
-      modalDescriptionClass->LogicUtils.isEmptyString
+      modalDescriptionClass->isEmptyString
         ? `${body.lg.medium} opacity-50 mt-2 w-full max-w-lg`
         : modalDescriptionClass
     let subInfoStyle = `${body.lg.medium} opacity-50 mt-2 w-full max-w-lg empty:hidden`
 
     <div
-      className={`!p-4 ${headBgClass->LogicUtils.isNonEmptyString
+      className={`!p-4 ${headBgClass->isNonEmptyString
           ? headBgClass
           : "bg-jp-gray-200 dark:bg-jp-gray-darkgray_background"} rounded-t-lg z-10  w-full  m-0 md:!pl-6  ${headingClass} ${borderClass} `}>
       {switch leftHeadingIcon {
@@ -83,7 +84,7 @@ module ModalHeading = {
           } else {
             React.null
           }}
-          {if showModalHeadingIconName->LogicUtils.isNonEmptyString {
+          {if showModalHeadingIconName->isNonEmptyString {
             <div className="flex items-center gap-4">
               {switch customIcon {
               | Some(icon) => icon
@@ -112,13 +113,16 @@ module ModalHeading = {
           React.null
         }}
       </div>
-      {if modalHeadingDescriptionElement !== React.null {
-        modalHeadingDescriptionElement
-      } else {
+      <RenderIf condition={modalHeadingDescriptionElement !== React.null}>
+        {modalHeadingDescriptionElement}
+      </RenderIf>
+      <RenderIf
+        condition={modalHeadingDescriptionElement === React.null &&
+          modalHeadingDescription->isNonEmptyString}>
         <AddDataAttributes attributes=[("data-modal-description-text", modalHeading)]>
           <div className=descriptionStyle> {React.string(modalHeadingDescription)} </div>
         </AddDataAttributes>
-      }}
+      </RenderIf>
       <div className=subInfoStyle> {React.string(modalSubInfo)} </div>
     </div>
   }
@@ -149,6 +153,7 @@ module ModalOverlay = {
     ~isBackdropBlurReq=true,
     ~addAttributeId="",
     ~alignModal,
+    ~zIndexClass="z-40",
   ) => {
     let isMobileView = MatchMedia.useMatchMedia("(max-width: 700px)")
     let mobileClass = isMobileView ? "flex flex-col " : ""
@@ -157,14 +162,12 @@ module ModalOverlay = {
     let backgroundDropStyles = isBackdropBlurReq ? "backdrop-blur-sm" : ""
 
     let attributeId =
-      addAttributeId->LogicUtils.isEmptyString
+      addAttributeId->isEmptyString
         ? switch modalHeading {
           | Some(_heading) => `:${modalHeading->Option.getOr("")}`
           | None => ""
           }
         : `:${addAttributeId}`
-
-    let zIndexClass = "z-40"
 
     <AddDataAttributes attributes=[("data-component", `modal` ++ attributeId)]>
       {noBackDrop
@@ -222,6 +225,7 @@ let make = (
   ~customIcon=None,
   ~alignModal="justify-end",
   ~modalHeaderIconSize=35,
+  ~zIndexClass="z-40",
   ~modalDescriptionClass="",
 ) => {
   let showBorderBottom = borderBottom
@@ -288,7 +292,8 @@ let make = (
     noBackDrop
     isBackdropBlurReq
     alignModal
-    addAttributeId>
+    addAttributeId
+    zIndexClass>
     // <Reveal showReveal=showModal revealFrom>
     <ModalContent
       handleContainerClick

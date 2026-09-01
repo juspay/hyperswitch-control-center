@@ -44,6 +44,7 @@ let useShowToast = () => {
           variant,
           duration,
           position: TopCenter,
+          wrap: true,
         }
 
         let _ = addSnackbar(toastOptions)

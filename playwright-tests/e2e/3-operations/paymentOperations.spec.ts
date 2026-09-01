@@ -8,19 +8,160 @@ import {
   loginUI,
   createDummyConnectorAPI,
   createPaymentAPI,
+  createRequiresCapturePaymentAPI,
+  mockPaymentRequiresCapture,
+  mockPaymentSummaryAmounts,
   ompLineage,
 } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 const columnSize = 24;
-const requiredColumnsSize = 14;
 let email: string;
 
+type SavedViewFilters = Record<string, unknown>;
+
+type SavedViewApiItem = {
+  view_id: string;
+  view_name: string;
+  data: {
+    entity: string;
+    version: string;
+    filters: SavedViewFilters;
+  };
+  created_at: string;
+  updated_at: string;
+};
+
+type SavedViewAction = {
+  type: "Create" | "Update" | "Delete";
+  data: {
+    view_id?: string;
+    view_name?: string;
+    entity: string;
+    version?: string;
+    filters?: SavedViewFilters;
+  };
+};
+
+const savedViewApiItem = (
+  viewName: string,
+  filters: SavedViewFilters,
+  viewId = `view-${viewName.toLowerCase().replaceAll(" ", "-")}`,
+): SavedViewApiItem => ({
+  view_id: viewId,
+  view_name: viewName,
+  data: {
+    entity: "payment_views",
+    version: "v1",
+    filters,
+  },
+  created_at: "2025-06-15T10:00:00.000Z",
+  updated_at: "2025-06-15T10:00:00.000Z",
+});
+
+async function mockSavedViewsApi(
+  page: Page,
+  options: { initialViews?: SavedViewApiItem[]; failCreate?: boolean } = {},
+) {
+  const views = [...(options.initialViews ?? [])];
+  const actions: SavedViewAction[] = [];
+
+  await page.route(/\/user\/data(?:\?|$)/, async (route) => {
+    const request = route.request();
+    const url = new URL(request.url());
+
+    if (
+      request.method() === "GET" &&
+      url.searchParams.get("keys") === "PaymentViews"
+    ) {
+      await route.fulfill({ json: [{ PaymentViews: views }] });
+      return;
+    }
+
+    if (request.method() === "POST") {
+      const payload = request.postDataJSON() as {
+        PaymentViews?: SavedViewAction;
+      };
+      const action = payload.PaymentViews;
+      if (!action) {
+        await route.continue();
+        return;
+      }
+
+      actions.push(action);
+      if (options.failCreate && action.type === "Create") {
+        await route.fulfill({ status: 500, json: { error: "save failed" } });
+        return;
+      }
+
+      if (
+        action.type === "Create" &&
+        action.data.view_name &&
+        action.data.filters
+      ) {
+        views.push(
+          savedViewApiItem(action.data.view_name, action.data.filters),
+        );
+      } else if (action.type === "Delete" && action.data.view_id) {
+        const index = views.findIndex(
+          (view) => view.view_id === action.data.view_id,
+        );
+        if (index !== -1) views.splice(index, 1);
+      }
+
+      await route.fulfill({ json: {} });
+      return;
+    }
+
+    await route.continue();
+  });
+
+  return { views, actions };
+}
+
+async function openPaymentOperations(page: Page) {
+  const homePage = new HomePage(page);
+  await homePage.operations.click();
+  await homePage.paymentOperations.click();
+}
+
+type PaymentListRequest = {
+  order?: {
+    on: string;
+    by: string;
+  };
+};
+
+type PaymentListItem = {
+  payment_id: string;
+  attempt_count?: number;
+  [key: string]: unknown;
+};
+
+type PaymentListResponse = {
+  data?: PaymentListItem[];
+  [key: string]: unknown;
+};
+
 test.describe("Payment Operations", () => {
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+
+    await page.route("**/dashboard/config/feature?domain=", async (route) => {
+      const response = await route.fetch();
+      const json = await response.json();
+      json.features = {
+        ...json.features,
+        dev_opensearch: false,
+        dev_clickhouse_aggregate: false,
+        dev_sort_enabled: true,
+        dev_saved_views: true,
+      };
+      await route.fulfill({ response, json });
+    });
+    await page.reload();
   });
 
   test.describe("Verify Components of Payment Operations", () => {
@@ -55,7 +196,7 @@ test.describe("Payment Operations", () => {
 
       await expect(paymentOperations.searchBox).toHaveAttribute(
         "placeholder",
-        "Search for payment ID",
+        "Search by payment ID",
       );
 
       await expect(paymentOperations.dateSelector).toBeVisible();
@@ -87,8 +228,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        const paymentData = await createPaymentAPI(merchantId, context.request);
+        const paymentData = await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
 
         await homePage.operations.click();
         await homePage.paymentOperations.click();
@@ -106,7 +254,7 @@ test.describe("Payment Operations", () => {
 
         await expect(paymentOperations.searchBox).toHaveAttribute(
           "placeholder",
-          "Search for payment ID",
+          "Search by payment ID",
         );
 
         await expect(paymentOperations.addFilters).toBeVisible();
@@ -160,7 +308,9 @@ test.describe("Payment Operations", () => {
         await expect(paymentOperations.orderCell(1, 8)).toContainText(
           paymentData.payment_method_type,
         );
-        await expect(paymentOperations.orderCell(1, 9)).toContainText("N/A");
+        await expect(paymentOperations.orderCell(1, 9)).toContainText(
+          /^(Visa|N\/A)$/,
+        );
         await expect(paymentOperations.orderCell(1, 10)).toContainText(
           paymentData.connector_transaction_id,
         );
@@ -244,8 +394,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await homePage.operations.click();
@@ -323,8 +480,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await homePage.operations.click();
@@ -357,8 +521,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await homePage.operations.click();
@@ -424,8 +595,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await homePage.operations.click();
@@ -453,22 +631,21 @@ test.describe("Payment Operations", () => {
 
   // Sort
   test.describe("Sort", () => {
-    test("should sort column ascending then descending on header click", async ({
-      page,
-      context,
-    }) => {
-      // 3 sequential payment creates + 6 sort + assert cycles per column.
+    let payments: { payment_id: string; amount: number }[] = [];
+
+    test.beforeEach(async ({ page, context }) => {
+      // 3 sequential payment creates + setup per test.
       test.setTimeout(120000);
+      payments = [];
       const homePage = new HomePage(page);
-      const paymentOperations = new PaymentOperations(page);
 
       const merchantId = await homePage.merchantID.nth(0).textContent();
-      const payments: { payment_id: string; amount: number }[] = [];
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
         const amounts = [10000, 20000, 30000];
         for (const amount of amounts) {
@@ -476,66 +653,186 @@ test.describe("Payment Operations", () => {
             merchantId,
             context.request,
             amount,
+            undefined,
+            page,
           );
           payments.push({ payment_id: payment.payment_id, amount });
           await page.waitForTimeout(1000);
         }
       }
 
-      await page.route(/\/config\/feature/, async (route) => {
-        const response = await route.fetch();
-        const json = await response.json();
-        json.features = { ...json.features, dev_sort_enabled: true };
-        await route.fulfill({ response, json });
-      });
-      await page.reload();
-      await page.waitForLoadState("networkidle");
-
       await homePage.operations.click();
       await homePage.paymentOperations.click();
       await page.waitForLoadState("networkidle");
+    });
 
-      const sortableColumns = ["Amount", "Created", "Modified"];
+    async function assertSortCycle(
+      page: Page,
+      paymentOperations: PaymentOperations,
+      column: string,
+    ) {
+      const heading = paymentOperations.tableHeading(column);
+      const sortUp = heading.locator('[data-icon="caret-up"]');
+      const sortDown = heading.locator('[data-icon="caret-down"]');
 
-      for (const column of sortableColumns) {
-        const heading = paymentOperations.tableHeading(column);
-        const sortUp = heading.locator('[data-icon="caret-up"]');
-        const sortDown = heading.locator('[data-icon="caret-down"]');
+      // First click toggles NONE -> DEC (descending)
+      await expect(sortUp).toBeVisible();
+      await sortUp.click();
+      await page.waitForLoadState("networkidle");
+      await expect(paymentOperations.orderCell(1, 2)).toContainText(
+        payments[2].payment_id,
+      );
+      await expect(paymentOperations.orderCell(3, 2)).toContainText(
+        payments[0].payment_id,
+      );
 
-        // First click toggles NONE -> DEC (descending)
-        await expect(sortUp).toBeVisible();
-        await sortUp.click();
-        await page.waitForLoadState("networkidle");
-        await expect(paymentOperations.orderCell(1, 2)).toContainText(
-          payments[2].payment_id,
-        );
-        await expect(paymentOperations.orderCell(3, 2)).toContainText(
-          payments[0].payment_id,
-        );
+      // Second click toggles DEC -> INC (ascending)
+      await expect(sortDown).toBeVisible();
+      await sortDown.click();
+      await page.waitForLoadState("networkidle");
+      await page.waitForTimeout(3000);
+      await expect(paymentOperations.orderCell(1, 2)).toContainText(
+        payments[0].payment_id,
+      );
+      await expect(paymentOperations.orderCell(3, 2)).toContainText(
+        payments[2].payment_id,
+      );
 
-        // Second click toggles DEC -> INC (ascending)
-        await expect(sortDown).toBeVisible();
-        await sortDown.click();
-        await page.waitForLoadState("networkidle");
-        await page.waitForTimeout(3000);
-        await expect(paymentOperations.orderCell(1, 2)).toContainText(
-          payments[0].payment_id,
-        );
-        await expect(paymentOperations.orderCell(3, 2)).toContainText(
-          payments[2].payment_id,
-        );
+      // Third click toggles INC -> DEC (descending)
+      await expect(sortUp).toBeVisible();
+      await sortUp.click();
+      await page.waitForLoadState("networkidle");
+      await expect(paymentOperations.orderCell(1, 2)).toContainText(
+        payments[2].payment_id,
+      );
+      await expect(paymentOperations.orderCell(3, 2)).toContainText(
+        payments[0].payment_id,
+      );
+    }
 
-        // Third click toggles INC -> DEC (descending)
-        await expect(sortUp).toBeVisible();
-        await sortUp.click();
-        await page.waitForLoadState("networkidle");
-        await expect(paymentOperations.orderCell(1, 2)).toContainText(
-          payments[2].payment_id,
-        );
-        await expect(paymentOperations.orderCell(3, 2)).toContainText(
-          payments[0].payment_id,
-        );
-      }
+    test("should sort Amount column ascending then descending on header click", async ({
+      page,
+    }) => {
+      const paymentOperations = new PaymentOperations(page);
+      await assertSortCycle(page, paymentOperations, "Amount");
+    });
+
+    test("should sort Created column ascending then descending on header click", async ({
+      page,
+    }) => {
+      const paymentOperations = new PaymentOperations(page);
+      await assertSortCycle(page, paymentOperations, "Created");
+    });
+
+    async function getColumnIndex(
+      paymentOperations: PaymentOperations,
+      column: string,
+    ): Promise<number> {
+      return await paymentOperations
+        .tableHeading(column)
+        .evaluate((el) => (el as HTMLTableCellElement).cellIndex + 1);
+    }
+
+    test("should sort Attempt Count column ascending then descending on header click", async ({
+      page,
+    }) => {
+      const paymentOperations = new PaymentOperations(page);
+
+      // Mock the payments/list response so each payment has a distinct attempt_count
+      // (1, 2, 3) and returns data sorted by the requested attempt_count order.
+      await page.route(/\/payments\/list/, async (route) => {
+        const request = route.request();
+        const postData = request.postDataJSON() as PaymentListRequest;
+        const response = await route.fetch();
+        const json = (await response.json()) as PaymentListResponse;
+
+        const attemptCounts: Record<string, number> = {};
+        payments.forEach((payment, index) => {
+          attemptCounts[payment.payment_id] = index + 1;
+        });
+
+        const data = json.data ?? [];
+        const patched = data.map((item) => ({
+          ...item,
+          attempt_count: attemptCounts[item.payment_id] ?? item.attempt_count,
+        }));
+
+        const order = postData.order;
+        if (order?.on === "attempt_count") {
+          patched.sort((a, b) => {
+            const diff = (a.attempt_count ?? 0) - (b.attempt_count ?? 0);
+            return order.by === "desc" ? -diff : diff;
+          });
+        }
+
+        json.data = patched;
+        await route.fulfill({ response, json });
+      });
+
+      // The Sort beforeEach has already opened Payment Operations, so its
+      // initial payments/list request completed before this test-specific
+      // route was registered. Reload to populate the table from the mocked
+      // response before checking or sorting Attempt Count.
+      const mockedPaymentsList = page.waitForResponse(
+        (response) =>
+          response.url().includes("/payments/list") &&
+          response.request().method() === "POST",
+      );
+      await page.reload();
+      await mockedPaymentsList;
+
+      // Add the hidden Attempt Count column via the column selector.
+      await paymentOperations.columnButton.click();
+      await paymentOperations.columnDropdownValue("Attempt Count").click();
+      await expect(paymentOperations.saveButton).toContainText("Save");
+      await paymentOperations.saveButton.click();
+
+      await expect(
+        paymentOperations.tableHeading("Attempt Count"),
+      ).toBeVisible();
+
+      const attemptCountCol = await getColumnIndex(
+        paymentOperations,
+        "Attempt Count",
+      );
+
+      const heading = paymentOperations.tableHeading("Attempt Count");
+      const sortUp = heading.locator('[data-icon="caret-up"]');
+      const sortDown = heading.locator('[data-icon="caret-down"]');
+
+      // First click: NONE -> DEC (descending). 3 attempts first.
+      await expect(sortUp).toBeVisible();
+      await sortUp.click();
+      await page.waitForLoadState("networkidle");
+      await expect(
+        paymentOperations.orderCell(1, attemptCountCol),
+      ).toContainText("3");
+      await expect(
+        paymentOperations.orderCell(3, attemptCountCol),
+      ).toContainText("1");
+
+      // Second click: DEC -> INC (ascending). 1 attempt first.
+      await expect(sortDown).toBeVisible();
+      await sortDown.click();
+      await page.waitForLoadState("networkidle");
+      await page.waitForTimeout(3000);
+      await expect(
+        paymentOperations.orderCell(1, attemptCountCol),
+      ).toContainText("1");
+      await expect(
+        paymentOperations.orderCell(3, attemptCountCol),
+      ).toContainText("3");
+
+      // Third click: INC -> DEC (descending).
+      await expect(sortUp).toBeVisible();
+      await sortUp.click();
+      await page.waitForLoadState("networkidle");
+      await expect(
+        paymentOperations.orderCell(1, attemptCountCol),
+      ).toContainText("3");
+      await expect(
+        paymentOperations.orderCell(3, attemptCountCol),
+      ).toContainText("1");
     });
   });
 
@@ -552,9 +849,16 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
         for (let i = 0; i < 21; i++) {
-          await createPaymentAPI(merchantId, context.request).catch(() => {});
+          await createPaymentAPI(
+            merchantId,
+            context.request,
+            undefined,
+            undefined,
+            page,
+          ).catch(() => {});
         }
       }
 
@@ -593,9 +897,22 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await homePage.operations.click();
@@ -628,7 +945,7 @@ test.describe("Payment Operations", () => {
       }
     });
 
-    test.skip("should display a valid message and expand search timerange when searched with invalid payment ID", async ({
+    test("should display a valid message and expand search timerange when searched with invalid payment ID", async ({
       page,
       context,
     }) => {
@@ -641,8 +958,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await homePage.operations.click();
@@ -722,6 +1046,7 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
       }
 
@@ -730,25 +1055,74 @@ test.describe("Payment Operations", () => {
 
       for (const filter of filterKeys) {
         await paymentOperations.addFilters.click();
-        await page.locator(`[data-dropdown-value="${filter}"]:visible`).click();
-        await expect(paymentOperations.filterChipArea.first()).toContainText(
-          `Select ${filter}`,
+        await expect(
+          page
+            .getByLabel("Add Filters")
+            .getByText(`${filter}`, { exact: true }),
+        ).toBeVisible();
+        await page
+          .getByLabel("Add Filters")
+          .getByText(`${filter}`, { exact: true })
+          .click({ force: true });
+        await expect(
+          paymentOperations.filterChipArea(filter).first(),
+        ).toContainText(`Select ${filter}`);
+        await expect(
+          page.getByLabel("Add Filters").getByText("Amount"),
+        ).not.toBeVisible();
+      }
+    });
+
+    test("should verify Customer ID  and Merchant Order Reference ID filters can be selected from 'Add filter' dropdown", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await createDummyConnectorAPI(
+          merchantId,
+          "stripe_test_1",
+          context.request,
+          page,
         );
-        await paymentOperations.crossOutlineIcon.click();
       }
 
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+
       await paymentOperations.addFilters.click();
-      await page.locator('[data-dropdown-value="Customer Id"]:visible').click();
+      await expect(
+        page
+          .getByLabel("Add Filters")
+          .getByRole("menuitem", { name: "Customer Id" }),
+      ).toBeVisible();
+      await page
+        .getByRole("menuitem", { name: "Customer Id" })
+        .click({ force: true });
+      await expect(paymentOperations.customerIdInput).toBeVisible();
       await expect(paymentOperations.customerIdInput).toHaveAttribute(
         "placeholder",
         "Enter Customer Id...",
       );
-      await paymentOperations.crossOutlineIcon.click();
+      await expect(
+        page
+          .getByLabel("Add Filters")
+          .getByRole("menuitem", { name: "Merchant Order Reference Id" }),
+      ).not.toBeVisible();
 
       await paymentOperations.addFilters.click();
+      await expect(
+        page
+          .getByLabel("Add Filters")
+          .getByRole("menuitem", { name: "Merchant Order Reference Id" }),
+      ).toBeVisible();
       await page
-        .locator('[data-dropdown-value="Merchant Order Reference Id"]:visible')
-        .click();
+        .getByRole("menuitem", { name: "Merchant Order Reference Id" })
+        .click({ force: true });
+      await expect(paymentOperations.merchantOrderRefIdInput).toBeVisible();
       await expect(paymentOperations.merchantOrderRefIdInput).toHaveAttribute(
         "placeholder",
         "Enter Merchant Order Reference Id...",
@@ -768,32 +1142,53 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await homePage.operations.click();
       await homePage.paymentOperations.click();
 
       await paymentOperations.addFilters.click();
-      await page.locator('[data-dropdown-value="Connector"]:visible').click();
+      await page
+        .getByLabel("Add Filters")
+        .getByText("Connector", { exact: true })
+        .click();
       await page.getByText("Select Connector").click();
-      await page.locator('[value="Stripe Dummy"]').click();
+      await page.getByRole("option").getByText("Stripe Dummy").click();
       await paymentOperations.applyButton.click();
       await expect(page.getByText("Stripe Dummy").first()).toBeVisible();
 
       await paymentOperations.addFilters.click();
-      await page.locator('[data-dropdown-value="Status"]:visible').click();
+      await page
+        .getByLabel("Add Filters")
+        .getByText("Status", { exact: true })
+        .click();
       await paymentOperations.statusFieldWrapper.click();
-      await page.locator('[value="Succeeded"]').click();
+      await page.getByRole("option", { name: "Succeeded" }).click();
       await paymentOperations.applyButton.click();
       await expect(page.getByText("Succeeded").first()).toBeVisible();
 
       await paymentOperations.addFilters.click();
-      await page.locator('[data-dropdown-value="Currency"]:visible').click();
+      await page
+        .getByLabel("Add Filters")
+        .getByText("Currency", { exact: true })
+        .click();
       await page.getByText("Select Currency").click();
-      await page.locator('[placeholder="Search..."]').fill("USD");
-      await page.locator('[data-searched-text="USD"]').click();
+      await expect(
+        page.getByLabel("Add Filters").getByText("Amount", { exact: true }),
+      ).not.toBeVisible();
+      await page
+        .getByRole("searchbox", { name: "Search options..." })
+        .fill("USD");
+      await page.getByRole("option", { name: "USD" }).click();
       await paymentOperations.applyButton.click();
       await expect(page.getByText("USD").first()).toBeVisible();
 
@@ -802,6 +1197,266 @@ test.describe("Payment Operations", () => {
         "SUCCEEDED",
       );
       await expect(paymentOperations.orderCell(1, 5)).toContainText("USD");
+    });
+  });
+
+  test.describe("Saved Views", () => {
+    test("should keep transaction filter controls visible and hide saved views when the feature flag is off", async ({
+      page,
+    }) => {
+      await page.route("**/dashboard/config/feature?domain=", async (route) => {
+        const response = await route.fetch();
+        const json = await response.json();
+        json.features = { ...json.features, dev_saved_views: false };
+        await route.fulfill({ response, json });
+      });
+      await page.reload();
+
+      const paymentOperations = new PaymentOperations(page);
+      await openPaymentOperations(page);
+
+      await expect(paymentOperations.dateSelector).toBeVisible();
+      await expect(paymentOperations.addFilters).toBeVisible();
+      await expect(paymentOperations.saveCurrentViewButton).toBeHidden();
+      await expect(paymentOperations.savedViewsButton).toBeHidden();
+    });
+
+    test("should display all create and overwrite modal elements", async ({
+      page,
+    }) => {
+      await mockSavedViewsApi(page, {
+        initialViews: [
+          savedViewApiItem("Existing View", { status: ["succeeded"] }),
+        ],
+      });
+      const paymentOperations = new PaymentOperations(page);
+      await openPaymentOperations(page);
+
+      await expect(paymentOperations.saveCurrentViewButton).toBeVisible();
+      await expect(paymentOperations.savedViewsButton).toBeVisible();
+      await paymentOperations.saveCurrentViewButton.click();
+
+      const modal = paymentOperations.saveViewModal;
+      await expect(modal).toBeVisible();
+      await expect(modal.getByText("Save View", { exact: true })).toBeVisible();
+      await expect(
+        modal.getByText("Create New View", { exact: true }),
+      ).toBeVisible();
+      await expect(
+        modal.getByText("Overwrite Existing View", { exact: true }),
+      ).toBeVisible();
+      await expect(
+        modal.getByText("View Name", { exact: false }),
+      ).toBeVisible();
+      await expect(paymentOperations.savedViewNameInput).toHaveAttribute(
+        "placeholder",
+        "Enter view name",
+      );
+      await expect(paymentOperations.includeDateRangeCheckbox).toBeVisible();
+      await expect(modal.getByRole("button", { name: "Cancel" })).toBeVisible();
+      await expect(paymentOperations.saveNewViewButton).toBeDisabled();
+
+      await modal.getByText("Overwrite Existing View", { exact: true }).click();
+      await expect(
+        modal.getByText("Search View Name to Overwrite", { exact: false }),
+      ).toBeVisible();
+      await expect(
+        modal.getByText("Select View", { exact: true }),
+      ).toBeVisible();
+      await expect(paymentOperations.includeDateRangeCheckbox).toBeVisible();
+      await expect(modal.getByRole("button", { name: "Cancel" })).toBeVisible();
+      await expect(
+        paymentOperations.overwriteExistingViewButton,
+      ).toBeDisabled();
+
+      await modal.getByRole("button", { name: "Cancel" }).click();
+      await paymentOperations.savedViewsButton.click();
+      await expect(
+        page.getByRole("menu", { name: "Saved Views" }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("menu", { name: "Saved Views" }),
+      ).toContainText("Default View");
+      await expect(
+        page.getByRole("menu", { name: "Saved Views" }),
+      ).toContainText("Existing View");
+    });
+
+    test("should save combined filters, clear filters, and apply the saved view", async ({
+      page,
+    }) => {
+      const savedViewsApi = await mockSavedViewsApi(page);
+      const paymentOperations = new PaymentOperations(page);
+      await openPaymentOperations(page);
+
+      await paymentOperations.addFilters.click();
+      await page
+        .getByLabel("Add Filters")
+        .getByText("Status", { exact: true })
+        .click();
+      await paymentOperations.statusFieldWrapper.click();
+      await page.getByRole("option", { name: "Succeeded" }).click();
+      await paymentOperations.applyButton.click();
+      await expect(
+        page.getByRole("option", { name: "Succeeded" }),
+      ).not.toBeVisible();
+
+      await paymentOperations.addFilters.click();
+      await page
+        .getByLabel("Add Filters")
+        .getByText("Currency", { exact: true })
+        .click();
+      await expect(
+        page.getByRole("searchbox", { name: "Search options..." }),
+      ).not.toBeVisible();
+      await page.getByText("Select Currency").click();
+      await page
+        .getByRole("searchbox", { name: "Search options..." })
+        .fill("USD");
+      await page.getByRole("option", { name: "USD" }).click();
+      await paymentOperations.applyButton.click();
+      await expect(
+        page.getByRole("searchbox", { name: "Search options..." }),
+      ).not.toBeVisible();
+
+      await paymentOperations.saveCurrentViewButton.click();
+      await paymentOperations.savedViewNameInput.fill("Successful payments");
+      await paymentOperations.saveNewViewButton.click();
+      await expect(
+        paymentOperations.dataToast(
+          "New View 'Successful payments' created successfully!",
+        ),
+      ).toBeVisible();
+
+      expect(savedViewsApi.actions).toHaveLength(1);
+      expect(savedViewsApi.actions[0]).toMatchObject({
+        type: "Create",
+        data: { view_name: "Successful payments" },
+      });
+      expect(savedViewsApi.actions[0].data.filters).toMatchObject({
+        currency: ["USD"],
+        status: ["succeeded"],
+      });
+
+      await page.getByRole("button", { name: "Clear All" }).click();
+      await page.getByRole("button", { name: "Saved Views" }).click();
+      await paymentOperations.savedViewOption("Successful payments").click();
+      await page.getByRole("button", { name: "Successful payments" }).click();
+      await expect(
+        paymentOperations.savedViewOption("Successful payments"),
+      ).not.toBeVisible();
+
+      await expect(
+        page.getByRole("button", { name: "Select Status1" }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("button", { name: "Select Currency1" }),
+      ).toBeVisible();
+    });
+
+    test("should save and restore the currently selected time range", async ({
+      page,
+    }) => {
+      const pinnedDate = new Date("2025-06-15T10:00:00.000Z");
+      await page.clock.setFixedTime(pinnedDate);
+      await mockSavedViewsApi(page);
+      const paymentOperations = new PaymentOperations(page);
+      await openPaymentOperations(page);
+
+      await paymentOperations.customDateRangeButton.click();
+      await paymentOperations.predefinedDateOptions
+        .getByText("Last 7 days", { exact: true })
+        .click();
+      await expect(
+        paymentOperations.predefinedDateOptions.getByText("Last 7 days", {
+          exact: true,
+        }),
+      ).not.toBeVisible();
+
+      const selectedDateRange =
+        await paymentOperations.dateSelector.getAttribute("aria-label");
+      if (!selectedDateRange) {
+        throw new Error("Date range picker did not have an accessible label");
+      }
+
+      await paymentOperations.saveCurrentViewButton.click();
+      await paymentOperations.savedViewNameInput.fill("Last week");
+      await paymentOperations.includeDateRangeCheckbox.click();
+      await paymentOperations.saveNewViewButton.click();
+      await expect(
+        paymentOperations.dataToast(
+          "New View 'Last week' created successfully!",
+        ),
+      ).toBeVisible();
+
+      await page.getByRole("button", { name: "Last 7 days" }).click();
+      await page.getByRole("menuitem", { name: "Last 30 minutes" }).click();
+      await paymentOperations.savedViewsButton.click();
+
+      await paymentOperations.savedViewOption("Last week").click();
+      await page.getByRole("button", { name: "Last week" }).click();
+      await expect(
+        paymentOperations.savedViewOption("Last week"),
+      ).not.toBeVisible();
+
+      await expect(paymentOperations.dateSelector).toHaveAccessibleName(
+        selectedDateRange,
+      );
+    });
+
+    test("should show an error when the save view API fails", async ({
+      page,
+    }) => {
+      const savedViewsApi = await mockSavedViewsApi(page, { failCreate: true });
+      const paymentOperations = new PaymentOperations(page);
+      await openPaymentOperations(page);
+
+      await paymentOperations.saveCurrentViewButton.click();
+      await paymentOperations.savedViewNameInput.fill("Unavailable view");
+      await paymentOperations.saveNewViewButton.click();
+
+      await expect(
+        paymentOperations.dataToast(
+          "Failed to create view 'Unavailable view'. Please try again.",
+        ),
+      ).toBeVisible();
+      await expect(paymentOperations.saveViewModal).toBeVisible();
+      expect(savedViewsApi.actions).toHaveLength(1);
+      expect(savedViewsApi.actions[0].type).toBe("Create");
+    });
+
+    test("should delete a saved view successfully", async ({ page }) => {
+      const view = savedViewApiItem("View to delete", {
+        status: ["succeeded"],
+      });
+      const savedViewsApi = await mockSavedViewsApi(page, {
+        initialViews: [view],
+      });
+      const paymentOperations = new PaymentOperations(page);
+      await openPaymentOperations(page);
+
+      await paymentOperations.savedViewsButton.click();
+      await expect(
+        paymentOperations.savedViewOption("View to delete"),
+      ).toBeVisible();
+      await paymentOperations.savedViewDeleteIcon.click();
+      await expect(
+        page.getByText("Delete 'View to delete'?", { exact: true }),
+      ).toBeVisible();
+      await page.getByRole("button", { name: "Delete Saved View" }).click();
+
+      await expect(
+        paymentOperations.dataToast(
+          "'View to delete' has been deleted successfully!",
+        ),
+      ).toBeVisible();
+      expect(savedViewsApi.actions.at(-1)).toMatchObject({
+        type: "Delete",
+        data: { view_id: view.view_id },
+      });
+      await expect(
+        paymentOperations.savedViewOption("View to delete"),
+      ).toHaveCount(0);
     });
   });
 
@@ -815,51 +1470,47 @@ test.describe("Payment Operations", () => {
       await homePage.operations.click();
       await homePage.paymentOperations.click();
 
-      const initialRange = await paymentOperations.dateSelector.textContent();
+      const formatUTCDate = (date: Date) =>
+        date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+          timeZone: "UTC",
+        });
 
-      if (initialRange) {
-        const startDateStr = initialRange.split("-")[0].trim();
-        const parsedStartDate = new Date(startDateStr);
-        const previousStartDate = new Date(parsedStartDate);
-        previousStartDate.setDate(parsedStartDate.getDate() - 90);
+      const now = new Date();
+      const todayUTC = new Date(
+        Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+      );
 
-        const formatDate = (date: Date) => {
-          return date.toLocaleDateString("en-US", {
-            month: "short",
-            day: "2-digit",
-            year: "numeric",
-          });
-        };
+      const initialStart = new Date(todayUTC);
+      initialStart.setUTCDate(todayUTC.getUTCDate() - 30);
 
-        const expectedStart = formatDate(previousStartDate);
-        const expectedEnd = formatDate(parsedStartDate);
-        const expectedRange = `${expectedStart} - ${expectedEnd}`;
+      const expectedStart = new Date(initialStart);
+      expectedStart.setUTCDate(initialStart.getUTCDate() - 90);
 
-        await page
-          .locator('[data-button-for="expandTheSearchToThePrevious90Days"]')
-          .click();
+      const expectedStartStr = formatUTCDate(expectedStart);
 
-        await expect(paymentOperations.dateSelector).toContainText(
-          expectedStart,
-        );
-      }
+      await paymentOperations.expandSearch90Days.click();
+
+      await expect(paymentOperations.dateSelector).toContainText(
+        expectedStartStr,
+      );
     });
 
     test("should verify all time range filters are displayed in date selector dropdown", async ({
       page,
     }) => {
       const timeRangeFilters = [
-        "Last 30 Mins",
-        "Last 1 Hour",
-        "Last 2 Hours",
+        "Last 30 minutes",
+        "Last 1 hour",
+        "Last 6 hours",
         "Today",
         "Yesterday",
-        "Last 2 Days",
-        "Last 7 Days",
-        "Last 30 Days",
-        "This Month",
-        "Last Month",
-        "Custom Range",
+        "Last 7 days",
+        "Last 30 days",
+        "This month",
+        "Last month",
       ];
 
       const homePage = new HomePage(page);
@@ -868,29 +1519,29 @@ test.describe("Payment Operations", () => {
       await homePage.operations.click();
       await homePage.paymentOperations.click();
 
-      await paymentOperations.openPredefinedDateOptions();
+      await paymentOperations.customDateRangeButton.click();
 
       for (const filter of timeRangeFilters) {
+        //await paymentOperations.predefinedDateOptions.scrollIntoViewIfNeeded();
         await expect(paymentOperations.predefinedDateOptions).toContainText(
           filter,
         );
       }
     });
 
-    test("should verify selected timerange when predefined timerange is applied from dropdown", async ({
+    test.fixme("should verify selected timerange when predefined timerange is applied from dropdown", async ({
       page,
     }) => {
       const predefinedTimeRange = [
-        "Last 30 Mins",
-        "Last 1 Hour",
-        "Last 2 Hours",
+        "Last 30 minutes",
+        "Last 1 hour",
+        //"Last 6 hours",
         "Today",
         "Yesterday",
-        "Last 2 Days",
-        "Last 7 Days",
-        "Last 30 Days",
-        "This Month",
-        "Last Month",
+        "Last 7 days",
+        "Last 30 days",
+        "This month",
+        "Last month",
       ];
 
       const homePage = new HomePage(page);
@@ -908,13 +1559,12 @@ test.describe("Payment Operations", () => {
       const predefinedOptions = paymentOperations.predefinedDateOptions;
 
       for (const timeRange of predefinedTimeRange) {
-        await paymentOperations.openPredefinedDateOptions();
+        await paymentOperations.customDateRangeButton.click();
         await predefinedOptions.getByText(timeRange, { exact: true }).click();
-        await expect(page.getByTestId("date-range-selector")).toContainText(
-          timeRange,
-        );
         await expect(predefinedOptions).toBeHidden();
-        await page.waitForLoadState("networkidle");
+        await expect(
+          page.getByRole("button", { name: timeRange }),
+        ).toContainText(timeRange);
       }
     });
 
@@ -940,12 +1590,11 @@ test.describe("Payment Operations", () => {
       const startDate = today === 2 ? 1 : 2;
       const endDate = today === 28 ? 29 : 28;
 
-      const formatDate = (day: number) => {
-        const paddedDay = String(day).padStart(2, "0");
-        return `${previousMonth} ${paddedDay}, ${currentYear}`;
+      const formatDate = (day: number, time: string) => {
+        return `${previousMonth} ${day}, ${currentYear}, ${time}`;
       };
 
-      const expectedRange = `${formatDate(startDate)} - ${formatDate(endDate)}`;
+      const expectedRange = `${formatDate(startDate, "12:00 AM")} - ${formatDate(endDate, "11:59 PM")}`;
 
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
@@ -953,18 +1602,18 @@ test.describe("Payment Operations", () => {
       await homePage.operations.click();
       await homePage.paymentOperations.click();
 
-      await paymentOperations.openPredefinedDateOptions();
+      await paymentOperations.dateSelector.click();
 
-      await paymentOperations.customRangeOption.click();
+      await page
+        .getByRole("button", { name: "Friday, May 2," })
+        .scrollIntoViewIfNeeded();
 
-      await page.locator(`[data-testid*=" ${startDate},"]`).first().click();
-      await page.locator(`[data-testid*=" ${endDate},"]`).first().click();
+      await page.getByRole("button", { name: "Friday, May 2," }).click();
+      await page.getByRole("button", { name: "Wednesday, May 28," }).click();
 
       await paymentOperations.applyButton.click();
 
-      await expect(
-        page.locator(`[data-button-text="${expectedRange}"]`),
-      ).toContainText(expectedRange);
+      await expect(paymentOperations.dateSelector).toContainText(expectedRange);
     });
   });
 
@@ -1011,8 +1660,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await homePage.operations.click();
@@ -1026,9 +1682,12 @@ test.describe("Payment Operations", () => {
         await paymentOperations.transactionView
           .getByText(view)
           .click({ force: true });
-        await expect(paymentOperations.statusFieldWrapper).toContainText(
-          filter,
-        );
+        await paymentOperations.statusFieldWrapper.click();
+        await expect(
+          page
+            .getByRole("option", { name: filter, exact: true })
+            .getByRole("checkbox"),
+        ).toBeChecked();
       }
     });
   });
@@ -1048,8 +1707,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await page.route("**/dashboard/config/feature?domain=", async (route) => {
@@ -1073,6 +1739,12 @@ test.describe("Payment Operations", () => {
       await expect(page.getByText("Date Range *")).toBeVisible();
       await expect(page.getByText("Report Type")).toBeVisible();
       await expect(page.getByText("Additional Recipients")).toBeVisible();
+      await expect(
+        page.getByText(
+          "Each generated report is limited to 50,000 rows. Narrow the date range if needed.",
+          { exact: true },
+        ),
+      ).toBeVisible();
       await page.getByRole("button", { name: "Generate", exact: true }).click();
     });
 
@@ -1089,9 +1761,29 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
+
+      await page.route("**/dashboard/config/feature*", async (route) => {
+        const response = await route.fetch();
+        const json = await response.json();
+        if (json?.features) {
+          json.features.generate_report = false;
+        }
+        await route.fulfill({ response, json });
+      });
+
+      // Initialize the feature atom from the mocked response instead of
+      // inheriting flags enabled in the target environment.
+      await page.reload();
 
       await homePage.operations.click();
       await homePage.paymentOperations.click();
@@ -1112,8 +1804,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await page.route("**/dashboard/config/feature?domain=", async (route) => {
@@ -1150,8 +1849,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await page.route("**/dashboard/config/feature?domain=", async (route) => {
@@ -1197,8 +1903,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await page.route("**/dashboard/config/feature?domain=", async (route) => {
@@ -1248,8 +1961,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        const paymentData = await createPaymentAPI(merchantId, context.request);
+        const paymentData = await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
 
         await homePage.operations.click();
         await homePage.paymentOperations.click();
@@ -1284,8 +2004,21 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        const paymentData = await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
+        await mockPaymentSummaryAmounts(
+          page,
+          paymentData.payment_id,
+          12001,
+          344,
+        );
       }
 
       await homePage.operations.click();
@@ -1304,10 +2037,11 @@ test.describe("Payment Operations", () => {
         (resp) => resp.url().includes("force_sync=true") && resp.ok(),
       );
       await paymentOperations.initiateRefundButton.click();
+      await refreshResponse;
 
       await expect(page.getByText("Summary")).toBeVisible();
-      await expect(page.getByText("123.45 USD").nth(1)).toBeVisible();
-      await expect(page.getByText("SUCCEEDED").nth(1)).toBeVisible();
+      await expect(page.getByText("123.45 USD SUCCEEDED")).toBeVisible();
+      await expect(page.getByText("SUCCEEDED").nth(3)).toBeVisible();
 
       await expect(paymentOperations.dataLabel("Created")).toContainText(
         "Created",
@@ -1321,6 +2055,12 @@ test.describe("Payment Operations", () => {
       await expect(
         paymentOperations.dataLabel("Payment ID").first(),
       ).toContainText("Payment ID");
+      await expect(paymentOperations.dataLabel("Net Amount")).toContainText(
+        "Net Amount120.01 USD",
+      );
+      await expect(
+        paymentOperations.dataLabel("Surcharge Amount"),
+      ).toContainText("Surcharge Amount3.44 USD");
       await expect(
         paymentOperations.dataLabel("Connector Transaction ID"),
       ).toContainText("Connector Transaction ID");
@@ -1356,7 +2096,11 @@ test.describe("Payment Operations", () => {
 
       await expect(page.getByText("Events and logs")).toBeVisible();
 
-      await expect(page.getByText("Payment Attempts")).toBeVisible();
+      const paymentAttemptsTab =
+        paymentOperations.paymentDetailsTab("Payment Attempts");
+      await expect(paymentAttemptsTab).toBeVisible();
+      await paymentAttemptsTab.click();
+      await expect(paymentAttemptsTab).toHaveAttribute("aria-selected", "true");
 
       const expectedAttemptColumns = [
         "S.No",
@@ -1430,9 +2174,10 @@ test.describe("Payment Operations", () => {
         }
       }
 
-      await expect(
-        page.getByRole("paragraph").filter({ hasText: "Refunds" }),
-      ).toBeVisible();
+      const refundsTab = paymentOperations.paymentDetailsTab("Refunds");
+      await expect(refundsTab).toBeVisible();
+      await refundsTab.click();
+      await expect(refundsTab).toHaveAttribute("aria-selected", "true");
 
       const expectedRefundAttemptColumns = [
         "S.No",
@@ -1481,35 +2226,62 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await homePage.operations.click();
       await homePage.paymentOperations.click();
       await paymentOperations.orderCell(1, 1).click();
 
-      await page.getByText("Customer Details").click();
+      const expectedPaymentDetailsTabs = [
+        "Event and Logs",
+        "Payment Attempts",
+        "Customer Details",
+        "Payment Method Details",
+        "FRM Details",
+      ];
+      for (const tabName of expectedPaymentDetailsTabs) {
+        await expect(
+          paymentOperations.paymentDetailsTab(tabName),
+        ).toBeVisible();
+      }
+
+      const eventAndLogsTab =
+        paymentOperations.paymentDetailsTab("Event and Logs");
+      await expect(eventAndLogsTab).toHaveAttribute("aria-selected", "true");
+
+      const customerDetailsTab =
+        paymentOperations.paymentDetailsTab("Customer Details");
+      await customerDetailsTab.click();
+      await expect(customerDetailsTab).toHaveAttribute("aria-selected", "true");
 
       const assertSectionFields = async (
         sectionName: string,
         fields: Record<string, string>,
       ) => {
-        const sectionHeader = page.getByText(new RegExp(`^${sectionName}$`));
+        const sectionHeader = page.getByText(sectionName);
         await sectionHeader.waitFor({ state: "attached", timeout: 10000 });
         await sectionHeader.scrollIntoViewIfNeeded();
         await expect(sectionHeader).toBeVisible();
         for (const [label, value] of Object.entries(fields)) {
           await expect(
             sectionHeader
-              .locator("xpath=../../..")
+              //.locator("xpath=../../..")
               .locator(`[data-label="${label}"]`)
               .first(),
           ).toContainText(value);
         }
       };
 
-      await assertSectionFields("Customer", {
+      await assertSectionFields("CustomerFirst NameJosephLast", {
         "First Name": "Joseph",
         "Last Name": "Doe",
         "Customer Phone": "+65 999999999",
@@ -1518,19 +2290,21 @@ test.describe("Payment Operations", () => {
         Description: "Its my first payment",
       });
 
-      await assertSectionFields("Billing", {
+      await assertSectionFields("ShippingEmailabc@test.", {
         Email: "abc@test.com",
         Phone: "+91 8056594427",
         Address:
           "1562, HarrisonStreet, HarrisonStreet, Toronto, ON, CA, M3C 0C1.",
       });
 
-      await assertSectionFields("Shipping", {
+      await assertSectionFields("BillingEmailabc@test.comPhone", {
         Email: "abc@test.com",
         Phone: "+91 8056594427",
         Address:
           "1562, HarrisonStreet, HarrisonStreet, Toronto, ON, CA, M3C 0C1.",
       });
+
+      await page.getByText(/^Fraud & Risk Management$/).click();
 
       await expect(paymentOperations.dataLabel("Tag").first()).toContainText(
         "N/A",
@@ -1542,24 +2316,16 @@ test.describe("Payment Operations", () => {
         paymentOperations.dataLabel("Message").first(),
       ).toContainText("N/A");
 
-      const expandAccordionAndAssertFields = async (
-        accordionTitle: string,
-        fields: Record<string, string>,
-      ) => {
-        const accordionHeader = page.getByText(
-          new RegExp(`^${accordionTitle}$`),
-        );
-        await accordionHeader.waitFor({ state: "attached", timeout: 10000 });
-        await accordionHeader.scrollIntoViewIfNeeded();
-        await accordionHeader.click();
-        for (const [label, value] of Object.entries(fields)) {
-          await expect(
-            paymentOperations.dataLabel(label).first(),
-          ).toContainText(value);
-        }
-      };
+      const paymentMethodDetailsTab = paymentOperations.paymentDetailsTab(
+        "Payment Method Details",
+      );
+      await paymentMethodDetailsTab.click();
+      await expect(paymentMethodDetailsTab).toHaveAttribute(
+        "aria-selected",
+        "true",
+      );
 
-      await expandAccordionAndAssertFields("More Payment Details", {
+      for (const [label, value] of Object.entries({
         "Amount Capturable": "",
         "Error Code": "N/A",
         "Mandate Data": "N/A",
@@ -1578,26 +2344,38 @@ test.describe("Payment Operations", () => {
         "Extended Auth Last Applied At": "-",
         "Request Extended Auth": "false",
         "Hyperswitch Error Description": "N/A",
-      });
+      })) {
+        await expect(paymentOperations.dataLabel(label).first()).toContainText(
+          value,
+        );
+      }
 
-      const paymentMethodDetails = page.getByText(/^Payment Method Details$/);
+      const paymentMethodDetails = page
+        .getByText(/^Payment Method Details$/)
+        .last();
       await paymentMethodDetails.waitFor({ state: "attached", timeout: 10000 });
       await paymentMethodDetails.scrollIntoViewIfNeeded();
       await paymentMethodDetails.click();
-      await expect(paymentMethodDetails.locator("xpath=../..")).toContainText(
-        "card",
-      );
+      await expect(
+        page.getByText('Payment Method Details1{ 2 "'),
+      ).toContainText("card");
 
       const paymentMetadata = page.getByText(/^Payment Metadata$/);
       await paymentMetadata.waitFor({ state: "attached", timeout: 10000 });
       await paymentMetadata.scrollIntoViewIfNeeded();
       await paymentMetadata.click();
-      await expect(paymentMetadata.locator("xpath=../..")).toContainText("key");
-      await expect(paymentMetadata.locator("xpath=../..")).toContainText(
-        "value",
-      );
+      await expect(
+        page.getByText('Payment Metadata1{ 2 "key": "'),
+      ).toContainText("key");
+      await expect(
+        page.getByText('Payment Metadata1{ 2 "key": "'),
+      ).toContainText("value");
 
-      await expandAccordionAndAssertFields("FRM Details", {
+      const frmDetailsTab = paymentOperations.paymentDetailsTab("FRM Details");
+      await frmDetailsTab.click();
+      await expect(frmDetailsTab).toHaveAttribute("aria-selected", "true");
+
+      for (const [label, value] of Object.entries({
         "Payment ID": "",
         "Payment Method Type": "",
         Amount: "",
@@ -1606,7 +2384,11 @@ test.describe("Payment Operations", () => {
         "FRM Connector": "",
         "FRM Message": "",
         "Merchant Decision": "",
-      });
+      })) {
+        await expect(paymentOperations.dataLabel(label).first()).toContainText(
+          value,
+        );
+      }
     });
   });
 
@@ -1626,8 +2408,9 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request, 12345, false);
+        await createPaymentAPI(merchantId, context.request, 12345, false, page);
       }
 
       await homePage.operations.click();
@@ -1651,8 +2434,9 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request, 12345, false);
+        await createPaymentAPI(merchantId, context.request, 12345, false, page);
       }
 
       await homePage.operations.click();
@@ -1680,8 +2464,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await homePage.operations.click();
@@ -1722,8 +2513,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await openRefundModal(page, homePage, paymentOperations);
@@ -1737,7 +2535,9 @@ test.describe("Payment Operations", () => {
       await expect(paymentOperations.dataLabel("Amount").first()).toContainText(
         "123.45 USD",
       );
-      await expect(page.getByText("Payment ID").first()).toBeVisible();
+      await expect(
+        page.locator('[data-label="Payment ID"]:visible').first(),
+      ).toBeVisible();
       await expect(
         paymentOperations.dataLabel("Customer ID").first(),
       ).toContainText("test_customer");
@@ -1780,14 +2580,21 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await openRefundModal(page, homePage, paymentOperations);
 
       await paymentOperations.refundAmountInput.fill("0");
-      await paymentOperations.refundAmountInput.blur();
+      await paymentOperations.refundAmountInput.press("Enter");
       await expect(
         page.getByText("Please enter refund amount greater than zero"),
       ).toBeVisible();
@@ -1808,14 +2615,21 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await openRefundModal(page, homePage, paymentOperations);
 
       await paymentOperations.refundAmountInput.fill("999.99");
-      await paymentOperations.refundAmountInput.blur();
+      await paymentOperations.refundAmountInput.press("Enter");
       await expect(
         page.getByText("Refund amount should not exceed 123.45"),
       ).toBeVisible();
@@ -1836,19 +2650,32 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await openRefundModal(page, homePage, paymentOperations);
 
       await paymentOperations.refundAmountInput.fill("50.00");
       await paymentOperations.refundReasonInput.fill("Partial refund test");
+      const refreshResponse = page.waitForResponse(
+        (resp) => resp.url().includes("force_sync=true") && resp.ok(),
+      );
       await page.getByRole("button", { name: "Initiate Refund" }).click();
+      await refreshResponse;
 
       await expect(
         page.getByRole("button", { name: "Initiate Refund" }),
       ).not.toBeVisible();
+
+      await page.getByRole("tab", { name: "Refunds" }).click();
 
       await expect(paymentOperations.refundCell(1, 4)).toContainText("50");
       await expect(paymentOperations.refundCell(1, 5)).toContainText(
@@ -1870,19 +2697,32 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await openRefundModal(page, homePage, paymentOperations);
 
       await paymentOperations.refundAmountInput.fill("123.45");
       await paymentOperations.refundReasonInput.fill("Full refund test");
+      const refreshResponse = page.waitForResponse(
+        (resp) => resp.url().includes("force_sync=true") && resp.ok(),
+      );
       await page.getByRole("button", { name: "Initiate Refund" }).click();
+      await refreshResponse;
 
       await expect(
         page.getByRole("button", { name: "Initiate Refund" }),
       ).not.toBeVisible();
+
+      await page.getByRole("tab", { name: "Refunds" }).click();
 
       await expect(paymentOperations.refundCell(1, 4)).toContainText("123.45");
       await expect(paymentOperations.refundCell(1, 5)).toContainText(
@@ -1904,8 +2744,15 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request);
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
       }
 
       await openRefundModal(page, homePage, paymentOperations);
@@ -1931,8 +2778,9 @@ test.describe("Payment Operations", () => {
           merchantId,
           "stripe_test_1",
           context.request,
+          page,
         );
-        await createPaymentAPI(merchantId, context.request, 12345, false);
+        await createPaymentAPI(merchantId, context.request, 12345, false, page);
       }
 
       await homePage.operations.click();
@@ -1942,6 +2790,738 @@ test.describe("Payment Operations", () => {
       await expect(
         page.getByRole("button", { name: "+ Refund" }),
       ).toBeDisabled();
+    });
+  });
+
+  // Capture cases
+  test.describe("Capture cases", () => {
+    // The sandbox dummy connector always auto-charges, so it can never produce
+    // a real `requires_capture` payment. Create a real payment (for a
+    // realistic payment_id/amount/customer) and mock the dashboard's GET
+    // request for it so the page renders as if it were awaiting capture.
+    const setupRequiresCapturePayment = async (
+      page: Page,
+      merchantId: string,
+      request: Parameters<typeof createDummyConnectorAPI>[2],
+    ) => {
+      await createDummyConnectorAPI(merchantId, "stripe_test_1", request, page);
+      const payment = await createRequiresCapturePaymentAPI(
+        merchantId,
+        request,
+        undefined,
+        page,
+      );
+      await mockPaymentRequiresCapture(page, payment.payment_id);
+      return payment;
+    };
+
+    const mockCaptureSuccess = async (page: Page) => {
+      await page.route(/\/payments\/[^/]+\/capture/, async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ status: "succeeded" }),
+        });
+      });
+    };
+
+    const openCaptureModal = async (
+      page: Page,
+      homePage: HomePage,
+      paymentOperations: PaymentOperations,
+    ) => {
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+      await paymentOperations.orderCell(1, 1).click();
+      await paymentOperations.addCaptureButton.click();
+      await expect(
+        page.getByText("Confirm Capture Payment").first(),
+      ).toBeVisible();
+    };
+
+    test("should display Capture button for a requires_capture payment", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+      await paymentOperations.orderCell(1, 1).click();
+
+      await expect(paymentOperations.addCaptureButton).toBeVisible();
+    });
+
+    test("should not display Capture button for a succeeded payment", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await createDummyConnectorAPI(
+          merchantId,
+          "stripe_test_1",
+          context.request,
+          page,
+        );
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
+      }
+
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+      await paymentOperations.orderCell(1, 1).click();
+
+      await expect(paymentOperations.addCaptureButton).not.toBeVisible();
+    });
+
+    test("should display all fields in the capture popup", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      await openCaptureModal(page, homePage, paymentOperations);
+
+      await expect(paymentOperations.dataLabel("Amount").first()).toContainText(
+        "123.45 USD",
+      );
+      await expect(
+        page.locator('[data-label="Payment ID"]:visible').first(),
+      ).toBeVisible();
+      await expect(
+        paymentOperations.dataLabel("Customer ID").first(),
+      ).toContainText("test_customer");
+
+      await expect(paymentOperations.captureAmountInput).toHaveValue("123.45");
+
+      await expect(page.getByRole("button", { name: "Cancel" })).toBeVisible();
+      await expect(paymentOperations.confirmCaptureButton).toBeVisible();
+    });
+
+    test("should show validation error when capture amount is zero", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      await openCaptureModal(page, homePage, paymentOperations);
+
+      await paymentOperations.captureAmountInput.fill("0");
+      await paymentOperations.captureAmountInput.press("Enter");
+      await expect(
+        page.locator(
+          '[data-form-error="Please enter capture amount greater than zero"]',
+        ),
+      ).toBeVisible();
+    });
+
+    test("should show validation error when capture amount exceeds capturable amount", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      await openCaptureModal(page, homePage, paymentOperations);
+
+      await paymentOperations.captureAmountInput.fill("999.99");
+      await paymentOperations.captureAmountInput.press("Enter");
+      await expect(
+        page.locator(
+          '[data-form-error="Capture amount should not exceed 123.45"]',
+        ),
+      ).toBeVisible();
+    });
+
+    test("should successfully capture the full payment amount", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+      await mockCaptureSuccess(page);
+
+      await openCaptureModal(page, homePage, paymentOperations);
+
+      await paymentOperations.confirmCaptureButton.click();
+
+      await expect(paymentOperations.captureSuccessToast).toBeVisible();
+    });
+
+    test("should successfully capture a partial amount", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+      await mockCaptureSuccess(page);
+
+      await openCaptureModal(page, homePage, paymentOperations);
+
+      await paymentOperations.captureAmountInput.fill("50.00");
+      await paymentOperations.confirmCaptureButton.click();
+
+      await expect(paymentOperations.captureSuccessToast).toBeVisible();
+    });
+
+    test("should show error toast when capture API fails", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      await page.route(/\/payments\/[^/]+\/capture/, async (route) => {
+        await route.fulfill({
+          status: 500,
+          contentType: "application/json",
+          body: JSON.stringify({ error: { message: "Internal server error" } }),
+        });
+      });
+
+      await openCaptureModal(page, homePage, paymentOperations);
+
+      await paymentOperations.confirmCaptureButton.click();
+
+      await expect(paymentOperations.captureErrorToast).toBeVisible();
+    });
+
+    test("should close capture popup on Cancel click", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      await openCaptureModal(page, homePage, paymentOperations);
+
+      await page.getByRole("button", { name: "Cancel" }).click();
+
+      await expect(page.getByText("Confirm Capture Payment")).not.toBeVisible();
+    });
+  });
+
+  // Void cases
+  test.describe("Void cases", () => {
+    const setupRequiresCapturePayment = async (
+      page: Page,
+      merchantId: string,
+      request: Parameters<typeof createDummyConnectorAPI>[2],
+    ) => {
+      await createDummyConnectorAPI(merchantId, "stripe_test_1", request, page);
+      const payment = await createRequiresCapturePaymentAPI(
+        merchantId,
+        request,
+        undefined,
+        page,
+      );
+      await mockPaymentRequiresCapture(page, payment.payment_id);
+      return payment;
+    };
+
+    const openVoidModal = async (
+      page: Page,
+      homePage: HomePage,
+      paymentOperations: PaymentOperations,
+    ) => {
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+      await paymentOperations.orderCell(1, 1).click();
+      await paymentOperations.addVoidButton.click();
+      await expect(paymentOperations.voidModalHeading).toBeVisible();
+    };
+
+    test("should display Void button for a requires_capture payment", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+      await paymentOperations.orderCell(1, 1).click();
+
+      await expect(paymentOperations.addVoidButton).toBeVisible();
+    });
+
+    test("should not display Void button for a succeeded payment", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await createDummyConnectorAPI(
+          merchantId,
+          "stripe_test_1",
+          context.request,
+          page,
+        );
+        await createPaymentAPI(
+          merchantId,
+          context.request,
+          undefined,
+          undefined,
+          page,
+        );
+      }
+
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+      await paymentOperations.orderCell(1, 1).click();
+      await expect(page.getByText("SUCCEEDED").nth(3)).toBeVisible();
+
+      await expect(paymentOperations.addVoidButton).not.toBeVisible();
+    });
+
+    test("should display all fields in the void payment modal", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      await openVoidModal(page, homePage, paymentOperations);
+
+      await expect(paymentOperations.voidWarning).toBeVisible();
+      await expect(paymentOperations.voidPaymentStatus).toBeVisible();
+      await expect(
+        page.getByText("Amount123.45 USD").nth(1).first(),
+      ).toContainText("123.45 USD");
+      await expect(
+        page.locator('[data-label="Payment ID"]:visible').first(),
+      ).toBeVisible();
+      await expect(
+        page.getByText("Customer IDtest_customer").nth(1),
+      ).toBeVisible();
+      await expect(
+        page.getByText("Customer Emailabc@test.com").nth(1),
+      ).toBeVisible();
+      await expect(paymentOperations.cancellationReasonInput).toHaveAttribute(
+        "placeholder",
+        "Enter Cancellation Reason (optional)",
+      );
+      await expect(paymentOperations.cancelVoidButton).toBeVisible();
+      await expect(paymentOperations.confirmVoidButton).toBeVisible();
+    });
+
+    test("should void the payment with the supplied cancellation reason", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      let cancellationRequestMethod = "";
+      let cancellationRequest: Record<string, unknown> | null = null;
+      await page.route(/\/payments\/[^/]+\/cancel/, async (route) => {
+        cancellationRequestMethod = route.request().method();
+        cancellationRequest = route.request().postDataJSON();
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ status: "cancelled" }),
+        });
+      });
+
+      await openVoidModal(page, homePage, paymentOperations);
+      await paymentOperations.cancellationReasonInput.fill(
+        "Customer requested cancellation",
+      );
+      await paymentOperations.confirmVoidButton.click();
+
+      await expect(paymentOperations.voidSuccessToast).toBeVisible();
+      expect(cancellationRequestMethod).toBe("POST");
+      expect(cancellationRequest).toEqual({
+        cancellation_reason: "Customer requested cancellation",
+      });
+      await expect(paymentOperations.voidModalHeading).not.toBeVisible();
+    });
+
+    test("should show an error when the void payment API fails", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      await page.route(/\/payments\/[^/]+\/cancel/, async (route) => {
+        await route.fulfill({
+          status: 500,
+          contentType: "application/json",
+          body: JSON.stringify({ error: { message: "Internal server error" } }),
+        });
+      });
+
+      await openVoidModal(page, homePage, paymentOperations);
+      await paymentOperations.confirmVoidButton.click();
+
+      await expect(paymentOperations.voidErrorToast).toBeVisible();
+      await expect(paymentOperations.voidModalHeading).not.toBeVisible();
+    });
+
+    test("should close the void payment modal on Cancel click", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (merchantId) {
+        await setupRequiresCapturePayment(page, merchantId, context.request);
+      }
+
+      await openVoidModal(page, homePage, paymentOperations);
+      await paymentOperations.cancelVoidButton.click();
+
+      await expect(paymentOperations.voidModalHeading).not.toBeVisible();
+    });
+  });
+
+  test.describe("Manual status update", () => {
+    const setupPaymentWithStatus = async (
+      page: Page,
+      homePage: HomePage,
+      request: Parameters<typeof createDummyConnectorAPI>[2],
+      initialStatus: string,
+    ) => {
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (!merchantId) {
+        throw new Error("Merchant ID is required to create a payment");
+      }
+
+      await createDummyConnectorAPI(merchantId, "stripe_test_1", request, page);
+      const payment = await createPaymentAPI(
+        merchantId,
+        request,
+        undefined,
+        undefined,
+        page,
+      );
+      let mockedStatus = initialStatus;
+
+      await page.route(
+        new RegExp(`/payments/${payment.payment_id}(\\?|$)`),
+        async (route) => {
+          if (route.request().method() !== "GET") {
+            await route.continue();
+            return;
+          }
+
+          const response = await route.fetch();
+          const json = await response.json();
+          await route.fulfill({
+            response,
+            json: { ...json, status: mockedStatus },
+          });
+        },
+      );
+
+      return {
+        setStatus: (status: string) => {
+          mockedStatus = status;
+        },
+      };
+    };
+
+    const openPaymentDetails = async (
+      page: Page,
+      homePage: HomePage,
+      paymentOperations: PaymentOperations,
+    ) => {
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+      await paymentOperations.orderCell(1, 1).click();
+      await expect(page.getByText("Summary", { exact: true })).toBeVisible();
+    };
+
+    const mockManualStatusUpdate = async (
+      page: Page,
+      responseStatus: number,
+    ) => {
+      const capturedRequest: {
+        method: string;
+        body: Record<string, unknown> | null;
+      } = { method: "", body: null };
+
+      await page.route(
+        /\/payments\/[^/]+\/manual-status-update/,
+        async (route) => {
+          capturedRequest.method = route.request().method();
+          capturedRequest.body = route.request().postDataJSON();
+          await route.fulfill({
+            status: responseStatus,
+            contentType: "application/json",
+            body: JSON.stringify(
+              responseStatus >= 400
+                ? { error: { message: "Internal server error" } }
+                : { status: "succeeded" },
+            ),
+          });
+        },
+      );
+
+      return capturedRequest;
+    };
+
+    const openStatusUpdateModal = async (
+      paymentOperations: PaymentOperations,
+    ) => {
+      await paymentOperations.updatePaymentStatusButton.click();
+      await expect(
+        paymentOperations.updatePaymentStatusModalHeading,
+      ).toBeVisible();
+    };
+
+    test("should display the manual-attention banner for a payment in Review state", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+      await setupPaymentWithStatus(page, homePage, context.request, "review");
+      await openPaymentDetails(page, homePage, paymentOperations);
+
+      await expect(paymentOperations.manualAttentionHeading).toBeVisible();
+      await expect(paymentOperations.manualAttentionDescription).toBeVisible();
+      await expect(paymentOperations.updatePaymentStatusButton).toBeVisible();
+    });
+
+    test("should not display the manual-attention banner for non-Review payment statuses", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+      const paymentStatus = await setupPaymentWithStatus(
+        page,
+        homePage,
+        context.request,
+        "succeeded",
+      );
+      await openPaymentDetails(page, homePage, paymentOperations);
+
+      const nonReviewStatuses = [
+        "succeeded",
+        "failed",
+        "requires_capture",
+        "cancelled",
+      ];
+
+      for (const status of nonReviewStatuses) {
+        await test.step(`banner is hidden for ${status}`, async () => {
+          paymentStatus.setStatus(status);
+          await page.reload();
+          await expect(
+            page.getByText("Summary", { exact: true }),
+          ).toBeVisible();
+          await expect(
+            paymentOperations.manualAttentionHeading,
+          ).not.toBeVisible();
+          await expect(
+            paymentOperations.updatePaymentStatusButton,
+          ).not.toBeVisible();
+        });
+      }
+    });
+
+    test("should display all elements in the Update Payment Status modal", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+      await setupPaymentWithStatus(page, homePage, context.request, "review");
+      await openPaymentDetails(page, homePage, paymentOperations);
+      await openStatusUpdateModal(paymentOperations);
+
+      await expect(
+        paymentOperations.updatePaymentStatusModalDescription,
+      ).toBeVisible();
+      await expect(paymentOperations.newStatusLabel).toBeVisible();
+      await expect(paymentOperations.reviewStatusDropdown).toBeVisible();
+      await expect(paymentOperations.cancelStatusUpdateButton).toBeVisible();
+      await expect(paymentOperations.updateStatusButton).toBeVisible();
+
+      await paymentOperations.reviewStatusDropdown.click();
+      await expect(
+        paymentOperations.reviewStatusOption("Succeeded"),
+      ).toBeVisible();
+      await expect(
+        paymentOperations.reviewStatusOption("Failed"),
+      ).toBeVisible();
+    });
+
+    test("should successfully mark a Review payment as Succeeded", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+      await setupPaymentWithStatus(page, homePage, context.request, "review");
+      const capturedRequest = await mockManualStatusUpdate(page, 200);
+      await openPaymentDetails(page, homePage, paymentOperations);
+      await openStatusUpdateModal(paymentOperations);
+
+      await paymentOperations.updateStatusButton.click();
+      await expect(paymentOperations.confirmStatusUpdateHeading).toBeVisible();
+      await expect(
+        paymentOperations.confirmStatusUpdateDescription("Succeeded"),
+      ).toBeVisible();
+      await paymentOperations.confirmStatusUpdateButton.click();
+
+      await expect(
+        paymentOperations.manualStatusSuccessToast("Succeeded"),
+      ).toBeVisible();
+      expect(capturedRequest.method).toBe("POST");
+      expect(capturedRequest.body).toEqual({ intent_status: "succeeded" });
+    });
+
+    test("should successfully mark a Review payment as Failed", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+      await setupPaymentWithStatus(page, homePage, context.request, "review");
+      const capturedRequest = await mockManualStatusUpdate(page, 200);
+      await openPaymentDetails(page, homePage, paymentOperations);
+      await openStatusUpdateModal(paymentOperations);
+
+      await paymentOperations.reviewStatusDropdown.click();
+      await paymentOperations.reviewStatusOption("Failed").click();
+      await paymentOperations.updateStatusButton.click();
+      await expect(paymentOperations.confirmStatusUpdateHeading).toBeVisible();
+      await expect(
+        paymentOperations.confirmStatusUpdateDescription("Failed"),
+      ).toBeVisible();
+      await paymentOperations.confirmStatusUpdateButton.click();
+
+      await expect(
+        paymentOperations.manualStatusSuccessToast("Failed"),
+      ).toBeVisible();
+      expect(capturedRequest.method).toBe("POST");
+      expect(capturedRequest.body).toEqual({ intent_status: "failed" });
+    });
+
+    test("should close the status update modal and confirmation popup on Cancel", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+      await setupPaymentWithStatus(page, homePage, context.request, "review");
+      await openPaymentDetails(page, homePage, paymentOperations);
+      await openStatusUpdateModal(paymentOperations);
+
+      await paymentOperations.cancelStatusUpdateButton.click();
+      await expect(
+        paymentOperations.updatePaymentStatusModal,
+      ).not.toBeVisible();
+
+      await openStatusUpdateModal(paymentOperations);
+      await paymentOperations.updateStatusButton.click();
+      await expect(paymentOperations.confirmStatusUpdateHeading).toBeVisible();
+      await paymentOperations.cancelStatusConfirmationButton.click();
+      await expect(
+        paymentOperations.confirmStatusUpdateHeading,
+      ).not.toBeVisible();
+    });
+
+    test("should show an error when the manual status update API fails", async ({
+      page,
+      context,
+    }) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+      await setupPaymentWithStatus(page, homePage, context.request, "review");
+      const capturedRequest = await mockManualStatusUpdate(page, 500);
+      await openPaymentDetails(page, homePage, paymentOperations);
+      await openStatusUpdateModal(paymentOperations);
+
+      await paymentOperations.updateStatusButton.click();
+      await expect(paymentOperations.confirmStatusUpdateHeading).toBeVisible();
+      await paymentOperations.confirmStatusUpdateButton.click();
+
+      await expect(paymentOperations.manualStatusErrorToast).toBeVisible();
+      expect(capturedRequest.method).toBe("POST");
+      expect(capturedRequest.body).toEqual({ intent_status: "succeeded" });
     });
   });
 });

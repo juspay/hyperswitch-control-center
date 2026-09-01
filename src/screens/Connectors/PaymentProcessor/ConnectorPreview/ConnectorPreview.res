@@ -145,7 +145,7 @@ module ConnectorSummaryGrid = {
 
     let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let copyValueOfWebhookEndpoint = getWebhooksUrl(
-      ~connectorName={connectorInfo.merchant_connector_id},
+      ~connectorName={connectorInfo.connector_name},
       ~merchantId,
     )
     let (processorType, _) =
@@ -400,12 +400,13 @@ let make = (
       setInitialValues(_ => res)
       setScreenState(_ => PageLoaderWrapper.Success)
       showToast(
-        ~message=`Connector has been successfully ${currentIsDisabled ? "Enabled" : "Disabled"}`,
+        ~message=`Connector has been successfully ${currentIsDisabled ? "enabled" : "disabled"}`,
         ~toastType=ToastSuccess,
       )
     } catch {
     | Exn.Error(_) => {
-        showToast(~message=`Failed to Disable connector!`, ~toastType=ToastError)
+        let action = currentIsDisabled ? "enable" : "disable"
+        showToast(~message=`Failed to ${action} connector!`, ~toastType=ToastError)
         setScreenState(_ => PageLoaderWrapper.Success)
       }
     }
@@ -435,6 +436,7 @@ let make = (
             <Button text="Sync" buttonType={Primary} onClick={_ => getPayPalStatus()->ignore} />
           | (Preview, _, _, _) =>
             <div className="flex gap-6 items-center">
+              <CloneConnectorModal connectorInfo />
               <RenderIf condition={showMenuOption}>
                 {switch (connector->getConnectorNameTypeFromString, paypalAutomaticFlow) {
                 | (Processors(PAYPAL), true) =>

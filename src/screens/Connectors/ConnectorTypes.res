@@ -142,6 +142,11 @@ type processorTypes =
   | TRUSTLY
   | IMERCHANTSOLUTIONS
   | PAYCONEX
+  | TSYSTRANSIT
+  | GIVEPAYMENTS
+  | CITIGATE
+  | ILIXIUM
+  | WORLDPAYRAFT
 
 type payoutProcessorTypes =
   | ADYEN
@@ -161,6 +166,8 @@ type payoutProcessorTypes =
   | TRUELAYER
   | ENVOY
   | TRUSTLY
+  | SANTANDER
+  | DEUTSCHEBANK
 
 type threeDsAuthenticatorTypes =
   | THREEDSECUREIO
@@ -477,6 +484,13 @@ type connector =
   | BillingProcessor
   | VaultProcessor
   | SurchargeProcessor
+
+type cloneConnectorRequest = {
+  source_mca_id: string,
+  source_profile_id: string,
+  destination_profile_id: string,
+  connector_label: string,
+}
 
 type connectorFieldTypes = {
   bodyType: string,

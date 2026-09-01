@@ -10,6 +10,7 @@ type groupAccessType =
   | OperationsManage
   | ConnectorsView
   | ConnectorsManage
+  | CloneConnectorManage
   | WorkflowsView
   | WorkflowsManage
   | AnalyticsView
@@ -30,6 +31,8 @@ type groupAccessType =
   | ReconRulesManage
   | ReconExceptionsView
   | ReconExceptionsManage
+  | ConfigurationsView
+  | ConfigurationsManage
   | UnknownGroupAccess(string)
 
 type resourceAccessType =
@@ -39,6 +42,7 @@ type resourceAccessType =
   | Payout
   | Customer
   | Connector
+  | CloneConnector
   | Analytics
   | Routing
   | ThreeDsDecisionManager
@@ -56,6 +60,7 @@ type resourceAccessType =
   | ReconStagingEntry
   | ReconTransaction
   | ReconRule
+  | SuperpositionConfigs
   | UnknownResourceAccess(string)
 
 open CommonAuthTypes
@@ -64,6 +69,7 @@ type groupAccessJsonType = {
   operationsManage: authorization,
   connectorsView: authorization,
   connectorsManage: authorization,
+  cloneConnectorManage: authorization,
   workflowsView: authorization,
   workflowsManage: authorization,
   analyticsView: authorization,
@@ -84,6 +90,8 @@ type groupAccessJsonType = {
   reconRulesManage: authorization,
   reconExceptionsView: authorization,
   reconExceptionsManage: authorization,
+  configurationsView: authorization,
+  configurationsManage: authorization,
 }
 
 type getInfoType = {

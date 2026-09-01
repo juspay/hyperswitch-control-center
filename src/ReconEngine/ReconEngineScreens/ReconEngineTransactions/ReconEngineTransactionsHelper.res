@@ -223,6 +223,20 @@ module HierarchicalEntryRenderer = {
   }
 }
 
+module HierarchicalMoreEntriesRenderer = {
+  @react.component
+  let make = (~hasMoreEntries: bool, ~text: string="") => {
+    <RenderIf condition={hasMoreEntries}>
+      <div className="px-8 py-3.5">
+        <div
+          className={`truncate max-w-48 whitespace-nowrap h-7 text-nd_gray-500 ${body.sm.medium}`}>
+          {text->React.string}
+        </div>
+      </div>
+    </RenderIf>
+  }
+}
+
 module AuditTrail = {
   @react.component
   let make = (~allTransactionDetails) => {
@@ -279,7 +293,10 @@ module AuditTrail = {
     }
 
     let sections = allTransactionDetails->Array.map((transaction: transactionType) => {
-      let reasonText = transaction.data.reason->Option.mapOr(None, reason => Some(reason))
+      let reasonText = switch transaction.data.reason {
+      | Some(reason) if reason->isNonEmptyString => Some(reason)
+      | _ => transaction.discarded_data->Option.flatMap(discardedData => discardedData.reason)
+      }
 
       let customComponent = {
         id: transaction.version->Int.toString,
@@ -295,6 +312,7 @@ module AuditTrail = {
           setShowModal(_ => true)
         },
         reasonText,
+        modifiedBy: transaction.modified_by,
       }
       customComponent
     })
@@ -377,5 +395,37 @@ module AuditTrail = {
         </PageLoaderWrapper>
       </Modal>
     </>
+  }
+}
+
+module AuditTrailTab = {
+  @react.component
+  let make = (~transactionId: string) => {
+    let getTransactions = ReconEngineHooks.useGetTransactions()
+    let (allTransactionDetails, setAllTransactionDetails) = React.useState(_ => [])
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+
+    let fetchTransactionVersions = async () => {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      try {
+        let transactionsList = await getTransactions(
+          ~queryParameters=Some(`transaction_id=${transactionId}`),
+        )
+        setAllTransactionDetails(_ => transactionsList)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch transaction details"))
+      }
+    }
+
+    React.useEffect(() => {
+      fetchTransactionVersions()->ignore
+      None
+    }, [])
+
+    <PageLoaderWrapper
+      screenState customLoader={<Shimmer styleClass="h-40 w-full mt-8 rounded-xl" />}>
+      <AuditTrail allTransactionDetails />
+    </PageLoaderWrapper>
   }
 }

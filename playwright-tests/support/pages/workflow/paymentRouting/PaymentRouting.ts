@@ -8,7 +8,7 @@ export class PaymentRouting {
   }
 
   get volumeBasedRoutingSetupButton(): Locator {
-    return this.page.locator('[data-button-for="setup"]').nth(0);
+    return this.page.locator('[data-button-for="setup"]').nth(2);
   }
 
   get volumeBasedRoutingHeader(): Locator {
@@ -24,11 +24,13 @@ export class PaymentRouting {
   }
 
   get authRateBasedRoutingSetupButton(): Locator {
-    return this.page.locator('[data-button-for="setup"]').nth(2);
+    return this.page.locator('[data-button-for="setup"]').nth(0);
   }
 
   get noConnectorsMessage(): Locator {
-    return this.page.getByText('No Processor FoundPlease connect at least 1 processor in order to create a rule.');
+    return this.page.getByText(
+      "No Processor FoundPlease connect at least 1 processor in order to create a rule.",
+    );
   }
 
   get noConnectorsMessageLarge(): Locator {
@@ -70,7 +72,7 @@ export class PaymentRouting {
   }
 
   dataToast(text: string): Locator {
-    return this.page.locator(`[data-toast="${text}"]`);
+    return this.page.locator(`[data-id="${text}"]`);
   }
 
   dataLabel(label: string): Locator {

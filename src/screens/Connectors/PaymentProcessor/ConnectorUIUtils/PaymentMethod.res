@@ -378,10 +378,8 @@ module CardRenderer = {
       }
     }, [])
 
-    let handleBankDebitCheckboxClick = (~method) => _ => {
-      if paymentMethod->getPaymentMethodFromString === BankDebit {
-        removeOrAddMethods(method)
-      }
+    let handleCheckboxClick = (~method) => _ => {
+      removeOrAddMethods(method)
     }
 
     let handleOnItemExpandClick = method => () => {
@@ -391,14 +389,6 @@ module CardRenderer = {
 
       if showAdditionalDetails(method.payment_method_type->getPaymentMethodTypeFromString) {
         setSelectedWallet(_ => method)
-      }
-    }
-
-    let handleOnItemCollapseClick = method => () => {
-      if isSelected(method) && paymentMethod->getPaymentMethodFromString != BankDebit {
-        removeOrAddMethods(method)
-      } else {
-        removeSelectedWallet()
       }
     }
 
@@ -431,7 +421,7 @@ module CardRenderer = {
                       ->getDictfromDict("metadata")
                       ->getString("klarna_region", "") === "Europe"}>
                       <div className="flex gap-2 items-center">
-                        <BoolInput.BaseComponent
+                        <SwitchAdapter
                           isSelected={selectedAll}
                           setIsSelected={_ => updateSelectAll(paymentMethod, selectedAll)}
                           isDisabled={false}
@@ -442,7 +432,7 @@ module CardRenderer = {
                     </RenderIf>
                   | _ =>
                     <div className="flex gap-2 items-center">
-                      <BoolInput.BaseComponent
+                      <SwitchAdapter
                         isSelected={selectedAll}
                         setIsSelected={_ => updateSelectAll(paymentMethod, selectedAll)}
                         isDisabled={false}
@@ -599,10 +589,9 @@ module CardRenderer = {
                         paymentMethodsEnabled
                         paymentMethod
                         onCloseClickCustomFun={removeSelectedWallet}
-                        pmtName={selectedWallet.payment_method_type}
+                        pmtName={value.payment_method_type}
                         closeAccordionFn
                       />,
-                    onItemCollapseClick: handleOnItemCollapseClick(value),
                     onItemExpandClick: handleOnItemExpandClick(value),
                     renderContentOnTop: Some(
                       () => {
@@ -612,7 +601,7 @@ module CardRenderer = {
                             <div className="cursor-pointer">
                               <CheckBoxIconAdapter
                                 isSelected={isSelected(value)}
-                                setIsSelected={handleBankDebitCheckboxClick(~method=value)}
+                                setIsSelected={handleCheckboxClick(~method=value)}
                                 stopPropagationNeeded=true
                               />
                             </div>

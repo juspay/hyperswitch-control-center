@@ -42,6 +42,8 @@ let make = (
   ~connectorType=ConnectorTypes.Processor,
   ~setProcessorModal=_ => (),
   ~showTestProcessor=false,
+  ~onCardClick: option<string => unit>=?,
+  ~heading="Connect a new processor",
 ) => {
   open ConnectorUtils
 
@@ -66,10 +68,15 @@ let make = (
 
   let handleClick = connectorName => {
     mixpanelEvent(~eventName=`connect_processor_${connectorName}`)
-    setShowSideBar(_ => false)
-    RescriptReactRouter.push(
-      GlobalVars.appendDashboardPath(~url=`v2/recovery/connectors/new?name=${connectorName}`),
-    )
+    switch onCardClick {
+    | Some(onClick) => onClick(connectorName)
+    | None => {
+        setShowSideBar(_ => false)
+        RescriptReactRouter.push(
+          GlobalVars.appendDashboardPath(~url=`v2/recovery/connectors/new?name=${connectorName}`),
+        )
+      }
+    }
   }
   let unConfiguredConnectorsCount = unConfiguredConnectors->Array.length
 
@@ -174,7 +181,7 @@ let make = (
   let connectorListFiltered = {
     if searchedConnector->LogicUtils.isNonEmptyString {
       connectorsAvailableForIntegration->Array.filter(item =>
-        item->getConnectorNameString->String.includes(searchedConnector->String.toLowerCase)
+        matchesConnectorTypeSearch(item, searchedConnector)
       )
     } else {
       connectorsAvailableForIntegration
@@ -185,7 +192,7 @@ let make = (
       <RenderIf condition={showAllConnectors}>
         <div className="flex flex-col gap-4">
           {connectorListFiltered->descriptedConnectors(
-            ~heading="Connect a new processor",
+            ~heading,
             ~showRequestConnectorBtn=true,
             ~showDummyConnectorButton=false,
             (),

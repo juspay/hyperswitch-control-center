@@ -90,6 +90,15 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
     setShowModal=setReportModal
     modalClass="m-auto">
     <Form onSubmit initialValues>
+      <div className="mb-4">
+        <AlertV2Binding
+          alertType=Primary
+          slot={{
+            slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />,
+          }}
+          description="Each generated report is limited to 50,000 rows. Narrow the date range if needed."
+        />
+      </div>
       <FormRenderer.FieldRenderer
         field={FormRenderer.makeMultiInputFieldInfo(
           ~label="Date Range",

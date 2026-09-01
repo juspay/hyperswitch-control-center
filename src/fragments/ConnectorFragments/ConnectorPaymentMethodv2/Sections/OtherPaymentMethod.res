@@ -226,15 +226,12 @@ let make = (
                             updateDetails={_val => updateDetails(_val)}
                             paymentMethodsEnabled=temp
                             paymentMethod={pm}
-                            pmtName={selectedWallet.payment_method_subtype}
+                            pmtName={pmtData.payment_method_subtype}
                             closeAccordionFn
                             onCloseClickCustomFun={resetValues}
                           />,
                         onItemExpandClick: () => {
                           onClick(pmtData, i)
-                        },
-                        onItemCollapseClick: () => {
-                          resetValues()
                         },
                         renderContentOnTop: Some(
                           () => {
