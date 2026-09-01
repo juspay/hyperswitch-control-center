@@ -10,7 +10,7 @@ let make = () => {
 
   let merchantDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantDetailsValueAtom)
   let publishableKey = merchantDetails.publishable_key
-  let _ = MerchantDetailsHook.useLoadMerchantDetails()
+  MerchantDetailsHook.useLoadMerchantDetails()->ignore
 
   let clientSecret = paymentResult->getDictFromJsonObject->getString("client_secret", "")
   let themeConfig = sdkThemeInitialValues->getDictFromJsonObject

@@ -157,7 +157,7 @@ module ConfiguratorForm = {
     let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(
       HyperswitchAtom.merchantDetailsValueAtom,
     )
-    let _ = MerchantDetailsHook.useLoadMerchantDetails()
+    MerchantDetailsHook.useLoadMerchantDetails()->ignore
     let businessProfileRecoilVal = Recoil.useRecoilValueFromAtom(
       HyperswitchAtom.businessProfileFromIdAtomInterface,
     )

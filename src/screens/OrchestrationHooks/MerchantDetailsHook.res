@@ -1,9 +1,11 @@
+open APIUtils
+open CommonAuthTypes
 open HyperswitchAtom
 let useFetchUserMerchantDetails = () => {
-  let getURL = APIUtils.useGetURL()
-  let setMerchantDetailsValue = HyperswitchAtom.merchantDetailsValueAtom->Recoil.useSetRecoilState
+  let getURL = useGetURL()
+  let setMerchantDetailsValue = merchantDetailsValueAtom->Recoil.useSetRecoilState
 
-  let fetchDetails = APIUtils.useGetMethod()
+  let fetchDetails = useGetMethod()
 
   async (~version: UserInfoTypes.version=V1) => {
     try {
@@ -30,11 +32,11 @@ let useFetchUserMerchantDetails = () => {
   }
 }
 
-let useFetchMerchantDetails = (~showErrorToast=true) => {
-  let getURL = APIUtils.useGetURL()
-  let setMerchantDetailsValue = HyperswitchAtom.merchantDetailsValueAtom->Recoil.useSetRecoilState
+let useFetchMerchantDetails = () => {
+  let getURL = useGetURL()
+  let setMerchantDetailsValue = merchantDetailsValueAtom->Recoil.useSetRecoilState
 
-  let fetchDetails = APIUtils.useGetMethod(~showErrorToast)
+  let fetchDetails = useGetMethod()
 
   async (~version: UserInfoTypes.version=V1) => {
     try {
@@ -71,7 +73,7 @@ let useLoadMerchantDetails = () => {
   let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let isMerchantDetailsPresent = merchantDetails.publishable_key->LogicUtils.isNonEmptyString
-  let hasAccountAccess = userHasAccess(~groupAccess=AccountView) === CommonAuthTypes.Access
+  let hasAccountAccess = userHasAccess(~groupAccess=AccountView) === Access
   let (isLoaded, setIsLoaded) = React.useState(_ => isMerchantDetailsPresent)
 
   let loadMerchantDetails = async () => {
