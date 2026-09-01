@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.01.0
+
+### Features
+
+- Rule based routing revamp helper ([#5050](https://github.com/juspay/hyperswitch-control-center/pull/5050)) ([`cde5631`](https://github.com/juspay/hyperswitch-control-center/commit/cde56311d7acc9f96e70e2aae2f5f7de0ad4bb42))
+
+### Testing
+
+- **playwright:** Add worldpayraft connector coverage and unblock the local backend boot ([#5489](https://github.com/juspay/hyperswitch-control-center/pull/5489)) ([`be9a73f`](https://github.com/juspay/hyperswitch-control-center/commit/be9a73f75211656195648d69db4f9528b0a76699))
+
+### Miscellaneous Tasks
+
+- Upgrade blend to 0.0.37 and drop upstreamed workarounds ([#5436](https://github.com/juspay/hyperswitch-control-center/pull/5436)) ([`01e265c`](https://github.com/juspay/hyperswitch-control-center/commit/01e265c486391826719c1fb7652122f9d62dd591))
+- Move blocklist page content to a tab in payment settings ([#5465](https://github.com/juspay/hyperswitch-control-center/pull/5465)) ([`6686b53`](https://github.com/juspay/hyperswitch-control-center/commit/6686b53dfe6d41568cbfd71ed65a475f8b532bee))
+
+**Full Changelog:** [`2026.08.28.0...2026.09.01.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.08.28.0...2026.09.01.0)
+
+- - -
+
 ## 2026.08.28.0
 
 ### Features
