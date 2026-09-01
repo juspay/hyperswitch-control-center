@@ -1958,9 +1958,10 @@ export async function fillConnectorFields(
     overrides?: Record<string, string>;
   },
 ): Promise<void> {
+  // textarea covers the multi-line credential fields, e.g. the deutschebank payout PEM fields
   const inputs = page
     .locator(
-      '.grid.grid-cols-2 input[type="text"], .grid.grid-cols-2 input[type="number"]',
+      '.grid.grid-cols-2 input[type="text"], .grid.grid-cols-2 input[type="number"], .grid.grid-cols-2 textarea',
     )
     .locator("visible=true");
 
