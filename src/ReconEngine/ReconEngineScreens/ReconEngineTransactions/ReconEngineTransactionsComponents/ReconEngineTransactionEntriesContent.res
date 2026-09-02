@@ -7,6 +7,7 @@ let make = (
   ~accountsData: array<ReconEngineTypes.accountType>,
   ~transformationNameMap: Dict.t<string>,
   ~currencyOptions: array<FilterSelectBox.dropdownOption>,
+  ~transformationConfigOptions: array<FilterSelectBox.dropdownOption>,
 ) => {
   open LogicUtils
   open EntriesTableEntity
@@ -67,7 +68,7 @@ let make = (
       <div className="flex flex-row -ml-1.5">
         <DynamicFilter
           title={`ReconEngineTransactionEntriesFilters-${accountId}`}
-          initialFilters={entriesDisplayFilters(~currencyOptions)}
+          initialFilters={entriesDisplayFilters(~currencyOptions, ~transformationConfigOptions)}
           options=[]
           popupFilterFields=[]
           initialFixedFilters=[]
