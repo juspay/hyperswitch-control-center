@@ -198,6 +198,7 @@ let make = () => {
       <hr className="my-8 border-nd_gray-150" />
       <PageUtils.PageHeading
         title="Blocklist"
+        subTitle="Upload blocklist CSV files and track batch processing status."
         customTitleStyle={`!${body.lg.semibold} text-nd_gray-700`}
         customSubTitleStyle={`${body.md.medium} text-nd_gray-500`}
         showPermLink=false
