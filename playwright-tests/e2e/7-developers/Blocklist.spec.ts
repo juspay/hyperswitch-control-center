@@ -428,7 +428,7 @@ test.describe("Blocklist", () => {
 });
 
 test.describe("Blocklist feature flag", () => {
-  test("should hide the blocklist tab when feature flag is off", async ({
+  test("should hide the blocklist content when feature flag is off", async ({
     page,
   }) => {
     const email = generateUniqueEmail();
@@ -443,7 +443,13 @@ test.describe("Blocklist feature flag", () => {
     await homePage.paymentSettings.click();
     await expect(page).toHaveURL(/.*dashboard\/payment-settings/);
 
-    await expect(blocklist.tab).toBeHidden();
+    await expect(blocklist.tab).toBeVisible();
+    await blocklist.tab.click();
+
+    await expect(
+      page.getByText("Payment Method Blocking", { exact: true }),
+    ).toBeVisible();
     await expect(blocklist.pageHeading).toBeHidden();
+    await expect(blocklist.uploadCsvHeading).toBeHidden();
   });
 });
