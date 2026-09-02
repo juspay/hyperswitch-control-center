@@ -2,6 +2,8 @@ open PaymentMethodBlockingTypes
 open PaymentMethodBlockingHelper
 open FormRenderer
 open Typography
+open LogicUtils
+open DeveloperUtils
 
 @react.component
 let make = () => {
@@ -33,18 +35,18 @@ let make = () => {
 
   let wasmOptions = React.useMemo((): wasmOptions => {
     issuingCountry: try {
-      Window.getTwoLetterCountryCode()->DeveloperUtils.makeOptionsWithDifferentValues
+      Window.getTwoLetterCountryCode()->makeOptionsWithDifferentValues
     } catch {
     | _ => []
     },
     cardTypes: try {
-      Window.getCardTypeValues()->DeveloperUtils.makeOptions
+      Window.getCardTypeValues()->makeOptions
     } catch {
     | _ => []
     },
     cardNetworks: try {
       Window.getVariantValues("card_network")->Array.map((value): SelectBox.dropdownOption => {
-        label: value->LogicUtils.camelCaseToTitle,
+        label: value->camelCaseToTitle,
         value,
       })
     } catch {
@@ -57,14 +59,14 @@ let make = () => {
     },
     fundingSources: try {
       Window.getFundingSourceValues()->Array.map((value): SelectBox.dropdownOption => {
-        label: value->String.toLowerCase->LogicUtils.snakeToTitle,
+        label: value->String.toLowerCase->snakeToTitle,
         value,
       })
     } catch {
     | _ => []
     },
     cardSegmentTypes: try {
-      Window.getCardSegmentTypeValues()->DeveloperUtils.makeOptions
+      Window.getCardSegmentTypeValues()->makeOptions
     } catch {
     | _ => []
     },
@@ -75,7 +77,7 @@ let make = () => {
     #ApplePay,
     #GooglePay,
   ]->Array.map((paymentMethod: paymentMethod) => {
-    Accordion.title: (paymentMethod :> string)->LogicUtils.camelCaseToTitle,
+    Accordion.title: (paymentMethod :> string)->camelCaseToTitle,
     renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) =>
       <BlockingConfigFields paymentMethod wasmOptions />,
     renderContentOnTop: None,
