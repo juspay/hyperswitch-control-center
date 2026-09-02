@@ -194,11 +194,17 @@ let getV2Url = (
   }
 }
 
+// OLAP endpoints are served from `olap_url`; an empty value falls back to the main API host.
+let getOlapBaseUrl = () =>
+  switch Window.env.olapUrl->getNonEmptyString {
+  | Some(olapUrl) => olapUrl->String.replaceRegExp(%re("/\/+$/"), "")
+  | None => Window.env.apiBaseUrl
+  }
+
 let resolveEndpoint = endpoint =>
   switch endpoint {
-  | Olap(path) =>
-    Window.env.olapPrefix->String.length > 0 ? `${Window.env.olapPrefix}/${path}` : path
-  | Default(path) => path
+  | Olap(path) => `${getOlapBaseUrl()}/${path}`
+  | Default(path) => `${Window.env.apiBaseUrl}/${path}`
   }
 
 let useGetURL = () => {
@@ -1665,7 +1671,7 @@ let useGetURL = () => {
       )
     }
 
-    `${Window.env.apiBaseUrl}/${endpoint->resolveEndpoint}`
+    endpoint->resolveEndpoint
   }
   getUrl
 }

@@ -1,6 +1,7 @@
 [default.endpoints]
 api_url="http://localhost:9000/api"
-olap_prefix=""
+# Full base URL for endpoints on the OLAP routing allowlist; empty falls back to api_url.
+olap_url=""
 sdk_url="http://localhost:9050/HyperLoader.js"
 apple_pay_certificate_url=""
 dss_certificate_us_url=""
