@@ -1,5 +1,4 @@
 open PaymentMethodBlockingTypes
-open PaymentMethodBlockingUtils
 open PaymentMethodBlockingHelper
 open FormRenderer
 open Typography
@@ -72,11 +71,11 @@ let make = () => {
   }, [])
 
   let accordion: array<Accordion.accordion> = [
-    Card,
-    ApplePay,
-    GooglePay,
-  ]->Array.map(paymentMethod => {
-    Accordion.title: paymentMethod->getPaymentMethodName,
+    #Card,
+    #ApplePay,
+    #GooglePay,
+  ]->Array.map((paymentMethod: paymentMethod) => {
+    Accordion.title: (paymentMethod :> string)->LogicUtils.camelCaseToTitle,
     renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) =>
       <BlockingConfigFields paymentMethod wasmOptions />,
     renderContentOnTop: None,

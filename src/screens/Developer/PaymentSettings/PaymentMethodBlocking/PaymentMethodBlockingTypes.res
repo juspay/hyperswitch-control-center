@@ -1,4 +1,4 @@
-type paymentMethod = Card | ApplePay | GooglePay
+type paymentMethod = [#Card | #ApplePay | #GooglePay]
 
 type wasmOptions = {
   issuingCountry: array<SelectBox.dropdownOption>,
