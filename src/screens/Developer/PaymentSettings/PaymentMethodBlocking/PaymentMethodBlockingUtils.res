@@ -17,55 +17,50 @@ let getFieldName = (paymentMethod, key) => {
   `${prefix}.${key}`
 }
 
-let toOption = (~label, ~value): SelectBox.dropdownOption => {label, value}
-
 let issuingCountryOptions = () =>
   try {
-    Window.getTwoLetterCountryCode()->Array.map(item => {
-      let dict = item->getDictFromJsonObject
-      toOption(~label=dict->getString("name", ""), ~value=dict->getString("code", ""))
-    })
+    Window.getTwoLetterCountryCode()->DeveloperUtils.makeOptionsWithDifferentValues
   } catch {
   | _ => []
   }
 
 let cardTypeOptions = () =>
   try {
-    Window.getCardTypeValues()->Array.map(value => toOption(~label=value->snakeToTitle, ~value))
+    Window.getCardTypeValues()->DeveloperUtils.makeOptions
   } catch {
   | _ => []
   }
 
 let cardNetworkOptions = () =>
   try {
-    Window.getVariantValues("card_network")->Array.map(value =>
-      toOption(~label=value->camelCaseToTitle, ~value)
-    )
+    Window.getVariantValues("card_network")->Array.map((value): SelectBox.dropdownOption => {
+      label: value->camelCaseToTitle,
+      value,
+    })
   } catch {
   | _ => []
   }
 
 let cardSubtypeOptions = () =>
   try {
-    Window.getCardSubtypeValues()->Array.map(value => toOption(~label=value, ~value))
+    Window.getCardSubtypeValues()->SelectBox.makeOptions
   } catch {
   | _ => []
   }
 
 let fundingSourceOptions = () =>
   try {
-    Window.getFundingSourceValues()->Array.map(value =>
-      toOption(~label=value->String.toLowerCase->snakeToTitle, ~value)
-    )
+    Window.getFundingSourceValues()->Array.map((value): SelectBox.dropdownOption => {
+      label: value->String.toLowerCase->snakeToTitle,
+      value,
+    })
   } catch {
   | _ => []
   }
 
 let cardSegmentTypeOptions = () =>
   try {
-    Window.getCardSegmentTypeValues()->Array.map(value =>
-      toOption(~label=value->snakeToTitle, ~value)
-    )
+    Window.getCardSegmentTypeValues()->DeveloperUtils.makeOptions
   } catch {
   | _ => []
   }
