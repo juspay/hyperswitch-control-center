@@ -3,6 +3,8 @@
 export function getPayoutConnectorConfig(key: string): any;
 export function getAuthenticationConnectorConfig(key: string): any;
 export function getTaxProcessorConfig(key: string): any;
+export function getFundingSourceValues(): any;
+export function getCardSegmentTypeValues(): any;
 export function getValidWebhookStatus(key: string): any;
 export function getSurchargeProcessorConfig(key: string): any;
 export function getPMAuthenticationProcessorConfig(key: string): any;
@@ -80,10 +82,12 @@ export interface InitOutput {
   readonly getAllPayoutKeys: (a: number) => void;
   readonly getAuthenticationConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getBillingConnectorConfig: (a: number, b: number, c: number) => void;
+  readonly getCardSegmentTypeValues: (a: number) => void;
   readonly getCardSubtypeValues: (a: number) => void;
   readonly getCardTypeValues: (a: number) => void;
   readonly getConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getDescriptionCategory: (a: number) => void;
+  readonly getFundingSourceValues: (a: number) => void;
   readonly getKeyType: (a: number, b: number, c: number) => void;
   readonly getMerchantCategoryCodeWithName: (a: number) => void;
   readonly getPMAuthenticationProcessorConfig: (a: number, b: number, c: number) => void;
