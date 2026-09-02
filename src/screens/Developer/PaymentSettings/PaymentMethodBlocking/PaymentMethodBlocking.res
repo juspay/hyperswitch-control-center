@@ -33,12 +33,42 @@ let make = () => {
   }
 
   let wasmOptions = React.useMemo((): wasmOptions => {
-    issuingCountry: issuingCountryOptions(),
-    cardTypes: cardTypeOptions(),
-    cardNetworks: cardNetworkOptions(),
-    cardSubtypes: cardSubtypeOptions(),
-    fundingSources: fundingSourceOptions(),
-    cardSegmentTypes: cardSegmentTypeOptions(),
+    issuingCountry: try {
+      Window.getTwoLetterCountryCode()->DeveloperUtils.makeOptionsWithDifferentValues
+    } catch {
+    | _ => []
+    },
+    cardTypes: try {
+      Window.getCardTypeValues()->DeveloperUtils.makeOptions
+    } catch {
+    | _ => []
+    },
+    cardNetworks: try {
+      Window.getVariantValues("card_network")->Array.map((value): SelectBox.dropdownOption => {
+        label: value->LogicUtils.camelCaseToTitle,
+        value,
+      })
+    } catch {
+    | _ => []
+    },
+    cardSubtypes: try {
+      Window.getCardSubtypeValues()->SelectBox.makeOptions
+    } catch {
+    | _ => []
+    },
+    fundingSources: try {
+      Window.getFundingSourceValues()->Array.map((value): SelectBox.dropdownOption => {
+        label: value->String.toLowerCase->LogicUtils.snakeToTitle,
+        value,
+      })
+    } catch {
+    | _ => []
+    },
+    cardSegmentTypes: try {
+      Window.getCardSegmentTypeValues()->DeveloperUtils.makeOptions
+    } catch {
+    | _ => []
+    },
   }, [])
 
   let accordion: array<Accordion.accordion> = [

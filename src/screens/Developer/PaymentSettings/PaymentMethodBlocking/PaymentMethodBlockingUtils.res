@@ -1,4 +1,3 @@
-open LogicUtils
 open PaymentMethodBlockingTypes
 
 let getPaymentMethodName = paymentMethod =>
@@ -16,54 +15,6 @@ let getFieldName = (paymentMethod, key) => {
   }
   `${prefix}.${key}`
 }
-
-let issuingCountryOptions = () =>
-  try {
-    Window.getTwoLetterCountryCode()->DeveloperUtils.makeOptionsWithDifferentValues
-  } catch {
-  | _ => []
-  }
-
-let cardTypeOptions = () =>
-  try {
-    Window.getCardTypeValues()->DeveloperUtils.makeOptions
-  } catch {
-  | _ => []
-  }
-
-let cardNetworkOptions = () =>
-  try {
-    Window.getVariantValues("card_network")->Array.map((value): SelectBox.dropdownOption => {
-      label: value->camelCaseToTitle,
-      value,
-    })
-  } catch {
-  | _ => []
-  }
-
-let cardSubtypeOptions = () =>
-  try {
-    Window.getCardSubtypeValues()->SelectBox.makeOptions
-  } catch {
-  | _ => []
-  }
-
-let fundingSourceOptions = () =>
-  try {
-    Window.getFundingSourceValues()->Array.map((value): SelectBox.dropdownOption => {
-      label: value->String.toLowerCase->snakeToTitle,
-      value,
-    })
-  } catch {
-  | _ => []
-  }
-
-let cardSegmentTypeOptions = () =>
-  try {
-    Window.getCardSegmentTypeValues()->DeveloperUtils.makeOptions
-  } catch {
-  | _ => []
-  }
 
 let toggleFields = [
   {
