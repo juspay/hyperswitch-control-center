@@ -231,11 +231,6 @@ test.describe("Payment Settings", () => {
       await expect(paymentSettings.networkTokenizationToggle).toBeVisible();
       await expect(paymentSettings.merchantCategoryCodeDropdown).toBeVisible();
       await expect(paymentSettings.clickToPayToggle).toBeVisible();
-      await expect(paymentSettings.paymentMethodBlocking).toBeVisible();
-      await expect(paymentSettings.applePayPaymentMethodBlocking).toBeVisible();
-      await expect(
-        paymentSettings.googlePayPaymentMethodBlocking,
-      ).toBeVisible();
       await expect(paymentSettings.returnUrlInput).toBeVisible();
       await expect(paymentSettings.webhookUrlInput).toBeVisible();
       await expect(paymentSettings.updateButton).toBeVisible();
@@ -260,11 +255,15 @@ test.describe("Payment Settings", () => {
     }) => {
       const paymentSettings = new PaymentSettings(page);
 
+      await paymentSettings.blockListTab.click();
+
+      await expect(paymentSettings.paymentMethodBlocking).toBeVisible();
       await expect(paymentSettings.applePayPaymentMethodBlocking).toBeVisible();
       await expect(
         paymentSettings.googlePayPaymentMethodBlocking,
       ).toBeVisible();
 
+      await paymentSettings.paymentMethodBlockingAccordion("Apple Pay").click();
       await paymentSettings
         .paymentMethodBlockingCardTypesDropdown("Apple Pay")
         .click();
@@ -275,6 +274,9 @@ test.describe("Payment Settings", () => {
         paymentSettings.dropdownValueByText("Credit"),
       ).not.toBeVisible();
 
+      await paymentSettings
+        .paymentMethodBlockingAccordion("Google Pay")
+        .click();
       await paymentSettings
         .paymentMethodBlockingCardTypesDropdown("Google Pay")
         .click();
