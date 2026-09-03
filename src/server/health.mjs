@@ -1,6 +1,6 @@
-/* global APP_NAME */
 import * as Fs from "fs";
 import toml from "@iarna/toml";
+import { updateConfigWithEnv } from "./config.mjs";
 
 const errorHandler = (res, result = { error: "something went wrong" }) => {
   res.writeHead(500, { "Content-Type": "application/json" });
@@ -8,20 +8,7 @@ const errorHandler = (res, result = { error: "something went wrong" }) => {
   res.end();
 };
 
-// APP_NAME is injected at build time by DefinePlugin (see webpack.server.js);
-// the env fallback keeps this module runnable outside the bundle.
-const appName =
-  typeof APP_NAME !== "undefined" ? APP_NAME : process.env.APP_NAME;
-
-const indexFilePath =
-  appName === "embedded"
-    ? "dist/embedded/index.html"
-    : "dist/hyperswitch/index.html";
-
-const configFilePath =
-  process.env.configPath || "dist/server/config/config.toml";
-
-const checkHealth = (res) => {
+const checkHealth = (res, configFilePath, indexFilePath) => {
   const output = {
     env_config: false,
     app_file: false,
@@ -32,10 +19,15 @@ const checkHealth = (res) => {
     const config = toml.parse(
       Fs.readFileSync(configFilePath, { encoding: "utf8" }),
     );
-    // Parsing is not enough: without an API endpoint the dashboard has no
-    // backend to call. `configHandler` serves the `default` table, so check
-    // the same api_url the client will read from it.
-    output.env_config = Boolean(config.default?.endpoints?.api_url);
+    // Parsing is not enough: without an API endpoint the dashboard has no backend to call.
+    // Resolve env overrides the same way configHandler does so this checks
+    // the api_url the client will actually receive rather than the raw TOML value.
+    const merchantConfig = updateConfigWithEnv(
+      config.default ?? {},
+      "default",
+      "",
+    );
+    output.env_config = Boolean(merchantConfig?.endpoints?.api_url);
   } catch (err) {
     console.error(`health: unable to read config at ${configFilePath}`, err);
   }
@@ -74,9 +66,9 @@ const healthHandler = (_req, res) => {
   }
 };
 
-const healthReadinessHandler = (_req, res) => {
+const healthReadinessHandler = (_req, res, configFilePath, indexFilePath) => {
   try {
-    checkHealth(res);
+    checkHealth(res, configFilePath, indexFilePath);
   } catch (error) {
     console.error(error);
     errorHandler(res);
