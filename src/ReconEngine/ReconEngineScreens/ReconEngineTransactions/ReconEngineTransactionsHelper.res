@@ -115,9 +115,9 @@ module EntryAuditTrailInfo = {
     ~accountIds: array<string>,
     ~accountsData: array<accountType>,
   ) => {
-    <div className="flex flex-col gap-4 px-2 my-6">
+    <div className="flex flex-col gap-4 px-2 mb-6">
       <RenderIf condition={openedTransaction.data.reason->Option.isSome}>
-        <div className="flex flex-col gap-2 p-4 border border-nd_gray-150 rounded-lg w-full">
+        <div className="flex flex-col gap-2 p-4 mt-6 border border-nd_gray-150 rounded-lg w-full">
           <div className="flex flex-row justify-between">
             <p className={`${body.lg.semibold} text-nd_gray-700`}>
               {"Resolution Remark"->React.string}
