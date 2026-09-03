@@ -89,7 +89,7 @@ let make = () => {
       baseTabs->Array.push(surchargeTab)
     }
 
-    if version == V1 && featureFlagDetails.devBlocklist {
+    if version == V1 {
       baseTabs->Array.push(blocklistTab)
     }
 

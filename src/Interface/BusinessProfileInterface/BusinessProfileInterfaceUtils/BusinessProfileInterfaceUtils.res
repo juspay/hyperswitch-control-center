@@ -192,8 +192,34 @@ let paymentLinkConfigMapper = paymentLinkConfigDict => {
   }
 }
 
+let defaultPaymentMethodBlockingEntry: paymentMethodBlockingEntry = {
+  issuing_country: None,
+  card_types: None,
+  card_networks: None,
+  funding_sources: None,
+  card_segment_types: None,
+  card_subtypes: None,
+  issuers: None,
+  block_virtual_cards: None,
+  block_non_reloadable_prepaid_cards: None,
+  gambling_blocked: None,
+  block_if_bin_info_unavailable: None,
+}
+
 let paymentMethodBlockingEntryMapper: Dict.t<JSON.t> => paymentMethodBlockingEntry = entryDict => {
+  issuing_country: entryDict->getOptionStrArrayFromDict("issuing_country"),
   card_types: entryDict->getOptionStrArrayFromDict("card_types"),
+  card_networks: entryDict->getOptionStrArrayFromDict("card_networks"),
+  funding_sources: entryDict->getOptionStrArrayFromDict("funding_sources"),
+  card_segment_types: entryDict->getOptionStrArrayFromDict("card_segment_types"),
+  card_subtypes: entryDict->getOptionStrArrayFromDict("card_subtypes"),
+  issuers: entryDict->getOptionStrArrayFromDict("issuers"),
+  block_virtual_cards: entryDict->getOptionBool("block_virtual_cards"),
+  block_non_reloadable_prepaid_cards: entryDict->getOptionBool(
+    "block_non_reloadable_prepaid_cards",
+  ),
+  gambling_blocked: entryDict->getOptionBool("gambling_blocked"),
+  block_if_bin_info_unavailable: entryDict->getOptionBool("block_if_bin_info_unavailable"),
 }
 
 let paymentMethodBlockingWalletEntryMapper = (walletDict, key, legacyEntry) => {
@@ -208,6 +234,7 @@ let paymentMethodBlockingWalletMapper: Dict.t<
     walletDict
     ->getOptionStrArrayFromDict("card_types")
     ->Option.map(cardTypes => {
+      ...defaultPaymentMethodBlockingEntry,
       card_types: Some(cardTypes),
     })
   {

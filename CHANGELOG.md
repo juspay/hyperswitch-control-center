@@ -3,6 +3,35 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.03.0
+
+### Features
+
+- Add GoTyme payout connector ([#5483](https://github.com/juspay/hyperswitch-control-center/pull/5483)) ([`5136049`](https://github.com/juspay/hyperswitch-control-center/commit/5136049c393ce2cc4962740582b7fa7612181e66))
+
+### Miscellaneous Tasks
+
+- Add additional fields to payment method blocking ([#5496](https://github.com/juspay/hyperswitch-control-center/pull/5496)) ([`64a54f7`](https://github.com/juspay/hyperswitch-control-center/commit/64a54f73702d40ede2e291eb8a377d8a8e465f48))
+
+**Full Changelog:** [`2026.09.02.0...2026.09.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.02.0...2026.09.03.0)
+
+- - -
+
+## 2026.09.02.0
+
+### Features
+
+- Add transformation config filter to recon transaction entries ([#5490](https://github.com/juspay/hyperswitch-control-center/pull/5490)) ([`de5aac7`](https://github.com/juspay/hyperswitch-control-center/commit/de5aac76e5ac9e6c2090259eea335e63e4d23d0a))
+
+### Bug Fixes
+
+- Sub-day date range presets render as "This month" on the 1st ([#5494](https://github.com/juspay/hyperswitch-control-center/pull/5494)) ([`64df355`](https://github.com/juspay/hyperswitch-control-center/commit/64df35588dbe0ad606f2030d7389b4df93722aa1))
+- Exclude expected transactions from recon engine exceptions ([#5487](https://github.com/juspay/hyperswitch-control-center/pull/5487)) ([`fdc4fd2`](https://github.com/juspay/hyperswitch-control-center/commit/fdc4fd230de9050a5793cbe5d55265d9f3cfa98f))
+
+**Full Changelog:** [`2026.09.01.0...2026.09.02.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.01.0...2026.09.02.0)
+
+- - -
+
 ## 2026.09.01.0
 
 ### Features

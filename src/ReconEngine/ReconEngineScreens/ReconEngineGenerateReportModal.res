@@ -67,7 +67,7 @@ let make = (
           slot={{
             slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />,
           }}
-          description="The generated report will be emailed to you."
+          description="The generated report will be emailed to you and is limited to 50,000 rows. Narrow the date range if needed."
         />
       </div>
       <FormRenderer.FieldRenderer

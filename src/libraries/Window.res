@@ -128,6 +128,21 @@ external getPayoutDescriptionCategory: unit => JSON.t = "getPayoutDescriptionCat
 external getMerchantCategoryCodeWithName: unit => array<JSON.t> = "getMerchantCategoryCodeWithName"
 
 @val @scope("window")
+external getCardTypeValues: unit => array<string> = "getCardTypeValues"
+
+@val @scope("window")
+external getCardSubtypeValues: unit => array<string> = "getCardSubtypeValues"
+
+@val @scope("window")
+external getTwoLetterCountryCode: unit => array<JSON.t> = "getTwoLetterCountryCode"
+
+@val @scope("window")
+external getFundingSourceValues: unit => array<string> = "getFundingSourceValues"
+
+@val @scope("window")
+external getCardSegmentTypeValues: unit => array<string> = "getCardSegmentTypeValues"
+
+@val @scope("window")
 external requestAnimationFrame: (unit => unit) => unit = "requestAnimationFrame"
 
 module MatchMedia = {
