@@ -86,7 +86,11 @@ let make = (~id) => {
       {
         title: "Audit Trail",
         renderContent: () =>
-          <AuditTrailTab transactionId={currentTransactionDetails.transaction_id} />,
+          <AuditTrailTab
+            transactionId={currentTransactionDetails.transaction_id}
+            accountIds=ruleAccountIds
+            accountsData
+          />,
       },
     ]
   }, (currentTransactionDetails, ruleAccountIds, accountsData))

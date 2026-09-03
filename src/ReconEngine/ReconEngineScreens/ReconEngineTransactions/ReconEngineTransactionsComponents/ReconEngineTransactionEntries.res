@@ -3,6 +3,7 @@ let make = (
   ~primaryTransactionId: string,
   ~accountIds: array<string>,
   ~accountsData: array<ReconEngineTypes.accountType>,
+  ~entriesDetailFields=EntriesTableEntity.transactionEntriesDetailFields,
 ) => {
   open APIUtils
   open LogicUtils
@@ -77,6 +78,7 @@ let make = (
             transformationNameMap
             currencyOptions
             transformationConfigOptions
+            entriesDetailFields
           />
         </FilterContext>
       )
