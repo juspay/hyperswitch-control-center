@@ -8,6 +8,7 @@ let make = (
   ~transformationNameMap: Dict.t<string>,
   ~currencyOptions: array<FilterSelectBox.dropdownOption>,
   ~transformationConfigOptions: array<FilterSelectBox.dropdownOption>,
+  ~entriesDetailFields=EntriesTableEntity.transactionEntriesDetailFields,
 ) => {
   open LogicUtils
   open EntriesTableEntity
@@ -121,7 +122,7 @@ let make = (
     let sections = getEntriesSections(
       ~groupedEntries,
       ~accountInfoMap,
-      ~detailsFields=transactionEntriesDetailFields,
+      ~detailsFields=entriesDetailFields,
       ~showTotalAmount=false,
     )
     let accountIds = groupedEntries->Dict.keysToArray
@@ -146,7 +147,7 @@ let make = (
         <div className="flex flex-col">
           <ReconEngineCustomExpandableSelectionTable
             title=""
-            heading={transactionEntriesDetailFields->Array.map(getHeading)}
+            heading={entriesDetailFields->Array.map(getHeading)}
             getSectionRowDetails=sectionDetails
             showScrollBar=true
             showOptions=false

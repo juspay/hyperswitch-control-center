@@ -3,6 +3,7 @@ let make = (
   ~primaryTransactionId: string,
   ~accountIds: array<string>,
   ~accountsData: array<ReconEngineTypes.accountType>,
+  ~entriesDetailFields=EntriesTableEntity.transactionEntriesDetailFields,
 ) => {
   open APIUtils
   open LogicUtils
@@ -61,7 +62,7 @@ let make = (
 
   <PageLoaderWrapper
     screenState customLoader={<Shimmer styleClass="h-40 w-full mt-6 rounded-xl" />}>
-    <div className="flex flex-col gap-6 mt-6 mb-16">
+    <div className="flex flex-col gap-6 mt-6">
       <RenderIf condition={accountIds->isEmptyArray}>
         <NoDataFound customCssClass="my-6" message="No Data Available" renderType=Painting />
       </RenderIf>
@@ -77,6 +78,7 @@ let make = (
             transformationNameMap
             currencyOptions
             transformationConfigOptions
+            entriesDetailFields
           />
         </FilterContext>
       )

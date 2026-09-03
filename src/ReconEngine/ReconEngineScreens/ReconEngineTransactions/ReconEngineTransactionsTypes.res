@@ -35,12 +35,6 @@ type entriesListCursorPayload = {
 
 type entriesMetadataKeysToExclude = Amount | Currency
 
-type accountGroup = {
-  accountId: string,
-  accountName: string,
-  entries: array<entryType>,
-}
-
 type lineageFieldType = {
   lineageFieldLabel: string,
   lineageFieldValue: string,
