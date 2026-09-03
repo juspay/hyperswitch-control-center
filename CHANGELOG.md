@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.03.0
+
+### Features
+
+- Add GoTyme payout connector ([#5483](https://github.com/juspay/hyperswitch-control-center/pull/5483)) ([`5136049`](https://github.com/juspay/hyperswitch-control-center/commit/5136049c393ce2cc4962740582b7fa7612181e66))
+
+### Miscellaneous Tasks
+
+- Add additional fields to payment method blocking ([#5496](https://github.com/juspay/hyperswitch-control-center/pull/5496)) ([`64a54f7`](https://github.com/juspay/hyperswitch-control-center/commit/64a54f73702d40ede2e291eb8a377d8a8e465f48))
+
+**Full Changelog:** [`2026.09.02.0...2026.09.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.02.0...2026.09.03.0)
+
+- - -
+
 ## 2026.09.02.0
 
 ### Features
