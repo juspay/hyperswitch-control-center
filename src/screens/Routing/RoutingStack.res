@@ -69,7 +69,13 @@ let make = (~remainingPath, ~previewOnly=false) => {
             title: "Configuration History",
             renderContent: () => {
               records->Array.length > 0
-                ? <History records activeRoutingIds />
+                ? <History
+                    records
+                    activeRoutingIds
+                    isCutover
+                    onDecisionEngineRedirect={(target, ruleId) =>
+                      openDecisionEngineRoutingPage(target, ruleId)->ignore}
+                  />
                 : <DefaultLandingPage
                     height="90%"
                     title="No Routing Rule Configured!"
@@ -80,11 +86,21 @@ let make = (~remainingPath, ~previewOnly=false) => {
           },
         ])
       : baseTabs
-  }, (routingType, debitRoutingValue, isCutover, connectorList, profileId))
+  }, (
+    routingType,
+    records,
+    activeRoutingIds,
+    debitRoutingValue,
+    isCutover,
+    connectorList,
+    profileId,
+  ))
 
-  let fetchRoutingRecords = async activeIds => {
+  let fetchRoutingRecords = async (~silent=false, activeIds) => {
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
+      if !silent {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+      }
       let routingUrl = `${getURL(~entityName=V1(ROUTING), ~methodType=Get)}?limit=100`
       let routingJson = await fetchDetails(routingUrl)
       let configuredRules = routingJson->RoutingUtils.getRecordsObject
@@ -110,11 +126,15 @@ let make = (~remainingPath, ~previewOnly=false) => {
         ->Array.map(Nullable.make)
 
       setRecords(_ => sortedHistoryRecords)
-      setScreenState(_ => PageLoaderWrapper.Success)
+      if !silent {
+        setScreenState(_ => PageLoaderWrapper.Success)
+      }
     } catch {
     | Exn.Error(e) =>
-      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      setScreenState(_ => PageLoaderWrapper.Error(err))
+      if !silent {
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        setScreenState(_ => PageLoaderWrapper.Error(err))
+      }
     }
   }
 
@@ -124,10 +144,12 @@ let make = (~remainingPath, ~previewOnly=false) => {
     routingJson->LogicUtils.getArrayFromJson([])
   }
 
-  let fetchActiveRouting = async () => {
+  let fetchActiveRouting = async (~silent=false) => {
     open LogicUtils
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
+      if !silent {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+      }
       let routingArr = await getActiveRoutingList()
 
       if routingArr->isNonEmptyArray {
@@ -136,19 +158,24 @@ let make = (~remainingPath, ~previewOnly=false) => {
           let id = ele->getDictFromJsonObject->getString("id", "")
           currentActiveIds->Array.push(id)
         })
-        await fetchRoutingRecords(currentActiveIds)
+        await fetchRoutingRecords(~silent, currentActiveIds)
         setActiveRoutingIds(_ => currentActiveIds)
         setRoutingType(_ => routingArr)
       } else {
-        await fetchRoutingRecords([])
+        await fetchRoutingRecords(~silent, [])
+        setActiveRoutingIds(_ => [])
         let defaultFallback = [("kind", "default"->JSON.Encode.string)]->Dict.fromArray
         setRoutingType(_ => [defaultFallback->JSON.Encode.object])
-        setScreenState(_ => PageLoaderWrapper.Success)
+        if !silent {
+          setScreenState(_ => PageLoaderWrapper.Success)
+        }
       }
     } catch {
     | Exn.Error(e) =>
-      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      setScreenState(_ => PageLoaderWrapper.Error(err))
+      if !silent {
+        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+        setScreenState(_ => PageLoaderWrapper.Error(err))
+      }
     }
   }
 
@@ -157,25 +184,11 @@ let make = (~remainingPath, ~previewOnly=false) => {
     None
   }, (pathVar, url.search, debitRoutingValue))
 
-  let refreshActiveRouting = async () => {
-    open LogicUtils
-    try {
-      let routingArr = await getActiveRoutingList()
-
-      if routingArr->isNonEmptyArray {
-        setRoutingType(_ => routingArr)
-      } else {
-        let defaultFallback = [("kind", "default"->JSON.Encode.string)]->getJsonFromArrayOfJson
-        setRoutingType(_ => [defaultFallback])
-      }
-    } catch {
-    | Exn.Error(_) => ()
-    }
-  }
-
   React.useEffect(() => {
     if isCutover && !previewOnly {
-      let onFocus = _ => refreshActiveRouting()->ignore
+      // Rules can change in the Decision Engine dashboard tab; re-sync the active
+      // list and the configuration history whenever this tab regains focus.
+      let onFocus = _ => fetchActiveRouting(~silent=true)->ignore
       Window.addEventListener("focus", onFocus)
       Some(() => Window.removeEventListener("focus", onFocus))
     } else {
