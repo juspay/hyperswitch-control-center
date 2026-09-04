@@ -5,12 +5,55 @@ let make = (~routingType) => {
   open LogicUtils
   let baseUrlForRedirection = "/routing"
   let url = RescriptReactRouter.useUrl()
+  let getURL = APIUtils.useGetURL()
+  let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
+  let showToast = ToastAdapter.useShowToast()
   let (currentRouting, setCurrentRouting) = React.useState(() => NO_ROUTING)
   let (id, setId) = React.useState(() => None)
   let (isActive, setIsActive) = React.useState(_ => false)
   let connectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=ConnectorTypes.PaymentProcessor,
   )
+  // These routing types are configured in the Decision Engine dashboard when the
+  // profile is cut over, so their native forms must not be reachable there.
+  let isDecisionEngineManaged = switch routingType->String.toLowerCase {
+  | "volume" | "rule" | "auth-rate" => true
+  | _ => false
+  }
+  let (cutoverStatus, setCutoverStatus) = React.useState(_ =>
+    isDecisionEngineManaged ? None : Some(false)
+  )
+
+  let checkRoutingEntry = async () => {
+    try {
+      let entryUrl = getURL(~entityName=V1(ROUTING), ~methodType=Get, ~id=Some("entry"))
+      let res = await updateDetails(entryUrl, JSON.Encode.null, Post)
+      let cutover = res->getDictFromJsonObject->getBool("is_cutover", false)
+      setCutoverStatus(_ => Some(cutover))
+    } catch {
+    // If the entry check fails, fall back to the native form rather than blocking the page —
+    // the guard is a redirect for cut-over profiles, not a hard gate.
+    | Exn.Error(_) => setCutoverStatus(_ => Some(false))
+    }
+  }
+
+  React.useEffect(() => {
+    if isDecisionEngineManaged {
+      checkRoutingEntry()->ignore
+    }
+    None
+  }, [])
+
+  React.useEffect(() => {
+    if isDecisionEngineManaged && cutoverStatus->Option.getOr(false) {
+      showToast(
+        ~message="This profile's routing is managed by the Decision Engine. Use the Smart Routing page to configure it.",
+        ~toastType=ToastState.ToastInfo,
+      )
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/routing"))
+    }
+    None
+  }, [cutoverStatus])
 
   React.useEffect(() => {
     let searchParams = url.search
@@ -32,37 +75,44 @@ let make = (~routingType) => {
     None
   }, [url.search])
 
-  <div className="flex flex-col gap-2">
-    <PageUtils.PageHeading title="Smart Routing Configurations" customHeadingStyle="!mb-0" />
-    <BreadCrumbNavigation
-      path=[{title: "Smart Routing Configurations", link: "/routing"}]
-      currentPageTitle={getContent(currentRouting).heading}
-    />
-    {switch currentRouting {
-    | VOLUME_SPLIT =>
-      <VolumeSplitRouting
-        routingRuleId=id isActive connectorList urlEntityName=V1(ROUTING) baseUrlForRedirection
+  let screenState = switch cutoverStatus {
+  | Some(false) => PageLoaderWrapper.Success
+  | _ => PageLoaderWrapper.Loading
+  }
+
+  <PageLoaderWrapper screenState>
+    <div className="flex flex-col gap-2">
+      <PageUtils.PageHeading title="Smart Routing Configurations" customHeadingStyle="!mb-0" />
+      <BreadCrumbNavigation
+        path=[{title: "Smart Routing Configurations", link: "/routing"}]
+        currentPageTitle={getContent(currentRouting).heading}
       />
-    | ADVANCED =>
-      <AdvancedRouting
-        routingRuleId=id
-        isActive
-        setCurrentRouting
-        connectorList
-        urlEntityName=V1(ROUTING)
-        baseUrlForRedirection
-      />
-    | AUTH_RATE_ROUTING =>
-      <AuthRateRouting
-        routingRuleId=id isActive connectorList urlEntityName=V1(ROUTING) baseUrlForRedirection
-      />
-    | DEFAULTFALLBACK =>
-      <DefaultRouting
-        urlEntityName=V1(DEFAULT_FALLBACK)
-        baseUrlForRedirection
-        connectorVariant=ConnectorTypes.PaymentProcessor
-      />
-    | _ => <> </>
-    }}
-  </div>
+      {switch currentRouting {
+      | VOLUME_SPLIT =>
+        <VolumeSplitRouting
+          routingRuleId=id isActive connectorList urlEntityName=V1(ROUTING) baseUrlForRedirection
+        />
+      | ADVANCED =>
+        <AdvancedRouting
+          routingRuleId=id
+          isActive
+          setCurrentRouting
+          connectorList
+          urlEntityName=V1(ROUTING)
+          baseUrlForRedirection
+        />
+      | AUTH_RATE_ROUTING =>
+        <AuthRateRouting
+          routingRuleId=id isActive connectorList urlEntityName=V1(ROUTING) baseUrlForRedirection
+        />
+      | DEFAULTFALLBACK =>
+        <DefaultRouting
+          urlEntityName=V1(DEFAULT_FALLBACK)
+          baseUrlForRedirection
+          connectorVariant=ConnectorTypes.PaymentProcessor
+        />
+      | _ => <> </>
+      }}
+    </div>
+  </PageLoaderWrapper>
 }
