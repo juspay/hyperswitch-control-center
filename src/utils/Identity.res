@@ -19,3 +19,9 @@ external jsonToAnyType: JSON.t => 't = "%identity"
 external nullableOfAnyTypeToJsonType: Nullable.t<'a> => JSON.t = "%identity"
 external dictOfAnyTypeToObj: Dict.t<'a> => {..} = "%identity"
 external anyTypeToUint8Array: 'a => Js.TypedArray2.Uint8Array.t = "%identity"
+// ReactFinalForm runs a promise-returning validator asynchronously, publishing new values before
+// the errors catch up; returning the error synchronously keeps them in one update.
+external syncValidatorToFieldValidator: ((option<string>, JSON.t) => Nullable.t<string>) => (
+  option<string>,
+  JSON.t,
+) => Promise.t<Nullable.t<string>> = "%identity"
