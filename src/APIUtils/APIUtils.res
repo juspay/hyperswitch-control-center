@@ -136,6 +136,7 @@ let getV2Url = (
     }
   /* MERCHANT ACCOUNT DETAILS (Get,Post and Put) */
   | MERCHANT_ACCOUNT => Default(`v2/merchant-accounts/${merchantId}`)
+  | USER_MERCHANT_DETAILS => Default(`v2/users/merchant-details`)
   | USERS =>
     let userUrl = `user`
     switch userType {
@@ -266,6 +267,8 @@ let useGetURL = () => {
 
       /* MERCHANT ACCOUNT DETAILS (Get and Post) */
       | MERCHANT_ACCOUNT => Default(`accounts/${merchantId}`)
+
+      | USER_MERCHANT_DETAILS => Default(`user/merchant_details`)
 
       /* ORGANIZATION UPDATE */
       | ORGANIZATION_RETRIEVE =>
