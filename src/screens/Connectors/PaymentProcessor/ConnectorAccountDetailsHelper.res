@@ -71,6 +71,7 @@ let inputField = (
   ~checkRequiredFields,
   ~disabled,
   ~description,
+  ~customInput=InputFields.textInput(~isDisabled=disabled),
   ~toolTipPosition: ToolTip.toolTipPosition=ToolTip.Right,
   (),
 ) =>
@@ -79,9 +80,7 @@ let inputField = (
     ~name,
     ~description,
     ~toolTipPosition,
-    ~customInput=connector->ConnectorUtils.checkIsMultiLineField(field)
-      ? pemInput(~isDisabled=disabled)
-      : InputFields.textInput(~isDisabled=disabled),
+    ~customInput,
     ~placeholder=switch getPlaceholder {
     | Some(fun) => fun(label)
     | None => `Enter ${label->LogicUtils.snakeToTitle}`
@@ -152,6 +151,19 @@ module RenderConnectorInputFields = {
                   ~label,
                   ~fieldName1="connector_account_details.key1",
                   ~fieldName2="metadata.paypal_sdk.client_id",
+                )
+              | (PayoutProcessor(DEUTSCHEBANK), "api_secret" | "key2") =>
+                inputField(
+                  ~name=formName,
+                  ~field,
+                  ~label,
+                  ~connector,
+                  ~checkRequiredFields,
+                  ~getPlaceholder,
+                  ~disabled,
+                  ~description,
+                  ~customInput=pemInput(~isDisabled=disabled),
+                  (),
                 )
               | _ =>
                 inputField(
