@@ -1868,6 +1868,22 @@ let checkAuthKeyMapRequiredFields = (connector: connectorTypes, fieldName) => {
   }
 }
 
+let checkIsMultiLineField = (connector: connectorTypes, fieldName: string) => {
+  switch (connector, fieldName) {
+  | (PayoutProcessor(DEUTSCHEBANK), "api_secret" | "key2") => true
+  | _ => false
+  }
+}
+
+let getNormalizedPemValue = value =>
+  value
+  ->stringReplaceAll("\\r\\n", "\n")
+  ->stringReplaceAll("\\n", "\n")
+  ->String.split("\n")
+  ->Array.map(String.trim)
+  ->Array.joinWith("\n")
+  ->String.trim
+
 let getAuthKeyMapFromConnectorAccountFields = connectorAccountFields => {
   let authKeyMap =
     connectorAccountFields
