@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.04.0
+
+### Features
+
+- Add cursor pagination in audit trail entries modal ([#5502](https://github.com/juspay/hyperswitch-control-center/pull/5502)) ([`3021ba9`](https://github.com/juspay/hyperswitch-control-center/commit/3021ba903242d34686e4620a821b291af62a8d23))
+
+**Full Changelog:** [`2026.09.03.0...2026.09.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.03.0...2026.09.04.0)
+
+- - -
+
 ## 2026.09.03.0
 
 ### Features
