@@ -31,6 +31,8 @@ let make = (~routingType) => {
       let cutover = res->getDictFromJsonObject->getBool("is_cutover", false)
       setCutoverStatus(_ => Some(cutover))
     } catch {
+    // If the entry check fails, fall back to the native form rather than blocking the page —
+    // the guard is a redirect for cut-over profiles, not a hard gate.
     | Exn.Error(_) => setCutoverStatus(_ => Some(false))
     }
   }

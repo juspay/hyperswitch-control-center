@@ -96,46 +96,34 @@ let make = (~remainingPath, ~previewOnly=false) => {
     profileId,
   ))
 
-  let fetchRoutingRecords = async (~silent=false, activeIds) => {
-    try {
-      if !silent {
-        setScreenState(_ => PageLoaderWrapper.Loading)
-      }
-      let routingUrl = `${getURL(~entityName=V1(ROUTING), ~methodType=Get)}?limit=100`
-      let routingJson = await fetchDetails(routingUrl)
-      let configuredRules = routingJson->RoutingUtils.getRecordsObject
-      let recordsData =
-        configuredRules
-        ->Belt.Array.keepMap(JSON.Decode.object)
-        ->Array.map(HistoryEntity.itemToObjMapper)
+  // Fetch and set the history records for the given active ids. Never touches screenState,
+  // so the same code serves the initial load and the silent focus re-sync.
+  let refreshRoutingRecords = async activeIds => {
+    let routingUrl = `${getURL(~entityName=V1(ROUTING), ~methodType=Get)}?limit=100`
+    let routingJson = await fetchDetails(routingUrl)
+    let configuredRules = routingJson->RoutingUtils.getRecordsObject
+    let recordsData =
+      configuredRules
+      ->Belt.Array.keepMap(JSON.Decode.object)
+      ->Array.map(HistoryEntity.itemToObjMapper)
 
-      // To sort the data in a format that active routing always comes at top of the table
-      // For ref:https://rescript-lang.org/docs/manual/latest/api/js/array-2#sortinplacewith
+    // To sort the data in a format that active routing always comes at top of the table
+    // For ref:https://rescript-lang.org/docs/manual/latest/api/js/array-2#sortinplacewith
 
-      let sortedHistoryRecords =
-        recordsData
-        ->Array.toSorted((item1, item2) => {
-          if activeIds->Array.includes(item1.id) {
-            -1.
-          } else if activeIds->Array.includes(item2.id) {
-            1.
-          } else {
-            0.
-          }
-        })
-        ->Array.map(Nullable.make)
+    let sortedHistoryRecords =
+      recordsData
+      ->Array.toSorted((item1, item2) => {
+        if activeIds->Array.includes(item1.id) {
+          -1.
+        } else if activeIds->Array.includes(item2.id) {
+          1.
+        } else {
+          0.
+        }
+      })
+      ->Array.map(Nullable.make)
 
-      setRecords(_ => sortedHistoryRecords)
-      if !silent {
-        setScreenState(_ => PageLoaderWrapper.Success)
-      }
-    } catch {
-    | Exn.Error(e) =>
-      if !silent {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        setScreenState(_ => PageLoaderWrapper.Error(err))
-      }
-    }
+    setRecords(_ => sortedHistoryRecords)
   }
 
   let getActiveRoutingList = async () => {
@@ -144,38 +132,36 @@ let make = (~remainingPath, ~previewOnly=false) => {
     routingJson->LogicUtils.getArrayFromJson([])
   }
 
-  let fetchActiveRouting = async (~silent=false) => {
+  // Re-sync the active strategies, the configuration history and the active-id set together.
+  // Never touches screenState; may throw, so callers decide whether to surface the error.
+  let syncRoutingState = async () => {
     open LogicUtils
-    try {
-      if !silent {
-        setScreenState(_ => PageLoaderWrapper.Loading)
-      }
-      let routingArr = await getActiveRoutingList()
+    let routingArr = await getActiveRoutingList()
 
-      if routingArr->isNonEmptyArray {
-        let currentActiveIds = []
-        routingArr->Array.forEach(ele => {
-          let id = ele->getDictFromJsonObject->getString("id", "")
-          currentActiveIds->Array.push(id)
-        })
-        await fetchRoutingRecords(~silent, currentActiveIds)
-        setActiveRoutingIds(_ => currentActiveIds)
-        setRoutingType(_ => routingArr)
-      } else {
-        await fetchRoutingRecords(~silent, [])
-        setActiveRoutingIds(_ => [])
-        let defaultFallback = [("kind", "default"->JSON.Encode.string)]->Dict.fromArray
-        setRoutingType(_ => [defaultFallback->JSON.Encode.object])
-        if !silent {
-          setScreenState(_ => PageLoaderWrapper.Success)
-        }
-      }
+    if routingArr->isNonEmptyArray {
+      let currentActiveIds =
+        routingArr->Array.map(ele => ele->getDictFromJsonObject->getString("id", ""))
+      await refreshRoutingRecords(currentActiveIds)
+      setActiveRoutingIds(_ => currentActiveIds)
+      setRoutingType(_ => routingArr)
+    } else {
+      await refreshRoutingRecords([])
+      setActiveRoutingIds(_ => [])
+      let defaultFallback = [("kind", "default"->JSON.Encode.string)]->getJsonFromArrayOfJson
+      setRoutingType(_ => [defaultFallback])
+    }
+  }
+
+  // Initial load drives the page loader off the same sync.
+  let fetchActiveRouting = async () => {
+    setScreenState(_ => PageLoaderWrapper.Loading)
+    try {
+      await syncRoutingState()
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Exn.Error(e) =>
-      if !silent {
-        let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-        setScreenState(_ => PageLoaderWrapper.Error(err))
-      }
+      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
+      setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
 
@@ -186,9 +172,9 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
   React.useEffect(() => {
     if isCutover && !previewOnly {
-      // Rules can change in the Decision Engine dashboard tab; re-sync the active
-      // list and the configuration history whenever this tab regains focus.
-      let onFocus = _ => fetchActiveRouting(~silent=true)->ignore
+      // Rules can change in the Decision Engine dashboard tab; silently re-sync the active
+      // strategies and configuration history (no loader) when this tab regains focus.
+      let onFocus = _ => syncRoutingState()->Promise.catch(_ => Promise.resolve())->ignore
       Window.addEventListener("focus", onFocus)
       Some(() => Window.removeEventListener("focus", onFocus))
     } else {
