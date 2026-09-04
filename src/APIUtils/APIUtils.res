@@ -1724,6 +1724,7 @@ let responseHandler = async (
     ~section: string=?,
     ~metadata: JSON.t=?,
   ) => unit,
+  ~methodType: Fetch.requestMethod,
   ~isEmbeddableSession=false,
 ) => {
   let json = try {
@@ -1734,15 +1735,21 @@ let responseHandler = async (
 
   let responseStatus = res->Fetch.Response.status
   let responseHeaders = res->Fetch.Response.headers
+  let errorDict = json->getDictFromJsonObject->getObj("error", Dict.make())
 
-  if responseStatus >= 500 && responseStatus < 600 {
+  if responseStatus >= 400 && responseStatus < 600 {
     let xRequestId = responseHeaders->Fetch.Headers.get("x-request-id")->Option.getOr("")
+    let statusClass = responseStatus < 500 ? "4xx" : "5xx"
     let metaData =
       [
         ("url", url->JSON.Encode.string),
-        ("response", json),
         ("status", responseStatus->JSON.Encode.int),
+        ("statusClass", statusClass->JSON.Encode.string),
+        ("method", methodType->Fetch.encodeRequestMethod->JSON.Encode.string),
         ("x-request-id", xRequestId->JSON.Encode.string),
+        ("errorCode", errorDict->getString("code", "")->JSON.Encode.string),
+        ("errorMessage", errorDict->getString("message", "")->JSON.Encode.string),
+        ("response", json),
       ]->getJsonFromArrayOfJson
     sendEvent(~eventName="API Error", ~description=Some(responseStatus), ~metadata=metaData)
   }
@@ -1753,7 +1760,6 @@ let responseHandler = async (
   | 200
   | 201 => json
   | _ => {
-      let errorDict = json->getDictFromJsonObject->getObj("error", Dict.make())
       let errorStringifiedJson = errorDict->JSON.Encode.object->JSON.stringify
 
       if isPlayground && responseStatus === 403 {
@@ -1887,6 +1893,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~popUpCallBack,
         ~handleLogout,
         ~sendEvent,
+        ~methodType=Get,
         ~isEmbeddableSession=isEmbeddableSession(),
       )
     } catch {
@@ -1965,6 +1972,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~popUpCallBack,
         ~handleLogout,
         ~sendEvent,
+        ~methodType=method,
         ~isEmbeddableSession=isEmbeddableSession(),
       )
     } catch {
