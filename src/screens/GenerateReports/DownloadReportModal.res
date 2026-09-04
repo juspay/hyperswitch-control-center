@@ -96,7 +96,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
           slot={{
             slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />,
           }}
-          description="Each generated report is limited to 50,000 rows. Narrow the date range if needed."
+          description="Each generated report is limited to 100,000 rows. Narrow the date range if needed."
         />
       </div>
       <FormRenderer.FieldRenderer

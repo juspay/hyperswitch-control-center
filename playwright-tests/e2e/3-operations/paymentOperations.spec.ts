@@ -1741,7 +1741,7 @@ test.describe("Payment Operations", () => {
       await expect(page.getByText("Additional Recipients")).toBeVisible();
       await expect(
         page.getByText(
-          "Each generated report is limited to 50,000 rows. Narrow the date range if needed.",
+          "Each generated report is limited to 100,000 rows. Narrow the date range if needed.",
           { exact: true },
         ),
       ).toBeVisible();
