@@ -136,16 +136,17 @@ let make = (~options) => {
     | _ => React.null
     }
 
-  React.useEffect(() => {
-    let onKeyDown = ev => {
-      let keyCode = ev->ReactEvent.Keyboard.keyCode
-      if keyCode === 13 {
+  let handleKeyDown = ev => {
+    if ev->ReactEvent.Keyboard.keyCode === 13 {
+      // The filters form is submitted on Enter as well (HelperComponents.AutoSubmitter), so the
+      // event is stopped here to keep Apply a single submit.
+      ev->ReactEvent.Keyboard.preventDefault
+      ev->ReactEvent.Keyboard.stopPropagation
+      if !isApplyButtonDisabled {
         handleApply()
       }
     }
-    Window.addEventListener("keydown", onKeyDown)
-    Some(() => Window.removeEventListener("keydown", onKeyDown))
-  }, [])
+  }
 
   let displaySelectedRange = () => {
     let dict = formState.values->getDictFromJsonObject
@@ -182,6 +183,7 @@ let make = (~options) => {
     />
     <RenderIf condition={selectedOption != UnknownRange("Select Amount") && isAmountRangeVisible}>
       <div
+        onKeyDown=handleKeyDown
         className="border border-jp-gray-940 border-opacity-50 bg-white rounded-md py-1.5 gap-2.5 flex justify-between px-2.5 pb-4 border-t-0 items-center">
         {renderFields()}
         <Button
