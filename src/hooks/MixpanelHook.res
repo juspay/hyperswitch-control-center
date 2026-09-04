@@ -84,7 +84,7 @@ let useSendEvent = () => {
       let _ = await fetchApi(
         `${getHostUrl}/mixpanel/track`,
         ~method_=Post,
-        ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
+        ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURIComponent}`,
         ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
         ~forceCookies=featureFlagDetails.forceCookies,
         ~sendV1DummyApiKeyHeader=featureFlagDetails.sendV1DummyApiKeyHeader,
@@ -166,7 +166,7 @@ let usePageView = () => {
         let _ = await fetchApi(
           `${getHostUrl}/mixpanel/track`,
           ~method_=Post,
-          ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
+          ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURIComponent}`,
           ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
           ~forceCookies=featureFlagDetails.forceCookies,
           ~sendV1DummyApiKeyHeader=featureFlagDetails.sendV1DummyApiKeyHeader,
@@ -207,7 +207,7 @@ let useSetIdentity = () => {
         let _ = await fetchApi(
           `${getHostUrl}/mixpanel/track`,
           ~method_=Post,
-          ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
+          ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURIComponent}`,
           ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
           ~forceCookies=featureFlagDetails.forceCookies,
           ~sendV1DummyApiKeyHeader=featureFlagDetails.sendV1DummyApiKeyHeader,
@@ -215,7 +215,10 @@ let useSetIdentity = () => {
         let _ = await fetchApi(
           `${getHostUrl}/mixpanel/engage`,
           ~method_=Post,
-          ~bodyStr=`data=${peopleProperties->JSON.stringifyAny->Option.getOr("")->encodeURI}`,
+          ~bodyStr=`data=${peopleProperties
+            ->JSON.stringifyAny
+            ->Option.getOr("")
+            ->encodeURIComponent}`,
           ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
           ~forceCookies=featureFlagDetails.forceCookies,
           ~sendV1DummyApiKeyHeader=featureFlagDetails.sendV1DummyApiKeyHeader,
