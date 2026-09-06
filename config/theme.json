@@ -1,28 +1,28 @@
 {
   "settings": {
     "colors": {
-      "primary": "#006DF9"
+      "primary": "#A71F67"
     },
     "sidebar": {
-      "primary": "#FCFCFD",
-      "textColor": "#525866",
-      "textColorPrimary": "#1C6DEA"
+      "primary": "#000C24",
+      "textColor": "#9AA6BF",
+      "textColorPrimary": "#FFFFFF"
     },
     "buttons": {
       "primary": {
-        "backgroundColor": "#1272f9",
-        "textColor": "#ffffff",
-        "hoverBackgroundColor": "#0860dd"
+        "backgroundColor": "#A71F67",
+        "textColor": "#FFFFFF",
+        "hoverBackgroundColor": "#B20B6C"
       },
       "secondary": {
-        "backgroundColor": "#f3f3f3",
-        "textColor": "#626168",
-        "hoverBackgroundColor": "#fcfcfd"
+        "backgroundColor": "#F2F3F5",
+        "textColor": "#A71F67",
+        "hoverBackgroundColor": "#E3E5E9"
       }
     }
   },
   "urls": {
-    "faviconUrl": "",
-    "logoUrl": ""
+    "faviconUrl": "https://vbet.demo.hyperswitch.io/demo-merchant-icons/favicon_vbt.png",
+    "logoUrl": "https://vbet.demo.hyperswitch.io/demo-merchant-icons/vbt_logo.png"
   }
 }
