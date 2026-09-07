@@ -50,6 +50,16 @@ export class PaymentSettings {
     return this.page.getByText("Payment Link", { exact: true });
   }
 
+  get blockListTab(): Locator {
+    return this.page.getByRole("tab", { name: "Block List", exact: true });
+  }
+
+  paymentMethodBlockingAccordion(label: string): Locator {
+    return this.page.getByRole("button").filter({
+      has: this.page.getByText(label, { exact: true }),
+    });
+  }
+
   get vaultTab(): Locator {
     return this.page.getByRole("tab", { name: "Vault", exact: true });
   }

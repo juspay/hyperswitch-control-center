@@ -65,6 +65,7 @@ let make = (
   ~maxTriggerWidth: option<float>=?,
   ~minTriggerWidth: option<float>=?,
   ~variant: option<MultiSelectBindings.selectMenuItemVariant>=?,
+  ~menuFooter: option<React.element>=?,
 ) => {
   let authContext = React.useContext(FormAuthContext.formAuthContext)
   let isDisabled = disabled || authContext === CommonAuthTypes.NoAccess
@@ -103,5 +104,6 @@ let make = (
     ?maxTriggerWidth
     ?minTriggerWidth
     ?variant
+    ?menuFooter
   />
 }

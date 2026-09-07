@@ -50,6 +50,7 @@ module ModalOverlay: {
     ~isBackdropBlurReq: bool=?,
     ~addAttributeId: string=?,
     ~alignModal: string,
+    ~zIndexClass: string=?,
   ) => React.element
 }
 @react.component
@@ -94,5 +95,6 @@ let make: (
   ~customIcon: option<React.element>=?,
   ~alignModal: string=?,
   ~modalHeaderIconSize: int=?,
+  ~zIndexClass: string=?,
   ~modalDescriptionClass: string=?,
 ) => React.element

@@ -42,7 +42,6 @@ let make = (
   let sortOrder = sortDict->getMappedValueFromDict(title, Desc, getSortOrder)
 
   let exceptionStatusList = getTransactionStatusValueFromStatusList([
-    Expected,
     Missing,
     OverAmount(Mismatch),
     UnderAmount(Mismatch),

@@ -94,12 +94,13 @@ try_tag() {
   sed 's|apk add --no-cache curl jq yq && sh /seed_superposition.sh|apk add --no-cache curl jq yq bash \&\& bash /seed_superposition.sh|g' \
     docker-compose.yml > docker-compose.tmp && mv docker-compose.tmp docker-compose.yml
 
-  # The upstream migration runner installs `just` by resolving its latest release
-  # through the unauthenticated GitHub API. That request can be rate-limited (403),
-  # especially from local Docker networks. `just migrate` only delegates to the
-  # Diesel CLI here, so run the equivalent command directly.
+  # The upstream migration runner installs `just` from the unauthenticated GitHub
+  # API, which gets rate-limited (403) from local Docker networks. `just migrate`
+  # only delegates to the Diesel CLI, so run that directly — and add `rustfmt`,
+  # which the CLI's build script needs and the base image lacks.
   sed -e '/      if ! command -v just >\/dev\/null 2>\&1; then/,/      fi \&\&/d' \
       -e 's|      just migrate"|      diesel migration run --migration-dir /app/migrations --config-file /app/diesel.toml"|' \
+      -e 's|apt-get install -y curl xz-utils|apt-get install -y curl xz-utils rustfmt|' \
     docker-compose.yml > docker-compose.tmp && mv docker-compose.tmp docker-compose.yml
 
   echo "Starting docker compose..."

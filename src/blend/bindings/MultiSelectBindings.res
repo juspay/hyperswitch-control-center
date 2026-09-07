@@ -108,4 +108,5 @@ external make: (
   ~onClearAllClick: unit => unit=?,
   ~enableVirtualization: bool=?,
   ~virtualListItemHeight: int=?,
+  ~menuFooter: React.element=?,
 ) => React.element = "MultiSelect"

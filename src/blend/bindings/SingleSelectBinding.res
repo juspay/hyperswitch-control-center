@@ -51,4 +51,5 @@ external make: (
   ~skeleton: skeletonProps=?,
   ~maxTriggerWidth: float=?,
   ~minTriggerWidth: float=?,
+  ~menuFooter: React.element=?,
 ) => React.element = "SingleSelect"

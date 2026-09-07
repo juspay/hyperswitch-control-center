@@ -153,6 +153,7 @@ module ModalOverlay = {
     ~isBackdropBlurReq=true,
     ~addAttributeId="",
     ~alignModal,
+    ~zIndexClass="z-40",
   ) => {
     let isMobileView = MatchMedia.useMatchMedia("(max-width: 700px)")
     let mobileClass = isMobileView ? "flex flex-col " : ""
@@ -167,8 +168,6 @@ module ModalOverlay = {
           | None => ""
           }
         : `:${addAttributeId}`
-
-    let zIndexClass = "z-40"
 
     <AddDataAttributes attributes=[("data-component", `modal` ++ attributeId)]>
       {noBackDrop
@@ -226,6 +225,7 @@ let make = (
   ~customIcon=None,
   ~alignModal="justify-end",
   ~modalHeaderIconSize=35,
+  ~zIndexClass="z-40",
   ~modalDescriptionClass="",
 ) => {
   let showBorderBottom = borderBottom
@@ -292,7 +292,8 @@ let make = (
     noBackDrop
     isBackdropBlurReq
     alignModal
-    addAttributeId>
+    addAttributeId
+    zIndexClass>
     // <Reveal showReveal=showModal revealFrom>
     <ModalContent
       handleContainerClick
