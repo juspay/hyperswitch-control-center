@@ -229,4 +229,4 @@ const merchantConfigHandler = async (
     errorHandler(res, "Server Error");
   }
 };
-export { configHandler, merchantConfigHandler };
+export { configHandler, merchantConfigHandler, updateConfigWithEnv };
