@@ -263,6 +263,16 @@ let useGetURL = () => {
         | Post | Delete => Default(`blocklist`)
         | _ => Default("")
         }
+      | BLOCKLIST_COUNT =>
+        switch (methodType, queryParameters) {
+        | (Get, Some(queryParams)) => Default(`blocklist/count?${queryParams}`)
+        | _ => Default("")
+        }
+      | BLOCKLIST_LOOKUP =>
+        switch (methodType, queryParameters) {
+        | (Get, Some(queryParams)) => Default(`blocklist/lookup?${queryParams}`)
+        | _ => Default("")
+        }
 
       /* MERCHANT ACCOUNT DETAILS (Get and Post) */
       | MERCHANT_ACCOUNT => Default(`accounts/${merchantId}`)

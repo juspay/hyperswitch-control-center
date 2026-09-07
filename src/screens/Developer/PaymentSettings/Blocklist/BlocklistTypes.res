@@ -29,6 +29,7 @@ type blocklistBatchColType =
 type blocklistDataKind =
   | CardBin
   | ExtendedCardBin
+  | GenericCardBin
   | Fingerprint
 
 type blocklistEntryOperation =
@@ -39,4 +40,14 @@ type blocklistEntry = {
   fingerprint_id: string,
   data_kind: string,
   created_at: string,
+}
+
+type blocklistCount = {
+  total_count: int,
+  counts_by_length: array<(int, int)>,
+}
+
+type blocklistLookup = {
+  data: string,
+  blocked: bool,
 }
