@@ -104,7 +104,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
     let configuredRules = routingJson->RoutingUtils.getRecordsObject
     let recordsData =
       configuredRules
-      ->Belt.Array.keepMap(JSON.Decode.object)
+      ->Array.filterMap(JSON.Decode.object)
       ->Array.map(HistoryEntity.itemToObjMapper)
 
     // To sort the data in a format that active routing always comes at top of the table
@@ -182,22 +182,18 @@ let make = (~remainingPath, ~previewOnly=false) => {
     }
   }, (isCutover, previewOnly, profileId))
 
-  let checkRoutingEntry = async () => {
-    open LogicUtils
-    try {
-      let entryUrl = getURL(~entityName=V1(ROUTING), ~methodType=Get, ~id=Some("entry"))
-      let res = await updateDetails(entryUrl, JSON.Encode.null, Post)
-      let cutover = res->getDictFromJsonObject->getBool("is_cutover", false)
-      setCutoverStatus(_ => Some(cutover))
-    } catch {
-    | Exn.Error(_) => setCutoverStatus(_ => Some(false))
-    }
-  }
+  let checkRoutingEntryCutover = RoutingUtils.useCheckRoutingEntryCutover()
 
   React.useEffect(() => {
     if !previewOnly {
       setCutoverStatus(_ => None)
-      checkRoutingEntry()->ignore
+
+      (
+        async () => {
+          let cutover = await checkRoutingEntryCutover()
+          setCutoverStatus(_ => Some(cutover))
+        }
+      )()->ignore
     }
     None
   }, [profileId])

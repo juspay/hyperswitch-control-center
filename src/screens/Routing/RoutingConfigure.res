@@ -5,67 +5,50 @@ let make = (~routingType) => {
   open LogicUtils
   let baseUrlForRedirection = "/routing"
   let url = RescriptReactRouter.useUrl()
-  let getURL = APIUtils.useGetURL()
-  let updateDetails = APIUtils.useUpdateMethod(~showErrorToast=false)
   let showToast = ToastAdapter.useShowToast()
+  let checkRoutingEntryCutover = useCheckRoutingEntryCutover()
   let (currentRouting, setCurrentRouting) = React.useState(() => NO_ROUTING)
   let (id, setId) = React.useState(() => None)
   let (isActive, setIsActive) = React.useState(_ => false)
   let connectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=ConnectorTypes.PaymentProcessor,
   )
-  // These routing types are configured in the Decision Engine dashboard when the
-  // profile is cut over, so their native forms must not be reachable there.
-  let isDecisionEngineManaged = switch routingType->String.toLowerCase {
-  | "volume" | "rule" | "auth-rate" => true
-  | _ => false
-  }
+  // Volume / rule / auth-rate are configured in the Decision Engine dashboard when the profile is
+  // cut over, so their native forms must not be reachable there — they are exactly the routing
+  // types that have a Decision Engine target.
+  let isDecisionEngineManaged =
+    routingType->routingTypeFromName->decisionEngineRoutingTarget->isNonEmptyString
   let (cutoverStatus, setCutoverStatus) = React.useState(_ =>
     isDecisionEngineManaged ? None : Some(false)
   )
 
-  let checkRoutingEntry = async () => {
-    try {
-      let entryUrl = getURL(~entityName=V1(ROUTING), ~methodType=Get, ~id=Some("entry"))
-      let res = await updateDetails(entryUrl, JSON.Encode.null, Post)
-      let cutover = res->getDictFromJsonObject->getBool("is_cutover", false)
-      setCutoverStatus(_ => Some(cutover))
-    } catch {
-    // If the entry check fails, fall back to the native form rather than blocking the page —
-    // the guard is a redirect for cut-over profiles, not a hard gate.
-    | Exn.Error(_) => setCutoverStatus(_ => Some(false))
-    }
-  }
-
   React.useEffect(() => {
     if isDecisionEngineManaged {
-      checkRoutingEntry()->ignore
+      (
+        async () => {
+          let cutover = await checkRoutingEntryCutover()
+          setCutoverStatus(_ => Some(cutover))
+
+          // Cut-over profiles configure these routing types in the Decision Engine dashboard, so
+          // bounce back to the Smart Routing page instead of showing the native form.
+          if cutover {
+            showToast(
+              ~message="This profile's routing is managed by the Decision Engine. Use the Smart Routing page to configure it.",
+              ~toastType=ToastState.ToastInfo,
+            )
+            RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/routing"))
+          }
+        }
+      )()->ignore
     }
     None
   }, [])
 
   React.useEffect(() => {
-    if isDecisionEngineManaged && cutoverStatus->Option.getOr(false) {
-      showToast(
-        ~message="This profile's routing is managed by the Decision Engine. Use the Smart Routing page to configure it.",
-        ~toastType=ToastState.ToastInfo,
-      )
-      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/routing"))
-    }
-    None
-  }, [cutoverStatus])
-
-  React.useEffect(() => {
     let searchParams = url.search
     let filtersFromUrl = getDictFromUrlSearchParams(searchParams)->Dict.get("id")
     setId(_ => filtersFromUrl)
-    switch routingType->String.toLowerCase {
-    | "volume" => setCurrentRouting(_ => VOLUME_SPLIT)
-    | "rule" => setCurrentRouting(_ => ADVANCED)
-    | "default" => setCurrentRouting(_ => DEFAULTFALLBACK)
-    | "auth-rate" => setCurrentRouting(_ => AUTH_RATE_ROUTING)
-    | _ => setCurrentRouting(_ => NO_ROUTING)
-    }
+    setCurrentRouting(_ => routingType->routingTypeFromName)
     let isActive =
       getDictFromUrlSearchParams(searchParams)
       ->Dict.get("isActive")
@@ -77,7 +60,7 @@ let make = (~routingType) => {
 
   let screenState = switch cutoverStatus {
   | Some(false) => PageLoaderWrapper.Success
-  | _ => PageLoaderWrapper.Loading
+  | Some(true) | None => PageLoaderWrapper.Loading
   }
 
   <PageLoaderWrapper screenState>

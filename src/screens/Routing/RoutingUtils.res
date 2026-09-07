@@ -27,12 +27,39 @@ let routingTypeName = routingType => {
   }
 }
 
+let routingTypeFromName = name => {
+  switch name->String.toLowerCase {
+  | "volume" => VOLUME_SPLIT
+  | "rule" => ADVANCED
+  | "default" => DEFAULTFALLBACK
+  | "auth-rate" => AUTH_RATE_ROUTING
+  | _ => NO_ROUTING
+  }
+}
+
 let decisionEngineRoutingTarget = routingType => {
   switch routingType {
   | VOLUME_SPLIT => "volume"
   | ADVANCED => "rule"
   | AUTH_RATE_ROUTING => "multi_objective"
   | _ => ""
+  }
+}
+
+// Single source for the routing "entry" probe: POST /routing/entry and read whether the
+// profile has cut over to the Decision Engine. Shared by RoutingStack and RoutingConfigure.
+let useCheckRoutingEntryCutover = () => {
+  open APIUtils
+  let getURL = useGetURL()
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
+  async () => {
+    try {
+      let entryUrl = getURL(~entityName=V1(ROUTING), ~methodType=Get, ~id=Some("entry"))
+      let res = await updateDetails(entryUrl, JSON.Encode.null, Post)
+      res->getDictFromJsonObject->getBool("is_cutover", false)
+    } catch {
+    | Exn.Error(_) => false
+    }
   }
 }
 

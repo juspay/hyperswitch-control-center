@@ -1,4 +1,5 @@
 open HistoryEntity
+open RoutingUtils
 module HistoryTable = {
   @react.component
   let make = (
@@ -9,22 +10,29 @@ module HistoryTable = {
   ) => {
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let (offset, setOffset) = React.useState(_ => 0)
+    let authorization = userHasAccess(~groupAccess=WorkflowsManage)
 
     let openRecord = (historyData: RoutingTypes.historyData) => {
-      let routingType = historyData.kind->RoutingUtils.routingTypeMapper
-      let target = routingType->RoutingUtils.decisionEngineRoutingTarget
+      let routingType = historyData.kind->routingTypeMapper
+      let target = routingType->decisionEngineRoutingTarget
       if target->LogicUtils.isNonEmptyString {
         onDecisionEngineRedirect(target, historyData.id)
       } else {
-        RescriptReactRouter.push(
-          GlobalVars.appendDashboardPath(
-            ~url=`/routing/${routingType->RoutingUtils.routingTypeName}?id=${historyData.id}${activeRoutingIds->Array.includes(
+        // Non-Decision-Engine kinds fall back to the native page, gated by the same access check
+        // the table's getShowLink uses.
+        let link = GroupAccessUtils.linkForGetShowLinkViaAccess(
+          ~authorization,
+          ~url=GlobalVars.appendDashboardPath(
+            ~url=`/routing/${routingType->routingTypeName}?id=${historyData.id}${activeRoutingIds->Array.includes(
                 historyData.id,
               )
                 ? "&isActive=true"
                 : ""}`,
           ),
         )
+        if link->LogicUtils.isNonEmptyString {
+          RescriptReactRouter.push(link)
+        }
       }
     }
 
@@ -32,10 +40,7 @@ module HistoryTable = {
       title="History"
       hideTitle=true
       actualData=records
-      entity={historyEntity(
-        activeRoutingIds,
-        ~authorization=userHasAccess(~groupAccess=WorkflowsManage),
-      )}
+      entity={historyEntity(activeRoutingIds, ~authorization)}
       resultsPerPage=10
       showSerialNumber=true
       totalResults={records->Array.length}
