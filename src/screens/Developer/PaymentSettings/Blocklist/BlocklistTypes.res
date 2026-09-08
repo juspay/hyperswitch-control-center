@@ -47,6 +47,11 @@ type blocklistCount = {
   counts_by_length: array<(int, int)>,
 }
 
+type blocklistCounts = {
+  cardBin: blocklistCount,
+  fingerprint: blocklistCount,
+}
+
 type blocklistLookup = {
   data: string,
   blocked: bool,

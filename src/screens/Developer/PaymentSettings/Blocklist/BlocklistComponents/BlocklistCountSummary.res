@@ -9,8 +9,7 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod(~showErrorToast=false)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-  let (cardBinCount, setCardBinCount) = React.useState(_ => defaultBlocklistCount)
-  let (fingerprintCount, setFingerprintCount) = React.useState(_ => defaultBlocklistCount)
+  let (counts, setCounts) = React.useState(_ => defaultBlocklistCounts)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
   let fetchCount = async dataKind => {
@@ -30,8 +29,7 @@ let make = () => {
         fetchCount(GenericCardBin),
         fetchCount(Fingerprint),
       ))
-      setCardBinCount(_ => cardBin)
-      setFingerprintCount(_ => fingerprint)
+      setCounts(_ => {cardBin, fingerprint})
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
@@ -43,26 +41,32 @@ let make = () => {
     None
   }, [profileId])
 
-  let countCards = {
-    let binCards =
-      cardBinCount.counts_by_length->Array.map(((length, count)) => (
-        `${length->Int.toString}-digit BINs`,
-        count,
-      ))
-    let binCards = binCards->isEmptyArray ? [("Card BINs", cardBinCount.total_count)] : binCards
-    binCards->Array.concat([("Fingerprints", fingerprintCount.total_count)])
+  let blocklistCountsData = {
+    let binCounts =
+      counts.cardBin.counts_by_length->isEmptyArray
+        ? [("Card BINs", counts.cardBin.total_count)]
+        : counts.cardBin.counts_by_length->Array.map(((length, count)) => (
+            `${length->Int.toString}-digit BINs`,
+            count,
+          ))
+    binCounts->Array.concat([("Fingerprints", counts.fingerprint.total_count)])
   }
 
   <div className="max-w-3xl">
     <div className="flex flex-col sm:flex-row gap-4">
-      {countCards
+      {blocklistCountsData
       ->Array.mapWithIndex(((title, count), index) =>
         <div key={index->Int.toString} className="flex-1 min-w-0">
           <PageLoaderWrapper
             screenState
             customUI={<NewAnalyticsHelper.NoData height="h-20" message="Couldn't load count." />}
             customLoader={<Shimmer styleClass="h-20 w-full rounded-lg" />}>
-            <BlocklistHelper.CountCard title count />
+            <section className="h-full border border-nd_gray-200 rounded-lg bg-white p-4">
+              <p className={`text-nd_gray-500 ${body.sm.medium}`}> {title->React.string} </p>
+              <p className={`text-nd_gray-800 mt-1 ${heading.md.semibold}`}>
+                {count->formatBlocklistCount->React.string}
+              </p>
+            </section>
           </PageLoaderWrapper>
         </div>
       )

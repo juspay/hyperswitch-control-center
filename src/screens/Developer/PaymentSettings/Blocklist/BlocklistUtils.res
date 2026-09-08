@@ -300,6 +300,11 @@ let formatBlocklistCount = count => count->DateTimeUtils.toLocaleStringWithLocal
 
 let defaultBlocklistCount: BlocklistTypes.blocklistCount = {total_count: 0, counts_by_length: []}
 
+let defaultBlocklistCounts: BlocklistTypes.blocklistCounts = {
+  cardBin: defaultBlocklistCount,
+  fingerprint: defaultBlocklistCount,
+}
+
 let getBlocklistCountFromResponse = json => {
   let dict = json->getDictFromJsonObject
   let countsByLength =
