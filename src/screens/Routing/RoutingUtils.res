@@ -37,8 +37,6 @@ let routingTypeFromName = name => {
   }
 }
 
-// The native config URL for a history record. Shared by the history table's getShowLink and the
-// cut-over row override so the route format and active-flag stay in one place.
 let historyRecordNativeUrl = (~kind, ~id, ~activeRoutingIds) =>
   GlobalVars.appendDashboardPath(
     ~url=`/routing/${kind

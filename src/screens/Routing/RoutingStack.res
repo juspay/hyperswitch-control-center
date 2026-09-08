@@ -107,9 +107,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
       ->Array.filterMap(JSON.Decode.object)
       ->Array.map(HistoryEntity.itemToObjMapper)
 
-    // To sort the data in a format that active routing always comes at top of the table
-    // For ref:https://rescript-lang.org/docs/manual/latest/api/js/array-2#sortinplacewith
-
     let sortedHistoryRecords =
       recordsData
       ->Array.toSorted((item1, item2) => {
@@ -132,8 +129,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
     routingJson->LogicUtils.getArrayFromJson([])
   }
 
-  // Re-sync the active strategies, the configuration history and the active-id set together.
-  // Never touches screenState; may throw, so callers decide whether to surface the error.
   let syncRoutingState = async () => {
     open LogicUtils
     let routingArr = await getActiveRoutingList()
@@ -196,8 +191,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
       (
         async () => {
-          // The routing hub is safe for non-cutover profiles, so an unknown (failed) probe
-          // falls back to the native hub — same behaviour as before.
           let cutover = await checkRoutingEntryCutover()
           setCutoverStatus(_ => Some(cutover->Option.getOr(false)))
         }

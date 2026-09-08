@@ -1,5 +1,6 @@
 open HistoryEntity
 open RoutingUtils
+open LogicUtils
 module HistoryTable = {
   @react.component
   let make = (
@@ -15,11 +16,9 @@ module HistoryTable = {
     let openRecord = (historyData: RoutingTypes.historyData) => {
       let routingType = historyData.kind->routingTypeMapper
       let target = routingType->decisionEngineRoutingTarget
-      if target->LogicUtils.isNonEmptyString {
+      if target->isNonEmptyString {
         onDecisionEngineRedirect(target, historyData.id)
       } else {
-        // Non-Decision-Engine kinds fall back to the native page — same URL builder and access
-        // check the table's getShowLink uses, so the two can't drift.
         let link = GroupAccessUtils.linkForGetShowLinkViaAccess(
           ~authorization,
           ~url=historyRecordNativeUrl(
@@ -28,7 +27,7 @@ module HistoryTable = {
             ~activeRoutingIds,
           ),
         )
-        if link->LogicUtils.isNonEmptyString {
+        if link->isNonEmptyString {
           RescriptReactRouter.push(link)
         }
       }

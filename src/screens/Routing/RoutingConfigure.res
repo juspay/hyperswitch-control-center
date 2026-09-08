@@ -31,8 +31,6 @@ let make = (~routingType) => {
       (
         async () => {
           switch await checkRoutingEntryCutover() {
-          // Cut-over profiles configure these routing types in the Decision Engine dashboard, so
-          // bounce back to the Smart Routing page instead of showing the native form.
           | Some(true) =>
             setCutoverStatus(_ => Some(true))
             showToast(
@@ -41,8 +39,6 @@ let make = (~routingType) => {
             )
             bounceToRouting()
           | Some(false) => setCutoverStatus(_ => Some(false))
-          // Unknown (the probe failed): fail safe — a possibly cut-over profile must not fall
-          // through to the native form, so send the user back to the Smart Routing page.
           | None => bounceToRouting()
           }
         }
@@ -101,7 +97,7 @@ let make = (~routingType) => {
           baseUrlForRedirection
           connectorVariant=ConnectorTypes.PaymentProcessor
         />
-      | _ => <> </>
+      | NO_ROUTING => <> </>
       }}
     </div>
   </PageLoaderWrapper>
