@@ -204,6 +204,7 @@ let getSortedKeys: (
   RescriptCore.Dict.t<'a>,
   ~reverseSort: bool=?,
   ~customSortOrder: array<string>=?,
+  ~selectedGroup: string=?,
 ) => array<string>
 module BaseRadio: {
   @react.component
