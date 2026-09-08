@@ -72,6 +72,9 @@ let make = (
         showCustomFilter=false
         refreshFilters=false
       />
+      <PortalCapture
+        key={`${title}CustomizeColumn`} name={`${title}CustomizeColumn`} customStyle="ml-auto mt-4"
+      />
     </div>
 
   React.useEffect(() => {

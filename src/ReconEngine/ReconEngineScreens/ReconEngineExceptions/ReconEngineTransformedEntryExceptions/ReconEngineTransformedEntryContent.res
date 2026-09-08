@@ -163,6 +163,9 @@ let make = (~accountId: string) => {
         customFilterActions=transformationConfigFilter
         refreshFilters=false
       />
+      <PortalCapture
+        key={`${title}CustomizeColumn`} name={`${title}CustomizeColumn`} customStyle="ml-auto mt-4"
+      />
     </div>
   }
 
