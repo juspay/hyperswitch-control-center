@@ -49,7 +49,7 @@ let pemInput = (~isDisabled) => (~input: ReactFinalForm.fieldRenderPropsInput, ~
     ...input,
     onBlur: ev => {
       let value = input.value->LogicUtils.getStringFromJson("")
-      let normalizedValue = value->ConnectorUtils.getNormalizedPemValue
+      let normalizedValue = value->LogicUtils.getNormalizedPemValue
       if normalizedValue != value {
         input.onChange(normalizedValue->Identity.stringToFormReactEvent)
       }
@@ -152,19 +152,6 @@ module RenderConnectorInputFields = {
                   ~fieldName1="connector_account_details.key1",
                   ~fieldName2="metadata.paypal_sdk.client_id",
                 )
-              | (PayoutProcessor(DEUTSCHEBANK), "api_secret" | "key2") =>
-                inputField(
-                  ~name=formName,
-                  ~field,
-                  ~label,
-                  ~connector,
-                  ~checkRequiredFields,
-                  ~getPlaceholder,
-                  ~disabled,
-                  ~description,
-                  ~customInput=pemInput(~isDisabled=disabled),
-                  (),
-                )
               | _ =>
                 inputField(
                   ~name=formName,
@@ -175,6 +162,9 @@ module RenderConnectorInputFields = {
                   ~getPlaceholder,
                   ~disabled,
                   ~description,
+                  ~customInput=connector->checkIsPemField(field)
+                    ? pemInput(~isDisabled=disabled)
+                    : InputFields.textInput(~isDisabled=disabled),
                   (),
                 )
               }}
