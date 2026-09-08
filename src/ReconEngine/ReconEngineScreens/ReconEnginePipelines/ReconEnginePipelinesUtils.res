@@ -368,6 +368,11 @@ let describeStringTransformationRule = (rule: stringTransformationRule): string 
   | StrJsonExtract(pointer) => `JSON extract (${pointer})`
   | StrRegex({pattern, group}) =>
     `Regex (${pattern}${group->mapOptionOrDefault("", g => `, group ${g->Int.toString}`)})`
+  | StrReplaceChar({fromChar, toChar, mode}) =>
+    switch toChar {
+    | Some(toChar) => `Replace "${fromChar}" with "${toChar}" (${mode->describeReplaceMode})`
+    | None => `Delete "${fromChar}" (${mode->describeReplaceMode})`
+    }
   | UnknownStringTransformationRule => "Unknown rule"
   }
 
