@@ -24,6 +24,7 @@ let make = (
   let (appliedSearchText, setAppliedSearchText) = React.useState(_ => "")
   let searchTypeRef = React.useRef(SearchTransactionId)
   let (selectedRows, setSelectedRows) = React.useState(_ => [])
+  let visibleColumns = TableAtoms.reconExceptionsHierarchicalCols->Recoil.useRecoilValueFromAtom
   let url = RescriptReactRouter.useUrl()
   let {
     updateExistingKeys,
@@ -226,19 +227,19 @@ let make = (
         offset
         setOffset
         currentFetchCount={transactions->Array.length}
-        customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
-        defaultColumns
+        customColumnMapper=TableAtoms.reconExceptionsHierarchicalCols
+        defaultColumns=mandatoryColumns
         showSerialNumberInCustomizeColumns=false
         sortingBasedOnDisabled=false
+        isDraggable=true
         remoteSortEnabled=true
         showPagination=false
         showResultsPerPageSelector=false
         tableDataLoading={screenState === PageLoaderWrapper.Loading}
         dataLoading={screenState === PageLoaderWrapper.Loading}
         customizeColumnButtonIcon="nd-filter-horizontal"
-        hideRightTitleElement=true
         showAutoScroll=true
-        customSeparation=[(3, 4)]
+        customSeparation={getCustomSeparation(visibleColumns)}
         dataNotFoundComponent=noExceptionsFoundComponent
         filters={<SearchInput
           inputText=searchText

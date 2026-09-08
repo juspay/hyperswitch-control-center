@@ -158,11 +158,17 @@ let make = () => {
     <PageLoaderWrapper screenState>
       <div className="flex flex-col gap-4">
         <div className="flex-shrink-0"> {topFilterUi} </div>
-        <LoadedTable
+        <LoadedTableWithCustomColumns
           title
           hideTitle=true
           actualData={processingEntries->Array.map(Nullable.make)}
           entity={ReconEngineExceptionEntity.processingTableEntity}
+          customColumnMapper=TableAtoms.reconStagingEntriesCols
+          defaultColumns=ReconEngineExceptionEntity.processingMandatoryColumns
+          showSerialNumberInCustomizeColumns=false
+          sortingBasedOnDisabled=false
+          isDraggable=true
+          customizeColumnButtonIcon="nd-filter-horizontal"
           resultsPerPage=10
           totalResults={processingEntries->Array.length}
           offset

@@ -54,6 +54,7 @@ let make = (
   }, ~persistKey=Some(`recon-engine-transactions-${rule.rule_id}`))
   let (offset, setOffset) = React.useState(_ => 0)
   let (selectedRows, setSelectedRows) = React.useState(_ => [])
+  let visibleColumns = TableAtoms.reconTransactionsHierarchicalCols->Recoil.useRecoilValueFromAtom
 
   let topFilterUi =
     <div className="flex flex-row -ml-1.5">
@@ -109,8 +110,12 @@ let make = (
         offset
         setOffset
         currentFetchCount={transactions->Array.length}
-        customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
-        defaultColumns
+        customColumnMapper=TableAtoms.reconTransactionsHierarchicalCols
+        defaultColumns=mandatoryColumns
+        showSerialNumberInCustomizeColumns=false
+        sortingBasedOnDisabled=false
+        isDraggable=true
+        customizeColumnButtonIcon="nd-filter-horizontal"
         showPagination=false
         showResultsPerPageSelector=false
         remoteSortEnabled=true
@@ -118,8 +123,7 @@ let make = (
         dataLoading={screenState === PageLoaderWrapper.Loading}
         tableheadingClass="bg-gray-50"
         showAutoScroll=true
-        hideCustomisableColumnButton=true
-        customSeparation=[(3, 4)]
+        customSeparation={getCustomSeparation(visibleColumns)}
         filters={<SearchInput
           inputText=searchText
           onChange={value => setSearchText(_ => value)}

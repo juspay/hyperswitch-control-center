@@ -30,6 +30,8 @@ let processingDefaultColumns = [
   Actions,
 ]
 
+let processingMandatoryColumns = [EffectiveAt, StagingEntryId, Status, Actions]
+
 let getProcessingHeading = colType => {
   switch colType {
   | StagingEntryId => Table.makeHeaderInfo(~key="staging_entry_id", ~title="Transformed Entry ID")
@@ -165,6 +167,7 @@ let processingTableEntity = EntityType.makeEntity(
   ~uri="",
   ~getObjects=_ => [],
   ~defaultColumns=processingDefaultColumns,
+  ~allColumns=processingDefaultColumns,
   ~getHeading=getProcessingHeading,
   ~getCell=getProcessingCell,
   ~dataKey="",
@@ -178,6 +181,7 @@ let transformedEntryExceptionTableEntity = (
     ~uri="",
     ~getObjects=_ => [],
     ~defaultColumns=processingDefaultColumns,
+    ~allColumns=processingDefaultColumns,
     ~getHeading=getProcessingHeading,
     ~getCell=getProcessingCell,
     ~dataKey="",
