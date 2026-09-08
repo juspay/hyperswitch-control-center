@@ -30,7 +30,15 @@ let processingDefaultColumns = [
   Actions,
 ]
 
-let processingMandatoryColumns = [EffectiveAt, StagingEntryId, Status, Actions]
+let processingMandatoryColumns = [
+  EffectiveAt,
+  OrderId,
+  EntryType,
+  Amount,
+  StagingEntryId,
+  Status,
+  Actions,
+]
 
 let getProcessingHeading = colType => {
   switch colType {
