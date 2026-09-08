@@ -26,7 +26,8 @@ external themeConfigHandler: (Http.request, Http.response, bool, string) => unit
 external healthHandler: (Http.request, Http.response) => unit = "healthHandler"
 
 @module("./health.mjs")
-external healthReadinessHandler: (Http.request, Http.response) => unit = "healthReadinessHandler"
+external healthReadinessHandler: (Http.request, Http.response, string, string) => unit =
+  "healthReadinessHandler"
 
 @module("./compression.mjs")
 external serveCompressed: (
@@ -98,16 +99,22 @@ let serverHandler: Http.serverHandler = (request, response) => {
     ("dist/hyperswitch", "index.html")
   }
 
+  // An env var set to "" is present but useless, so treat it as unset rather
+  // than letting it through as a path that can never be read.
+  let configPath = switch env->Dict.get("configPath") {
+  | Some("") | None => "dist/server/config/config.toml"
+  | Some(configPath) => configPath
+  }
+  let indexFilePath = `${serverPath}/${baseHtmlRoute}`
+
   if path->String.includes("/config/merchant") && request.method === "POST" {
-    let path = env->Dict.get("configPath")->Option.getOr("dist/server/config/config.toml")
     Promise.make((resolve, _reject) => {
-      merchantConfigHandler(request, response, true, domain, path)
+      merchantConfigHandler(request, response, true, domain, configPath)
       ()->(resolve(_))
     })
   } else if path->String.includes("/config/feature") && request.method === "GET" {
-    let path = env->Dict.get("configPath")->Option.getOr("dist/server/config/config.toml")
     Promise.make((resolve, _reject) => {
-      configHandler(request, response, true, domain, path)
+      configHandler(request, response, true, domain, configPath)
       ()->(resolve(_))
     })
   } else if path->String.includes("/config/theme") && request.method === "GET" {
@@ -123,7 +130,7 @@ let serverHandler: Http.serverHandler = (request, response) => {
     })
   } else if path === "/health/ready" && request.method === "GET" {
     Promise.make((resolve, _reject) => {
-      healthReadinessHandler(request, response)
+      healthReadinessHandler(request, response, configPath, indexFilePath)
       ()->(resolve(_))
     })
   } else {
