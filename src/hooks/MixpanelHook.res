@@ -1,9 +1,35 @@
 type functionType = (~eventName: string=?, ~email: string=?, ~description: option<string>=?) => unit
 
+let getMixpanelBody = body =>
+  `data=${body->JSON.stringifyAny->Option.getOr("")->encodeURIComponent}`
+
+let useMixpanelRequest = () => {
+  open GlobalVars
+  let fetchApi = AuthHooks.useApiFetcher()
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
+  async (~endpoint, ~bodyStr) => {
+    try {
+      if featureFlagDetails.mixpanel {
+        let _ = await fetchApi(
+          `${getHostUrl}/mixpanel/${endpoint}`,
+          ~method_=Post,
+          ~bodyStr,
+          ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
+          ~forceCookies=featureFlagDetails.forceCookies,
+          ~sendV1DummyApiKeyHeader=featureFlagDetails.sendV1DummyApiKeyHeader,
+        )
+      }
+    } catch {
+    | _ => ()
+    }
+  }
+}
+
 let useSendEvent = () => {
   open GlobalVars
   open Window
-  let fetchApi = AuthHooks.useApiFetcher()
+  let sendMixpanelRequest = useMixpanelRequest()
   let {orgId, profileId, merchantId} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
@@ -80,18 +106,7 @@ let useSendEvent = () => {
       },
     }
 
-    try {
-      let _ = await fetchApi(
-        `${getHostUrl}/mixpanel/track`,
-        ~method_=Post,
-        ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURIComponent}`,
-        ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
-        ~forceCookies=featureFlagDetails.forceCookies,
-        ~sendV1DummyApiKeyHeader=featureFlagDetails.sendV1DummyApiKeyHeader,
-      )
-    } catch {
-    | _ => ()
-    }
+    await sendMixpanelRequest(~endpoint="track", ~bodyStr=body->getMixpanelBody)
   }
 
   (~eventName, ~email="", ~description=None, ~section="", ~metadata=JSON.Encode.null) => {
@@ -114,7 +129,7 @@ let useSendEvent = () => {
 let usePageView = () => {
   open GlobalVars
   open Window
-  let fetchApi = AuthHooks.useApiFetcher()
+  let sendMixpanelRequest = useMixpanelRequest()
   let {orgId, profileId, merchantId} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
@@ -129,7 +144,6 @@ let usePageView = () => {
   | UserInfoTypes.V1 => "v1"
   | V2 => "v2"
   }
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   async (~path) => {
     let mixpanel_token = Window.env.mixpanelToken
     let body = {
@@ -161,28 +175,13 @@ let usePageView = () => {
       },
     }
 
-    try {
-      if featureFlagDetails.mixpanel {
-        let _ = await fetchApi(
-          `${getHostUrl}/mixpanel/track`,
-          ~method_=Post,
-          ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURIComponent}`,
-          ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
-          ~forceCookies=featureFlagDetails.forceCookies,
-          ~sendV1DummyApiKeyHeader=featureFlagDetails.sendV1DummyApiKeyHeader,
-        )
-      }
-    } catch {
-    | _ => ()
-    }
+    await sendMixpanelRequest(~endpoint="track", ~bodyStr=body->getMixpanelBody)
   }
 }
 
 let useSetIdentity = () => {
-  open GlobalVars
-  let fetchApi = AuthHooks.useApiFetcher()
+  let sendMixpanelRequest = useMixpanelRequest()
   let mixpanel_token = Window.env.mixpanelToken
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   async (~distinctId) => {
     let name = distinctId->LogicUtils.getNameFromEmail
@@ -202,30 +201,7 @@ let useSetIdentity = () => {
       },
     }
 
-    try {
-      if featureFlagDetails.mixpanel {
-        let _ = await fetchApi(
-          `${getHostUrl}/mixpanel/track`,
-          ~method_=Post,
-          ~bodyStr=`data=${body->JSON.stringifyAny->Option.getOr("")->encodeURIComponent}`,
-          ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
-          ~forceCookies=featureFlagDetails.forceCookies,
-          ~sendV1DummyApiKeyHeader=featureFlagDetails.sendV1DummyApiKeyHeader,
-        )
-        let _ = await fetchApi(
-          `${getHostUrl}/mixpanel/engage`,
-          ~method_=Post,
-          ~bodyStr=`data=${peopleProperties
-            ->JSON.stringifyAny
-            ->Option.getOr("")
-            ->encodeURIComponent}`,
-          ~xFeatureRoute=featureFlagDetails.xFeatureRoute,
-          ~forceCookies=featureFlagDetails.forceCookies,
-          ~sendV1DummyApiKeyHeader=featureFlagDetails.sendV1DummyApiKeyHeader,
-        )
-      }
-    } catch {
-    | _ => ()
-    }
+    await sendMixpanelRequest(~endpoint="track", ~bodyStr=body->getMixpanelBody)
+    await sendMixpanelRequest(~endpoint="engage", ~bodyStr=peopleProperties->getMixpanelBody)
   }
 }

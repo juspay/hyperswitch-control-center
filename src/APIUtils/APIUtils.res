@@ -1708,6 +1708,27 @@ let useHandleLogout = (~eventName="user_sign_out") => {
 
 let sessionExpired = ref(false)
 
+let getApiErrorMetaData = (
+  ~url,
+  ~methodType: Fetch.requestMethod,
+  ~statusClass,
+  ~status,
+  ~xRequestId,
+  ~errorCode,
+  ~errorMessage,
+  ~response,
+) =>
+  [
+    ("url", url->JSON.Encode.string),
+    ("status", status->JSON.Encode.int),
+    ("statusClass", statusClass->JSON.Encode.string),
+    ("method", methodType->methodStr->JSON.Encode.string),
+    ("x-request-id", xRequestId->JSON.Encode.string),
+    ("errorCode", errorCode->JSON.Encode.string),
+    ("errorMessage", errorMessage->JSON.Encode.string),
+    ("response", response),
+  ]->getJsonFromArrayOfJson
+
 let responseHandler = async (
   ~url,
   ~res,
@@ -1734,25 +1755,6 @@ let responseHandler = async (
   }
 
   let responseStatus = res->Fetch.Response.status
-  let responseHeaders = res->Fetch.Response.headers
-  let errorDict = json->getDictFromJsonObject->getObj("error", Dict.make())
-
-  if responseStatus >= 400 && responseStatus < 600 {
-    let xRequestId = responseHeaders->Fetch.Headers.get("x-request-id")->Option.getOr("")
-    let statusClass = responseStatus < 500 ? "4xx" : "5xx"
-    let metaData =
-      [
-        ("url", url->JSON.Encode.string),
-        ("status", responseStatus->JSON.Encode.int),
-        ("statusClass", statusClass->JSON.Encode.string),
-        ("method", methodType->Fetch.encodeRequestMethod->JSON.Encode.string),
-        ("x-request-id", xRequestId->JSON.Encode.string),
-        ("errorCode", errorDict->getString("code", "")->JSON.Encode.string),
-        ("errorMessage", errorDict->getString("message", "")->JSON.Encode.string),
-        ("response", json),
-      ]->getJsonFromArrayOfJson
-    sendEvent(~eventName="API Error", ~description=Some(responseStatus), ~metadata=metaData)
-  }
 
   let noAccessControlText = "You do not have the required permissions to access this module. Please contact your admin."
 
@@ -1760,7 +1762,29 @@ let responseHandler = async (
   | 200
   | 201 => json
   | _ => {
+      let errorDict = json->getDictFromJsonObject->getObj("error", Dict.make())
       let errorStringifiedJson = errorDict->JSON.Encode.object->JSON.stringify
+
+      if responseStatus >= 400 && responseStatus < 600 {
+        let is4xx = responseStatus < 500
+        sendEvent(
+          ~eventName=is4xx ? "API Error 4xx" : "API Error",
+          ~description=Some(responseStatus),
+          ~metadata=getApiErrorMetaData(
+            ~url,
+            ~methodType,
+            ~statusClass=is4xx ? "4xx" : "5xx",
+            ~status=responseStatus,
+            ~xRequestId=res
+            ->Fetch.Response.headers
+            ->Fetch.Headers.get("x-request-id")
+            ->Option.getOr(""),
+            ~errorCode=errorDict->getString("code", ""),
+            ~errorMessage=errorDict->getString("message", ""),
+            ~response=json,
+          ),
+        )
+      }
 
       if isPlayground && responseStatus === 403 {
         popUpCallBack()
