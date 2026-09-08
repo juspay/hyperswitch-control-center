@@ -9,10 +9,10 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod(~showErrorToast=false)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-  let (counts, setCounts) = React.useState(_ => defaultBlocklistCounts)
+  let (counts, setCounts) = React.useState(_ => defaultBlocklistCountsByKind)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
-  let fetchCount = async dataKind => {
+  let fetchCountByDataKind = async dataKind => {
     let url = getURL(
       ~entityName=V1(BLOCKLIST_COUNT),
       ~methodType=Get,
@@ -22,12 +22,12 @@ let make = () => {
     response->getBlocklistCountFromResponse
   }
 
-  let fetchCounts = async () => {
+  let fetchAllCounts = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let (cardBin, fingerprint) = await Promise.all2((
-        fetchCount(GenericCardBin),
-        fetchCount(Fingerprint),
+        fetchCountByDataKind(GenericCardBin),
+        fetchCountByDataKind(Fingerprint),
       ))
       setCounts(_ => {cardBin, fingerprint})
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -37,7 +37,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    fetchCounts()->ignore
+    fetchAllCounts()->ignore
     None
   }, [profileId])
 

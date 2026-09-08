@@ -42,14 +42,14 @@ type blocklistEntry = {
   created_at: string,
 }
 
-type blocklistCount = {
+type blocklistCountResponse = {
   total_count: int,
   counts_by_length: array<(int, int)>,
 }
 
-type blocklistCounts = {
-  cardBin: blocklistCount,
-  fingerprint: blocklistCount,
+type blocklistCountsByKind = {
+  cardBin: blocklistCountResponse,
+  fingerprint: blocklistCountResponse,
 }
 
 type blocklistCountCard = {

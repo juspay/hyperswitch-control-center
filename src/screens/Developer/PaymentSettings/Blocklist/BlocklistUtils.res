@@ -121,7 +121,7 @@ let blocklistDataKindOptions: array<SelectBox.dropdownOption> = allBlocklistData
 
 let blocklistEntryItemToObjMapper = dict => {
   {
-    BlocklistTypes.fingerprint_id: dict->getString("fingerprint_id", ""),
+    fingerprint_id: dict->getString("fingerprint_id", ""),
     data_kind: dict->getString("data_kind", ""),
     created_at: dict->getString("created_at", ""),
   }
@@ -298,11 +298,11 @@ let blocklistDataKindToQueryParam = dataKind => {
 
 let formatBlocklistCount = count => count->DateTimeUtils.toLocaleStringWithLocale("en-US")
 
-let defaultBlocklistCount: BlocklistTypes.blocklistCount = {total_count: 0, counts_by_length: []}
+let defaultBlocklistCountResponse: blocklistCountResponse = {total_count: 0, counts_by_length: []}
 
-let defaultBlocklistCounts: BlocklistTypes.blocklistCounts = {
-  cardBin: defaultBlocklistCount,
-  fingerprint: defaultBlocklistCount,
+let defaultBlocklistCountsByKind: blocklistCountsByKind = {
+  cardBin: defaultBlocklistCountResponse,
+  fingerprint: defaultBlocklistCountResponse,
 }
 
 let getBlocklistCountFromResponse = json => {
@@ -318,7 +318,7 @@ let getBlocklistCountFromResponse = json => {
     )
   countsByLength->Array.sort(((lengthA, _), (lengthB, _)) => (lengthA - lengthB)->Int.toFloat)
   {
-    BlocklistTypes.total_count: dict->getInt("total_count", 0),
+    total_count: dict->getInt("total_count", 0),
     counts_by_length: countsByLength,
   }
 }
@@ -326,7 +326,7 @@ let getBlocklistCountFromResponse = json => {
 let getBlocklistLookupFromResponse = json => {
   let dict = json->getDictFromJsonObject
   {
-    BlocklistTypes.data: dict->getString("data", ""),
+    data: dict->getString("data", ""),
     blocked: dict->getBool("blocked", false),
   }
 }
