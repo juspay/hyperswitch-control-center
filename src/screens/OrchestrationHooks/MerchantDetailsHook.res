@@ -1,5 +1,4 @@
 open APIUtils
-open CommonAuthTypes
 open HyperswitchAtom
 let useFetchUserMerchantDetails = () => {
   let getURL = useGetURL()
@@ -64,33 +63,3 @@ let useFetchMerchantDetails = () => {
 }
 
 let useMerchantDetailsValue = () => Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
-
-// Pulls in the merchant account for screens needing fields the bootstrap skips
-let useLoadMerchantDetails = () => {
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let fetchMerchantDetails = useFetchMerchantDetails()
-  let merchantDetails = useMerchantDetailsValue()
-  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-
-  let isMerchantDetailsPresent = merchantDetails.publishable_key->LogicUtils.isNonEmptyString
-  let hasAccountAccess = userHasAccess(~groupAccess=AccountView) === Access
-  let (isLoaded, setIsLoaded) = React.useState(_ => isMerchantDetailsPresent)
-
-  let loadMerchantDetails = async () => {
-    try {
-      let _ = await fetchMerchantDetails(~version)
-      setIsLoaded(_ => true)
-    } catch {
-    | _ => ()
-    }
-  }
-
-  React.useEffect(() => {
-    if hasAccountAccess && !isMerchantDetailsPresent {
-      loadMerchantDetails()->ignore
-    }
-    None
-  }, [])
-
-  isLoaded
-}

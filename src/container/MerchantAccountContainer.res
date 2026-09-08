@@ -11,7 +11,6 @@ let make = (~setAppScreenState) => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
   let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
-  let isMerchantDetailsLoaded = MerchantDetailsHook.useLoadMerchantDetails()
 
   <div>
     {switch url.path->urlPath {
@@ -23,7 +22,6 @@ let make = (~setAppScreenState) => {
       condition={!featureFlagDetails.isLiveMode &&
       userHasAccess(~groupAccess=AccountManage) === Access &&
       !checkUserEntity([#Profile]) &&
-      isMerchantDetailsLoaded &&
       merchantDetailsTypedValue.merchant_name->Option.isNone}>
       <SbxOnboardingSurvey showModal=surveyModal setShowModal=setSurveyModal />
     </RenderIf>
