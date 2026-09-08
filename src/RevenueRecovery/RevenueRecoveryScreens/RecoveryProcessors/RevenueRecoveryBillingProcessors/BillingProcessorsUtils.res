@@ -44,7 +44,7 @@ let getConnectorConfig = connector => {
     {
       "connector_auth": {
         "HeaderKey": {
-          "api_key": "Custom billing API Key",
+          "api_key": "Stripe Billing API Key",
         },
       },
       "connector_webhook_details": {

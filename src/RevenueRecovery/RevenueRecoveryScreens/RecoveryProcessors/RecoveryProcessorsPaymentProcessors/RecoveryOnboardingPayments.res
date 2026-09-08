@@ -3,6 +3,7 @@ let make = (
   ~currentStep,
   ~setConnectorID,
   ~connector,
+  ~billingConnector,
   ~setConnectorName,
   ~setNextStep,
   ~profileId,
@@ -98,7 +99,7 @@ let make = (
 
   let handleClick = () => {
     mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
-    onNextClick(currentStep, setNextStep, isLiveMode)->ignore
+    onNextClick(currentStep, setNextStep, ~isLiveMode, ~billingConnector)->ignore
   }
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
