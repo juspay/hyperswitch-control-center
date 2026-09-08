@@ -174,7 +174,13 @@ let make = (~remainingPath, ~previewOnly=false) => {
     if isCutover && !previewOnly {
       // Rules can change in the Decision Engine dashboard tab; silently re-sync the active
       // strategies and configuration history (no loader) when this tab regains focus.
-      let onFocus = _ => syncRoutingState()->Promise.catch(_ => Promise.resolve())->ignore
+      let onFocus = _ =>
+        syncRoutingState()
+        ->Promise.catch(err => {
+          Console.error2("routing focus re-sync failed:", err)
+          Promise.resolve()
+        })
+        ->ignore
       Window.addEventListener("focus", onFocus)
       Some(() => Window.removeEventListener("focus", onFocus))
     } else {
@@ -190,8 +196,10 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
       (
         async () => {
+          // The routing hub is safe for non-cutover profiles, so an unknown (failed) probe
+          // falls back to the native hub — same behaviour as before.
           let cutover = await checkRoutingEntryCutover()
-          setCutoverStatus(_ => Some(cutover))
+          setCutoverStatus(_ => Some(cutover->Option.getOr(false)))
         }
       )()->ignore
     }

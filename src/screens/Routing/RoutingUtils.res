@@ -37,6 +37,15 @@ let routingTypeFromName = name => {
   }
 }
 
+// The native config URL for a history record. Shared by the history table's getShowLink and the
+// cut-over row override so the route format and active-flag stay in one place.
+let historyRecordNativeUrl = (~kind, ~id, ~activeRoutingIds) =>
+  GlobalVars.appendDashboardPath(
+    ~url=`/routing/${kind
+      ->routingTypeMapper
+      ->routingTypeName}?id=${id}${activeRoutingIds->Array.includes(id) ? "&isActive=true" : ""}`,
+  )
+
 let decisionEngineRoutingTarget = routingType => {
   switch routingType {
   | VOLUME_SPLIT => "volume"
@@ -48,6 +57,8 @@ let decisionEngineRoutingTarget = routingType => {
 
 // Single source for the routing "entry" probe: POST /routing/entry and read whether the
 // profile has cut over to the Decision Engine. Shared by RoutingStack and RoutingConfigure.
+// Returns Some(is_cutover) on success and None when the probe fails, so callers can tell
+// "not cut over" apart from "unknown" and fail safe instead of assuming non-cutover.
 let useCheckRoutingEntryCutover = () => {
   open APIUtils
   let getURL = useGetURL()
@@ -56,9 +67,11 @@ let useCheckRoutingEntryCutover = () => {
     try {
       let entryUrl = getURL(~entityName=V1(ROUTING), ~methodType=Get, ~id=Some("entry"))
       let res = await updateDetails(entryUrl, JSON.Encode.null, Post)
-      res->getDictFromJsonObject->getBool("is_cutover", false)
+      Some(res->getDictFromJsonObject->getBool("is_cutover", false))
     } catch {
-    | Exn.Error(_) => false
+    | Exn.Error(err) =>
+      Console.error2("checkRoutingEntry failed:", err)
+      None
     }
   }
 }

@@ -23,26 +23,33 @@ let make = (~routingType) => {
   )
 
   React.useEffect(() => {
+    setCutoverStatus(_ => isDecisionEngineManaged ? None : Some(false))
     if isDecisionEngineManaged {
+      let bounceToRouting = () =>
+        RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/routing"))
+
       (
         async () => {
-          let cutover = await checkRoutingEntryCutover()
-          setCutoverStatus(_ => Some(cutover))
-
+          switch await checkRoutingEntryCutover() {
           // Cut-over profiles configure these routing types in the Decision Engine dashboard, so
           // bounce back to the Smart Routing page instead of showing the native form.
-          if cutover {
+          | Some(true) =>
+            setCutoverStatus(_ => Some(true))
             showToast(
               ~message="This profile's routing is managed by the Decision Engine. Use the Smart Routing page to configure it.",
               ~toastType=ToastState.ToastInfo,
             )
-            RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/routing"))
+            bounceToRouting()
+          | Some(false) => setCutoverStatus(_ => Some(false))
+          // Unknown (the probe failed): fail safe — a possibly cut-over profile must not fall
+          // through to the native form, so send the user back to the Smart Routing page.
+          | None => bounceToRouting()
           }
         }
       )()->ignore
     }
     None
-  }, [])
+  }, [routingType])
 
   React.useEffect(() => {
     let searchParams = url.search

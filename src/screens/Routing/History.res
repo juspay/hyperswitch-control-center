@@ -18,16 +18,14 @@ module HistoryTable = {
       if target->LogicUtils.isNonEmptyString {
         onDecisionEngineRedirect(target, historyData.id)
       } else {
-        // Non-Decision-Engine kinds fall back to the native page, gated by the same access check
-        // the table's getShowLink uses.
+        // Non-Decision-Engine kinds fall back to the native page — same URL builder and access
+        // check the table's getShowLink uses, so the two can't drift.
         let link = GroupAccessUtils.linkForGetShowLinkViaAccess(
           ~authorization,
-          ~url=GlobalVars.appendDashboardPath(
-            ~url=`/routing/${routingType->routingTypeName}?id=${historyData.id}${activeRoutingIds->Array.includes(
-                historyData.id,
-              )
-                ? "&isActive=true"
-                : ""}`,
+          ~url=historyRecordNativeUrl(
+            ~kind=historyData.kind,
+            ~id=historyData.id,
+            ~activeRoutingIds,
           ),
         )
         if link->LogicUtils.isNonEmptyString {
