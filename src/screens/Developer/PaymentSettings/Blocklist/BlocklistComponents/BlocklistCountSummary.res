@@ -17,7 +17,7 @@ let make = () => {
     let url = getURL(
       ~entityName=V1(BLOCKLIST_COUNT),
       ~methodType=Get,
-      ~queryParameters=Some(dataKind->blocklistCountQuery),
+      ~queryParameters=Some(`data_kind=${dataKind->blocklistDataKindToQueryParam}`),
     )
     let response = await fetchDetails(url)
     response->getBlocklistCountFromResponse
@@ -46,7 +46,7 @@ let make = () => {
   let countCards = {
     let binCards =
       cardBinCount.counts_by_length->Array.map(((length, count)) => (
-        `${length->blocklistCountLengthLabel} BINs`,
+        `${length->Int.toString}-digit BINs`,
         count,
       ))
     let binCards = binCards->isEmptyArray ? [("Card BINs", cardBinCount.total_count)] : binCards

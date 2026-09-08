@@ -18,7 +18,7 @@ let make = () => {
       let url = getURL(
         ~entityName=V1(BLOCKLIST_LOOKUP),
         ~methodType=Get,
-        ~queryParameters=Some(data->String.trim->blocklistLookupQuery),
+        ~queryParameters=Some(`data=${data->String.trim->encodeURIComponent}`),
       )
       let response = await fetchDetails(url)
       setLookupResult(_ => Some(response->getBlocklistLookupFromResponse))
@@ -89,8 +89,8 @@ let make = () => {
               {lookup.data->React.string}
             </span>
             <TagBinding
-              text={lookup->getBlocklistLookupResultMessage}
-              color={lookup->getBlocklistLookupResultColor}
+              text={lookup.blocked ? "Blocked" : "Not blocked"}
+              color={lookup.blocked ? Error : Success}
               variant=Subtle
               shape=Squarical
               size=Sm

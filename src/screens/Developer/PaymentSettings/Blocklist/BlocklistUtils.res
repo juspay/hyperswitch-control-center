@@ -296,13 +296,7 @@ let blocklistDataKindToQueryParam = dataKind => {
   }
 }
 
-let blocklistCountQuery = dataKind => `data_kind=${dataKind->blocklistDataKindToQueryParam}`
-
-let blocklistLookupQuery = data => `data=${data->encodeURIComponent}`
-
 let formatBlocklistCount = count => count->DateTimeUtils.toLocaleStringWithLocale("en-US")
-
-let blocklistCountLengthLabel = length => `${length->Int.toString}-digit`
 
 let defaultBlocklistCount: BlocklistTypes.blocklistCount = {total_count: 0, counts_by_length: []}
 
@@ -331,9 +325,3 @@ let getBlocklistLookupFromResponse = json => {
     blocked: dict->getBool("blocked", false),
   }
 }
-
-let getBlocklistLookupResultMessage = (lookup: BlocklistTypes.blocklistLookup) =>
-  lookup.blocked ? "Blocked" : "Not blocked"
-
-let getBlocklistLookupResultColor = (lookup: BlocklistTypes.blocklistLookup): TagBinding.tagColor =>
-  lookup.blocked ? Error : Success
