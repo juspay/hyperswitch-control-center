@@ -140,7 +140,8 @@ module EmailSettings = {
         ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
       ).values->LogicUtils.getDictFromJsonObject
 
-    let emailFromForm = ThemePreviewUtils.getEmailFormValues(~formValues)
+    let productName = WhitelabelUtils.useProductName()
+    let emailFromForm = ThemePreviewUtils.getEmailFormValues(~formValues, ~productName)
 
     let labelClass = `${body.md.medium} text-nd_gray-700`
 

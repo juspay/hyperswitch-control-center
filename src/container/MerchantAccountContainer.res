@@ -20,6 +20,9 @@ let make = (~setAppScreenState) => {
     }}
     <RenderIf
       condition={!featureFlagDetails.isLiveMode &&
+      // The survey asks Hyperswitch specific questions (SaaS vs self-host vs resell),
+      // so it has no meaning on a branded deployment
+      !featureFlagDetails.branding &&
       // TODO: Remove `MerchantDetailsManage` permission in future
       hasAnyGroupAccess(
         userHasAccess(~groupAccess=MerchantDetailsManage),

@@ -5,6 +5,7 @@ let make = () => {
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
   let {isCurrentMerchantPlatform, isCurrentOrganizationPlatform} = OMPSwitchHooks.useOMPType()
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let showHyperswitchResources = WhitelabelUtils.useShowHyperswitchResources()
 
   let redirectToDocs = _ => {
     mixpanelEvent(~eventName="api_keys_banner_learn_more")
@@ -33,13 +34,15 @@ let make = () => {
           slot={{slot: <Icon name="nd-toast-warning" size=20 className="text-nd_yellow-500" />}}
           heading={isCurrentMerchantPlatform ? "Platform Merchant Account:" : ""}
           description=bannerText
-          actions={{
-            position: Bottom,
-            primaryAction: {
-              text: "Learn More",
-              onClick: redirectToDocs,
-            },
-          }}
+          actions={showHyperswitchResources
+            ? {
+                position: Bottom,
+                primaryAction: {
+                  text: "Learn More",
+                  onClick: redirectToDocs,
+                },
+              }
+            : {position: Bottom}}
         />
       </div>
     </RenderIf>

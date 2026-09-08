@@ -33,6 +33,8 @@ module HyperSwitchEntryComponent = {
         let dict = urlConfig->getDictFromJsonObject->getDictfromDict("endpoints")
         let superpositionDict =
           urlConfig->getDictFromJsonObject->getDictfromDict("superposition_configs")
+        let whitelabelComplianceDict =
+          urlConfig->getDictFromJsonObject->getDictfromDict("whitelabel_compliance")
         let value: baseConfig = {
           apiBaseUrl: dict->getString("api_url", ""),
           olapPrefix: dict->getString("olap_prefix", ""),
@@ -57,6 +59,7 @@ module HyperSwitchEntryComponent = {
           superpositionConfigs: superpositionDict->isEmptyDict
             ? None
             : Some(superpositionDict->getSuperpositionConfigMapper),
+          whitelabelCompliance: whitelabelComplianceDict->getWhitelabelComplianceMapper,
         }
         DOMUtils.window._env_ = value
         configureFavIcon(value.urlThemeConfig.faviconUrl)->ignore

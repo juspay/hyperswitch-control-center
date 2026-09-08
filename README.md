@@ -184,7 +184,50 @@ The `surcharge` feature flag enables the ability to apply surcharges to payments
 
 ### Branding
 
-Enabling `branding` feature flag enables customization of branding elements like logos, colors.
+Enabling the `branding` feature flag puts the dashboard into whitelabel mode. On top of the
+existing logo/colour customization, it removes every Hyperswitch identity from the UI:
+
+- Product-name copy on the login, signup, invitation and maintenance screens falls back to
+  neutral wording ("Welcome!", "New here?", "The dashboard is under maintenance").
+- Outbound Hyperswitch links are hidden — documentation, blog, Slack, support email, Terms of
+  Service, Privacy Policy and the Juspay footer.
+- The Hyperswitch loader and the sandbox onboarding survey are hidden.
+- Compliance content fails closed (see below).
+
+```toml
+[default.features]
+branding=true
+```
+
+#### Product name
+
+Set `product_name` to have the identity copy use your own name instead of the neutral wording.
+Leaving it empty on a branded deployment keeps the neutral copy; on a hosted deployment
+(`branding=false`) the copy still reads "Hyperswitch".
+
+```toml
+[default.features]
+product_name="Acme Payments"
+```
+
+#### Whitelabel compliance
+
+A whitelabeled deployment is not covered by Hyperswitch's PCI attestation, so with
+`branding=true` the Compliance page and the Apple Pay sample email are hidden by default. They
+reappear only when the deployment supplies its own approved content — **every** field below must
+be set, along with at least one of `dss_certificate_us_url` / `dss_certificate_eu_url`, and the
+existing `compliance_certificate` flag must still be enabled. A partially filled block keeps the
+compliance UI hidden.
+
+```toml
+[default.whitelabel_compliance]
+apple_pay_instructions="Approved Stripe instructions"
+apple_pay_request_template="Approved request template"
+support_email="payments@example.com"
+certificate_title="Acme Payments PCI Attestation of Compliance"
+```
+
+Have product/legal approve any merchant-provided compliance claims before enabling this.
 
 ---
 

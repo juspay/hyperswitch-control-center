@@ -163,7 +163,7 @@ let make = () => {
       <div className="flex flex-col w-1/2 px-10 ">
         <PageUtils.PageHeading
           title="Authenticate Processor"
-          subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely."
+          subTitle="Configure your credentials from your processor dashboard. Credentials are encrypted and stored securely."
           customSubTitleStyle="font-500 font-normal text-nd_gray-700"
         />
         <PageLoaderWrapper screenState>

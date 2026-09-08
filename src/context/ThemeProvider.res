@@ -66,9 +66,14 @@ let fallbackThemeConfig: HyperSwitchConfigTypes.customStylesTheme = {
   },
 }
 
-let defaultEmailConfig: emailConfig = {
-  entity_name: "Hyperswitch",
-  entity_logo_url: "https://app.hyperswitch.io/email-assets/HyperswitchLogo.png",
+/* `productName` is None on a branded deployment that has not configured its own name -
+ in that case the email defaults carry no Hyperswitch identity at all. */
+let getDefaultEmailConfig = (~productName): emailConfig => {
+  entity_name: productName->Option.getOr(""),
+  entity_logo_url: switch productName {
+  | Some("Hyperswitch") => "https://app.hyperswitch.io/email-assets/HyperswitchLogo.png"
+  | _ => Window.env.urlThemeConfig.logoUrl->Option.getOr("")
+  },
   primary_color: "#006DF9",
   foreground_color: "#111326",
   background_color: "#FFFFFF",

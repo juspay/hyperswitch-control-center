@@ -7,6 +7,7 @@ let make = () => {
     JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let showHyperswitchResources = WhitelabelUtils.useShowHyperswitchResources()
 
   let getMerchantDetails = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -50,19 +51,21 @@ let make = () => {
               <div className="break-all text-md text-base text-grey-700 font-semibold">
                 {"Publishable Key"->React.string}
               </div>
-              <div className="ml-1 mt-0.5 h-5 w-5">
-                <ToolTip
-                  description="Visit Dev Docs"
-                  toolTipFor={<div
-                    className="cursor-pointer"
-                    onClick={_ => {
-                      "https://hyperswitch.io/docs"->Window._open
-                    }}>
-                    <Icon name="open_arrow" size=12 />
-                  </div>}
-                  toolTipPosition=ToolTip.Top
-                />
-              </div>
+              <RenderIf condition={showHyperswitchResources}>
+                <div className="ml-1 mt-0.5 h-5 w-5">
+                  <ToolTip
+                    description="Visit Dev Docs"
+                    toolTipFor={<div
+                      className="cursor-pointer"
+                      onClick={_ => {
+                        "https://hyperswitch.io/docs"->Window._open
+                      }}>
+                      <Icon name="open_arrow" size=12 />
+                    </div>}
+                    toolTipPosition=ToolTip.Top
+                  />
+                </div>
+              </RenderIf>
             </div>
             <HelperComponents.CopyTextCustomComp
               displayValue={Some(merchantInfo.publishable_key)}

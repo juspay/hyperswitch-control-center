@@ -2,6 +2,7 @@
 let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
   open HSwitchUtils
   open LogicUtils
+  open CommonAuthTypes
 
   let textHeadingClass = getTextClass((H2, Optional))
   let textSubHeadingClass = getTextClass((P1, Regular))
@@ -13,17 +14,28 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
     ->getDictFromJsonObject
     ->getBool("is_active", false)
   }, [merchantData])
+  let (logoVariant, iconUrl) = switch Window.env.urlThemeConfig.logoUrl {
+  | Some(url) => (IconWithURL, Some(url))
+  | _ => (IconWithText, None)
+  }
+  let productName = WhitelabelUtils.useProductName()
+  let welcomeText = switch productName {
+  | Some(name) => `Hey there, welcome to ${name}!`
+  | None => "Hey there, welcome!"
+  }
+  let invitedByText = switch productName {
+  | Some(name) => `You've been invited to the ${name} dashboard by `
+  | None => "You've been invited to the dashboard by "
+  }
 
   <BackgroundImageWrapper>
     <div className="h-full w-full flex flex-col gap-4 items-center justify-center p-6">
       <div className="bg-white h-35-rem w-200 rounded-2xl">
         <div className="p-6 border-b-2">
-          <img alt="logo-with-text" src={`assets/Light/juspayHyperswitchLogoIconWithText.svg`} />
+          <HyperSwitchLogo logoHeight="h-6" logoVariant iconUrl />
         </div>
         <div className="p-6 flex flex-col gap-2">
-          <p className={`${textHeadingClass} text-grey-900`}>
-            {"Hey there, welcome to Hyperswitch!"->React.string}
-          </p>
+          <p className={`${textHeadingClass} text-grey-900`}> {welcomeText->React.string} </p>
           <p className=textSubHeadingClass>
             {"Please accept your pending invitations"->React.string}
           </p>
@@ -41,7 +53,7 @@ let make = (~merchantData, ~acceptInviteOnClick, ~onClickLoginToDashboard) => {
               <div className="flex items-center gap-5">
                 <Icon size=40 name="group-users" />
                 <div>
-                  {`You've been invited to the Hyperswitch dashboard by `->React.string}
+                  {invitedByText->React.string}
                   <span className="font-bold">
                     {{merchantName->String.length > 0 ? merchantName : merchantId}->React.string}
                   </span>

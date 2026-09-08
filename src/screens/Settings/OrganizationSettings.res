@@ -21,6 +21,7 @@ let make = () => {
   let (showInfoModal, setShowInfoModal) = React.useState(_ => false)
   let (isUnderEdit, setIsUnderEdit) = React.useState(_ => false)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let showHyperswitchResources = WhitelabelUtils.useShowHyperswitchResources()
 
   let getOrgList = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -85,23 +86,25 @@ let make = () => {
     ) === Access && checkUserEntity([#Organization])
 
   let contactUsBanner =
-    <AlertV2Binding
-      alertType=Primary
-      slot={{
-        slot: <div className="flex items-center gap-2">
-          <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />
-          <p className={body.md.regular}>
-            {"Contact us for further assistance on "->React.string}
-            <a
-              href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
-              className="text-nd_primary_blue-450 hover:underline cursor-pointer"
-              target="_blank">
-              {"Slack"->React.string}
-            </a>
-          </p>
-        </div>,
-      }}
-    />
+    <RenderIf condition={showHyperswitchResources}>
+      <AlertV2Binding
+        alertType=Primary
+        slot={{
+          slot: <div className="flex items-center gap-2">
+            <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />
+            <p className={body.md.regular}>
+              {"Contact us for further assistance on "->React.string}
+              <a
+                href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
+                className="text-nd_primary_blue-450 hover:underline cursor-pointer"
+                target="_blank">
+                {"Slack"->React.string}
+              </a>
+            </p>
+          </div>,
+        }}
+      />
+    </RenderIf>
 
   <PageLoaderWrapper screenState>
     <PageUtils.PageHeading

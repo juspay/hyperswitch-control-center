@@ -54,8 +54,25 @@ module SampleEmail = {
 
     let (isTextVisible, setIsTextVisible) = React.useState(_ => false)
 
+    /* This block is a copy-paste email asserting a PCI DSS attestation. A branded
+       deployment cannot claim Hyperswitch's, so it renders only with its own approved
+       wording - otherwise the whole block is hidden. */
+    let isComplianceContentAllowed = WhitelabelUtils.useIsComplianceContentAllowed()
+    let approvedConfig = WhitelabelUtils.getApprovedComplianceConfig()
+
     let businessDescription = "<One sentence about your business>. The business operates across <XX> countries and has customers across the world."
-    let featureReqText = "We are using Hyperswitch, a Level 1 PCI DSS 3.2.1 compliant Payments Orchestrator, to manage payments on our website. In addition to Stripe, since we are using other processors as well to process payments across multiple geographies, we wanted to use Hyperswitch's Payment Processing certificate to decrypt Apple pay tokens and send the decrypted Apple pay tokens to Stripe. So, please enable processing decrypted Apple pay token feature on our Stripe account. We've attached Hyperswitch's PCI DSS AoC for reference."
+    let defaultFeatureReqText = "We are using Hyperswitch, a Level 1 PCI DSS 3.2.1 compliant Payments Orchestrator, to manage payments on our website. In addition to Stripe, since we are using other processors as well to process payments across multiple geographies, we wanted to use Hyperswitch's Payment Processing certificate to decrypt Apple pay tokens and send the decrypted Apple pay tokens to Stripe. So, please enable processing decrypted Apple pay token feature on our Stripe account. We've attached Hyperswitch's PCI DSS AoC for reference."
+    let defaultInstructionsText = "Since the Apple Pay Web Domain flow involves decryption at Hyperswitch, you would need to write to Stripe support (support@stripe.com) to get this feature enabled for your Stripe account. You can use the following text in the email, attach our"
+    let defaultSupportEmail = "biz@hyperswitch.io"
+
+    let (featureReqText, instructionsText, supportEmail) = switch approvedConfig {
+    | Some({applePayRequestTemplate, applePayInstructions, supportEmail}) => (
+        applePayRequestTemplate,
+        applePayInstructions,
+        supportEmail,
+      )
+    | None => (defaultFeatureReqText, defaultInstructionsText, defaultSupportEmail)
+    }
 
     let emailContent = `Stripe Account id: <Enter your account id>
 
@@ -79,51 +96,53 @@ module SampleEmail = {
         </p>
       </p>
 
-    <div className="flex flex-col">
-      <span className="mt-2 text-base  font-normal">
-        <span className="text-hyperswitch_black opacity-50">
-          {"Since the Apple Pay Web Domain flow involves decryption at Hyperswitch, you would need to write to Stripe support (support@stripe.com) to get this feature enabled for your Stripe account. You can use the following text in the email, attach our"->React.string}
+    <RenderIf condition={isComplianceContentAllowed}>
+      <div className="flex flex-col">
+        <span className="mt-2 text-base  font-normal">
+          <span className="text-hyperswitch_black opacity-50">
+            {instructionsText->React.string}
+          </span>
+          <Link
+            to_={`/compliance`}
+            openInNewTab=false
+            className="text-blue-600 underline underline-offset-2 px-2 !opacity-100">
+            {"PCI DSS AoC certificate"->React.string}
+          </Link>
+          <span className="text-hyperswitch_black opacity-50">
+            {`and copy our Support team (${supportEmail}):`->React.string}
+          </span>
         </span>
-        <Link
-          to_={`/compliance`}
-          openInNewTab=false
-          className="text-blue-600 underline underline-offset-2 px-2 !opacity-100">
-          {"PCI DSS AoC certificate"->React.string}
-        </Link>
-        <span className="text-hyperswitch_black opacity-50">
-          {"and copy our Support team (biz@hyperswitch.io):"->React.string}
-        </span>
-      </span>
-      <div className="border border-gray-400 rounded-md flex flex-row gap-8 p-4 mt-4 bg-gray-200">
-        <div className="flex flex-col gap-4 ">
-          <span>
-            {"Stripe Account id: <Enter your account id:you can find it "->React.string}
-            <a
-              className="underline text-blue-400 underline-offset-1"
-              href="https://dashboard.stripe.com/settings/user">
-              {"here"->React.string}
-            </a>
-            <span> {">"->React.string} </span>
-          </span>
-          <span>
-            <p> {"A detailed business description:"->React.string} </p>
-            {businessDescription->React.string}
-          </span>
-          <span>
-            <p> {"Feature Request:"->React.string} </p>
-            {isTextVisible ? truncatedText->React.string : truncatedTextElement}
-          </span>
+        <div className="border border-gray-400 rounded-md flex flex-row gap-8 p-4 mt-4 bg-gray-200">
+          <div className="flex flex-col gap-4 ">
+            <span>
+              {"Stripe Account id: <Enter your account id:you can find it "->React.string}
+              <a
+                className="underline text-blue-400 underline-offset-1"
+                href="https://dashboard.stripe.com/settings/user">
+                {"here"->React.string}
+              </a>
+              <span> {">"->React.string} </span>
+            </span>
+            <span>
+              <p> {"A detailed business description:"->React.string} </p>
+              {businessDescription->React.string}
+            </span>
+            <span>
+              <p> {"Feature Request:"->React.string} </p>
+              {isTextVisible ? truncatedText->React.string : truncatedTextElement}
+            </span>
+          </div>
+          <Icon
+            name="nd-copy"
+            className="cursor-pointer h-fit w-fit"
+            onClick={_ => {
+              Clipboard.writeText(emailContent)
+              showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
+            }}
+          />
         </div>
-        <Icon
-          name="nd-copy"
-          className="cursor-pointer h-fit w-fit"
-          onClick={_ => {
-            Clipboard.writeText(emailContent)
-            showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
-          }}
-        />
       </div>
-    </div>
+    </RenderIf>
   }
 }
 

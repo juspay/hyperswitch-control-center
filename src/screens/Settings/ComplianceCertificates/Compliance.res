@@ -25,7 +25,18 @@ let make = () => {
 
   let usCertificateUrl = Window.env.dssCertificateUsUrl->Option.getOr("")
   let euCertificateUrl = Window.env.dssCertificateEuUrl->Option.getOr("")
-  let hasCertificates = usCertificateUrl->isNonEmptyString || euCertificateUrl->isNonEmptyString
+
+  /* A branded deployment is not covered by Hyperswitch's attestation, so it may only show
+   compliance certificates it has configured itself - otherwise nothing is shown at all. */
+  let isComplianceContentAllowed = WhitelabelUtils.useIsComplianceContentAllowed()
+  let certificateTitle = switch WhitelabelUtils.getApprovedComplianceConfig() {
+  | Some({certificateTitle}) => certificateTitle
+  | None => "Hyperswitch's PCI Attestation of Compliance"
+  }
+
+  let hasCertificates =
+    isComplianceContentAllowed &&
+    (usCertificateUrl->isNonEmptyString || euCertificateUrl->isNonEmptyString)
 
   <div className="flex flex-col gap-12">
     <PageUtils.PageHeading
@@ -35,14 +46,12 @@ let make = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
         <RenderIf condition={usCertificateUrl->isNonEmptyString}>
           <DownloadCertificateTile
-            header="Hyperswitch's PCI Attestation of Compliance (US)"
-            onClick={_ => usCertificateUrl->Window._open}
+            header={`${certificateTitle} (US)`} onClick={_ => usCertificateUrl->Window._open}
           />
         </RenderIf>
         <RenderIf condition={euCertificateUrl->isNonEmptyString}>
           <DownloadCertificateTile
-            header="Hyperswitch's PCI Attestation of Compliance (EU)"
-            onClick={_ => euCertificateUrl->Window._open}
+            header={`${certificateTitle} (EU)`} onClick={_ => euCertificateUrl->Window._open}
           />
         </RenderIf>
       </div>

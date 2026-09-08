@@ -5,6 +5,7 @@ module CantFindProcessor = {
   let make = (~showRequestConnectorBtn) => {
     let isOrchestrationVault = Recoil.useRecoilValueFromAtom(HyperswitchAtom.orchestrationVaultAtom)
     let mixpanelEvent = MixpanelHook.useSendEvent()
+    let showHyperswitchResources = WhitelabelUtils.useShowHyperswitchResources()
     let handleClick = () => {
       mixpanelEvent(
         ~eventName=VaultHomeUtils.getVaultMixpanelEventName(
@@ -14,7 +15,7 @@ module CantFindProcessor = {
       )
       "https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"->Window._open
     }
-    <RenderIf condition={showRequestConnectorBtn}>
+    <RenderIf condition={showRequestConnectorBtn && showHyperswitchResources}>
       <div
         className="flex flex-row items-center gap-2 text-primary cursor-pointer font-semibold"
         onClick={_ => handleClick()}>
