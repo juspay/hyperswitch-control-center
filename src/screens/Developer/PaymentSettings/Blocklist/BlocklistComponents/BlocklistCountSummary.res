@@ -41,21 +41,21 @@ let make = () => {
     None
   }, [profileId])
 
-  let blocklistCountsData = {
+  let blocklistCountsData: array<blocklistCountCard> = {
     let binCounts =
       counts.cardBin.counts_by_length->isEmptyArray
-        ? [("Card BINs", counts.cardBin.total_count)]
-        : counts.cardBin.counts_by_length->Array.map(((length, count)) => (
-            `${length->Int.toString}-digit BINs`,
+        ? [{title: "Card BINs", count: counts.cardBin.total_count}]
+        : counts.cardBin.counts_by_length->Array.map(((length, count)) => {
+            title: `${length->Int.toString}-digit BINs`,
             count,
-          ))
-    binCounts->Array.concat([("Fingerprints", counts.fingerprint.total_count)])
+          })
+    binCounts->Array.concat([{title: "Fingerprints", count: counts.fingerprint.total_count}])
   }
 
   <div className="max-w-3xl">
     <div className="flex flex-col sm:flex-row gap-4">
       {blocklistCountsData
-      ->Array.mapWithIndex(((title, count), index) =>
+      ->Array.mapWithIndex(({title, count}, index) =>
         <div key={index->Int.toString} className="flex-1 min-w-0">
           <PageLoaderWrapper
             screenState

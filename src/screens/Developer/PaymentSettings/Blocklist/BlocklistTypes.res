@@ -52,6 +52,11 @@ type blocklistCounts = {
   fingerprint: blocklistCount,
 }
 
+type blocklistCountCard = {
+  title: string,
+  count: int,
+}
+
 type blocklistLookup = {
   data: string,
   blocked: bool,
