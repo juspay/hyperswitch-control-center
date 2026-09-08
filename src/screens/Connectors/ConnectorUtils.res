@@ -42,6 +42,7 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(TRUSTLY),
   PayoutProcessor(SANTANDER),
   PayoutProcessor(DEUTSCHEBANK),
+  PayoutProcessor(GOTYME),
 ]
 
 let payoutConnectorListForLive: array<connectorTypes> = [
@@ -935,6 +936,10 @@ let absaInfo = {
   description: "Absa Bank is a leading African financial services provider offering a wide range of banking and payment solutions.",
 }
 
+let gotymeInfo = {
+  description: "GoTyme enables fast, secure, real-time payouts to customers and businesses across South Africa through PayShap, with immediate processing and payment status updates.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ABSA => "absa_sanlam"
@@ -1079,6 +1084,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | TRUSTLY => "trustly"
   | SANTANDER => "santander"
   | DEUTSCHEBANK => "deutschebank"
+  | GOTYME => "gotyme_sanlam"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -1296,6 +1302,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "trustly" => PayoutProcessor(TRUSTLY)
     | "santander" => PayoutProcessor(SANTANDER)
     | "deutschebank" => PayoutProcessor(DEUTSCHEBANK)
+    | "gotyme_sanlam" => PayoutProcessor(GOTYME)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -1490,6 +1497,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | TRUSTLY => trustlyInfo
   | SANTANDER => santanderInfo
   | DEUTSCHEBANK => deutscheBankInfo
+  | GOTYME => gotymeInfo
   }
 }
 
@@ -2493,6 +2501,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | TRUSTLY => "Trustly"
   | SANTANDER => "Santander"
   | DEUTSCHEBANK => "Deutsche Bank"
+  | GOTYME => "GoTyme"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>

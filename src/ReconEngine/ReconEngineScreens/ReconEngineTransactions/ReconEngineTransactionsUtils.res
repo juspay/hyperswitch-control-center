@@ -156,7 +156,7 @@ let getCurrencyOptionsFromAccounts = (
   })
 }
 
-let entriesDisplayFilters = (~currencyOptions) => {
+let entriesDisplayFilters = (~currencyOptions, ~transformationConfigOptions) => {
   let entryTypeOptions: array<FilterSelectBox.dropdownOption> = [
     {label: "Credit", value: "credit"},
     {label: "Debit", value: "debit"},
@@ -230,6 +230,26 @@ let entriesDisplayFilters = (~currencyOptions) => {
         localFilter: Some((_, _) => []->Array.map(Nullable.make)),
       }: EntityType.initialFilters<'t>
     ),
+    (
+      {
+        field: FormRenderer.makeFieldInfo(
+          ~label="transformation_config_ids",
+          ~name="transformation_config_ids",
+          ~customInput=InputFields.filterMultiSelectInput(
+            ~options=transformationConfigOptions,
+            ~buttonText="Select Transformation",
+            ~showSelectionAsChips=false,
+            ~searchable=true,
+            ~showToolTip=true,
+            ~showNameAsToolTip=true,
+            ~customButtonStyle="bg-none",
+            ~fixedDropDownDirection=BottomRight,
+            (),
+          ),
+        ),
+        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
+      }: EntityType.initialFilters<'t>
+    ),
   ]
 }
 
@@ -263,6 +283,10 @@ let buildEntriesListBody = (
   filtersDict->setOptionArray(
     "currency",
     getSelectedValues("currency")->Array.map(JSON.Encode.string)->getNonEmptyArray,
+  )
+  filtersDict->setOptionArray(
+    "transformation_config_ids",
+    getSelectedValues("transformation_config_ids")->Array.map(JSON.Encode.string)->getNonEmptyArray,
   )
 
   switch getSelectedValues("entry_type") {

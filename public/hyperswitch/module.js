@@ -269,6 +269,46 @@ function getMerchantCategoryCodeWithName() {
   }
 }
 
+function getCardTypeValues() {
+  if (wasm) {
+    return wasm.getCardTypeValues();
+  } else {
+    return [];
+  }
+}
+
+function getCardSubtypeValues() {
+  if (wasm) {
+    return wasm.getCardSubtypeValues();
+  } else {
+    return [];
+  }
+}
+
+function getTwoLetterCountryCode() {
+  if (wasm) {
+    return wasm.getTwoLetterCountryCode();
+  } else {
+    return [];
+  }
+}
+
+function getFundingSourceValues() {
+  if (wasm) {
+    return wasm.getFundingSourceValues();
+  } else {
+    return [];
+  }
+}
+
+function getCardSegmentTypeValues() {
+  if (wasm) {
+    return wasm.getCardSegmentTypeValues();
+  } else {
+    return [];
+  }
+}
+
 const getAccessibleColor = (hex) => {
   let color = hex.replace(/#/g, "");
   // if shorthand notation is passed in

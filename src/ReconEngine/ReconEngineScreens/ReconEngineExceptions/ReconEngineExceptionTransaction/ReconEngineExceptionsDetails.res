@@ -63,6 +63,14 @@ let make = (~id) => {
     None
   }, [])
 
+  let auditTrailAccountIds = React.useMemo(() => {
+    allExceptionDetails
+    ->Array.flatMap(transaction =>
+      transaction.entries->Array.map(entry => entry.account.account_id)
+    )
+    ->getUniqueArray
+  }, [allExceptionDetails])
+
   let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
     [
@@ -77,10 +85,13 @@ let make = (~id) => {
       },
       {
         title: "Audit Trail",
-        renderContent: () => <AuditTrail allTransactionDetails={allExceptionDetails} />,
+        renderContent: () =>
+          <AuditTrail
+            allTransactionDetails={allExceptionDetails} accountIds=auditTrailAccountIds accountsData
+          />,
       },
     ]
-  }, (allExceptionDetails, entriesList, accountsData))
+  }, (allExceptionDetails, entriesList, accountsData, auditTrailAccountIds))
 
   <div>
     <div className="flex flex-col gap-4 mb-6">

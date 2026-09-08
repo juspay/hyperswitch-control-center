@@ -7,6 +7,8 @@ let make = (
   ~accountsData: array<ReconEngineTypes.accountType>,
   ~transformationNameMap: Dict.t<string>,
   ~currencyOptions: array<FilterSelectBox.dropdownOption>,
+  ~transformationConfigOptions: array<FilterSelectBox.dropdownOption>,
+  ~entriesDetailFields=EntriesTableEntity.transactionEntriesDetailFields,
 ) => {
   open LogicUtils
   open EntriesTableEntity
@@ -67,7 +69,7 @@ let make = (
       <div className="flex flex-row -ml-1.5">
         <DynamicFilter
           title={`ReconEngineTransactionEntriesFilters-${accountId}`}
-          initialFilters={entriesDisplayFilters(~currencyOptions)}
+          initialFilters={entriesDisplayFilters(~currencyOptions, ~transformationConfigOptions)}
           options=[]
           popupFilterFields=[]
           initialFixedFilters=[]
@@ -120,7 +122,7 @@ let make = (
     let sections = getEntriesSections(
       ~groupedEntries,
       ~accountInfoMap,
-      ~detailsFields=transactionEntriesDetailFields,
+      ~detailsFields=entriesDetailFields,
       ~showTotalAmount=false,
     )
     let accountIds = groupedEntries->Dict.keysToArray
@@ -145,7 +147,7 @@ let make = (
         <div className="flex flex-col">
           <ReconEngineCustomExpandableSelectionTable
             title=""
-            heading={transactionEntriesDetailFields->Array.map(getHeading)}
+            heading={entriesDetailFields->Array.map(getHeading)}
             getSectionRowDetails=sectionDetails
             showScrollBar=true
             showOptions=false
