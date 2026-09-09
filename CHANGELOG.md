@@ -3,6 +3,30 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.08.0
+
+### Features
+
+- Group merchant switcher dropdown by product type ([#5425](https://github.com/juspay/hyperswitch-control-center/pull/5425)) ([`a76dc7f`](https://github.com/juspay/hyperswitch-control-center/commit/a76dc7fe097004d94dcd6a25e4e9437c1f2ff28c))
+
+### Bug Fixes
+
+- Correct dashboard health readiness endpoint ([#5499](https://github.com/juspay/hyperswitch-control-center/pull/5499)) ([`0d7fa4f`](https://github.com/juspay/hyperswitch-control-center/commit/0d7fa4f2bbe1701f79ab91517413bfd2ff677cb9))
+
+**Full Changelog:** [`2026.09.07.0...2026.09.08.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.07.0...2026.09.08.0)
+
+- - -
+
+## 2026.09.07.0
+
+### Miscellaneous Tasks
+
+- Raise the stated recon report row limit to 100,000 ([#5504](https://github.com/juspay/hyperswitch-control-center/pull/5504)) ([`9d8ad76`](https://github.com/juspay/hyperswitch-control-center/commit/9d8ad76b318ab49b202d37db1e78f300f8787d50))
+
+**Full Changelog:** [`2026.09.04.0...2026.09.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.04.0...2026.09.07.0)
+
+- - -
+
 ## 2026.09.04.0
 
 ### Features
