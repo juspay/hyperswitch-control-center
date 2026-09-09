@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.09.0
+
+### Features
+
+- Add count and lookup api support in blocklist ([#5509](https://github.com/juspay/hyperswitch-control-center/pull/5509)) ([`e371cd4`](https://github.com/juspay/hyperswitch-control-center/commit/e371cd451988c8b410eb9f4b5d4b04a05ab06cf8))
+
+**Full Changelog:** [`2026.09.08.0...2026.09.09.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.08.0...2026.09.09.0)
+
+- - -
+
 ## 2026.09.08.0
 
 ### Features
