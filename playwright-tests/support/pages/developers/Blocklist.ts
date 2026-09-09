@@ -12,12 +12,7 @@ export class Blocklist {
   }
 
   get pageHeading(): Locator {
-    return this.page
-      .getByText(
-        "Upload blocklist CSV files and track batch processing status.",
-      )
-      .locator("..")
-      .getByText("Blocklist", { exact: true });
+    return this.page.getByText("Blocklist", { exact: true });
   }
 
   get uploadCsvHeading(): Locator {
