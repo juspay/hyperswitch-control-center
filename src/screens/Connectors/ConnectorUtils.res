@@ -1868,6 +1868,13 @@ let checkAuthKeyMapRequiredFields = (connector: connectorTypes, fieldName) => {
   }
 }
 
+let checkIsPemField = (connector: connectorTypes, fieldName: string) => {
+  switch (connector, fieldName) {
+  | (PayoutProcessor(DEUTSCHEBANK), "api_secret" | "key2") => true
+  | _ => false
+  }
+}
+
 let getAuthKeyMapFromConnectorAccountFields = connectorAccountFields => {
   let authKeyMap =
     connectorAccountFields
