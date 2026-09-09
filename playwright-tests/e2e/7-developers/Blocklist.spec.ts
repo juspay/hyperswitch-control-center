@@ -116,7 +116,7 @@ test.describe("Blocklist", () => {
     }
 
     expect(Buffer.concat(chunks).toString()).toBe(
-      "type,data,metadata\ncard_bin,411111,source=fraud_team;reason=chargeback\nextended_card_bin,41111100,\nfingerprint,fp_abc123,",
+      "type,data,metadata\ngeneric_card_bin,411111,source=fraud_team;reason=chargeback\ngeneric_card_bin,4111111100,\nfingerprint,fp_abc123,",
     );
   });
 

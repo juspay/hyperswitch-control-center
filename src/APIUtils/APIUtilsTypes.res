@@ -96,6 +96,8 @@ type entityName =
   | PAYMENTS_LIST
   | BLOCKLIST_BATCH
   | BLOCKLIST
+  | BLOCKLIST_COUNT
+  | BLOCKLIST_LOOKUP
 
 type v2entityNameType =
   | CUSTOMERS
