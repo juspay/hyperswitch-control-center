@@ -7,11 +7,9 @@ module GlobalDateFilterBanner = {
 
     let description = switch businessProfile {
     | Some(profile) =>
-      switch profile.timezone {
-      | "" => dateRangeDescription
-      | timezone =>
-        `${dateRangeDescription} Timestamps are displayed in your profile timezone (${timezone}).`
-      }
+      profile.timezone->LogicUtils.isNonEmptyString
+        ? `${dateRangeDescription} Timestamps are displayed in your profile timezone (${profile.timezone}).`
+        : dateRangeDescription
     | None => dateRangeDescription
     }
 
