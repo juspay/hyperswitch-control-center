@@ -6,6 +6,7 @@ import { HomePage } from "../../support/pages/homepage/HomePage";
 import { Blocklist } from "../../support/pages/developers/Blocklist";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
+const RESULTS_PER_PAGE = 10;
 
 const setBlocklistFeatureFlag = async (page: Page, enabled: boolean) => {
   await page.route("**/dashboard/config/feature*", async (route) => {
@@ -16,6 +17,20 @@ const setBlocklistFeatureFlag = async (page: Page, enabled: boolean) => {
     }
     await route.fulfill({ response, json });
   });
+};
+
+const openBlocklistTab = async (page: Page) => {
+  const homePage = new HomePage(page);
+  const blocklist = new Blocklist(page);
+
+  await homePage.developer.click();
+  await homePage.paymentSettings.click();
+  await expect(page).toHaveURL(/.*dashboard\/payment-settings/);
+
+  await expect(blocklist.tab).toBeVisible();
+  await blocklist.tab.click();
+
+  return blocklist;
 };
 
 const makeBlocklistJob = (jobId: string) => ({
@@ -33,6 +48,12 @@ const makeBlocklistJobs = (count: number) =>
   Array.from({ length: count }, (_, index) =>
     makeBlocklistJob(`blkbatch_${String(index + 1).padStart(2, "0")}`),
   );
+
+const makeBlocklistCsvWithDataRows = (rowCount: number) =>
+  `type,data,metadata\n${Array.from(
+    { length: rowCount },
+    () => "card_bin,411111,",
+  ).join("\n")}`;
 
 test.describe("Blocklist", () => {
   test.beforeEach(async ({ page }) => {
@@ -53,14 +74,8 @@ test.describe("Blocklist", () => {
       });
     });
 
-    const homePage = new HomePage(page);
-    const blocklist = new Blocklist(page);
+    const blocklist = await openBlocklistTab(page);
 
-    await homePage.developer.click();
-    await expect(homePage.blocklist).toBeVisible();
-    await homePage.blocklist.click();
-
-    await expect(page).toHaveURL(/.*dashboard\/blocklist/);
     await expect(blocklist.pageHeading).toBeVisible();
     await expect(blocklist.uploadCsvHeading).toBeVisible();
     await expect(blocklist.uploadFileText).toBeVisible();
@@ -68,7 +83,7 @@ test.describe("Blocklist", () => {
     await expect(blocklist.downloadSampleFileButton).toBeVisible();
     await expect(blocklist.chooseFileButton).toHaveCount(1);
     await expect(blocklist.chooseFileButton).toBeVisible();
-    await expect(blocklist.emptyState).toBeVisible();
+    await expect(blocklist.jobsTable).toBeHidden();
     await expect(page.getByText("CSV sample format")).toBeHidden();
     await expect(page.getByText("type,data,metadata")).toBeHidden();
   });
@@ -84,11 +99,7 @@ test.describe("Blocklist", () => {
       });
     });
 
-    const homePage = new HomePage(page);
-    const blocklist = new Blocklist(page);
-
-    await homePage.developer.click();
-    await homePage.blocklist.click();
+    const blocklist = await openBlocklistTab(page);
 
     const [download] = await Promise.all([
       page.waitForEvent("download"),
@@ -105,7 +116,7 @@ test.describe("Blocklist", () => {
     }
 
     expect(Buffer.concat(chunks).toString()).toBe(
-      "type,data,metadata\ncard_bin,411111,source=fraud_team;reason=chargeback\nextended_card_bin,41111100,\nfingerprint,fp_abc123,",
+      "type,data,metadata\ngeneric_card_bin,411111,source=fraud_team;reason=chargeback\ngeneric_card_bin,4111111100,\nfingerprint,fp_abc123,",
     );
   });
 
@@ -154,11 +165,7 @@ test.describe("Blocklist", () => {
       }
     });
 
-    const homePage = new HomePage(page);
-    const blocklist = new Blocklist(page);
-
-    await homePage.developer.click();
-    await homePage.blocklist.click();
+    const blocklist = await openBlocklistTab(page);
 
     await blocklist.fileInput.setInputFiles({
       name: "blocklist.csv",
@@ -199,12 +206,13 @@ test.describe("Blocklist", () => {
     page,
   }) => {
     let secondPageRequestUrl = "";
+    const secondPageOffset = String(RESULTS_PER_PAGE);
 
     await page.route("**/blocklist/batch?**", async (route) => {
       const requestUrl = new URL(route.request().url());
       const offset = requestUrl.searchParams.get("offset");
 
-      if (offset === "20") {
+      if (offset === secondPageOffset) {
         secondPageRequestUrl = route.request().url();
       }
 
@@ -213,25 +221,22 @@ test.describe("Blocklist", () => {
         contentType: "application/json",
         body: JSON.stringify({
           data:
-            offset === "20"
-              ? [makeBlocklistJob("blkbatch_21")]
-              : makeBlocklistJobs(20),
-          total_count: 21,
+            offset === secondPageOffset
+              ? [makeBlocklistJob("blkbatch_11")]
+              : makeBlocklistJobs(RESULTS_PER_PAGE),
+          total_count: RESULTS_PER_PAGE + 1,
         }),
       });
     });
 
-    const homePage = new HomePage(page);
-
-    await homePage.developer.click();
-    await homePage.blocklist.click();
+    await openBlocklistTab(page);
     await expect(page.getByText("blkbatch_01")).toBeVisible();
 
     await page.getByRole("button", { name: "2", exact: true }).click();
 
-    await expect(page.getByText("blkbatch_21")).toBeVisible();
-    expect(secondPageRequestUrl).toContain("limit=20");
-    expect(secondPageRequestUrl).toContain("offset=20");
+    await expect(page.getByText("blkbatch_11")).toBeVisible();
+    expect(secondPageRequestUrl).toContain(`limit=${RESULTS_PER_PAGE}`);
+    expect(secondPageRequestUrl).toContain(`offset=${secondPageOffset}`);
   });
 
   test("should show upload error when CSV upload fails", async ({ page }) => {
@@ -255,11 +260,7 @@ test.describe("Blocklist", () => {
       }
     });
 
-    const homePage = new HomePage(page);
-    const blocklist = new Blocklist(page);
-
-    await homePage.developer.click();
-    await homePage.blocklist.click();
+    const blocklist = await openBlocklistTab(page);
 
     await blocklist.fileInput.setInputFiles({
       name: "blocklist.csv",
@@ -283,11 +284,7 @@ test.describe("Blocklist", () => {
       });
     });
 
-    const homePage = new HomePage(page);
-    const blocklist = new Blocklist(page);
-
-    await homePage.developer.click();
-    await homePage.blocklist.click();
+    const blocklist = await openBlocklistTab(page);
 
     await blocklist.fileInput.setInputFiles({
       name: "blocklist.csv",
@@ -311,11 +308,7 @@ test.describe("Blocklist", () => {
       });
     });
 
-    const homePage = new HomePage(page);
-    const blocklist = new Blocklist(page);
-
-    await homePage.developer.click();
-    await homePage.blocklist.click();
+    const blocklist = await openBlocklistTab(page);
 
     await blocklist.fileInput.setInputFiles({
       name: "blocklist.csv",
@@ -351,11 +344,7 @@ test.describe("Blocklist", () => {
       });
     });
 
-    const homePage = new HomePage(page);
-    const blocklist = new Blocklist(page);
-
-    await homePage.developer.click();
-    await homePage.blocklist.click();
+    const blocklist = await openBlocklistTab(page);
 
     await blocklist.fileInput.setInputFiles({
       name: "blocklist.csv",
@@ -364,13 +353,83 @@ test.describe("Blocklist", () => {
     });
 
     await expect(
-      page.getByText("CSV file size should be less than 5 MB."),
+      page.getByText("CSV files larger than 5 MB cannot be processed."),
     ).toBeVisible();
+  });
+
+  test("should reject an empty CSV file", async ({ page }) => {
+    await page.route("**/blocklist/batch?**", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ data: [], total_count: 0 }),
+      });
+    });
+
+    const blocklist = await openBlocklistTab(page);
+
+    await blocklist.fileInput.setInputFiles({
+      name: "blocklist.csv",
+      mimeType: "text/csv",
+      buffer: Buffer.from(""),
+    });
+
+    await expect(
+      page.getByText("CSV file must contain at least one data row."),
+    ).toBeVisible();
+    await expect(blocklist.uploadButton).toBeHidden();
+  });
+
+  test("should accept a CSV file with exactly 100,000 rows", async ({
+    page,
+  }) => {
+    await page.route("**/blocklist/batch?**", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ data: [], total_count: 0 }),
+      });
+    });
+
+    const blocklist = await openBlocklistTab(page);
+
+    await blocklist.fileInput.setInputFiles({
+      name: "blocklist.csv",
+      mimeType: "text/csv",
+      buffer: Buffer.from(makeBlocklistCsvWithDataRows(100_000)),
+    });
+
+    await expect(blocklist.uploadButton).toBeVisible();
+  });
+
+  test("should reject a CSV file with 100,001 rows", async ({ page }) => {
+    await page.route("**/blocklist/batch?**", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ data: [], total_count: 0 }),
+      });
+    });
+
+    const blocklist = await openBlocklistTab(page);
+
+    await blocklist.fileInput.setInputFiles({
+      name: "blocklist.csv",
+      mimeType: "text/csv",
+      buffer: Buffer.from(makeBlocklistCsvWithDataRows(100_001)),
+    });
+
+    await expect(
+      page.getByText(
+        "CSV files with more than 100,000 rows cannot be processed.",
+      ),
+    ).toBeVisible();
+    await expect(blocklist.uploadButton).toBeHidden();
   });
 });
 
 test.describe("Blocklist feature flag", () => {
-  test("should hide sidebar link and block direct route when feature flag is off", async ({
+  test("should hide the blocklist content when feature flag is off", async ({
     page,
   }) => {
     const email = generateUniqueEmail();
@@ -382,9 +441,16 @@ test.describe("Blocklist feature flag", () => {
     const blocklist = new Blocklist(page);
 
     await homePage.developer.click();
-    await expect(homePage.blocklist).toBeHidden();
+    await homePage.paymentSettings.click();
+    await expect(page).toHaveURL(/.*dashboard\/payment-settings/);
 
-    await page.goto("/dashboard/blocklist");
+    await expect(blocklist.tab).toBeVisible();
+    await blocklist.tab.click();
+
+    await expect(
+      page.getByText("Payment Method Blocking", { exact: true }),
+    ).toBeVisible();
     await expect(blocklist.pageHeading).toBeHidden();
+    await expect(blocklist.uploadCsvHeading).toBeHidden();
   });
 });

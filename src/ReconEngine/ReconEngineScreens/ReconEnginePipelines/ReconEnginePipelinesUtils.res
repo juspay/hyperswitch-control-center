@@ -368,6 +368,8 @@ let describeStringTransformationRule = (rule: stringTransformationRule): string 
   | StrJsonExtract(pointer) => `JSON extract (${pointer})`
   | StrRegex({pattern, group}) =>
     `Regex (${pattern}${group->mapOptionOrDefault("", g => `, group ${g->Int.toString}`)})`
+  | StrReplaceChar({fromChar, toChar, mode}) =>
+    `Replace "${fromChar}" with "${toChar->Option.getOr("")}" (${mode->describeReplaceMode})`
   | UnknownStringTransformationRule => "Unknown rule"
   }
 
@@ -421,6 +423,8 @@ let describeDateTimeTransformationRule = (rule: dateTimeTransformationRule): str
   switch rule {
   | DateTimeTrim => "Trim"
   | DateTimeJsonExtract(pointer) => `JSON extract (${pointer})`
+  | DateTimeRegex({pattern, group}) =>
+    `Regex (${pattern}${group->mapOptionOrDefault("", g => `, group ${g->Int.toString}`)})`
   | UnknownDateTimeTransformationRule => "Unknown rule"
   }
 

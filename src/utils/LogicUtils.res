@@ -482,6 +482,15 @@ let stringReplaceAll = (str, old, new) => {
   str->String.split(old)->Array.joinWith(new)
 }
 
+let getNormalizedPemValue = value =>
+  value
+  ->stringReplaceAll("\\r\\n", "\n")
+  ->stringReplaceAll("\\n", "\n")
+  ->String.split("\n")
+  ->Array.map(String.trim)
+  ->Array.joinWith("\n")
+  ->String.trim
+
 let getUniqueArray = (arr: array<'t>) => {
   arr->Array.map(item => (item, ""))->Dict.fromArray->Dict.keysToArray
 }

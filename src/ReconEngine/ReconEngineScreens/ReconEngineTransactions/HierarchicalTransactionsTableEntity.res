@@ -44,9 +44,27 @@ let allColumns: array<hierarchicalColType> = [
   CreditAmount,
 ]
 
+let mandatoryColumns: array<hierarchicalColType> = [Flow, Date, TransactionId, Status]
+
+let isEntryLevelColumn = (colType: hierarchicalColType) =>
+  switch colType {
+  | EntryId | OrderId | Account | EntryStatus | Currency | DebitAmount | CreditAmount => true
+  | Flow | Date | TransactionId | Status => false
+  }
+
+let getCustomSeparation = (visibleColumns: array<hierarchicalColType>) =>
+  visibleColumns
+  ->Array.mapWithIndex((colType, index) =>
+    !isEntryLevelColumn(colType) &&
+    visibleColumns->Array.get(index + 1)->Option.mapOr(false, isEntryLevelColumn)
+      ? Some((index, index + 1))
+      : None
+  )
+  ->Array.keepSome
+
 let getHeading = (colType: hierarchicalColType) => {
   switch colType {
-  | Flow => makeHeaderInfo(~key="flow", ~title="", ~customWidth="!w-28")
+  | Flow => makeHeaderInfo(~key="flow", ~title="Flow", ~customWidth="!w-28")
   | Date => makeHeaderInfo(~key="date", ~title="Date", ~customWidth="!w-24", ~showSort=true)
   | TransactionId => makeHeaderInfo(~key="transaction_id", ~title="Transaction ID")
   | Status => makeHeaderInfo(~key="status", ~title="Status")
@@ -144,6 +162,10 @@ let getCell = (
           </React.Fragment>
         })
         ->React.array}
+        <HierarchicalMoreEntriesRenderer
+          hasMoreEntries=transaction.has_more_entries
+          text={`Only ${transaction.entries->Array.length->Int.toString} entries shown`}
+        />
       </div>
     CustomCell(entryIdContent, "")
   | OrderId =>
@@ -167,6 +189,7 @@ let getCell = (
           </React.Fragment>
         })
         ->React.array}
+        <HierarchicalMoreEntriesRenderer hasMoreEntries=transaction.has_more_entries />
       </div>
     CustomCell(orderIdContent, "")
   | Account =>
@@ -177,6 +200,7 @@ let getCell = (
           <HierarchicalEntryRenderer fieldValue=entry.account.account_name key={entry.entry_id} />
         })
         ->React.array}
+        <HierarchicalMoreEntriesRenderer hasMoreEntries=transaction.has_more_entries />
       </div>
     CustomCell(accountContent, "")
   | EntryStatus =>
@@ -189,6 +213,7 @@ let getCell = (
           />
         })
         ->React.array}
+        <HierarchicalMoreEntriesRenderer hasMoreEntries=transaction.has_more_entries />
       </div>
     CustomCell(entryStatusContent, "")
   | Currency =>
@@ -199,6 +224,7 @@ let getCell = (
           <HierarchicalEntryRenderer fieldValue=entry.amount.currency key={entry.entry_id} />
         })
         ->React.array}
+        <HierarchicalMoreEntriesRenderer hasMoreEntries=transaction.has_more_entries />
       </div>
     CustomCell(currencyContent, "")
   | DebitAmount =>
@@ -213,6 +239,7 @@ let getCell = (
           <HierarchicalEntryRenderer fieldValue=amount key={entry.entry_id} />
         })
         ->React.array}
+        <HierarchicalMoreEntriesRenderer hasMoreEntries=transaction.has_more_entries />
       </div>
     CustomCell(debitAmountContent, "")
   | CreditAmount =>
@@ -227,6 +254,7 @@ let getCell = (
           <HierarchicalEntryRenderer fieldValue=amount key={entry.entry_id} />
         })
         ->React.array}
+        <HierarchicalMoreEntriesRenderer hasMoreEntries=transaction.has_more_entries />
       </div>
     CustomCell(creditAmountContent, "")
   }

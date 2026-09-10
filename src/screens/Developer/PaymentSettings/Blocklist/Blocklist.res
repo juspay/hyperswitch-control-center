@@ -1,4 +1,3 @@
-open BlocklistTypes
 open BlocklistUtils
 open FormDataUtils
 open LogicUtils
@@ -10,10 +9,12 @@ let make = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod(~showErrorToast=false)
   let updateDetails = useUpdateMethod(~showErrorToast=false)
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let showToast = ToastAdapter.useShowToast()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let resultsPerPage = 20
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let resultsPerPage = 10
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->getValueFromDict("Blocklist", defaultValue)
@@ -24,11 +25,18 @@ let make = () => {
   let (selectedFile, setSelectedFile) = React.useState(_ => None)
   let (uploadButtonState, setUploadButtonState) = React.useState(_ => Button.Normal)
   let inputRef = React.useRef(Nullable.null)
+  let fileSelectionTokenRef = React.useRef(0)
 
   let clearFileInput = () => {
     inputRef.current
     ->getOptionalFromNullable
     ->Option.forEach(elem => elem->DOMUtils.toInputElement->DOMUtils.setInputValue(""))
+  }
+
+  let rejectFile = message => {
+    clearFileInput()
+    setSelectedFile(_ => None)
+    showToast(~message, ~toastType=ToastError)
   }
 
   let fetchJobs = async () => {
@@ -79,28 +87,44 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    fetchJobs()->ignore
+    if featureFlagDetails.devBlocklist {
+      fetchJobs()->ignore
+    }
     None
-  }, [offset])
+  }, (offset, profileId))
+
+  let validateFileContents = (~file, ~selectionToken, event) => {
+    if fileSelectionTokenRef.current === selectionToken {
+      let fileContents = ReactEvent.Form.target(event)["result"]
+      switch fileContents->getBlocklistCsvDataRowCountError {
+      | Some(errorMessage) => rejectFile(errorMessage)
+      | None => setSelectedFile(_ => Some(file))
+      }
+    }
+  }
+
+  let readFileContents = (~file, ~selectionToken) => {
+    let fileReader = FileReader.reader
+    fileReader.onload = event => validateFileContents(~file, ~selectionToken, event)
+    fileReader.onerror = _ => {
+      if fileSelectionTokenRef.current === selectionToken {
+        rejectFile("Unable to read the CSV file.")
+      }
+    }
+    fileReader->FileReader.readFileAsText(file)
+  }
 
   let handleFileChange = ev => {
+    fileSelectionTokenRef.current = fileSelectionTokenRef.current + 1
+    let selectionToken = fileSelectionTokenRef.current
     let files = ReactEvent.Form.target(ev)["files"]
     switch files[0] {
-    | Some(file) =>
-      if file->isValidBlocklistCsvFile {
-        if file->isBlocklistCsvFileSizeAllowed {
-          setSelectedFile(_ => Some(file))
-        } else {
-          clearFileInput()
-          setSelectedFile(_ => None)
-          showToast(~message="CSV file size should be less than 5 MB.", ~toastType=ToastError)
-        }
-      } else {
-        clearFileInput()
-        setSelectedFile(_ => None)
-        showToast(~message="Please upload a valid CSV file.", ~toastType=ToastError)
-      }
     | None => setSelectedFile(_ => None)
+    | Some(file) =>
+      switch file->getBlocklistCsvFileError {
+      | Some(errorMessage) => rejectFile(errorMessage)
+      | None => readFileContents(~file, ~selectionToken)
+      }
     }
   }
 
@@ -109,6 +133,7 @@ let make = () => {
   }
 
   let resetSelectedFile = _ => {
+    fileSelectionTokenRef.current = fileSelectionTokenRef.current + 1
     setSelectedFile(_ => None)
     clearFileInput()
   }
@@ -149,12 +174,10 @@ let make = () => {
         offset === 0 ? await fetchJobs() : setOffset(_ => 0)
       } catch {
       | Exn.Error(e) =>
-        let rawErrorMessage = Exn.message(e)->Option.getOr("Failed to upload blocklist CSV")
-        let errorDict = rawErrorMessage->safeParse->getDictFromJsonObject
         let errorMessage =
-          errorDict
-          ->getObj("error", errorDict)
-          ->getString("message", rawErrorMessage)
+          Exn.message(e)
+          ->Option.getOr("Failed to upload blocklist CSV")
+          ->parseBlocklistErrorMessage
         showToast(~message=errorMessage, ~toastType=ToastError)
       }
       setUploadButtonState(_ => Button.Normal)
@@ -169,15 +192,35 @@ let make = () => {
     uploadFile()->ignore
   }
 
-  let emptyState = <NoDataFound message="No blocklist batch uploads found" renderType=Painting />
-
   <>
-    <PageUtils.PageHeading
-      title="Blocklist" subTitle="Upload blocklist CSV files and track batch processing status."
-    />
-    <div className="flex flex-col gap-6">
-      <div className="max-w-3xl">
-        <section className="border border-nd_gray-200 rounded-lg bg-white p-5 flex flex-col gap-4">
+    <PaymentMethodBlocking />
+    <RenderIf condition={featureFlagDetails.devBlocklist}>
+      <hr className="my-8 border-nd_gray-150" />
+      <PageUtils.PageHeading
+        title="Blocklist"
+        customTitleStyle={`!${body.lg.semibold} text-nd_gray-700`}
+        customSubTitleStyle={`${body.md.medium} text-nd_gray-500`}
+        showPermLink=false
+      />
+      <div className="flex flex-col gap-6">
+        <BlocklistCountSummary />
+        <BlocklistLookupCard />
+        <BlocklistEntryCard
+          operation=AddBlocklistEntry
+          title="Add to Blocklist"
+          description="Block a single card BIN or fingerprint."
+          buttonText="Add Entry"
+          eventName="blocklist_add_entry"
+        />
+        <BlocklistEntryCard
+          operation=DeleteBlocklistEntry
+          title="Remove from Blocklist"
+          description="Unblock a single card BIN or fingerprint."
+          buttonText="Remove Entry"
+          eventName="blocklist_delete_entry"
+        />
+        <section
+          className="max-w-3xl border border-nd_gray-200 rounded-lg bg-white p-5 flex flex-col gap-4">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 className={`text-nd_gray-700 ${body.lg.semibold}`}>
@@ -232,10 +275,10 @@ let make = () => {
                 </div>
                 <div className="min-w-0">
                   <p className={`text-nd_gray-700 ${body.md.medium}`}>
-                    {"Upload a CSV file up to 5 MB"->React.string}
+                    {`Upload a CSV file with up to ${maxBlocklistCsvDataRowsLabel} rows and a maximum size of ${maxBlocklistCsvFileSizeLabel}`->React.string}
                   </p>
                   <p className={`text-nd_gray-500 mt-1 ${body.sm.medium}`}>
-                    {"Only .csv files are supported for blocklist batch uploads."->React.string}
+                    {"CSV files above either limit cannot be processed. Only .csv files are supported."->React.string}
                   </p>
                 </div>
               </div>
@@ -255,23 +298,25 @@ let make = () => {
             </div>
           </RenderIf>
         </section>
+        <PageLoaderWrapper screenState sectionHeight="h-60-vh">
+          <RenderIf condition={jobs->isNonEmptyArray}>
+            <LoadedTable
+              title="Blocklist"
+              hideTitle=true
+              actualData={jobs->Array.map(Nullable.make)}
+              totalResults=totalCount
+              resultsPerPage
+              offset
+              setOffset
+              currentFetchCount={jobs->Array.length}
+              entity={BlocklistTableEntity.blocklistEntity(~onRefreshJob=refreshJob)}
+              showSerialNumber=true
+              showAutoScroll=true
+              showResultsPerPageSelector=false
+            />
+          </RenderIf>
+        </PageLoaderWrapper>
       </div>
-      <PageLoaderWrapper screenState sectionHeight="h-60-vh">
-        <LoadedTable
-          title="Blocklist"
-          hideTitle=true
-          actualData={jobs->Array.map(Nullable.make)}
-          totalResults=totalCount
-          resultsPerPage
-          offset
-          setOffset
-          currentFetchCount={jobs->Array.length}
-          entity={BlocklistTableEntity.blocklistEntity(~onRefreshJob=refreshJob)}
-          showSerialNumber=true
-          showAutoScroll=true
-          dataNotFoundComponent=emptyState
-        />
-      </PageLoaderWrapper>
-    </div>
+    </RenderIf>
   </>
 }

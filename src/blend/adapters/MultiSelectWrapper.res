@@ -84,6 +84,7 @@ let make = (
   ~error: bool=false,
   ~errorMessage: option<string>=?,
   ~height: option<int>=?,
+  ~menuFooter: option<React.element>=?,
 ) => {
   let authContext = React.useContext(FormAuthContext.formAuthContext)
   let isDisabled = disabled || authContext === CommonAuthTypes.NoAccess
@@ -165,5 +166,6 @@ let make = (
     ?primaryAction
     ?secondaryAction
     ?selectionTagType
+    ?menuFooter
   />
 }

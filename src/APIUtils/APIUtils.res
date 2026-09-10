@@ -264,6 +264,21 @@ let useGetURL = () => {
         | Post => Default(`blocklist/batch`)
         | _ => Default("")
         }
+      | BLOCKLIST =>
+        switch methodType {
+        | Post | Delete => Default(`blocklist`)
+        | _ => Default("")
+        }
+      | BLOCKLIST_COUNT =>
+        switch (methodType, queryParameters) {
+        | (Get, Some(queryParams)) => Default(`blocklist/count?${queryParams}`)
+        | _ => Default("")
+        }
+      | BLOCKLIST_LOOKUP =>
+        switch (methodType, queryParameters) {
+        | (Get, Some(queryParams)) => Default(`blocklist/lookup?${queryParams}`)
+        | _ => Default("")
+        }
 
       /* MERCHANT ACCOUNT DETAILS (Get and Post) */
       | MERCHANT_ACCOUNT => Default(`accounts/${merchantId}`)
@@ -293,7 +308,7 @@ let useGetURL = () => {
           | None =>
             switch queryParameters {
             | Some(queryParams) => Olap(`customers/list?${queryParams}`)
-            | None => Olap(`customers/list?limit=500`)
+            | None => Olap(`customers/list?limit=100`)
             }
           }
         | _ => Default("")
@@ -305,8 +320,8 @@ let useGetURL = () => {
           | Some(customerId) => Default(`customers/${customerId}`)
           | None =>
             switch queryParameters {
-            | Some(queryParams) => Default(`customers/list_with_count?${queryParams}`)
-            | None => Default(`customers/list_with_count`)
+            | Some(queryParams) => Olap(`customers/list_with_count?${queryParams}`)
+            | None => Olap(`customers/list_with_count`)
             }
           }
         | _ => Default("")
@@ -338,7 +353,7 @@ let useGetURL = () => {
             | #Organization
             | #Merchant
             | #Profile =>
-              Default(`account/${merchantId}/profile/connectors`)
+              Olap(`account/${merchantId}/profile/connectors`)
             }
           }
         | Post | Delete =>
@@ -515,17 +530,17 @@ let useGetURL = () => {
             switch queryParameters {
             | Some(queryParams) =>
               switch transactionEntity {
-              | #Profile => Olap(`disputes/profile/list?${queryParams}&limit=10000`)
+              | #Profile => Olap(`disputes/profile/list?${queryParams}`)
               | #Merchant
               | _ =>
-                Olap(`disputes/list?${queryParams}&limit=10000`)
+                Olap(`disputes/list?${queryParams}`)
               }
             | None =>
               switch transactionEntity {
-              | #Profile => Olap(`disputes/profile/list?limit=10000`)
+              | #Profile => Olap(`disputes/profile/list?limit=100`)
               | #Merchant
               | _ =>
-                Olap(`disputes/list?limit=10000`)
+                Olap(`disputes/list?limit=100`)
               }
             }
           }
@@ -573,7 +588,7 @@ let useGetURL = () => {
           | None =>
             switch transactionEntity {
             | #Merchant => Olap(`payouts/list?limit=100`)
-            | #Profile => Olap(`payouts/profile/list?limit=10000`)
+            | #Profile => Olap(`payouts/profile/list?limit=100`)
             | _ => Olap(`payouts/list?limit=100`)
             }
           }
@@ -1104,6 +1119,11 @@ let useGetURL = () => {
           | Post => Default(`${reconBaseURL}/transactions/v2/list`)
           | _ => Default("")
           }
+        | #PROCESSED_ENTRIES_LIST =>
+          switch methodType {
+          | Post => Default(`${reconBaseURL}/entries/list`)
+          | _ => Default("")
+          }
         | #PROCESSED_ENTRIES_LIST_WITH_ACCOUNT =>
           switch methodType {
           | Get =>
@@ -1160,6 +1180,16 @@ let useGetURL = () => {
             | Some(ruleId) => Default(`${reconBaseURL}/recon_rules/v2/${ruleId}`)
             | None => Default(`${reconBaseURL}/recon_rules/v2`)
             }
+          | _ => Default("")
+          }
+        | #GENERATE_TRANSACTION_REPORT =>
+          switch methodType {
+          | Post => Default(`${reconBaseURL}/report/transactions`)
+          | _ => Default("")
+          }
+        | #GENERATE_EXCEPTION_REPORT =>
+          switch methodType {
+          | Post => Default(`${reconBaseURL}/report/exceptions`)
           | _ => Default("")
           }
         | #INGESTION_HISTORY =>
@@ -1385,6 +1415,11 @@ let useGetURL = () => {
               Default(`${reconBaseURL}/overview/staging_entries?${queryParams}`)
             | None => Default(`${reconBaseURL}/overview/staging_entries`)
             }
+          | _ => Default("")
+          }
+        | #RECON_ENGINE_STATUS =>
+          switch methodType {
+          | Get => Default(`${reconBaseURL}/business_profiles/${profileId}/recon_engine/status`)
           | _ => Default("")
           }
         | #NONE => Default("")
@@ -1689,6 +1724,27 @@ let useHandleLogout = (~eventName="user_sign_out") => {
 
 let sessionExpired = ref(false)
 
+let getApiErrorMetaData = (
+  ~url,
+  ~methodType: Fetch.requestMethod,
+  ~statusClass,
+  ~status,
+  ~xRequestId,
+  ~errorCode,
+  ~errorMessage,
+  ~response,
+) =>
+  [
+    ("url", url->JSON.Encode.string),
+    ("status", status->JSON.Encode.int),
+    ("statusClass", statusClass->JSON.Encode.string),
+    ("method", methodType->methodStr->JSON.Encode.string),
+    ("x-request-id", xRequestId->JSON.Encode.string),
+    ("errorCode", errorCode->JSON.Encode.string),
+    ("errorMessage", errorMessage->JSON.Encode.string),
+    ("response", response),
+  ]->getJsonFromArrayOfJson
+
 let responseHandler = async (
   ~url,
   ~res,
@@ -1705,6 +1761,7 @@ let responseHandler = async (
     ~section: string=?,
     ~metadata: JSON.t=?,
   ) => unit,
+  ~methodType: Fetch.requestMethod,
   ~isEmbeddableSession=false,
 ) => {
   let json = try {
@@ -1714,19 +1771,6 @@ let responseHandler = async (
   }
 
   let responseStatus = res->Fetch.Response.status
-  let responseHeaders = res->Fetch.Response.headers
-
-  if responseStatus >= 500 && responseStatus < 600 {
-    let xRequestId = responseHeaders->Fetch.Headers.get("x-request-id")->Option.getOr("")
-    let metaData =
-      [
-        ("url", url->JSON.Encode.string),
-        ("response", json),
-        ("status", responseStatus->JSON.Encode.int),
-        ("x-request-id", xRequestId->JSON.Encode.string),
-      ]->getJsonFromArrayOfJson
-    sendEvent(~eventName="API Error", ~description=Some(responseStatus), ~metadata=metaData)
-  }
 
   let noAccessControlText = "You do not have the required permissions to access this module. Please contact your admin."
 
@@ -1736,6 +1780,27 @@ let responseHandler = async (
   | _ => {
       let errorDict = json->getDictFromJsonObject->getObj("error", Dict.make())
       let errorStringifiedJson = errorDict->JSON.Encode.object->JSON.stringify
+
+      if responseStatus >= 400 && responseStatus < 600 {
+        let is4xx = responseStatus < 500
+        sendEvent(
+          ~eventName=is4xx ? "API Error 4xx" : "API Error",
+          ~description=Some(responseStatus),
+          ~metadata=getApiErrorMetaData(
+            ~url,
+            ~methodType,
+            ~statusClass=is4xx ? "4xx" : "5xx",
+            ~status=responseStatus,
+            ~xRequestId=res
+            ->Fetch.Response.headers
+            ->Fetch.Headers.get("x-request-id")
+            ->Option.getOr(""),
+            ~errorCode=errorDict->getString("code", ""),
+            ~errorMessage=errorDict->getString("message", ""),
+            ~response=json,
+          ),
+        )
+      }
 
       if isPlayground && responseStatus === 403 {
         popUpCallBack()
@@ -1868,6 +1933,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~popUpCallBack,
         ~handleLogout,
         ~sendEvent,
+        ~methodType=Get,
         ~isEmbeddableSession=isEmbeddableSession(),
       )
     } catch {
@@ -1946,6 +2012,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~popUpCallBack,
         ~handleLogout,
         ~sendEvent,
+        ~methodType=method,
         ~isEmbeddableSession=isEmbeddableSession(),
       )
     } catch {

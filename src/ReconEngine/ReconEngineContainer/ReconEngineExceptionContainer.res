@@ -8,10 +8,7 @@ let make = () => {
       entityName="Exceptions"
       remainingPath
       access=Access
-      renderList={() =>
-        <FilterContext key="recon-engine-exceptions" index="recon-engine-exception">
-          <ReconEngineExceptions />
-        </FilterContext>}
+      renderList={() => <ReconEngineExceptions />}
       renderShow={(id, _) => <ReconEngineExceptionsDetails id />}
     />
   | list{"v1", "recon-engine", "exceptions", "transformed-entries", ...remainingPath} =>

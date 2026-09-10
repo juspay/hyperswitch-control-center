@@ -3698,4 +3698,126 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
       },
     },
   },
+
+  authipay: {
+    label: "authipay",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "authipay_default",
+      },
+      fieldLabels: ["API Key *", "API Secret *", "Source verification key"],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: ["Mastercard", "Visa"],
+      },
+      Debit: {
+        label: "Debit",
+        methods: ["Mastercard", "Visa"],
+      },
+    },
+  },
+
+  citigate: {
+    label: "citigate",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "citigate_default",
+      },
+      fieldLabels: ["Merchant Name *", "Merchant Password *"],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Visa",
+          "Mastercard",
+          "AmericanExpress",
+          "DinersClub",
+          "Maestro",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Visa",
+          "Mastercard",
+          "AmericanExpress",
+          "DinersClub",
+          "Maestro",
+        ],
+      },
+    },
+  },
+
+  ilixium: {
+    label: "ilixium",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "ilixium_default",
+      },
+      fieldLabels: [
+        "Digest Calculation Password *",
+        "Merchant Id *",
+        "Account Id *",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "DinersClub",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "DinersClub",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
+  worldpayraft: {
+    label: "worldpayraft",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "worldpayraft_default",
+      },
+      // BodyKey auth (api_key, key1); no connector_webhook_details, so there
+      // is no "Source verification key" field on this form.
+      fieldLabels: [
+        "Worldpay License *",
+        "Worldpay Merchant ID *",
+        "Connector label *",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: ["Visa", "Mastercard", "AmericanExpress", "DinersClub"],
+      },
+      Debit: {
+        label: "Debit",
+        methods: ["Visa", "Mastercard", "AmericanExpress", "DinersClub"],
+      },
+    },
+  },
 };

@@ -561,6 +561,7 @@ module ProductTypeSectionItem = {
                   isSidebarExpanded
                   setOpenItem
                   onItemClickCustom=handleClick
+                  showIcon=true
                 />
               }
             | LinkWithTag(record) => {
@@ -586,14 +587,15 @@ module ProductTypeSectionItem = {
                   setOpenItem
                   isSectionAutoCollapseEnabled=true
                   onItemClickCustom={Some(handleClick)}
+                  showIcon=true
                 />
               </RenderIf>
             | Heading(headingOptions) =>
-              <div
-                key={Int.toString(index)}
-                className={`${body.sm.medium} text-nd_gray-600 overflow-hidden border-l-2 rounded-lg border-transparent px-3 mx-1 mt-5 mb-3`}>
-                {{isSidebarExpanded ? headingOptions.name : ""}->React.string}
-              </div>
+              <RenderIf condition={isSidebarExpanded} key={Int.toString(index)}>
+                <div className={`px-3 pt-2 text-nd_gray-400 tracking-widest ${body.sm.semibold}`}>
+                  {React.string(headingOptions.name->String.toUpperCase)}
+                </div>
+              </RenderIf>
             | CustomComponent(customComponentOptions) =>
               <RenderIf condition={isSidebarExpanded} key={Int.toString(index)}>
                 customComponentOptions.component
@@ -791,13 +793,12 @@ let make = (
                       />
                     </RenderIf>
                   | Heading(headingOptions) =>
-                    <div
-                      key={Int.toString(index)}
-                      className={`text-nd_gray-600 overflow-hidden border-l-2 rounded-lg border-transparent px-3 ${body.sm.medium} ${isSidebarExpanded
-                          ? "mx-2"
-                          : "mx-1"} mt-5 mb-3`}>
-                      {{isSidebarExpanded ? headingOptions.name : ""}->React.string}
-                    </div>
+                    <RenderIf condition={isSidebarExpanded} key={Int.toString(index)}>
+                      <div
+                        className={`px-3 pt-2 text-nd_gray-400 tracking-widest ${body.sm.semibold}`}>
+                        {React.string(headingOptions.name->String.toUpperCase)}
+                      </div>
+                    </RenderIf>
                   | CustomComponent(customComponentOptions) =>
                     <RenderIf condition={isSidebarExpanded} key={Int.toString(index)}>
                       customComponentOptions.component

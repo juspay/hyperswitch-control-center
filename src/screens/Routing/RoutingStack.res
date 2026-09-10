@@ -27,13 +27,40 @@ let make = (~remainingPath, ~previewOnly=false) => {
     previewOnly ? ("w-full", "mx-auto") : ("w-full", "mx-auto ")
   }, [previewOnly])
 
+  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+
+  let openDecisionEngineRoutingPage = async (target, ruleId) => {
+    open LogicUtils
+    try {
+      let entryUrl = getURL(~entityName=V1(ROUTING), ~methodType=Get, ~id=Some("entry"))
+      let res = await updateDetails(`${entryUrl}?target=${target}`, JSON.Encode.null, Post)
+      let redirectUrl = res->getDictFromJsonObject->getString("redirect_url", "")
+      if redirectUrl->isNonEmptyString {
+        let handoff = connectorList->RoutingUtils.decisionEngineHandoffFragment(~profileId, ~ruleId)
+        `${redirectUrl}${handoff}`->Window._open
+      }
+    } catch {
+    | Exn.Error(_) =>
+      showToast(
+        ~message="Failed to open Decision Engine routing. Please try again.",
+        ~toastType=ToastState.ToastError,
+      )
+    }
+  }
+
   let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
     let hasWorkflowsManageAccess = userHasAccess(~groupAccess=WorkflowsManage) === Access
     let baseTabs = [
       {
         title: "Active configuration",
-        renderContent: () => <ActiveRouting routingType isCutover />,
+        renderContent: () =>
+          <ActiveRouting
+            routingType
+            isCutover
+            onDecisionEngineRedirect={(target, ruleId) =>
+              openDecisionEngineRoutingPage(target, ruleId)->ignore}
+          />,
       },
     ]
     hasWorkflowsManageAccess
@@ -53,7 +80,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
           },
         ])
       : baseTabs
-  }, (routingType, debitRoutingValue, isCutover))
+  }, (routingType, debitRoutingValue, isCutover, connectorList, profileId))
 
   let fetchRoutingRecords = async activeIds => {
     try {
@@ -91,16 +118,19 @@ let make = (~remainingPath, ~previewOnly=false) => {
     }
   }
 
+  let getActiveRoutingList = async () => {
+    let activeRoutingUrl = getURL(~entityName=V1(ACTIVE_ROUTING), ~methodType=Get)
+    let routingJson = await fetchDetails(activeRoutingUrl)
+    routingJson->LogicUtils.getArrayFromJson([])
+  }
+
   let fetchActiveRouting = async () => {
     open LogicUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let activeRoutingUrl = getURL(~entityName=V1(ACTIVE_ROUTING), ~methodType=Get)
-      let routingJson = await fetchDetails(activeRoutingUrl)
+      let routingArr = await getActiveRoutingList()
 
-      let routingArr = routingJson->getArrayFromJson([])
-
-      if routingArr->Array.length > 0 {
+      if routingArr->isNonEmptyArray {
         let currentActiveIds = []
         routingArr->Array.forEach(ele => {
           let id = ele->getDictFromJsonObject->getString("id", "")
@@ -127,6 +157,32 @@ let make = (~remainingPath, ~previewOnly=false) => {
     None
   }, (pathVar, url.search, debitRoutingValue))
 
+  let refreshActiveRouting = async () => {
+    open LogicUtils
+    try {
+      let routingArr = await getActiveRoutingList()
+
+      if routingArr->isNonEmptyArray {
+        setRoutingType(_ => routingArr)
+      } else {
+        let defaultFallback = [("kind", "default"->JSON.Encode.string)]->getJsonFromArrayOfJson
+        setRoutingType(_ => [defaultFallback])
+      }
+    } catch {
+    | Exn.Error(_) => ()
+    }
+  }
+
+  React.useEffect(() => {
+    if isCutover && !previewOnly {
+      let onFocus = _ => refreshActiveRouting()->ignore
+      Window.addEventListener("focus", onFocus)
+      Some(() => Window.removeEventListener("focus", onFocus))
+    } else {
+      None
+    }
+  }, (isCutover, previewOnly, profileId))
+
   let checkRoutingEntry = async () => {
     open LogicUtils
     try {
@@ -136,24 +192,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
       setCutoverStatus(_ => Some(cutover))
     } catch {
     | Exn.Error(_) => setCutoverStatus(_ => Some(false))
-    }
-  }
-
-  let openDecisionEngineRoutingPage = async target => {
-    open LogicUtils
-    try {
-      let entryUrl = getURL(~entityName=V1(ROUTING), ~methodType=Get, ~id=Some("entry"))
-      let res = await updateDetails(`${entryUrl}?target=${target}`, JSON.Encode.null, Post)
-      let redirectUrl = res->getDictFromJsonObject->getString("redirect_url", "")
-      if redirectUrl->isNonEmptyString {
-        redirectUrl->Window._open
-      }
-    } catch {
-    | Exn.Error(_) =>
-      showToast(
-        ~message="Failed to open Decision Engine routing. Please try again.",
-        ~toastType=ToastState.ToastError,
-      )
     }
   }
 
@@ -180,7 +218,8 @@ let make = (~remainingPath, ~previewOnly=false) => {
           types=[AUTH_RATE_ROUTING, ADVANCED, VOLUME_SPLIT, DEFAULTFALLBACK]
           onRedirectBaseUrl="routing"
           isCutover
-          onDecisionEngineRedirect={target => openDecisionEngineRoutingPage(target)->ignore}
+          onDecisionEngineRedirect={(target, ruleId) =>
+            openDecisionEngineRoutingPage(target, ruleId)->ignore}
         />
       </div>
       <RenderIf condition={!previewOnly}>

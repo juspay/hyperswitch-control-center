@@ -1,7 +1,11 @@
 open Typography
 
 @react.component
-let make = (~ruleId: string) => {
+let make = (
+  ~ruleId: string,
+  ~accountData: array<ReconEngineTypes.accountType>,
+  ~reconRulesList: array<ReconEngineRulesTypes.rulePayload>,
+) => {
   open LogicUtils
   open ReconEngineFilterUtils
   open ReconEngineExceptionTransactionUtils
@@ -14,17 +18,13 @@ let make = (~ruleId: string) => {
     ~hyperswitchReconType=#TRANSACTIONS_LIST_V2,
     ~itemMapper=ReconEngineUtils.transactionItemToObjMapper,
   )
-  let getAccounts = ReconEngineHooks.useGetAccounts()
-  let getReconRuleList = ReconEngineHooks.useGetReconRuleList()
-  let showToast = ToastAdapter.useShowToast()
 
-  let (accountData, setAccountData) = React.useState(_ => [])
-  let (reconRulesList, setReconRulesList) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (appliedSearchText, setAppliedSearchText) = React.useState(_ => "")
   let searchTypeRef = React.useRef(SearchTransactionId)
   let (selectedRows, setSelectedRows) = React.useState(_ => [])
+  let visibleColumns = TableAtoms.reconExceptionsHierarchicalCols->Recoil.useRecoilValueFromAtom
   let url = RescriptReactRouter.useUrl()
   let {
     updateExistingKeys,
@@ -43,7 +43,6 @@ let make = (~ruleId: string) => {
   let sortOrder = sortDict->getMappedValueFromDict(title, Desc, getSortOrder)
 
   let exceptionStatusList = getTransactionStatusValueFromStatusList([
-    Expected,
     Missing,
     OverAmount(Mismatch),
     UnderAmount(Mismatch),
@@ -55,22 +54,26 @@ let make = (~ruleId: string) => {
     SplitMismatch,
   ])
 
-  let fetchAccountsAndRules = async () => {
-    try {
-      let accounts = await getAccounts()
-      let rules = await getReconRuleList()
-      setAccountData(_ => accounts)
-      setReconRulesList(_ => rules)
-    } catch {
-    | _ => showToast(~message="Failed to fetch accounts", ~toastType=ToastError)
-    }
-  }
+  let urlStatusList = React.useMemo(() => {
+    url.search->isNonEmptyString
+      ? url.search
+        ->getDictFromUrlSearchParams
+        ->getValueFromDict("status", "")
+        ->String.split(",")
+        ->Array.filter(isNonEmptyString)
+      : []
+  }, [url.search])
+
+  let pendingUrlStatusApplication =
+    urlStatusList->isNonEmptyArray &&
+      filterValueJsonWithGlobalDate->getArrayFromDict("status", [])->isEmptyArray
 
   let enhancedFilterValueJson = {
     let enhanced = Dict.copy(filterValueJsonWithGlobalDate)
     let statusFilter = filterValueJsonWithGlobalDate->getArrayFromDict("status", [])
     if statusFilter->isEmptyArray {
-      enhanced->Dict.set("status", exceptionStatusList->getJsonFromArrayOfString)
+      let fallbackStatusList = urlStatusList->isNonEmptyArray ? urlStatusList : exceptionStatusList
+      enhanced->Dict.set("status", fallbackStatusList->getJsonFromArrayOfString)
     }
     enhanced
   }
@@ -120,15 +123,13 @@ let make = (~ruleId: string) => {
   )
 
   React.useEffect(() => {
-    fetchAccountsAndRules()->ignore
     let urlSearch = url.search
     if urlSearch->isNonEmptyString {
-      let urlParams = urlSearch->getDictFromUrlSearchParams
       let filtersToApply = Dict.make()
-
-      urlParams->getMappedValueFromDict("status", (), value => {
-        let formattedValue = value->String.includes(",") ? `[${value}]` : value
-        filtersToApply->Dict.set("status", formattedValue)
+      urlSearch
+      ->getDictFromUrlSearchParams
+      ->getMappedValueFromDict("status", (), value => {
+        filtersToApply->Dict.set("status", `[${value}]`)
       })
 
       if !(filtersToApply->isEmptyDict) {
@@ -142,11 +143,11 @@ let make = (~ruleId: string) => {
   }, [])
 
   React.useEffect(() => {
-    if hasGlobalDateFilterValue(~globalDateFilters) {
+    if hasGlobalDateFilterValue(~globalDateFilters) && !pendingUrlStatusApplication {
       goToFirstPage()
     }
     None
-  }, (filterValue, sortOrder, globalDateFilters))
+  }, (filterValue, sortOrder, globalDateFilters, pendingUrlStatusApplication))
 
   let urlPathString = url.path->List.toArray->Array.joinWith("/")
 
@@ -195,6 +196,9 @@ let make = (~ruleId: string) => {
         showCustomFilter=false
         refreshFilters=false
       />
+      <PortalCapture
+        key={`${title}CustomizeColumn`} name={`${title}CustomizeColumn`} customStyle="ml-auto mt-4"
+      />
     </div>
   }
 
@@ -226,19 +230,19 @@ let make = (~ruleId: string) => {
         offset
         setOffset
         currentFetchCount={transactions->Array.length}
-        customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
-        defaultColumns
+        customColumnMapper=TableAtoms.reconExceptionsHierarchicalCols
+        defaultColumns=mandatoryColumns
         showSerialNumberInCustomizeColumns=false
         sortingBasedOnDisabled=false
+        isDraggable=true
         remoteSortEnabled=true
         showPagination=false
         showResultsPerPageSelector=false
         tableDataLoading={screenState === PageLoaderWrapper.Loading}
         dataLoading={screenState === PageLoaderWrapper.Loading}
         customizeColumnButtonIcon="nd-filter-horizontal"
-        hideRightTitleElement=true
         showAutoScroll=true
-        customSeparation=[(3, 4)]
+        customSeparation={getCustomSeparation(visibleColumns)}
         dataNotFoundComponent=noExceptionsFoundComponent
         filters={<SearchInput
           inputText=searchText

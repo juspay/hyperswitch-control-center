@@ -96,7 +96,7 @@ let make = (~refreshTrigger=false) => {
     }
 
   <div
-    className="grid xl:grid-cols-4 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-x-4 gap-y-6 mt-6">
+    className="grid xl:grid-cols-4 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-x-4 gap-y-6 mt-10">
     {statCards
     ->Array.mapWithIndex((card, index) => {
       <PageLoaderWrapper

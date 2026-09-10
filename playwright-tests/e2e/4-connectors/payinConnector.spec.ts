@@ -203,15 +203,29 @@ test.describe("Payin Connector tests", () => {
       await route.fulfill({ response, json });
     });
 
+    // `page.reload()` resolves on `load`, before ConnectorList mounts, so
+    // without this the negative assertions pass vacuously against an empty DOM.
+    const configResponse = page.waitForResponse(
+      (resp) => resp.url().includes("/config/feature") && resp.ok(),
+    );
     await page.reload();
+    await configResponse;
+    await page.waitForLoadState("networkidle");
+    await expect(
+      page.getByText(
+        "Connect a test processor and get started with testing your payments",
+      ),
+    ).toBeVisible({ timeout: 15000 });
 
     await expect(
       page
         .getByRole("paragraph")
         .filter({ hasText: "Connect a Dummy Processor" }),
     ).not.toBeAttached();
+    // "Request a Processor" is not asserted here: it is gated on unconfigured
+    // connector count, not live mode, so it stays rendered.
     await expect(
-      page.getByRole("button", { name: "Request a Processor" }).first(),
+      page.getByRole("button", { name: "Connect a Dummy Processor" }),
     ).not.toBeAttached();
   });
 

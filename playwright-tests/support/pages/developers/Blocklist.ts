@@ -7,13 +7,12 @@ export class Blocklist {
     this.page = page;
   }
 
+  get tab(): Locator {
+    return this.page.getByRole("tab", { name: "Block List", exact: true });
+  }
+
   get pageHeading(): Locator {
-    return this.page
-      .getByText(
-        "Upload blocklist CSV files and track batch processing status.",
-      )
-      .locator("..")
-      .getByText("Blocklist", { exact: true });
+    return this.page.getByText("Blocklist", { exact: true });
   }
 
   get uploadCsvHeading(): Locator {
@@ -33,12 +32,14 @@ export class Blocklist {
   }
 
   get uploadFileText(): Locator {
-    return this.page.getByText("Upload a CSV file up to 5 MB");
+    return this.page.getByText(
+      "Upload a CSV file with up to 100,000 rows and a maximum size of 5 MB",
+    );
   }
 
   get supportedFileText(): Locator {
     return this.page.getByText(
-      "Only .csv files are supported for blocklist batch uploads.",
+      "CSV files above either limit cannot be processed. Only .csv files are supported.",
     );
   }
 
@@ -50,8 +51,8 @@ export class Blocklist {
     return this.page.getByRole("button", { name: "Download Sample File" });
   }
 
-  get emptyState(): Locator {
-    return this.page.getByText("No blocklist batch uploads found");
+  get jobsTable(): Locator {
+    return this.page.getByText("Job ID", { exact: true });
   }
 
   toast(message: string): Locator {

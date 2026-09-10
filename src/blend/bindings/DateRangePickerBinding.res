@@ -46,6 +46,7 @@ external make: (
   ~customPresets: array<PresetsConfig.t>=?,
   ~minDate: Date.t=?,
   ~maxDate: Date.t=?,
+  ~maxRangeDays: int=?,
   ~isSingleDatePicker: bool=?,
   ~allowSingleDateSelection: bool=?,
   ~showPresets: bool=?,

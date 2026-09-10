@@ -78,7 +78,7 @@
     "@iarna/toml": "^2.2.5",
     "@juspay-tech/hyper-js": "^2.0.4",
     "@juspay-tech/react-hyper-js": "^1.2.4",
-    "@juspay/blend-design-system": "^0.0.36",
+    "@juspay/blend-design-system": "0.0.37",
     "@monaco-editor/react": "^4.4.5",
     "@rescript/core": "^0.6.0",
     "@rescript/react": "^0.12.0",
@@ -109,5 +109,10 @@
     "rescript-webapi": "0.10.0",
     "superposition-embeddable-ui": "https://github.com/juspay/superposition-embeddable-ui/releases/download/v0.1.5/superposition-embeddable-ui-0.1.5.tgz",
     "tailwindcss": "^3.0.0"
+  },
+  "overrides": {
+    "superposition-embeddable-ui": {
+      "@juspay/blend-design-system": "$@juspay/blend-design-system"
+    }
   }
 }

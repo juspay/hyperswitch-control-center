@@ -1933,8 +1933,11 @@ export async function assertConnectorFieldLabels(
   page: Page,
   fieldLabels: string[],
 ): Promise<void> {
+  // Scoped: generic labels like "Merchant Name" also match the merchant switcher forms.
+  const connectorFields = page.locator(".grid.grid-cols-2");
+
   for (const label of fieldLabels) {
-    const labelElement = page.getByText(label, { exact: true });
+    const labelElement = connectorFields.getByText(label, { exact: true });
     await labelElement.waitFor({ state: "attached", timeout: 10000 });
     await labelElement.scrollIntoViewIfNeeded();
     await expect(labelElement).toBeVisible({
@@ -1955,9 +1958,10 @@ export async function fillConnectorFields(
     overrides?: Record<string, string>;
   },
 ): Promise<void> {
+  // textarea covers the multi-line credential fields, e.g. the deutschebank payout PEM fields
   const inputs = page
     .locator(
-      '.grid.grid-cols-2 input[type="text"], .grid.grid-cols-2 input[type="number"]',
+      '.grid.grid-cols-2 input[type="text"], .grid.grid-cols-2 input[type="number"], .grid.grid-cols-2 textarea',
     )
     .locator("visible=true");
 

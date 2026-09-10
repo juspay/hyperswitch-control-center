@@ -1,5 +1,9 @@
 open DisputeTypes
 open LogicUtils
+
+// Page size for server-side pagination; backend allows limit between 1 and 100
+let disputesFetchLimit = 20
+
 let disputeStatusVariantMapper = status => {
   switch status {
   | "dispute_opened" => DisputeOpened

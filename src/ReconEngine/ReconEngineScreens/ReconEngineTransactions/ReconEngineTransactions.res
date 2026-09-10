@@ -7,11 +7,13 @@ let make = () => {
   open ReconEngineHooks
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let url = RescriptReactRouter.useUrl()
   let basePath = GlobalVars.appendDashboardPath(~url="v1/recon-engine/transactions")
   let (accountData, setAccountData) = React.useState(_ => [])
   let (reconRulesList, setReconRulesList) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (reportModal, setReportModal) = React.useState(_ => false)
   let getAccounts = useGetAccounts()
   let getReconRuleList = useGetReconRuleList()
 
@@ -36,11 +38,12 @@ let make = () => {
     }
   }, (url.search, reconRulesList))
 
+  let selectedRule = reconRulesList->Array.get(initialTabIndex)
+
   let getAccountsData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let accountData = await getAccounts()
-      let reconRulesList = await getReconRuleList()
+      let (accountData, reconRulesList) = await Promise.all2((getAccounts(), getReconRuleList()))
       setAccountData(_ => accountData)
       setReconRulesList(_ => reconRulesList)
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -79,18 +82,29 @@ let make = () => {
       <div className="flex flex-row items-center gap-4">
         <PortalCapture name=ReconEngineFilterUtils.globalDateFilterPortalName customStyle="-mt-1" />
         <div className="flex-shrink-0">
-          <Button
+          <ACLButton
             text="Generate Report"
             buttonType=Primary
             buttonSize=Large
-            buttonState=Disabled
+            authorization={userHasAccess(~groupAccess=ReconTransactionsView)}
+            buttonState={selectedRule->Option.isSome ? Normal : Disabled}
             onClick={_ => {
+              setReportModal(_ => true)
               mixpanelEvent(~eventName="recon_engine_transactions_generate_reports_clicked")
             }}
           />
         </div>
       </div>
     </div>
+    {selectedRule->mapOptionOrDefault(React.null, rule =>
+      <ReconEngineGenerateReportModal
+        showModal=reportModal
+        setShowModal=setReportModal
+        rule
+        hyperswitchReconType=#GENERATE_TRANSACTION_REPORT
+        modalHeading="Generate Transaction Report"
+      />
+    )}
     <ReconEngineHelper.GlobalDateFilterBanner />
     <PageLoaderWrapper screenState>
       <RenderIf condition={reconRulesList->isEmptyArray}>
