@@ -14,7 +14,7 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let resultsPerPage = 20
+  let resultsPerPage = 10
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->getValueFromDict("Blocklist", defaultValue)
@@ -229,9 +229,6 @@ let make = () => {
               <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}>
                 {"Upload a CSV file to create an asynchronous blocklist batch job."->React.string}
               </p>
-              <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}>
-                {"This configuration applies to all profiles in the current merchant account."->React.string}
-              </p>
             </div>
             <Button
               text="Download Sample File"
@@ -315,6 +312,7 @@ let make = () => {
               entity={BlocklistTableEntity.blocklistEntity(~onRefreshJob=refreshJob)}
               showSerialNumber=true
               showAutoScroll=true
+              showResultsPerPageSelector=false
             />
           </RenderIf>
         </PageLoaderWrapper>
