@@ -43,12 +43,6 @@ export class Blocklist {
     );
   }
 
-  get accountWideConfigText(): Locator {
-    return this.page.getByText(
-      "This configuration applies to all profiles in the current merchant account.",
-    );
-  }
-
   get removeSelectedFileButton(): Locator {
     return this.page.locator('[data-icon="trash-alt"]');
   }

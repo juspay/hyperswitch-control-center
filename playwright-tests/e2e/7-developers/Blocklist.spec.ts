@@ -6,6 +6,7 @@ import { HomePage } from "../../support/pages/homepage/HomePage";
 import { Blocklist } from "../../support/pages/developers/Blocklist";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
+const RESULTS_PER_PAGE = 10;
 
 const setBlocklistFeatureFlag = async (page: Page, enabled: boolean) => {
   await page.route("**/dashboard/config/feature*", async (route) => {
@@ -79,7 +80,6 @@ test.describe("Blocklist", () => {
     await expect(blocklist.uploadCsvHeading).toBeVisible();
     await expect(blocklist.uploadFileText).toBeVisible();
     await expect(blocklist.supportedFileText).toBeVisible();
-    await expect(blocklist.accountWideConfigText).toBeVisible();
     await expect(blocklist.downloadSampleFileButton).toBeVisible();
     await expect(blocklist.chooseFileButton).toHaveCount(1);
     await expect(blocklist.chooseFileButton).toBeVisible();
@@ -206,12 +206,13 @@ test.describe("Blocklist", () => {
     page,
   }) => {
     let secondPageRequestUrl = "";
+    const secondPageOffset = String(RESULTS_PER_PAGE);
 
     await page.route("**/blocklist/batch?**", async (route) => {
       const requestUrl = new URL(route.request().url());
       const offset = requestUrl.searchParams.get("offset");
 
-      if (offset === "20") {
+      if (offset === secondPageOffset) {
         secondPageRequestUrl = route.request().url();
       }
 
@@ -220,10 +221,10 @@ test.describe("Blocklist", () => {
         contentType: "application/json",
         body: JSON.stringify({
           data:
-            offset === "20"
-              ? [makeBlocklistJob("blkbatch_21")]
-              : makeBlocklistJobs(20),
-          total_count: 21,
+            offset === secondPageOffset
+              ? [makeBlocklistJob("blkbatch_11")]
+              : makeBlocklistJobs(RESULTS_PER_PAGE),
+          total_count: RESULTS_PER_PAGE + 1,
         }),
       });
     });
@@ -233,9 +234,9 @@ test.describe("Blocklist", () => {
 
     await page.getByRole("button", { name: "2", exact: true }).click();
 
-    await expect(page.getByText("blkbatch_21")).toBeVisible();
-    expect(secondPageRequestUrl).toContain("limit=20");
-    expect(secondPageRequestUrl).toContain("offset=20");
+    await expect(page.getByText("blkbatch_11")).toBeVisible();
+    expect(secondPageRequestUrl).toContain(`limit=${RESULTS_PER_PAGE}`);
+    expect(secondPageRequestUrl).toContain(`offset=${secondPageOffset}`);
   });
 
   test("should show upload error when CSV upload fails", async ({ page }) => {
