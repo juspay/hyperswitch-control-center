@@ -322,15 +322,9 @@ module AccountUpdaterSection = {
           </a>
           {"."->React.string}
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-1">
           <GatewayIcon gateway="VISA" className="h-5" />
           <GatewayIcon gateway="MASTERCARD" className="h-5" />
-          <a
-            href="https://docs.hyperswitch.io/other-features/account-updater"
-            className="text-primary hover:cursor-pointer hover:underline"
-            target="_blank">
-            {"Read the documentation"->React.string}
-          </a>
         </div>
       </div>
     </DesktopRow>
