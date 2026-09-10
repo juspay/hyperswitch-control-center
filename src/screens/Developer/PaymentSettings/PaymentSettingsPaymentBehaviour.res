@@ -286,6 +286,57 @@ module SplitTransactions = {
   }
 }
 
+module AccountUpdaterSection = {
+  @react.component
+  let make = () => {
+    open FormRenderer
+
+    <DesktopRow wrapperClass="!flex-col" itemWrapperClass="mx-1">
+      <div className="w-full flex justify-between items-center pt-8">
+        <p className={`${body.lg.semibold} text-nd_gray-700`}>
+          {"Account Updater"->React.string}
+        </p>
+        <SwitchAdapter
+          isSelected=false
+          setIsSelected={_ => ()}
+          isDisabled=true
+          boolCustomClass="rounded-lg"
+          toggleBorder="border-nd_primary_blue-450"
+          toggleEnableColor="bg-nd_primary_blue-450"
+        />
+      </div>
+      <div className={`${body.md.medium} ml-1 text-nd_gray-400 pb-8 flex flex-col gap-3`}>
+        <div>
+          {"Account Updater keeps stored cards current by fetching the latest card details from the network when a card is reissued, expired or replaced, so recurring payments do not fail. Supported on "->React.string}
+          <span className={`${body.md.semibold} text-nd_gray-600`}> {"Visa"->React.string} </span>
+          {" and "->React.string}
+          <span className={`${body.md.semibold} text-nd_gray-600`}>
+            {"Mastercard"->React.string}
+          </span>
+          {". To enable this feature for your merchant account, please reach out to us on "->React.string}
+          <a
+            href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
+            className="text-primary hover:cursor-pointer hover:underline"
+            target="_blank">
+            {"Slack"->React.string}
+          </a>
+          {"."->React.string}
+        </div>
+        <div className="flex items-center gap-4">
+          <GatewayIcon gateway="VISA" className="h-5" />
+          <GatewayIcon gateway="MASTERCARD" className="h-5" />
+          <a
+            href="https://docs.hyperswitch.io/other-features/account-updater"
+            className="text-primary hover:cursor-pointer hover:underline"
+            target="_blank">
+            {"Read the documentation"->React.string}
+          </a>
+        </div>
+      </div>
+    </DesktopRow>
+  }
+}
+
 @react.component
 let make = () => {
   open FormRenderer
@@ -498,6 +549,8 @@ let make = () => {
           </RenderIf>
         </div>
       </DesktopRow>
+      <hr />
+      <AccountUpdaterSection />
       <hr />
       <RenderIf condition={featureFlagDetails.debitRouting}>
         <MerchantCategoryCode />
