@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.10.1
+
+### Miscellaneous Tasks
+
+- Minor blocklist improvements ([#5521](https://github.com/juspay/hyperswitch-control-center/pull/5521)) ([`67cf0ed`](https://github.com/juspay/hyperswitch-control-center/commit/67cf0ed4b18724b3c6309b24186517eb8ede7122))
+
+**Full Changelog:** [`2026.09.10.0...2026.09.10.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.10.0...2026.09.10.1)
+
+- - -
+
 ## 2026.09.10.0
 
 ### Features
