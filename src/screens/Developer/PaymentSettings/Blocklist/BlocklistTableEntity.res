@@ -1,5 +1,6 @@
 open BlocklistTypes
 open BlocklistUtils
+open BlocklistHelper
 
 let defaultColumns = [
   JobId,
@@ -40,20 +41,17 @@ let getCell = (~onRefreshJob, ~onDownloadExport, job: blocklistBatchJob, colType
   | Actions =>
     Table.CustomCell(
       job->isExportJob && job.status->isTerminalStatus
-        ? <Button
-            text="Download"
-            buttonType=Secondary
-            buttonSize=Small
-            onClick={_ => onDownloadExport(job.job_id)->ignore}
-            buttonState={job.downloadable ? Button.Normal : Button.Disabled}
-            leftIcon={CustomIcon(<Icon name="nd-download-bar-down" size=15 />)}
+        ? <ActionIcon
+            iconName="nd-download-bar-down"
+            description="Download"
+            isDisabled={!job.downloadable}
+            onClick={() => onDownloadExport(job.job_id)->ignore}
           />
-        : <Button
-            text="Refresh"
-            buttonType=Secondary
-            buttonSize=Small
-            onClick={_ => onRefreshJob(job.job_id)->ignore}
-            buttonState={job.status->isTerminalStatus ? Button.Disabled : Button.Normal}
+        : <ActionIcon
+            iconName="sync"
+            description="Refresh"
+            isDisabled={job.status->isTerminalStatus}
+            onClick={() => onRefreshJob(job.job_id)->ignore}
           />,
       "",
     )

@@ -272,7 +272,7 @@ let make = () => {
                 {"Upload CSV"->React.string}
               </h2>
               <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}>
-                {"Upload a CSV file to create an asynchronous blocklist batch job."->React.string}
+                {"Block multiple card BINs or fingerprints at once. Track progress in the jobs table below."->React.string}
               </p>
             </div>
             <Button
