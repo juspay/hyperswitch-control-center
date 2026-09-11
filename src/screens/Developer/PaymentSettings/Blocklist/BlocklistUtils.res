@@ -13,14 +13,39 @@ let maxBlocklistCsvDataRows = 100000
 let bytesPerKilobyte = 1024
 let bytesPerMegabyte = bytesPerKilobyte * 1024
 
+let getBlocklistBatchJobTypeFromString = jobType => {
+  switch jobType->String.toLowerCase {
+  | "upload" => Upload
+  | "export" => Export
+  | _ => UnknownJobType
+  }
+}
+
+let blocklistJobTypeLabel = jobType => {
+  switch jobType {
+  | Upload => "Upload"
+  | Export => "Export"
+  | UnknownJobType => "-"
+  }
+}
+
+let isExportJob = (job: blocklistBatchJob) => {
+  switch job.job_type {
+  | Export => true
+  | Upload | UnknownJobType => false
+  }
+}
+
 let itemToObjMapper = dict => {
   {
     job_id: dict->getString("job_id", ""),
     merchant_id: dict->getString("merchant_id", ""),
+    job_type: dict->getString("job_type", "")->getBlocklistBatchJobTypeFromString,
     status: dict->getString("status", ""),
     total_rows: dict->getInt("total_rows", 0),
     succeeded_rows: dict->getInt("succeeded_rows", 0),
     failed_rows: dict->getInt("failed_rows", 0),
+    downloadable: dict->getBool("downloadable", false),
     created_at: dict->getString("created_at", ""),
     updated_at: dict->getString("updated_at", ""),
   }
