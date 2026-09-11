@@ -369,17 +369,17 @@ module ConditionGroupWrapper = {
 module OutcomeWrapper = {
   @react.component
   let make = (~prefix) => {
-    let url = RescriptReactRouter.useUrl()
-    let connectorType: connectorTypeVariants = switch url->RoutingUtils.urlToVariantMapper {
-    | PayoutRouting => PayoutProcessor
-    | _ => PaymentProcessor
-    }
+    let connectorType = RescriptReactRouter.useUrl()->connectorTypeFromUrl
     let connectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=connectorType)
+    let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
-    let gatewayOptions = connectorList->Array.map((c): SelectBox.dropdownOption => {
-      label: c.disabled ? `${c.connector_label} (disabled)` : c.connector_label,
-      value: c.ConnectorTypes.id,
-    })
+    let gatewayOptions =
+      connectorList
+      ->routingConnectorList(~profileId)
+      ->Array.map((c): SelectBox.dropdownOption => {
+        label: c.disabled ? `${c.connector_label} (disabled)` : c.connector_label,
+        value: c.ConnectorTypes.id,
+      })
 
     let selectionInput = ReactFinalForm.useField(`${prefix}.connectorSelection`).input
     let selection: connectorSelection = selectionInput.value->connectorSelectionFromJson
@@ -499,79 +499,6 @@ module OutcomeWrapper = {
   }
 }
 
-module RuleWrapper = {
-  @react.component
-  let make = (~prefix, ~heading, ~onCopy, ~onRemove) => {
-    let (isExpanded, setIsExpanded) = React.useState(_ => true)
-    let rotateCss = isExpanded ? "" : "-rotate-90"
-    let statementsInput = ReactFinalForm.useField(`${prefix}.statements`).input
-    let statements = statementsInput.value->getArrayFromJson([])
-    let setStatements = arr => {
-      statementsInput.onChange(arr->Identity.arrayOfGenericTypeToFormReactEvent)
-    }
-    let addGroup = () =>
-      setStatements(statements->Array.concat([defaultGroup->Identity.genericTypeToJson]))
-    let removeGroup = index =>
-      setStatements(statements->Array.filterWithIndex((_, i) => i !== index))
-    let lastIndex = statements->Array.length - 1
-
-    <div className="border border-nd_gray-200 rounded-xl my-4 overflow-hidden bg-white">
-      <div className="flex items-center gap-2 bg-nd_gray-50 px-4 py-4 border-b border-nd_gray-200">
-        <Icon name="grip-vertical" size={16} className="text-nd_gray-400 cursor-grab" />
-        <span className={`${body.md.semibold} text-nd_gray-800`}> {heading->React.string} </span>
-        <Icon
-          name="chevron-down"
-          size={16}
-          className={`text-nd_gray-600 cursor-pointer ${rotateCss}`}
-          onClick={_ => setIsExpanded(p => !p)}
-        />
-        <div className="ml-auto flex gap-4">
-          <Icon
-            name="nd-copy"
-            size={16}
-            className="text-nd_gray-500 cursor-pointer"
-            onClick={_ => onCopy()}
-          />
-          <Icon
-            name="trash"
-            size={16}
-            className="text-nd_red-500 cursor-pointer"
-            onClick={_ => onRemove()}
-          />
-        </div>
-      </div>
-      <RenderIf condition=isExpanded>
-        <div className="flex flex-col gap-6 px-4 pt-4 pb-6">
-          <div className="flex flex-col gap-4">
-            <p className={`${body.md.medium} text-nd_gray-600`}>
-              {"If any of these apply"->React.string}
-            </p>
-            <div className="border border-nd_gray-150 rounded-lg bg-white p-4 flex flex-col gap-4">
-              {statements
-              ->Array.mapWithIndex((_, index) => {
-                <ConditionGroupWrapper
-                  key={index->Int.toString}
-                  prefix={`${prefix}.statements[${index->Int.toString}]`}
-                  onAddGroup=addGroup
-                  onRemoveGroup={_ => removeGroup(index)}
-                  groupIndex=index
-                  isLast={lastIndex == index}
-                  isOnlyGroup={statements->Array.length == 1}
-                />
-              })
-              ->React.array}
-            </div>
-          </div>
-          <div className="flex flex-col gap-4">
-            <p className={`${body.lg.medium} text-nd_gray-600`}> {"then...."->React.string} </p>
-            <OutcomeWrapper prefix />
-          </div>
-        </div>
-      </RenderIf>
-    </div>
-  }
-}
-
 module OutcomePreview = {
   @react.component
   let make = (~connectorSelection: JSON.t, ~connectorList) => {
@@ -643,6 +570,36 @@ module ConditionSummaryView = {
   }
 }
 
+module RuleSummaryBody = {
+  @react.component
+  let make = (~statements: array<JSON.t>, ~connectorSelection: JSON.t, ~connectorList) => {
+    <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-2">
+        {statements
+        ->Array.mapWithIndex((stmt, si) => {
+          let conditions = stmt->getDictFromJsonObject->getArrayFromDict("condition", [])
+          <div key={si->Int.toString} className="flex flex-wrap items-center gap-2">
+            <RenderIf condition={si > 0}>
+              <TagBinding text={"OR"} color=Purple variant=Subtle shape=Squarical size=Xs />
+            </RenderIf>
+            <div
+              className="flex flex-wrap items-center gap-2 rounded-lg bg-nd_gray-25 border border-nd_gray-50 px-3 py-2">
+              {conditions
+              ->Array.mapWithIndex((cond, ci) =>
+                <ConditionSummaryView key={ci->Int.toString} cond condIndex=ci />
+              )
+              ->React.array}
+            </div>
+          </div>
+        })
+        ->React.array}
+      </div>
+      <Icon name="arrow-right" size=16 className="text-nd_gray-400 shrink-0" />
+      <OutcomePreview connectorSelection connectorList />
+    </div>
+  }
+}
+
 module RuleSummary = {
   @react.component
   let make = (~rule: JSON.t, ~index, ~connectorList) => {
@@ -656,30 +613,97 @@ module RuleSummary = {
 
     <div className="border border-nd_gray-200 rounded-xl bg-white p-4 flex flex-col gap-3">
       <span className={`${body.md.semibold} text-nd_gray-800`}> {headingText->React.string} </span>
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          {statements
-          ->Array.mapWithIndex((stmt, si) => {
-            let conditions = stmt->getDictFromJsonObject->getArrayFromDict("condition", [])
-            <div key={si->Int.toString} className="flex flex-wrap items-center gap-2">
-              <RenderIf condition={si > 0}>
-                <TagBinding text={"OR"} color=Purple variant=Subtle shape=Squarical size=Xs />
-              </RenderIf>
-              <div
-                className="flex flex-wrap items-center gap-2 rounded-lg bg-nd_gray-25 border border-nd_gray-50 px-3 py-2">
-                {conditions
-                ->Array.mapWithIndex((cond, ci) =>
-                  <ConditionSummaryView key={ci->Int.toString} cond condIndex=ci />
-                )
-                ->React.array}
-              </div>
-            </div>
-          })
-          ->React.array}
+      <RuleSummaryBody statements connectorSelection connectorList />
+    </div>
+  }
+}
+
+module RuleWrapper = {
+  @react.component
+  let make = (~prefix, ~heading, ~onCopy, ~onRemove) => {
+    let showToast = ToastAdapter.useShowToast()
+    let connectorType = RescriptReactRouter.useUrl()->connectorTypeFromUrl
+    let connectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=connectorType)
+    let statementsInput = ReactFinalForm.useField(`${prefix}.statements`).input
+    let statements = statementsInput.value->getArrayFromJson([])
+    let connectorSelection = ReactFinalForm.useField(`${prefix}.connectorSelection`).input.value
+    let validationError = ruleValidationError(~statements, ~connectorSelection)
+    // a rule that is already complete opens collapsed, and cannot be collapsed while incomplete
+    let (isExpanded, setIsExpanded) = React.useState(_ => validationError->Option.isSome)
+    let rotateCss = isExpanded ? "" : "-rotate-90"
+    let setStatements = arr => {
+      statementsInput.onChange(arr->Identity.arrayOfGenericTypeToFormReactEvent)
+    }
+
+    let handleToggleExpand = () =>
+      switch validationError {
+      | Some(message) if isExpanded => showToast(~message, ~toastType=ToastWarning, ~autoClose=true)
+      | _ => setIsExpanded(p => !p)
+      }
+    let addGroup = () =>
+      setStatements(statements->Array.concat([defaultGroup->Identity.genericTypeToJson]))
+    let removeGroup = index =>
+      setStatements(statements->Array.filterWithIndex((_, i) => i !== index))
+    let lastIndex = statements->Array.length - 1
+
+    <div className="border border-nd_gray-200 rounded-xl my-4 overflow-hidden bg-white">
+      <div className="flex items-center gap-2 bg-nd_gray-50 px-4 py-4 border-b border-nd_gray-200">
+        <Icon name="grip-vertical" size={16} className="text-nd_gray-400 cursor-grab" />
+        <span className={`${body.md.semibold} text-nd_gray-800`}> {heading->React.string} </span>
+        <Icon
+          name="chevron-down"
+          size={16}
+          className={`text-nd_gray-600 cursor-pointer ${rotateCss}`}
+          onClick={_ => handleToggleExpand()}
+        />
+        <div className="ml-auto flex gap-4">
+          <Icon
+            name="nd-copy"
+            size={16}
+            className="text-nd_gray-500 cursor-pointer"
+            onClick={_ => onCopy()}
+          />
+          <Icon
+            name="trash"
+            size={16}
+            className="text-nd_red-500 cursor-pointer"
+            onClick={_ => onRemove()}
+          />
         </div>
-        <Icon name="arrow-right" size=16 className="text-nd_gray-400 shrink-0" />
-        <OutcomePreview connectorSelection connectorList />
       </div>
+      <RenderIf condition={!isExpanded}>
+        <div className="px-4 py-4">
+          <RuleSummaryBody statements connectorSelection connectorList />
+        </div>
+      </RenderIf>
+      <RenderIf condition=isExpanded>
+        <div className="flex flex-col gap-6 px-4 pt-4 pb-6">
+          <div className="flex flex-col gap-4">
+            <p className={`${body.md.medium} text-nd_gray-600`}>
+              {"If any of these apply"->React.string}
+            </p>
+            <div className="border border-nd_gray-150 rounded-lg bg-white p-4 flex flex-col gap-4">
+              {statements
+              ->Array.mapWithIndex((_, index) => {
+                <ConditionGroupWrapper
+                  key={index->Int.toString}
+                  prefix={`${prefix}.statements[${index->Int.toString}]`}
+                  onAddGroup=addGroup
+                  onRemoveGroup={_ => removeGroup(index)}
+                  groupIndex=index
+                  isLast={lastIndex == index}
+                  isOnlyGroup={statements->Array.length == 1}
+                />
+              })
+              ->React.array}
+            </div>
+          </div>
+          <div className="flex flex-col gap-4">
+            <p className={`${body.lg.medium} text-nd_gray-600`}> {"then...."->React.string} </p>
+            <OutcomeWrapper prefix />
+          </div>
+        </div>
+      </RenderIf>
     </div>
   }
 }
@@ -687,11 +711,7 @@ module RuleSummary = {
 module PreviewView = {
   @react.component
   let make = (~values: JSON.t) => {
-    let url = RescriptReactRouter.useUrl()
-    let connectorType: connectorTypeVariants = switch url->RoutingUtils.urlToVariantMapper {
-    | PayoutRouting => PayoutProcessor
-    | _ => PaymentProcessor
-    }
+    let connectorType = RescriptReactRouter.useUrl()->connectorTypeFromUrl
     let connectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=connectorType)
 
     let dict = values->getDictFromJsonObject

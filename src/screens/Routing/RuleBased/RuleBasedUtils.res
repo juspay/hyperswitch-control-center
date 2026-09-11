@@ -27,9 +27,9 @@ let defaultOperatorChoice: operatorChoice = {
   valueVariant: EnumOne({value: ""}),
 }
 
-let defaultConfig = (): config => {
-  name: "",
-  description: "",
+let defaultConfig = (~name, ~description): config => {
+  name,
+  description,
   algorithm: {
     \"type": "advanced",
     data: {
@@ -40,7 +40,14 @@ let defaultConfig = (): config => {
   },
 }
 
-let defaultInitialValues = (): JSON.t => defaultConfig()->Identity.genericTypeToJson
+let defaultInitialValues = (~currentDate, ~currentTime): JSON.t =>
+  defaultConfig(
+    ~name=AdvancedRoutingUtils.getRoutingNameString(~routingType=ADVANCED, ~currentDate),
+    ~description=AdvancedRoutingUtils.getRoutingDescriptionString(
+      ~routingType=ADVANCED,
+      ~currentTime,
+    ),
+  )->Identity.genericTypeToJson
 
 let cardBinFieldFromLhs = (lhs: string): option<cardBinField> =>
   switch lhs {
@@ -194,6 +201,25 @@ let operatorLabelForStoredValue = (~lhs: string, ~comparison: string, ~valueType
   )
   ->mapOptionOrDefault((EqualOp :> string)->snakeToTitle, c => c.label)
 
+let connectorTypeFromUrl = (url: RescriptReactRouter.url): ConnectorTypes.connectorTypeVariants =>
+  switch url->RoutingUtils.urlToVariantMapper {
+  | PayoutRouting => PayoutProcessor
+  | _ => PaymentProcessor
+  }
+
+// processors a routing rule may point at: same profile, applepay is never routable, disabled last
+let routingConnectorList = (
+  connectorList: array<ConnectorTypes.connectorPayloadCommonType>,
+  ~profileId,
+) => {
+  let connectors =
+    connectorList->Array.filter(connector =>
+      connector.connector_name !== "applepay" && connector.profile_id === profileId
+    )
+  ConnectorUtils.sortByDisableField(connectors, connector => connector.disabled)
+  connectors
+}
+
 let connectorRefFromId = (connectorList, mcaId): connectorRef => {
   let connectorObj = connectorList->getConnectorObjectFromListViaId(mcaId, ~version=V1)
   {connector: connectorObj.connector_name, merchant_connector_id: mcaId}
@@ -285,6 +311,15 @@ let stringifyStrValueNumber = (conditionDict: Dict.t<JSON.t>) => {
 let normalizeStrValueNumbers = (data: Dict.t<JSON.t>) =>
   data->forEachCondition(stringifyStrValueNumber)
 
+let setRuleNames = (data: Dict.t<JSON.t>) =>
+  data
+  ->getArrayFromDict("rules", [])
+  ->Array.forEachWithIndex((ruleJson, index) =>
+    ruleJson
+    ->getDictFromJsonObject
+    ->Dict.set("name", `rule_${(index + 1)->Int.toString}`->JSON.Encode.string)
+  )
+
 let removeRuleIds = (data: Dict.t<JSON.t>) => {
   let rules =
     data
@@ -306,6 +341,7 @@ let normalizeRulePayload = (json: JSON.t): JSON.t => {
   let data = payload->getDictFromJsonObject->getDictFromNestedDict("algorithm", "data")
   data->ensureMetadataObject
   data->normalizeStrValueNumbers
+  data->setRuleNames
   data->removeRuleIds
   payload
 }
@@ -322,6 +358,14 @@ let ensureRuleIds = (values: JSON.t): JSON.t => {
     }
   })
   values
+}
+
+// BE payloads carry no rule ids and may hold numeric str_values - make them editable
+let normalizeLoadedConfig = (json: JSON.t): JSON.t => {
+  let data = json->getDictFromJsonObject->getDictFromNestedDict("algorithm", "data")
+  data->ensureMetadataObject
+  data->normalizeStrValueNumbers
+  json->ensureRuleIds
 }
 
 let forDuplicate = (values: JSON.t): JSON.t => {
@@ -350,6 +394,28 @@ let removeRule = (~rules: array<JSON.t>, ~setRules, ~id) => {
   setRules(rules->Array.filter(ruleJson => ruleJson->idOfRule !== id))
 }
 
+let isEmptyRule = (ruleJson: JSON.t) => {
+  let ruleDict = ruleJson->getDictFromJsonObject
+  let hasNoProcessor =
+    ruleDict
+    ->getJsonObjectFromDict("connectorSelection")
+    ->connectorSelectionFromJson
+    ->idsFromConnectorSelection
+    ->isEmptyArray
+  let hasNoCondition =
+    ruleDict
+    ->getArrayFromDict("statements", [])
+    ->Array.every(statementJson =>
+      statementJson
+      ->getDictFromJsonObject
+      ->getArrayFromDict("condition", [])
+      ->Array.every(conditionJson =>
+        conditionJson->getDictFromJsonObject->getString("lhs", "")->isEmptyString
+      )
+    )
+  hasNoProcessor && hasNoCondition
+}
+
 let isConditionValid = (conditionJson: JSON.t) => {
   let dict = conditionJson->getDictFromJsonObject
   let lhs = dict->getString("lhs", "")
@@ -365,6 +431,14 @@ let isConditionValid = (conditionJson: JSON.t) => {
   lhs->isNonEmptyString && valueOk
 }
 
+let areStatementsValid = (statements: array<JSON.t>) =>
+  statements->Array.every(statementJson =>
+    statementJson
+    ->getDictFromJsonObject
+    ->getArrayFromDict("condition", [])
+    ->Array.every(isConditionValid)
+  )
+
 let connectorSelectionError = (selectionJson: JSON.t) =>
   switch selectionJson->connectorSelectionFromJson {
   | Priority({data}) => data->isEmptyArray ? Some("Need at least 1 processor") : None
@@ -378,6 +452,16 @@ let connectorSelectionError = (selectionJson: JSON.t) =>
     } else {
       None
     }
+  }
+
+// why a rule cannot be collapsed yet, as a toast message
+let ruleValidationError = (~statements: array<JSON.t>, ~connectorSelection: JSON.t) =>
+  if connectorSelection->connectorSelectionError->Option.isSome {
+    Some("No processor selected")
+  } else if !(statements->areStatementsValid) {
+    Some("Invalid conditions")
+  } else {
+    None
   }
 
 let setErrorIfPresent = (errors, key, errorOpt) =>
@@ -407,16 +491,7 @@ let validate = (values: JSON.t): JSON.t => {
         `rule_${n}_processors`,
         ruleDict->getJsonObjectFromDict("connectorSelection")->connectorSelectionError,
       )
-      let allComplete =
-        ruleDict
-        ->getArrayFromDict("statements", [])
-        ->Array.every(statementJson =>
-          statementJson
-          ->getDictFromJsonObject
-          ->getArrayFromDict("condition", [])
-          ->Array.every(isConditionValid)
-        )
-      if !allComplete {
+      if !(ruleDict->getArrayFromDict("statements", [])->areStatementsValid) {
         errors->Dict.set(`rule_${n}_conditions`, "Invalid condition"->JSON.Encode.string)
       }
     })

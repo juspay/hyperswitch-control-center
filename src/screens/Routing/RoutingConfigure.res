@@ -30,7 +30,7 @@ let make = (~routingType) => {
       ->getBoolFromString(false)
     setIsActive(_ => isActive)
     None
-  }, [url.search])
+  }, [url.search, routingType])
 
   <div className="flex flex-col gap-2">
     <PageUtils.PageHeading title="Smart Routing Configurations" customHeadingStyle="!mb-0" />
@@ -44,13 +44,8 @@ let make = (~routingType) => {
         routingRuleId=id isActive connectorList urlEntityName=V1(ROUTING) baseUrlForRedirection
       />
     | ADVANCED =>
-      <AdvancedRouting
-        routingRuleId=id
-        isActive
-        setCurrentRouting
-        connectorList
-        urlEntityName=V1(ROUTING)
-        baseUrlForRedirection
+      <RuleBasedContainer
+        routingRuleId=id isActive urlEntityName=V1(ROUTING) baseUrlForRedirection
       />
     | AUTH_RATE_ROUTING =>
       <AuthRateRouting
