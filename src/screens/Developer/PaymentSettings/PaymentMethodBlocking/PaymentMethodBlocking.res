@@ -1,4 +1,5 @@
 open PaymentMethodBlockingTypes
+open PaymentMethodBlockingUtils
 open PaymentMethodBlockingHelper
 open FormRenderer
 open Typography
@@ -16,6 +17,28 @@ let make = () => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile(~version)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let (catalogueState, setCatalogueState) = React.useState(_ => Loading)
+  let fetchApi = AuthHooks.useApiFetcher()
+  let uriPrefix = useUrlPrefix()
+
+  React.useEffect(() => {
+    let fetchCardIssuers = async () => {
+      try {
+        let response = await fetchApi(
+          `${Window.Location.origin}${uriPrefix}${cardIssuersPath}`,
+          ~method_=Get,
+          ~xFeatureRoute=false,
+          ~forceCookies=false,
+        )
+        let issuersJson = await response->Fetch.Response.json
+        setCatalogueState(_ => Loaded(issuersJson->cardIssuerCatalogueFromJson))
+      } catch {
+      | _ => setCatalogueState(_ => Failed)
+      }
+    }
+    fetchCardIssuers()->ignore
+    None
+  }, [])
 
   let onSubmit = async (values, _) => {
     try {
@@ -76,7 +99,7 @@ let make = () => {
   ]->Array.map((paymentMethod: paymentMethod) => {
     Accordion.title: (paymentMethod :> string)->camelCaseToTitle,
     renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) =>
-      <BlockingConfigFields paymentMethod wasmOptions />,
+      <BlockingConfigFields paymentMethod wasmOptions catalogueState />,
     renderContentOnTop: None,
   })
 

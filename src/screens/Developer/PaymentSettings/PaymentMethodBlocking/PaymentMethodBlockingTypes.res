@@ -14,3 +14,10 @@ type toggleField = {
   label: string,
   description: string,
 }
+
+type issuerCatalogue = {
+  options: array<SelectBox.dropdownOption>,
+  labels: Dict.t<string>,
+}
+
+type issuerCatalogueState = Loading | Loaded(issuerCatalogue) | Failed

@@ -145,6 +145,10 @@ let multiSelectInput: (
   ~dropdownClassName: string=?,
   ~baseComponentMethod: bool => React.element=?,
   ~disableSelect: bool=?,
+  ~searchInputPlaceHolder: string=?,
+  ~enableVirtualization: bool=?,
+  ~virtualListItemHeight: int=?,
+  ~maxMenuHeight: int=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder: 'a) => React.element
 let radioInput: (
   ~options: array<SelectBox.dropdownOption>,

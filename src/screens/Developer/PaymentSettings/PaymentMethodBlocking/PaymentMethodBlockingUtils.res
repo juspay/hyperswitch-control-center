@@ -1,4 +1,39 @@
 open PaymentMethodBlockingTypes
+open LogicUtils
+
+let cardIssuersPath = "/card-issuers.json"
+let maxIssuerTagsShown = 5
+
+let cardIssuerCatalogueFromJson = json => {
+  let labels = Dict.make()
+  let options =
+    json
+    ->getArrayFromJson([])
+    ->Array.filterMap(item => {
+      let itemDict = item->getDictFromJsonObject
+      let value = itemDict->getString("id", "")
+      let label = itemDict->getString("name", "")
+      switch (value->isNonEmptyString, label->isNonEmptyString) {
+      | (true, true) =>
+        labels->Dict.set(value, label)
+        Some(({label, value}: SelectBox.dropdownOption))
+      | _ => None
+      }
+    })
+  {options, labels}
+}
+
+let getIssuerLabel = (catalogueState, value) =>
+  switch catalogueState {
+  | Loaded({labels}) => labels->getValueFromDict(value, value)
+  | _ => value
+  }
+
+let getIssuerOptions = catalogueState =>
+  switch catalogueState {
+  | Loaded({options}) => options
+  | _ => []
+  }
 
 let getFieldName = (paymentMethod: paymentMethod, key) => {
   let prefix = switch paymentMethod {

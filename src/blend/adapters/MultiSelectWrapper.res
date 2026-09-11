@@ -85,6 +85,11 @@ let make = (
   ~errorMessage: option<string>=?,
   ~height: option<int>=?,
   ~menuFooter: option<React.element>=?,
+  ~enableSearch: option<bool>=?,
+  ~searchPlaceholder: option<string>=?,
+  ~enableVirtualization: option<bool>=?,
+  ~virtualListItemHeight: option<int>=?,
+  ~maxMenuHeight: option<int>=?,
 ) => {
   let authContext = React.useContext(FormAuthContext.formAuthContext)
   let isDisabled = disabled || authContext === CommonAuthTypes.NoAccess
@@ -167,5 +172,10 @@ let make = (
     ?secondaryAction
     ?selectionTagType
     ?menuFooter
+    ?enableSearch
+    ?searchPlaceholder
+    ?enableVirtualization
+    ?virtualListItemHeight
+    ?maxMenuHeight
   />
 }
