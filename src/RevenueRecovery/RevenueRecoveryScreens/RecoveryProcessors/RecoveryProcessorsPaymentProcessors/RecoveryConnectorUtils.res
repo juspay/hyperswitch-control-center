@@ -169,12 +169,10 @@ let updatableConnectorFields = [
 ]
 
 let getUpdatableConnectorBody = (~valuesDict, ~merchantId) => {
+  open LogicUtils
   let body = Dict.make()
   updatableConnectorFields->Array.forEach(field => {
-    switch valuesDict->Dict.get(field) {
-    | Some(value) => body->Dict.set(field, value)
-    | None => ()
-    }
+    valuesDict->Dict.get(field)->mapOptionOrDefault((), value => body->Dict.set(field, value))
   })
   body->Dict.set("merchant_id", merchantId->JSON.Encode.string)
   body
