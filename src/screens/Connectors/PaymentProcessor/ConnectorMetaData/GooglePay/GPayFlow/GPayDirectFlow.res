@@ -55,8 +55,7 @@ let make = (
     let currentGooglePayDict =
       form.getState().values
       ->getDictFromJsonObject
-      ->getDictfromDict("connector_wallets_details")
-      ->getDictfromDict("google_pay")
+      ->getDictFromNestedDict("connector_wallets_details", "google_pay")
 
     form.change(
       "connector_wallets_details.google_pay",
@@ -78,7 +77,7 @@ let make = (
 
   <div className="flex flex-col gap-6">
     <FormRenderer.FieldRenderer
-      labelClass={`${body.md.semibold} !text-grey-900`}
+      labelClass={body.md.semibold}
       field={decryptionKeyHandlingInput(
         ~onItemChange=onDecryptionKeyHandlingChange,
         ~fill=textColor.primaryNormal,
@@ -90,7 +89,7 @@ let make = (
         let googlePayField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
         <div key={`${googlePayField.name}-${index->Int.toString}`}>
           <FormRenderer.FieldRenderer
-            labelClass={`${body.md.semibold} !text-grey-900`}
+            labelClass={body.md.semibold}
             field={googlePayValueInput(~googlePayField, ~googlePayIntegrationType)}
           />
         </div>
@@ -98,14 +97,13 @@ let make = (
       ->React.array}
       <RenderIf condition={googlePayIntegrationType === #internal_gateway}>
         <FormRenderer.FieldRenderer
-          labelClass={`${body.md.semibold} !text-grey-900`}
-          field={googlePayMerchantIdInput(~googlePayIntegrationType)}
+          labelClass={body.md.semibold} field={googlePayMerchantIdInput(~googlePayIntegrationType)}
         />
       </RenderIf>
     </div>
     <RenderIf condition={ConnectorUtils.checkIfPredecryptFlowEnabledForGooglePay(connector)}>
       <FormRenderer.FieldRenderer
-        labelClass={`${body.md.semibold} !text-grey-900`}
+        labelClass={body.md.semibold}
         fieldWrapperClass="w-full flex justify-between items-center pl-2 pr-4"
         field={FormRenderer.makeFieldInfo(
           ~name={"metadata.google_pay.support_predecrypted_token"},

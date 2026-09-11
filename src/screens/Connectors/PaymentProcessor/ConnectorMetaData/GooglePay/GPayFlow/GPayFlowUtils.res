@@ -124,7 +124,7 @@ let validateGooglePay = (values, connector, ~googlePayIntegrationType) => {
     data.provider_details.merchant_info.merchant_id
     ->Option.getOr("")
     ->isNonEmptyStringWithoutSpaces &&
-    data.cards.allowed_auth_methods->Array.length > 0 &&
+    data.cards.allowed_auth_methods->isNonEmptyArray &&
     (data.provider_details.merchant_info.tokenization_specification.parameters.\"stripe:publishableKey"
     ->Option.getOr("")
     ->isNonEmptyStringWithoutSpaces ||
@@ -137,7 +137,7 @@ let validateGooglePay = (values, connector, ~googlePayIntegrationType) => {
     data.provider_details.merchant_info.merchant_name
     ->Option.getOr("")
     ->isNonEmptyStringWithoutSpaces &&
-    data.cards.allowed_auth_methods->Array.length > 0 &&
+    data.cards.allowed_auth_methods->isNonEmptyArray &&
     data.provider_details.merchant_info.tokenization_specification.parameters.public_key
     ->Option.getOr("")
     ->isNonEmptyStringWithoutSpaces &&
@@ -152,7 +152,7 @@ let validateGooglePay = (values, connector, ~googlePayIntegrationType) => {
   | #internal_gateway =>
     data.provider_details.merchant_info.merchant_name
     ->Option.getOr("")
-    ->isNonEmptyStringWithoutSpaces && data.cards.allowed_auth_methods->Array.length > 0
+    ->isNonEmptyStringWithoutSpaces && data.cards.allowed_auth_methods->isNonEmptyArray
       ? Normal
       : Disabled
   | #predecrypt => Normal
