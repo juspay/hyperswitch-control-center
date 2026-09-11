@@ -98,6 +98,7 @@ type entityName =
   | BLOCKLIST
   | BLOCKLIST_COUNT
   | BLOCKLIST_LOOKUP
+  | BLOCKLIST_EXPORT
 
 type v2entityNameType =
   | CUSTOMERS

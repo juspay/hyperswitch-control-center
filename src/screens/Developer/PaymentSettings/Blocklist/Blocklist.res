@@ -24,6 +24,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (selectedFile, setSelectedFile) = React.useState(_ => None)
   let (uploadButtonState, setUploadButtonState) = React.useState(_ => Button.Normal)
+  let (exportButtonState, setExportButtonState) = React.useState(_ => Button.Normal)
   let inputRef = React.useRef(Nullable.null)
   let fileSelectionTokenRef = React.useRef(0)
 
@@ -82,6 +83,22 @@ let make = () => {
     } catch {
     | Exn.Error(e) =>
       let errorMessage = Exn.message(e)->Option.getOr("Failed to refresh job status")
+      showToast(~message=errorMessage, ~toastType=ToastError)
+    }
+  }
+
+  let downloadExport = async jobId => {
+    try {
+      let url = getURL(~entityName=V1(BLOCKLIST_BATCH), ~methodType=Get, ~id=Some(jobId))
+      let response = await fetchDetails(url)
+      switch response->getDictFromJsonObject->getString("download_url", "")->getNonEmptyString {
+      | Some(downloadUrl) => downloadUrl->Window._open
+      | None =>
+        showToast(~message="Download link unavailable. Please try again.", ~toastType=ToastError)
+      }
+    } catch {
+    | Exn.Error(e) =>
+      let errorMessage = Exn.message(e)->Option.getOr("Failed to download blocklist export")
       showToast(~message=errorMessage, ~toastType=ToastError)
     }
   }
@@ -184,12 +201,40 @@ let make = () => {
     }
   }
 
+  let generateExport = async () => {
+    try {
+      setExportButtonState(_ => Button.Loading)
+      let url = getURL(~entityName=V1(BLOCKLIST_EXPORT), ~methodType=Post)
+      let response = await updateDetails(url, Dict.make()->JSON.Encode.object, Post)
+      let fileName = response->getDictFromJsonObject->getString("file_name", "")
+      let message =
+        fileName->isNonEmptyString
+          ? `Blocklist export started. File: ${fileName}`
+          : "Blocklist export started."
+      showToast(~message, ~toastType=ToastSuccess)
+      offset === 0 ? await fetchJobs() : setOffset(_ => 0)
+    } catch {
+    | Exn.Error(e) =>
+      let errorMessage =
+        Exn.message(e)
+        ->Option.getOr("Failed to generate blocklist export")
+        ->parseBlocklistErrorMessage
+      showToast(~message=errorMessage, ~toastType=ToastError)
+    }
+    setExportButtonState(_ => Button.Normal)
+  }
+
   let selectedFileName = selectedFile->getFileName
   let selectedFileSize = selectedFile->getFileSize->formatFileSize
 
   let onUploadClick = _ => {
     mixpanelEvent(~eventName="blocklist_upload_csv")
     uploadFile()->ignore
+  }
+
+  let onGenerateExportClick = _ => {
+    mixpanelEvent(~eventName="blocklist_generate_export")
+    generateExport()->ignore
   }
 
   <>
@@ -227,7 +272,7 @@ let make = () => {
                 {"Upload CSV"->React.string}
               </h2>
               <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}>
-                {"Upload a CSV file to create an asynchronous blocklist batch job."->React.string}
+                {"Block multiple card BINs or fingerprints at once. Track progress in the jobs table below."->React.string}
               </p>
             </div>
             <Button
@@ -298,6 +343,26 @@ let make = () => {
             </div>
           </RenderIf>
         </section>
+        <section
+          className="max-w-3xl border border-nd_gray-200 rounded-lg bg-white p-5 flex flex-col gap-4">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className={`text-nd_gray-700 ${body.lg.semibold}`}>
+                {"Generate Export"->React.string}
+              </h2>
+              <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}>
+                {"Export this profile's blocklist as a CSV file. Download it from the jobs table once the export completes."->React.string}
+              </p>
+            </div>
+            <ACLButton
+              text="Generate Export"
+              buttonType=Primary
+              onClick=onGenerateExportClick
+              buttonState=exportButtonState
+              authorization={userHasAccess(~groupAccess=AccountManage)}
+            />
+          </div>
+        </section>
         <PageLoaderWrapper screenState sectionHeight="h-60-vh">
           <RenderIf condition={jobs->isNonEmptyArray}>
             <LoadedTable
@@ -309,7 +374,10 @@ let make = () => {
               offset
               setOffset
               currentFetchCount={jobs->Array.length}
-              entity={BlocklistTableEntity.blocklistEntity(~onRefreshJob=refreshJob)}
+              entity={BlocklistTableEntity.blocklistEntity(
+                ~onRefreshJob=refreshJob,
+                ~onDownloadExport=downloadExport,
+              )}
               showSerialNumber=true
               showAutoScroll=true
               showResultsPerPageSelector=false

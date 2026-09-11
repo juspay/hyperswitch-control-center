@@ -279,6 +279,11 @@ let useGetURL = () => {
         | (Get, Some(queryParams)) => Default(`blocklist/lookup?${queryParams}`)
         | _ => Default("")
         }
+      | BLOCKLIST_EXPORT =>
+        switch methodType {
+        | Post => Default(`blocklist/export`)
+        | _ => Default("")
+        }
 
       /* MERCHANT ACCOUNT DETAILS (Get and Post) */
       | MERCHANT_ACCOUNT => Default(`accounts/${merchantId}`)

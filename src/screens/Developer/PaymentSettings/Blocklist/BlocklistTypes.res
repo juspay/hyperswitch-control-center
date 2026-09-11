@@ -1,10 +1,17 @@
+type blocklistBatchJobType =
+  | @as("upload") Upload
+  | @as("export") Export
+  | @as("unknown") UnknownJobType
+
 type blocklistBatchJob = {
   job_id: string,
   merchant_id: string,
+  job_type: blocklistBatchJobType,
   status: string,
   total_rows: int,
   succeeded_rows: int,
   failed_rows: int,
+  downloadable: bool,
   created_at: string,
   updated_at: string,
 }
@@ -18,6 +25,7 @@ type blocklistBatchStatus =
 
 type blocklistBatchColType =
   | JobId
+  | JobType
   | Status
   | TotalRows
   | SucceededRows
