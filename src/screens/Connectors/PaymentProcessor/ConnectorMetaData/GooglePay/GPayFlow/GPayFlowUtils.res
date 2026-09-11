@@ -43,6 +43,7 @@ let tokenizationSpecificationParameters = (
       private_key: dict->getString("private_key", ""),
       recipient_id: dict->getString("recipient_id", ""),
     }
+  | #internal_gateway => {}
   | #predecrypt => {
       public_key: dict->getString("public_key", ""),
       private_key: dict->getString("private_key", ""),
@@ -66,10 +67,13 @@ let tokenizationSpecification = (
 }
 
 let merchantInfo = (dict, connector, ~googlePayIntegrationType: googlePayIntegrationType) => {
+  let merchantId = switch googlePayIntegrationType {
+  | #payment_gateway | #internal_gateway => dict->getOptionString("merchant_id")
+  | #direct | #predecrypt => None
+  }
+
   {
-    merchant_id: googlePayIntegrationType == #payment_gateway
-      ? dict->getOptionString("merchant_id")
-      : None,
+    merchant_id: merchantId,
     merchant_name: dict->getOptionString("merchant_name"),
     tokenization_specification: dict->tokenizationSpecification(
       connector,
@@ -120,7 +124,7 @@ let validateGooglePay = (values, connector, ~googlePayIntegrationType) => {
     data.provider_details.merchant_info.merchant_id
     ->Option.getOr("")
     ->isNonEmptyStringWithoutSpaces &&
-    data.cards.allowed_auth_methods->Array.length > 0 &&
+    data.cards.allowed_auth_methods->isNonEmptyArray &&
     (data.provider_details.merchant_info.tokenization_specification.parameters.\"stripe:publishableKey"
     ->Option.getOr("")
     ->isNonEmptyStringWithoutSpaces ||
@@ -128,12 +132,12 @@ let validateGooglePay = (values, connector, ~googlePayIntegrationType) => {
       ->Option.getOr("")
       ->isNonEmptyStringWithoutSpaces)
       ? Button.Normal
-      : Button.Disabled
+      : Disabled
   | #direct =>
     data.provider_details.merchant_info.merchant_name
     ->Option.getOr("")
     ->isNonEmptyStringWithoutSpaces &&
-    data.cards.allowed_auth_methods->Array.length > 0 &&
+    data.cards.allowed_auth_methods->isNonEmptyArray &&
     data.provider_details.merchant_info.tokenization_specification.parameters.public_key
     ->Option.getOr("")
     ->isNonEmptyStringWithoutSpaces &&
@@ -143,9 +147,15 @@ let validateGooglePay = (values, connector, ~googlePayIntegrationType) => {
     data.provider_details.merchant_info.tokenization_specification.parameters.recipient_id
     ->Option.getOr("")
     ->isNonEmptyStringWithoutSpaces
-      ? Button.Normal
-      : Button.Disabled
-  | #predecrypt => Button.Normal
+      ? Normal
+      : Disabled
+  | #internal_gateway =>
+    data.provider_details.merchant_info.merchant_name
+    ->Option.getOr("")
+    ->isNonEmptyStringWithoutSpaces && data.cards.allowed_auth_methods->isNonEmptyArray
+      ? Normal
+      : Disabled
+  | #predecrypt => Normal
   }
 }
 
@@ -157,6 +167,10 @@ let directFields = [
   "recipient_id",
   "allowed_auth_methods",
 ]
+let internalGatewayFields = ["merchant_name", "allowed_auth_methods"]
+
+let isDirectFlow = googlePayIntegrationType =>
+  googlePayIntegrationType === #direct || googlePayIntegrationType === #internal_gateway
 
 let getMetadataFromConnectorWalletDetailsGooglePay = (dict, connector) => {
   open ConnectorUtils
@@ -235,6 +249,16 @@ let googlePayNameMapper = (
     | _ =>
       `connector_wallets_details.google_pay.provider_details.merchant_info.tokenization_specification.parameters.${name}`
     }
+  | #internal_gateway =>
+    switch name {
+    | "merchant_id" => `connector_wallets_details.google_pay.provider_details.merchant_info.${name}`
+    | "merchant_name" =>
+      `connector_wallets_details.google_pay.provider_details.merchant_info.${name}`
+    | "allowed_auth_methods" => `connector_wallets_details.google_pay.cards.${name}`
+    | "allowed_card_networks" => `connector_wallets_details.google_pay.cards.${name}`
+    | _ =>
+      `connector_wallets_details.google_pay.provider_details.merchant_info.tokenization_specification.parameters.${name}`
+    }
   | #predecrypt => ""
   }
 }
@@ -270,6 +294,46 @@ let getGooglePayIntegrationTypeFromName = (name: string) => {
   switch name {
   | "PAYMENT_GATEWAY" => #payment_gateway
   | "DIRECT" => #direct
+  | "INTERNAL_GATEWAY" => #internal_gateway
   | _ => #payment_gateway
   }
 }
+
+let decryptionKeyOptions: array<SelectBox.dropdownOption> = [
+  {label: "Provide custom certificates", value: "DIRECT"},
+  {label: "Use Hyperswitch managed certificates", value: "INTERNAL_GATEWAY"},
+]
+
+let googlePayMerchantIdInput = (~googlePayIntegrationType) =>
+  FormRenderer.makeFieldInfo(
+    ~label="Google Pay Merchant ID",
+    ~name=googlePayNameMapper(~name="merchant_id", ~googlePayIntegrationType),
+    ~placeholder="Enter Google Pay Merchant ID",
+    ~isRequired=false,
+    ~subText="If merchant ID is not provided, we will use Hyperswitch's internal merchant ID",
+    ~customInput=InputFields.textInput(),
+  )
+
+let decryptionKeyHandlingInput = (~onItemChange: ReactEvent.Form.t => unit, ~fill) =>
+  FormRenderer.makeFieldInfo(
+    ~label="How would you like to handle decryption keys?",
+    ~name="connector_wallets_details.google_pay.provider_details.merchant_info.tokenization_specification.type",
+    ~isRequired=true,
+    ~customInput=(~input, ~placeholder as _) =>
+      InputFields.radioInput(
+        ~customStyle="cursor-pointer gap-2",
+        ~isHorizontal=false,
+        ~options=decryptionKeyOptions,
+        ~buttonText="",
+        ~fill,
+      )(
+        ~input={
+          ...input,
+          onChange: event => {
+            onItemChange(event)
+            input.onChange(event)
+          },
+        },
+        ~placeholder="",
+      ),
+  )
