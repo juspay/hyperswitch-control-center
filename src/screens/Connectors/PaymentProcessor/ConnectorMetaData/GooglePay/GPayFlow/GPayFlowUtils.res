@@ -132,7 +132,7 @@ let validateGooglePay = (values, connector, ~googlePayIntegrationType) => {
       ->Option.getOr("")
       ->isNonEmptyStringWithoutSpaces)
       ? Button.Normal
-      : Button.Disabled
+      : Disabled
   | #direct =>
     data.provider_details.merchant_info.merchant_name
     ->Option.getOr("")
@@ -147,15 +147,15 @@ let validateGooglePay = (values, connector, ~googlePayIntegrationType) => {
     data.provider_details.merchant_info.tokenization_specification.parameters.recipient_id
     ->Option.getOr("")
     ->isNonEmptyStringWithoutSpaces
-      ? Button.Normal
-      : Button.Disabled
+      ? Normal
+      : Disabled
   | #internal_gateway =>
     data.provider_details.merchant_info.merchant_name
     ->Option.getOr("")
     ->isNonEmptyStringWithoutSpaces && data.cards.allowed_auth_methods->Array.length > 0
-      ? Button.Normal
-      : Button.Disabled
-  | #predecrypt => Button.Normal
+      ? Normal
+      : Disabled
+  | #predecrypt => Normal
   }
 }
 

@@ -10,6 +10,7 @@ let make = (
 ) => {
   open LogicUtils
   open GPayFlowUtils
+  open Typography
 
   let form = ReactFinalForm.useForm()
   let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
@@ -77,7 +78,7 @@ let make = (
 
   <div className="flex flex-col gap-6">
     <FormRenderer.FieldRenderer
-      labelClass="font-semibold !text-hyperswitch_black"
+      labelClass={`${body.md.semibold} !text-grey-900`}
       field={decryptionKeyHandlingInput(
         ~onItemChange=onDecryptionKeyHandlingChange,
         ~fill=textColor.primaryNormal,
@@ -89,7 +90,7 @@ let make = (
         let googlePayField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
         <div key={`${googlePayField.name}-${index->Int.toString}`}>
           <FormRenderer.FieldRenderer
-            labelClass="font-semibold !text-hyperswitch_black"
+            labelClass={`${body.md.semibold} !text-grey-900`}
             field={googlePayValueInput(~googlePayField, ~googlePayIntegrationType)}
           />
         </div>
@@ -97,14 +98,14 @@ let make = (
       ->React.array}
       <RenderIf condition={googlePayIntegrationType === #internal_gateway}>
         <FormRenderer.FieldRenderer
-          labelClass="font-semibold !text-hyperswitch_black"
+          labelClass={`${body.md.semibold} !text-grey-900`}
           field={googlePayMerchantIdInput(~googlePayIntegrationType)}
         />
       </RenderIf>
     </div>
     <RenderIf condition={ConnectorUtils.checkIfPredecryptFlowEnabledForGooglePay(connector)}>
       <FormRenderer.FieldRenderer
-        labelClass={`${Typography.body.md.semibold} !text-hyperswitch_black`}
+        labelClass={`${body.md.semibold} !text-grey-900`}
         fieldWrapperClass="w-full flex justify-between items-center pl-2 pr-4"
         field={FormRenderer.makeFieldInfo(
           ~name={"metadata.google_pay.support_predecrypted_token"},
