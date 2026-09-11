@@ -8,6 +8,13 @@ let make = () => {
   let url = RescriptReactRouter.useUrl()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let fetchBusinessProfile = ReconEngineHooks.useFetchBusinessProfile()
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+
+  React.useEffect(() => {
+    fetchBusinessProfile()->ignore
+    None
+  }, [profileId])
 
   <>
     <FilterContext
