@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.11.0
+
+### Features
+
+- **mixpanel:** Track 4xx API failures ([#5507](https://github.com/juspay/hyperswitch-control-center/pull/5507)) ([`06d2488`](https://github.com/juspay/hyperswitch-control-center/commit/06d248806dc06bc87f59b618d386420ea8c4a627))
+- Replace olap_prefix with a full olap_url base URL ([#5451](https://github.com/juspay/hyperswitch-control-center/pull/5451)) ([`de2e5c3`](https://github.com/juspay/hyperswitch-control-center/commit/de2e5c3ac5fc9da6f44a3c40ea472fd642bc95b9))
+
+**Full Changelog:** [`2026.09.10.1...2026.09.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.10.1...2026.09.11.0)
+
+- - -
+
 ## 2026.09.10.1
 
 ### Miscellaneous Tasks
