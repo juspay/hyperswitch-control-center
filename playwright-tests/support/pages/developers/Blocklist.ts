@@ -12,12 +12,7 @@ export class Blocklist {
   }
 
   get pageHeading(): Locator {
-    return this.page
-      .getByText(
-        "Upload blocklist CSV files and track batch processing status.",
-      )
-      .locator("..")
-      .getByText("Blocklist", { exact: true });
+    return this.page.getByText("Blocklist", { exact: true });
   }
 
   get uploadCsvHeading(): Locator {
@@ -45,12 +40,6 @@ export class Blocklist {
   get supportedFileText(): Locator {
     return this.page.getByText(
       "CSV files above either limit cannot be processed. Only .csv files are supported.",
-    );
-  }
-
-  get accountWideConfigText(): Locator {
-    return this.page.getByText(
-      "This configuration applies to all profiles in the current merchant account.",
     );
   }
 

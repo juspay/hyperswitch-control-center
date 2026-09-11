@@ -95,9 +95,16 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
         <GPayPaymentGatewayFlow
           googlePayFields googlePayIntegrationType closeModal connector closeAccordionFn update
         />
-      | #direct =>
+      | #direct
+      | #internal_gateway =>
         <GPayDirectFlow
-          googlePayFields googlePayIntegrationType closeModal connector closeAccordionFn update
+          googlePayFields
+          googlePayIntegrationType
+          setGooglePayIntegrationType
+          closeModal
+          connector
+          closeAccordionFn
+          update
         />
       | #predecrypt => React.null
       }

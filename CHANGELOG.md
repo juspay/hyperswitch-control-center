@@ -3,6 +3,53 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.11.0
+
+### Features
+
+- **mixpanel:** Track 4xx API failures ([#5507](https://github.com/juspay/hyperswitch-control-center/pull/5507)) ([`06d2488`](https://github.com/juspay/hyperswitch-control-center/commit/06d248806dc06bc87f59b618d386420ea8c4a627))
+- Replace olap_prefix with a full olap_url base URL ([#5451](https://github.com/juspay/hyperswitch-control-center/pull/5451)) ([`de2e5c3`](https://github.com/juspay/hyperswitch-control-center/commit/de2e5c3ac5fc9da6f44a3c40ea472fd642bc95b9))
+
+**Full Changelog:** [`2026.09.10.1...2026.09.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.10.1...2026.09.11.0)
+
+- - -
+
+## 2026.09.10.1
+
+### Miscellaneous Tasks
+
+- Minor blocklist improvements ([#5521](https://github.com/juspay/hyperswitch-control-center/pull/5521)) ([`67cf0ed`](https://github.com/juspay/hyperswitch-control-center/commit/67cf0ed4b18724b3c6309b24186517eb8ede7122))
+
+**Full Changelog:** [`2026.09.10.0...2026.09.10.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.10.0...2026.09.10.1)
+
+- - -
+
+## 2026.09.10.0
+
+### Features
+
+- Support replace_char transformation rule on recon string fields ([#5518](https://github.com/juspay/hyperswitch-control-center/pull/5518)) ([`3e2ab44`](https://github.com/juspay/hyperswitch-control-center/commit/3e2ab44189b6fb8b2ceff740cc1df8ac16e22f40))
+- Allow custom column selection and reordering in recon engine tables ([#5512](https://github.com/juspay/hyperswitch-control-center/pull/5512)) ([`6039d0f`](https://github.com/juspay/hyperswitch-control-center/commit/6039d0faf4c38f5c31d402daef49fdc8b31ab236))
+
+### Bug Fixes
+
+- Use a text area for deutsche bank payout pem credentials ([#5485](https://github.com/juspay/hyperswitch-control-center/pull/5485)) ([`618cf01`](https://github.com/juspay/hyperswitch-control-center/commit/618cf0189c2e50da93ab96c6c3556dea4e8535d4))
+- Send recon report time range in recon format and gate generate report by view access ([#5519](https://github.com/juspay/hyperswitch-control-center/pull/5519)) ([`ef8c190`](https://github.com/juspay/hyperswitch-control-center/commit/ef8c190656a34d4b560a34ae480ef2de90421bf7))
+
+**Full Changelog:** [`2026.09.09.0...2026.09.10.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.09.0...2026.09.10.0)
+
+- - -
+
+## 2026.09.09.0
+
+### Features
+
+- Add count and lookup api support in blocklist ([#5509](https://github.com/juspay/hyperswitch-control-center/pull/5509)) ([`e371cd4`](https://github.com/juspay/hyperswitch-control-center/commit/e371cd451988c8b410eb9f4b5d4b04a05ab06cf8))
+
+**Full Changelog:** [`2026.09.08.0...2026.09.09.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.08.0...2026.09.09.0)
+
+- - -
+
 ## 2026.09.08.0
 
 ### Features

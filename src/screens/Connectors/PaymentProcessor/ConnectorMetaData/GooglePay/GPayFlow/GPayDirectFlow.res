@@ -2,6 +2,7 @@
 let make = (
   ~googlePayFields,
   ~googlePayIntegrationType,
+  ~setGooglePayIntegrationType,
   ~closeModal,
   ~connector,
   ~closeAccordionFn,
@@ -9,8 +10,10 @@ let make = (
 ) => {
   open LogicUtils
   open GPayFlowUtils
+  open Typography
 
   let form = ReactFinalForm.useForm()
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
 
   let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
@@ -44,28 +47,63 @@ let make = (
     Nullable.null->Promise.resolve
   }
 
+  let onDecryptionKeyHandlingChange = (event: ReactEvent.Form.t) => {
+    let updatedIntegrationType =
+      event->Identity.formReactEventToString->getGooglePayIntegrationTypeFromName
+    setGooglePayIntegrationType(_ => updatedIntegrationType)
+
+    let currentGooglePayDict =
+      form.getState().values
+      ->getDictFromJsonObject
+      ->getDictFromNestedDict("connector_wallets_details", "google_pay")
+
+    form.change(
+      "connector_wallets_details.google_pay",
+      googlePay(
+        currentGooglePayDict,
+        connector,
+        ~googlePayIntegrationType=updatedIntegrationType,
+      )->Identity.genericTypeToJson,
+    )
+  }
+
+  let activeFields =
+    googlePayIntegrationType === #internal_gateway ? internalGatewayFields : directFields
+
   let googlePayFieldsForDirect = googlePayFields->Array.filter(field => {
     let typedData = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
-    directFields->Array.includes(typedData.name)
+    activeFields->Array.includes(typedData.name)
   })
 
   <div className="flex flex-col gap-6">
+    <FormRenderer.FieldRenderer
+      labelClass={body.md.semibold}
+      field={decryptionKeyHandlingInput(
+        ~onItemChange=onDecryptionKeyHandlingChange,
+        ~fill=textColor.primaryNormal,
+      )}
+    />
     <div>
       {googlePayFieldsForDirect
       ->Array.mapWithIndex((field, index) => {
         let googlePayField = field->convertMapObjectToDict->CommonConnectorUtils.inputFieldMapper
         <div key={`${googlePayField.name}-${index->Int.toString}`}>
           <FormRenderer.FieldRenderer
-            labelClass="font-semibold !text-hyperswitch_black"
+            labelClass={body.md.semibold}
             field={googlePayValueInput(~googlePayField, ~googlePayIntegrationType)}
           />
         </div>
       })
       ->React.array}
+      <RenderIf condition={googlePayIntegrationType === #internal_gateway}>
+        <FormRenderer.FieldRenderer
+          labelClass={body.md.semibold} field={googlePayMerchantIdInput(~googlePayIntegrationType)}
+        />
+      </RenderIf>
     </div>
     <RenderIf condition={ConnectorUtils.checkIfPredecryptFlowEnabledForGooglePay(connector)}>
       <FormRenderer.FieldRenderer
-        labelClass={`${Typography.body.md.semibold} !text-hyperswitch_black`}
+        labelClass={body.md.semibold}
         fieldWrapperClass="w-full flex justify-between items-center pl-2 pr-4"
         field={FormRenderer.makeFieldInfo(
           ~name={"metadata.google_pay.support_predecrypted_token"},
