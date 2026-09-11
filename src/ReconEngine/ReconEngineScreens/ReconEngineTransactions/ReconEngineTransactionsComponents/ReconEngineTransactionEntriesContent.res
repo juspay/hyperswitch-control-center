@@ -5,26 +5,30 @@ let make = (
   ~primaryTransactionId: string,
   ~accountId: string,
   ~accountsData: array<ReconEngineTypes.accountType>,
-  ~transformationNameMap: Dict.t<string>,
   ~currencyOptions: array<FilterSelectBox.dropdownOption>,
-  ~transformationConfigOptions: array<FilterSelectBox.dropdownOption>,
   ~entriesDetailFields=EntriesTableEntity.transactionEntriesDetailFields,
 ) => {
   open LogicUtils
   open EntriesTableEntity
   open ReconEngineExceptionTransactionUtils
   open ReconEngineExceptionTransactionHelper
+  open ReconEngineHooks
   open ReconEngineTransactionsTypes
   open ReconEngineTransactionsUtils
 
-  let getEntries = ReconEngineHooks.useGetCursorPage(
+  let getEntries = useGetCursorPage(
     ~hyperswitchReconType=#PROCESSED_ENTRIES_LIST,
     ~itemMapper=transactionsEntryItemToObjMapperFromDict,
   )
+  let getTransformationConfigs = useGetTransformationConfigs()
+  let showToast = ToastAdapter.useShowToast()
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
   let (searchText, setSearchText) = React.useState(_ => "")
+  let (transformationConfigs, setTransformationConfigs) = React.useState((_): array<
+    ReconEngineTypes.transformationConfigType,
+  > => [])
   let searchTypeRef = React.useRef(SearchEntryOrderId)
 
   let {
@@ -48,10 +52,41 @@ let make = (
     )
   })
 
+  let fetchTransformationConfigs = async () => {
+    try {
+      let configs = await getTransformationConfigs(~queryParameters=Some(`account_id=${accountId}`))
+      setTransformationConfigs(_ => configs)
+    } catch {
+    | _ =>
+      setTransformationConfigs(_ => [])
+      showToast(~message="Failed to fetch transformation configs", ~toastType=ToastError)
+    }
+  }
+
+  React.useEffect(() => {
+    fetchTransformationConfigs()->ignore
+    None
+  }, [accountId])
+
   React.useEffect(() => {
     goToFirstPage()
     None
   }, [filterValue])
+
+  let transformationConfigOptions = React.useMemo(() => {
+    transformationConfigs->Array.map((config): FilterSelectBox.dropdownOption => {
+      label: config.name,
+      value: config.transformation_id,
+    })
+  }, [transformationConfigs])
+
+  let transformationNameMap = React.useMemo(() => {
+    let nameMap = Dict.make()
+    transformationConfigs->Array.forEach(config =>
+      nameMap->Dict.set(config.transformation_id, config.name)
+    )
+    nameMap
+  }, [transformationConfigs])
 
   let handleSearchSubmit = (selectedType: option<string>) => {
     searchTypeRef.current =
