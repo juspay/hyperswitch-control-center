@@ -14,7 +14,7 @@
  */
 open CommonAuthTypes
 type userGroupACLType = {
-  fetchUserGroupACL: unit => promise<UserManagementTypes.groupAccessJsonType>,
+  fetchUserGroupACL: unit => promise<HyperswitchAtom.accessMapping>,
   userHasResourceAccess: (
     ~resourceAccess: UserManagementTypes.resourceAccessType,
   ) => CommonAuthTypes.authorization,
@@ -82,14 +82,15 @@ let useUserGroupACLHook = () => {
       let userGroupACLMap = effectiveGroups->convertValueToMapGroup
       let resourceACLMap = effectiveResources->convertValueToMapResources
 
-      setuserGroupACL(_ => Some({
+      let accessMapping: accessMapping = {
         groups: userGroupACLMap,
         resources: resourceACLMap,
-      }))
+      }
+      setuserGroupACL(_ => Some(accessMapping))
 
       let permissionJson = effectiveGroups->getGroupAccessJson
       setuserPermissionJson(_ => permissionJson)
-      permissionJson
+      accessMapping
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
