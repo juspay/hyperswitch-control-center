@@ -815,9 +815,11 @@ test.describe("Visual Testing - Workflow", () => {
       await homePage.threeDSExemptionManager.click();
       await page.waitForURL(/dashboard\/3ds-exemption/, { timeout: 15000 });
 
-      // ActiveRulePreview card with the seeded rule.
+      // ActiveConfigurationCard with the seeded rule. The landing view exposes
+      // the Active badge and "View and Manage"; the delete icon belongs to
+      // ActiveRulePreview, which only mounts on the ?type=manage view.
       await expect(exemption.activeBadge).toBeVisible();
-      await expect(exemption.deleteIcon).toBeVisible();
+      await expect(exemption.viewAndManageButton).toBeVisible();
 
       await expect(page).toHaveScreenshot(
         "workflow-3ds-exemption-with-rule.png",
