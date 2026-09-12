@@ -1,6 +1,7 @@
 @react.component
 let make = () => {
   let (toggleState, setToggleState) = React.useState(_ => false)
+  let showHyperswitchResources = WhitelabelUtils.useShowHyperswitchResources()
 
   <div className="mt-10 flex flex-col gap-2">
     <div className="flex flex-row  justify-between items-center">
@@ -20,13 +21,18 @@ let make = () => {
       />
     </div>
     <div className="font-medium text-nd_gray-400 w-3/4">
-      {"Network Tokenization enables secure card storage and seamless future transactions, with Juspay as the Token Requestor–Token Service Provider (TR-TSP). To enable this feature for your merchant account, please reach out to us on "->React.string}
-      <a
-        href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
-        className="text-primary hover:cursor-pointer hover:underline"
-        target="_blank">
-        {"Slack"->React.string}
-      </a>
+      {"Network Tokenization enables secure card storage and seamless future transactions, with Juspay as the Token Requestor–Token Service Provider (TR-TSP)."->React.string}
+      <RenderIf condition={showHyperswitchResources}>
+        {<>
+          {" To enable this feature for your merchant account, please reach out to us on "->React.string}
+          <a
+            href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
+            className="text-primary hover:cursor-pointer hover:underline"
+            target="_blank">
+            {"Slack"->React.string}
+          </a>
+        </>}
+      </RenderIf>
     </div>
   </div>
 }

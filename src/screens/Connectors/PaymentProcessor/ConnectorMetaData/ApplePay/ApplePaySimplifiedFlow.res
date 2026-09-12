@@ -27,6 +27,7 @@ let make = (
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let isComplianceContentAllowed = WhitelabelUtils.useIsComplianceContentAllowed()
   let initialFormValue =
     formState.values
     ->getDictFromJsonObject
@@ -195,7 +196,10 @@ let make = (
         )}
       />
     </RenderIf>
-    <RenderIf condition={featureFlagDetails.isLiveMode && featureFlagDetails.complianceCertificate}>
+    <RenderIf
+      condition={featureFlagDetails.isLiveMode &&
+      featureFlagDetails.complianceCertificate &&
+      isComplianceContentAllowed}>
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(STRIPE) =>
         <>

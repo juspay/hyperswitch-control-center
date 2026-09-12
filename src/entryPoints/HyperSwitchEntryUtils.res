@@ -51,3 +51,14 @@ let getSuperpositionConfigMapper: Dict.t<
     workspace: dict->getString("workspace", ""),
   }
 }
+
+let getWhitelabelComplianceMapper: Dict.t<
+  JSON.t,
+> => HyperSwitchConfigTypes.whitelabelComplianceConfig = dict => {
+  {
+    applePayInstructions: dict->getString("apple_pay_instructions", "")->getNonEmptyString,
+    applePayRequestTemplate: dict->getString("apple_pay_request_template", "")->getNonEmptyString,
+    supportEmail: dict->getString("support_email", "")->getNonEmptyString,
+    certificateTitle: dict->getString("certificate_title", "")->getNonEmptyString,
+  }
+}

@@ -23,7 +23,9 @@ module EmbeddableEntryComponent = {
       open LogicUtils
       try {
         let dict = urlConfig->getDictFromJsonObject->getDictfromDict("endpoints")
-        let value = dict->EmbeddableGlobalUtils.getConfigFromDict
+        let whitelabelComplianceDict =
+          urlConfig->getDictFromJsonObject->getDictfromDict("whitelabel_compliance")
+        let value = dict->EmbeddableGlobalUtils.getConfigFromDict(~whitelabelComplianceDict)
         DOMUtils.window._env_ = value
         value
       } catch {

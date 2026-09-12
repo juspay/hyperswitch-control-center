@@ -19,6 +19,15 @@ let make = () => {
   | Some(url) => (IconWithURL, Some(url))
   | _ => (IconWithText, None)
   }
+  let productName = WhitelabelUtils.useProductName()
+  let welcomeText = switch productName {
+  | Some(name) => `Hey there, welcome to ${name}!`
+  | None => "Hey there, welcome!"
+  }
+  let invitedByText = switch productName {
+  | Some(name) => `You've been invited to the ${name} dashboard by `
+  | None => "You've been invited to the dashboard by "
+  }
 
   let getListOfMerchantIds = async () => {
     try {
@@ -79,9 +88,7 @@ let make = () => {
           <HyperSwitchLogo logoHeight="h-6" logoVariant iconUrl />
         </div>
         <div className="p-6 flex flex-col gap-2">
-          <p className={`${textHeadingClass} text-grey-900`}>
-            {"Hey there, welcome to Hyperswitch!"->React.string}
-          </p>
+          <p className={`${textHeadingClass} text-grey-900`}> {welcomeText->React.string} </p>
           <p className=textSubHeadingClass>
             {"Please accept your pending invitations"->React.string}
           </p>
@@ -95,7 +102,7 @@ let make = () => {
               <div className="flex items-center gap-5">
                 <Icon size=40 name="group-users" />
                 <div>
-                  {`You've been invited to the Hyperswitch dashboard by `->React.string}
+                  {invitedByText->React.string}
                   <span className="font-bold"> {{ele.entityId}->React.string} </span>
                   {` as `->React.string}
                   <span className="font-bold"> {{ele.roleId}->React.string} </span>

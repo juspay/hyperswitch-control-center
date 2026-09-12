@@ -21,7 +21,7 @@ type themeCreate = {
   email_config: option<emailConfig>,
 }
 
-let defaultCreate = (~lineage: lineage) => {
+let defaultCreate = (~lineage: lineage, ~productName) => {
   entity_type: lineage.entity_type,
   tenant_id: lineage.tenant_id,
   org_id: lineage.org_id,
@@ -35,5 +35,5 @@ let defaultCreate = (~lineage: lineage) => {
       buttons: {fallbackThemeConfig.settings.buttons},
     },
   },
-  email_config: Some(defaultEmailConfig),
+  email_config: Some(getDefaultEmailConfig(~productName)),
 }

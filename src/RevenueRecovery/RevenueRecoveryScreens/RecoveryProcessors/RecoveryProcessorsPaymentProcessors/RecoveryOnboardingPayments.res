@@ -196,7 +196,7 @@ let make = (
     | (#connectProcessor, #authenticateProcessor) =>
       <PageWrapper
         title="Authenticate Processor"
-        subTitle="Configure your credentials from your processor dashboard. Hyperswitch encrypts and stores these credentials securely.">
+        subTitle="Configure your credentials from your processor dashboard. Credentials are encrypted and stored securely.">
         <div className="-m-1 mb-10 flex flex-col gap-7 w-540-px">
           <PageLoaderWrapper screenState>
             <Form onSubmit initialValues validate=validateMandatoryField>

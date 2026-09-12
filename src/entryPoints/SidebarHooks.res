@@ -36,6 +36,7 @@ let useGetHsSidebarValues = () => {
     devVault,
     devUsers,
     devSuperposition,
+    branding,
   } = featureFlagDetails
   let {
     isFeatureEnabledForDenyListMerchant,
@@ -101,7 +102,9 @@ let useGetHsSidebarValues = () => {
       ~userHasResourceAccess,
       ~userHasAccess,
       ~checkUserEntity,
-      ~complianceCertificate,
+      ~complianceCertificate={
+        complianceCertificate && WhitelabelUtils.isComplianceContentAllowed(~branding)
+      },
       ~devModularityV2Enabled=devModularityV2,
       ~devThemeEnabled=devTheme,
       ~devUsers,

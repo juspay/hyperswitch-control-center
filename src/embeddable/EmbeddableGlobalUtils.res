@@ -1,6 +1,9 @@
 open LogicUtils
 
-let getConfigFromDict: Dict.t<JSON.t> => HyperSwitchConfigTypes.baseConfig = dict => {
+let getConfigFromDict = (
+  ~whitelabelComplianceDict=Dict.make(),
+  dict: Dict.t<JSON.t>,
+): HyperSwitchConfigTypes.baseConfig => {
   {
     apiBaseUrl: dict->getString("api_url", ""),
     olapUrl: dict->getString("olap_url", ""),
@@ -23,6 +26,7 @@ let getConfigFromDict: Dict.t<JSON.t> => HyperSwitchConfigTypes.baseConfig = dic
     },
     hypersenseUrl: dict->getString("hypersense_url", ""),
     superpositionConfigs: None,
+    whitelabelCompliance: whitelabelComplianceDict->HyperSwitchEntryUtils.getWhitelabelComplianceMapper,
   }
 }
 

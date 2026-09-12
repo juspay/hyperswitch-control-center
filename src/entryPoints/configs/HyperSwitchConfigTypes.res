@@ -15,6 +15,15 @@ type superpositionConfig = {
   workspace: string,
 }
 
+/* Merchant-owned compliance content, used only when the branding flag is on.
+ Every field must be supplied for the compliance UI to render - see WhitelabelUtils. */
+type whitelabelComplianceConfig = {
+  applePayInstructions: option<string>,
+  applePayRequestTemplate: option<string>,
+  supportEmail: option<string>,
+  certificateTitle: option<string>,
+}
+
 type baseConfig = {
   apiBaseUrl: string,
   olapUrl: string,
@@ -30,6 +39,7 @@ type baseConfig = {
   urlThemeConfig: urlThemeConfig,
   hypersenseUrl: string,
   superpositionConfigs: option<superpositionConfig>,
+  whitelabelCompliance: whitelabelComplianceConfig,
 }
 
 // Type definition for themes

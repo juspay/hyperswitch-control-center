@@ -273,8 +273,8 @@ let getAttemptHeading = (attemptColType: attemptColType) => {
   | HyperswitchErrorDescription =>
     Table.makeHeaderInfo(
       ~key="hyperswitch_error_description",
-      ~title="Hyperswitch Error Description",
-      ~description="This is a derived property by Hyperswitch based on the PSP and Issuer Errors(If available)",
+      ~title="Normalized Error Description",
+      ~description="This is a derived property based on the PSP and Issuer Errors(If available)",
     )
   }
 }
@@ -369,7 +369,7 @@ let getOpenSearchNewColumnDescription = colType =>
   | RefundsCount => "Number of refunds linked to this payment."
   | Activities => "Related refund and dispute activity for this payment."
   | RoutingApproach => "Routing strategy used to select the connector."
-  | UnifiedCode => "Normalized error or status code from Hyperswitch."
+  | UnifiedCode => "Normalized error or status code."
   | UnifiedMessage => "Normalized message explaining the payment outcome."
   | _ => ""
   }
@@ -715,8 +715,8 @@ let getHeadingForOtherDetails = otherDetailsColType => {
   | HyperswitchErrorDescription =>
     Table.makeHeaderInfo(
       ~key="hyperswitch_error_description",
-      ~title="Hyperswitch Error Description",
-      ~description="This is a derived property by Hyperswitch based on the PSP and Issuer Errors(If available)",
+      ~title="Normalized Error Description",
+      ~description="This is a derived property based on the PSP and Issuer Errors(If available)",
     )
   }
 }

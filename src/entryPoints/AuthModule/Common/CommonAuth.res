@@ -48,6 +48,7 @@ module Header = {
     let form = ReactFinalForm.useForm()
     let {email: isMagicLinkEnabled} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
+    let productName = WhitelabelUtils.useProductName()
 
     let headerStyle = switch authType {
     | MagicLinkEmailSent
@@ -59,7 +60,11 @@ module Header = {
 
     let cardHeaderText = switch authType {
     | LoginWithPassword | LoginWithEmail => "Hey there, Welcome back!"
-    | SignUP => "Welcome to Hyperswitch"
+    | SignUP =>
+      switch productName {
+      | Some(name) => `Welcome to ${name}`
+      | None => "Welcome!"
+      }
     | MagicLinkEmailSent
     | ForgetPasswordEmailSent
     | ResendVerifyEmailSent => "Please check your inbox"
@@ -127,7 +132,10 @@ module Header = {
       | LoginWithPassword | LoginWithEmail =>
         <RenderIf condition={signUpAllowed}>
           {getHeaderLink(
-            ~prefix="New to Hyperswitch?",
+            ~prefix=switch productName {
+            | Some(name) => `New to ${name}?`
+            | None => "New here?"
+            },
             ~authType=SignUP,
             ~path="/register",
             ~suffix="Sign up",
@@ -136,7 +144,10 @@ module Header = {
 
       | SignUP =>
         getHeaderLink(
-          ~prefix="Already using Hyperswitch?",
+          ~prefix=switch productName {
+          | Some(name) => `Already using ${name}?`
+          | None => "Already have an account?"
+          },
           ~authType=isMagicLinkEnabled ? LoginWithEmail : LoginWithPassword,
           ~path=`/login?auth_id=${authId}`,
           ~suffix="Sign in",

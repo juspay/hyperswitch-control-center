@@ -55,6 +55,12 @@ module APMConfigureStep = {
   @react.component
   let make = (~index, ~heading, ~description, ~action, ~buttonText) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
+    let showHyperswitchResources = WhitelabelUtils.useShowHyperswitchResources()
+    let showAction = switch action {
+    | ExternalLink({url}) =>
+      showHyperswitchResources || !(url->WhitelabelUtils.isHyperswitchResourceUrl)
+    | InternalRoute(_) => true
+    }
     <div
       className="flex flex-row gap-10 items-center justify-between p-4 rounded-xl shadow-cardShadow border border-nd_br_gray-500 cursor-pointer">
       <div className="flex flex-row gap-4 items-start w-3/4">
@@ -71,22 +77,24 @@ module APMConfigureStep = {
           </div>
         </div>
       </div>
-      <Button
-        text=buttonText
-        buttonType={Secondary}
-        buttonSize={Medium}
-        customButtonStyle="w-44"
-        onClick={_ => {
-          switch action {
-          | InternalRoute(route) =>
-            RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=route))
-          | ExternalLink({url, trackingEvent}) => {
-              mixpanelEvent(~eventName=trackingEvent)
-              url->Window._open
+      <RenderIf condition={showAction}>
+        <Button
+          text=buttonText
+          buttonType={Secondary}
+          buttonSize={Medium}
+          customButtonStyle="w-44"
+          onClick={_ => {
+            switch action {
+            | InternalRoute(route) =>
+              RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=route))
+            | ExternalLink({url, trackingEvent}) => {
+                mixpanelEvent(~eventName=trackingEvent)
+                url->Window._open
+              }
             }
-          }
-        }}
-      />
+          }}
+        />
+      </RenderIf>
     </div>
   }
 }

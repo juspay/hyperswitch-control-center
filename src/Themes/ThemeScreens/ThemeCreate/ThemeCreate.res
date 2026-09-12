@@ -17,8 +17,9 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (showUploadModal, setShowUploadModal) = React.useState(_ => false)
   let (themeId, setThemeId) = React.useState(_ => "")
+  let productName = WhitelabelUtils.useProductName()
   let (initialValues, setInitialValues) = React.useState(() =>
-    defaultCreate(~lineage)->Identity.genericTypeToJson
+    defaultCreate(~lineage, ~productName)->Identity.genericTypeToJson
   )
 
   let redirectToList = () => {

@@ -13,8 +13,9 @@ let make = (~themeId, ~orgId, ~merchantId, ~profileId) => {
     ~merchantId=merchantId->Option.getOr(""),
     ~profileId=profileId->Option.getOr(""),
   )
+  let productName = WhitelabelUtils.useProductName()
   let (initialValues, setInitialValues) = React.useState(() =>
-    defaultCreate(~lineage)->Identity.genericTypeToJson
+    defaultCreate(~lineage, ~productName)->Identity.genericTypeToJson
   )
   let {getUserInfo} = OMPSwitchHooks.useUserInfo()
   let {setApplicationState} = React.useContext(UserInfoProvider.defaultContext)

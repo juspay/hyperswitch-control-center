@@ -6,6 +6,14 @@ module AccordionItemComponent = {
   @react.component
   let make = (~step: stepDetails) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
+    let showHyperswitchResources = WhitelabelUtils.useShowHyperswitchResources()
+    let cta = step.cta->Option.filter(((_, action)) =>
+      switch action {
+      | ExternalLink({url}) =>
+        showHyperswitchResources || !(url->WhitelabelUtils.isHyperswitchResourceUrl)
+      | InternalRoute(_) => true
+      }
+    )
 
     <div className="flex flex-col gap-4">
       {step.description}
@@ -18,7 +26,7 @@ module AccordionItemComponent = {
         </video>
       | None => React.null
       }}
-      {switch step.cta {
+      {switch cta {
       | Some((text, action)) =>
         <a
           onClick={event => {
