@@ -1,17 +1,16 @@
-type adminType = [#tenant_admin | #org_admin | #merchant_admin | #non_admin]
+/*
+ Grants create access for an org/merchant/profile when the user's role is scoped to one of
+ the allowed parent entities and holds the `account_manage` permission group, mirroring the
+ backend permission check. This keeps custom roles with the required permission groups on
+ par with the built-in admin roles.
+*/
+let useOMPCreateAccessHook: array<
+  UserInfoTypes.entity,
+> => CommonAuthTypes.authorization = allowedEntities => {
+  let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
-let roleIdVariantMapper: string => adminType = roleId => {
-  switch roleId {
-  | "tenant_admin" => #tenant_admin
-  | "org_admin" => #org_admin
-  | "merchant_admin" => #merchant_admin
-  | _ => #non_admin
-  }
-}
-
-let useOMPCreateAccessHook: array<adminType> => CommonAuthTypes.authorization = allowedRoles => {
-  let {roleId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
-  let roleIdTypedValue = roleId->roleIdVariantMapper
-
-  allowedRoles->Array.includes(roleIdTypedValue) ? Access : NoAccess
+  checkUserEntity(allowedEntities)
+    ? userHasAccess(~groupAccess=UserManagementTypes.AccountManage)
+    : NoAccess
 }

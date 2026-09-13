@@ -6,8 +6,8 @@ let make = () => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let userHasCreateMerchantAccess = OMPCreateAccessHook.useOMPCreateAccessHook([
-    #tenant_admin,
-    #org_admin,
+    #Tenant,
+    #Organization,
   ])
 
   <div className="flex flex-1 flex-col gap-14 items-center justify-center w-full h-screen">
