@@ -1,5 +1,11 @@
 type steps =
-  IntegFields | PaymentMethods | CustomMetadata | SummaryAndTest | Preview | AutomaticFlow
+  | IntegFields
+  | PaymentMethods
+  | CustomMetadata
+  | SummaryAndTest
+  | Preview
+  | AutomaticFlow
+  | WebhookRegistration
 type connectorIntegrationField = {
   placeholder?: string,
   label?: string,
