@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.11.1
+
+### Features
+
+- Add account updater section to payment settings ([#5525](https://github.com/juspay/hyperswitch-control-center/pull/5525)) ([`d4f5222`](https://github.com/juspay/hyperswitch-control-center/commit/d4f5222b94ebd4a8de2ebfcb58a49fd4ebe7121f))
+- Google Pay internal gateway flow integration ([#5532](https://github.com/juspay/hyperswitch-control-center/pull/5532)) ([`5f6733c`](https://github.com/juspay/hyperswitch-control-center/commit/5f6733c995d9d0abf957c2d5aeb2b883b313f407))
+
+### Bug Fixes
+
+- Sync routing history on focus and hand off cut-over flows to the Decision Engine ([#5503](https://github.com/juspay/hyperswitch-control-center/pull/5503)) ([`2394f09`](https://github.com/juspay/hyperswitch-control-center/commit/2394f095ad7f28d24eefabb0524519686fef4c18))
+
+### Miscellaneous Tasks
+
+- Scope the transformation filter to the account on transaction details ([#5530](https://github.com/juspay/hyperswitch-control-center/pull/5530)) ([`593e796`](https://github.com/juspay/hyperswitch-control-center/commit/593e7967730314e7e43fda9b29a00c74cc892871))
+
+**Full Changelog:** [`2026.09.11.0...2026.09.11.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.11.0...2026.09.11.1)
+
+- - -
+
 ## 2026.09.11.0
 
 ### Features
