@@ -1,6 +1,5 @@
 open LogicUtils
 open OrderTypes
-open CommonAuthUtils
 
 let getPaymentListSourceFromString = (~defaultSource, source) =>
   switch source {
@@ -362,6 +361,79 @@ let getAdvancedPaymentFilterDescription = key =>
   | _ => "Advanced payment filter."
   }
 
+// The list API types ids as `LengthId<64, 1>` and customer_email as `pii::Email`; a value they
+// cannot parse comes back as a 400. The email regex mirrors the backend's `validate_email`, which
+// is stricter than the shared `isValidEmail` helper.
+let idFilterMaxLength = 64
+let emailFilterMaxLength = 319
+let invalidIdFilterCharRegex = %re("/[^a-zA-Z0-9_-]/u")
+let emailFilterRegex = %re(
+  "/^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/"
+)
+let cardLast4Regex = %re("/^\d{4}$/")
+
+// `u` flag so a multi-byte character is reported whole, not as half a surrogate pair.
+let getInvalidIdFilterCharacter = value =>
+  invalidIdFilterCharRegex->RegExp.exec(value)->Option.map(RegExp.Result.fullMatch)
+
+let isValidIdFilter = value => {
+  let trimmed = value->String.trim
+  trimmed->isNonEmptyString &&
+  trimmed->String.length <= idFilterMaxLength &&
+  trimmed->getInvalidIdFilterCharacter->Option.isNone
+}
+
+let isValidEmailFilter = value => {
+  let trimmed = value->String.trim
+  trimmed->String.length <= emailFilterMaxLength && emailFilterRegex->RegExp.test(trimmed)
+}
+
+// An empty filter never reaches the request, so it is not reported as an error.
+let validateIdFilter = (~label, value) => {
+  let trimmed = value->String.trim
+  if trimmed->isEmptyString {
+    None
+  } else if trimmed->String.length > idFilterMaxLength {
+    Some(`${label} cannot be longer than ${idFilterMaxLength->Int.toString} characters.`)
+  } else {
+    trimmed
+    ->getInvalidIdFilterCharacter
+    ->Option.map(char =>
+      `${label} cannot contain "${char}". Use letters, numbers, hyphens or underscores.`
+    )
+  }
+}
+
+let validateEmailFilter = value => {
+  let trimmed = value->String.trim
+  trimmed->isEmptyString || trimmed->isValidEmailFilter
+    ? None
+    : Some("Enter a valid email address, for example name@example.com.")
+}
+
+let validateCardLast4Filter = value => {
+  let trimmed = value->String.trim
+  trimmed->isEmptyString || cardLast4Regex->RegExp.test(trimmed)
+    ? None
+    : Some("Enter the last 4 digits of the card.")
+}
+
+let getAdvancedPaymentFilterError = (filterType: filter, value) =>
+  switch filterType {
+  | #customer_id => value->validateIdFilter(~label="Customer ID")
+  | #customer_email => value->validateEmailFilter
+  | #card_last_4 => value->validateCardLast4Filter
+  | _ => None
+  }
+
+// Must resolve to `undefined`; ReactFinalForm counts an explicit `null` as an error of its own.
+let advancedPaymentFilterValidator = filterType =>
+  Identity.syncValidatorToFieldValidator((value: option<string>, _allValues: JSON.t) =>
+    filterType
+    ->getAdvancedPaymentFilterError(value->Option.getOr(""))
+    ->Option.mapOr(Nullable.undefined, Nullable.make)
+  )
+
 let advancedPaymentTextListFilterTypes: array<filter> = [
   #card_last_4,
   #active_attempt_id,
@@ -443,13 +515,13 @@ let buildAdvancedPaymentListPayload = (
   if trimmedSearchText->isNonEmptyString {
     body->Dict.delete(startTimeKey)
     body->Dict.delete(endTimeKey)
-    // isValidEmail is a form-error predicate: true means the value is NOT an email
-    let isEmail = !(trimmedSearchText->isValidEmail)
-    if isEmail {
+
+    // Only route to the typed fields when the text satisfies them; the rest falls through to query.
+    if trimmedSearchText->isValidEmailFilter {
       body->setOptionString(customerEmailFilterKey, Some(trimmedSearchText))
-    } else if trimmedSearchText->String.startsWith("pay_") {
+    } else if trimmedSearchText->String.startsWith("pay_") && trimmedSearchText->isValidIdFilter {
       body->setOptionString(paymentIdFilterKey, Some(trimmedSearchText))
-    } else if RegExp.test(%re("/^\d{4}$/"), trimmedSearchText) {
+    } else if cardLast4Regex->RegExp.test(trimmedSearchText) {
       body->setOptionJson(
         (#card_last_4: advancedPaymentTextListFilter :> string),
         Some([trimmedSearchText]->getJsonFromArrayOfString),
@@ -572,6 +644,14 @@ let initialFiltersWithSource = (
       )
     }
 
+    let validate = switch filterType {
+    | #customer_id
+    | #customer_email
+    | #card_last_4 =>
+      Some(filterType->advancedPaymentFilterValidator)
+    | _ => None
+    }
+
     {
       field: FormRenderer.makeFieldInfo(
         ~label=key,
@@ -583,6 +663,7 @@ let initialFiltersWithSource = (
         },
         ~customInput,
         ~labelRightComponent?,
+        ~validate?,
       ),
       localFilter: Some(filterByData),
     }
