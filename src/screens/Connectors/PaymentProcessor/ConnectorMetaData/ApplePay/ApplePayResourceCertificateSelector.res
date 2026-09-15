@@ -1,50 +1,42 @@
 open Typography
 
 @react.component
-let make = (~connector) => {
+let make = (~merchantConnectorId) => {
   open LogicUtils
   open APIUtils
+  open HierarchicalConfigTypes
   open HierarchicalConfigUtils
-  open ReactFinalForm
   open ApplePayResourceCertificateSelectorUtils
 
   let getURL = useGetURL()
   let fetchList = useUpdateMethod(~showErrorToast=false)
   let linkResource = useUpdateMethod(~showErrorToast=false)
   let showToast = ToastAdapter.useShowToast()
-  let {getCommonSessionDetails, getResolvedUserInfo} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
-  let {merchantId, profileId} = getCommonSessionDetails()
-  let {transactionEntity} = getResolvedUserInfo()
-  let form = useForm()
-  let formState: formState = useFormState(useFormSubscription(["values"])->Nullable.make)
+
   let (resources, setResources) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (isLinking, setIsLinking) = React.useState(_ => false)
   let (linkedResourceId, setLinkedResourceId) = React.useState(_ => "")
+  let (selectedResourceId, setSelectedResourceId) = React.useState(_ => "")
 
-  let resourceIdFieldName = getResourceIdFieldName(~connector)
-  let resourceLinkedFieldName = getResourceLinkedFieldName(~connector)
+  let scopeType = #MerchantConnectorAccount->resourceRequestorTypeToString
 
-  let isLoading = screenState == Loading
+  let isLoading = screenState == PageLoaderWrapper.Loading
   let hasFetchError = switch screenState {
-  | Error(_) => true
+  | PageLoaderWrapper.Error(_) => true
   | _ => false
   }
 
-  let sessionTokenDict =
-    formState.values
-    ->getDictFromJsonObject
-    ->getDictFromNestedDict("metadata", "apple_pay_combined")
-    ->getDictFromNestedDict("manual", "session_token_data")
-  let selectedResourceId = sessionTokenDict->getString("resource_id", "")
-
   let fetchResources = async () => {
     try {
-      setScreenState(_ => Loading)
+      setScreenState(_ => PageLoaderWrapper.Loading)
       let requestUrl = getURL(~entityName=V1(RESOURCES_LIST), ~methodType=Post)
-      let payload = [("type", applePayCertificateResourceType->JSON.Encode.string)]->Dict.fromArray
+      let payload =
+        [
+          ("type", applePayCertificateResourceType->JSON.Encode.string),
+          ("scope_type", scopeType->JSON.Encode.string),
+          ("scope_id", merchantConnectorId->JSON.Encode.string),
+        ]->Dict.fromArray
       let response = await fetchList(requestUrl, payload->JSON.Encode.object, Post)
       let resourceList =
         response
@@ -56,16 +48,15 @@ let make = (~connector) => {
 
       switch resourceList->Array.find(resource => resource.isLinked) {
       | Some(linkedResource) =>
-        form.change(resourceIdFieldName, linkedResource.id->JSON.Encode.string)
-        form.change(resourceLinkedFieldName, true->JSON.Encode.bool)
         setLinkedResourceId(_ => linkedResource.id)
+        setSelectedResourceId(_ => linkedResource.id)
       | None => ()
       }
-      setScreenState(_ => Success)
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ =>
       let message = "Failed to fetch certificates"
-      setScreenState(_ => Error(message))
+      setScreenState(_ => PageLoaderWrapper.Error(message))
       showToast(~message, ~toastType=ToastError)
     }
   }
@@ -73,7 +64,7 @@ let make = (~connector) => {
   React.useEffect(() => {
     fetchResources()->ignore
     None
-  }, [])
+  }, [merchantConnectorId])
 
   let linkSelectedResource = async () => {
     if selectedResourceId->isNonEmptyString {
@@ -84,18 +75,12 @@ let make = (~connector) => {
           ~methodType=Post,
           ~id=Some(selectedResourceId),
         )
-        let requestorType = transactionEntity->getResourceRequestorTypeFromEntity
-        let payload = [
-          ("requestor_type", requestorType->resourceRequestorTypeToString->JSON.Encode.string),
-          (
-            "requestor_id",
-            requestorType
-            ->getResourceRequestorId(~merchantId, ~profileId)
-            ->JSON.Encode.string,
-          ),
-        ]->Dict.fromArray
+        let payload =
+          [
+            ("requestor_type", scopeType->JSON.Encode.string),
+            ("requestor_id", merchantConnectorId->JSON.Encode.string),
+          ]->Dict.fromArray
         let _ = await linkResource(requestUrl, payload->JSON.Encode.object, Post)
-        form.change(resourceLinkedFieldName, true->JSON.Encode.bool)
         setLinkedResourceId(_ => selectedResourceId)
         showToast(~message="Certificate linked successfully", ~toastType=ToastSuccess)
       } catch {
@@ -115,17 +100,52 @@ let make = (~connector) => {
     }
   }
 
-  <div className="flex flex-col gap-2">
-    <div className="flex items-end gap-2">
+  let options = resources->getDropdownOptions
+  let selectedLabel =
+    options
+    ->Array.find(option => option.value === selectedResourceId)
+    ->Option.mapOr("Select certificate", option => option.label)
+
+  let input: ReactFinalForm.fieldRenderPropsInput = {
+    name: "resource_id",
+    onBlur: _ => (),
+    onFocus: _ => (),
+    onChange: ev => setSelectedResourceId(_ => ev->Identity.formReactEventToString),
+    value: selectedResourceId->JSON.Encode.string,
+    checked: false,
+  }
+
+  let baseComponentMethod = isOpen =>
+    <div
+      className={`flex items-center justify-between w-full h-10 px-4 border border-nd_gray-300 rounded bg-white cursor-pointer hover:border-nd_gray-400 overflow-hidden ${body.md.regular}`}>
+      <span
+        className={`truncate ${selectedResourceId->isEmptyString
+            ? "text-nd_gray-400"
+            : "text-nd_gray-800"}`}>
+        {selectedLabel->React.string}
+      </span>
+      <Icon
+        name="chevron-down"
+        size=14
+        className={`text-nd_gray-400 flex-shrink-0 ml-2 transition duration-[250ms] ${isOpen
+            ? "rotate-180"
+            : "rotate-0"}`}
+      />
+    </div>
+
+  <div className="flex flex-col gap-2 w-full">
+    <div className="flex items-center gap-2">
       <div className="flex-1">
-        <FormRenderer.FieldRenderer
-          labelClass={body.md.semibold}
-          field={CommonConnectorHelper.selectInput(
-            ~field=resourceField,
-            ~formName=resourceIdFieldName,
-            ~opt=Some(resources->getDropdownOptions),
-            ~onItemChange={_ => form.change(resourceLinkedFieldName, false->JSON.Encode.bool)},
-          )}
+        <SelectBox.BaseDropdown
+          allowMultiSelect=false
+          hideMultiSelectButtons=true
+          buttonText="Select certificate"
+          options
+          input
+          searchable=false
+          fullLength=true
+          dropdownCustomWidth="w-full"
+          baseComponentMethod
         />
       </div>
       <Button
@@ -136,7 +156,7 @@ let make = (~connector) => {
       />
     </div>
     <RenderIf condition={!isLoading && !hasFetchError && resources->isEmptyArray}>
-      <p className={`${body.sm.regular} text-nd_gray-500 pl-2`}>
+      <p className={`${body.sm.regular} text-nd_gray-500`}>
         {"No certificates available. Add one from Settings > Hierarchical Configurations."->React.string}
       </p>
     </RenderIf>

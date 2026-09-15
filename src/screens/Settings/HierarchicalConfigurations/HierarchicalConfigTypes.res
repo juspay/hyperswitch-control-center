@@ -7,7 +7,8 @@ type csrState =
 
 type selectedFile = {name: string, base64: string}
 
-type resourceRequestorType = MerchantConnectorAccount | Profile | MerchantAccount
+type resourceRequestorType = [#MerchantConnectorAccount | #Profile | #MerchantAccount]
+
 type resourceSummary = {
   id: string,
   displaySchema: Dict.t<JSON.t>,

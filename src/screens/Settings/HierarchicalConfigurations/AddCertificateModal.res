@@ -20,6 +20,17 @@ let make = (~showModal, ~setShowModal, ~onSuccess) => {
 
   let resourceId = getResourceId(csrState)
 
+  React.useEffect(() => {
+    if !showModal {
+      setStep(_ => Download)
+      setCsrState(_ => NotGenerated)
+      setSelectedFile(_ => None)
+      setSubmitState(_ => Disabled)
+      setErrorMessage(_ => None)
+    }
+    None
+  }, [showModal])
+
   let generateAndDownload = async () => {
     try {
       setErrorMessage(_ => None)
@@ -30,8 +41,7 @@ let make = (~showModal, ~setShowModal, ~onSuccess) => {
       let dict = response->getDictFromJsonObject
       let generatedCsr =
         dict
-        ->getDictfromDict("data")
-        ->getDictfromDict(applePayCertificateResourceType)
+        ->getDictFromNestedDict("data", applePayCertificateResourceType)
         ->getString("csr", "")
       setCsrState(_ => Generated({resourceId: dict->getString("id", ""), csr: generatedCsr}))
       DownloadUtils.download(~fileName=csrFileName, ~content=generatedCsr, ~fileType=csrFileType)

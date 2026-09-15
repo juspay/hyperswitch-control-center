@@ -22,17 +22,13 @@ let getDropdownOptions = (resources: array<resourceSummary>): array<SelectBox.dr
     resourceOption
   })
 
-let resourceRequestorTypeToString = requestorType =>
-  switch requestorType {
-  | MerchantConnectorAccount => "merchant_connector_account"
-  | Profile => "profile"
-  | MerchantAccount => "merchant_account"
-  }
+let resourceRequestorTypeToString = (requestorType: resourceRequestorType) =>
+  (requestorType :> string)->camelToSnake
 
 let getResourceRequestorTypeFromEntity = (entity: UserInfoTypes.entity): resourceRequestorType =>
   switch entity {
-  | #Profile => Profile
-  | #Merchant | #Organization | #Tenant => MerchantAccount
+  | #Profile => #Profile
+  | #Merchant | #Organization | #Tenant => #MerchantAccount
   }
 
 let getResourceRequestorId = (
@@ -42,7 +38,7 @@ let getResourceRequestorId = (
   ~merchantConnectorAccountId="",
 ) =>
   switch requestorType {
-  | MerchantAccount => merchantId
-  | Profile => profileId
-  | MerchantConnectorAccount => merchantConnectorAccountId
+  | #MerchantAccount => merchantId
+  | #Profile => profileId
+  | #MerchantConnectorAccount => merchantConnectorAccountId
   }
