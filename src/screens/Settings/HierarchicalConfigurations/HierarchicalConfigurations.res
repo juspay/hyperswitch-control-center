@@ -2,6 +2,7 @@
 let make = () => {
   open APIUtils
   open LogicUtils
+  open HierarchicalConfigUtils
 
   let getURL = useGetURL()
   let fetchList = useUpdateMethod(~showErrorToast=false)
@@ -17,17 +18,14 @@ let make = () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(~entityName=V1(RESOURCES_LIST), ~methodType=Post)
-      let payload =
-        [
-          ("type", HierarchicalConfigUtils.applePayCertificateResourceType->JSON.Encode.string),
-        ]->Dict.fromArray
+      let payload = [("type", applePayCertificateResourceType->JSON.Encode.string)]->Dict.fromArray
       let response = await fetchList(url, payload->JSON.Encode.object, Post)
       let resourceList =
         response
         ->getDictFromJsonObject
         ->getArrayFromDict("resources", [])
         ->Array.filterMap(JSON.Decode.object)
-        ->Array.map(HierarchicalConfigUtils.itemToObjectMapper)
+        ->Array.map(itemToObjectMapper)
       setResources(_ => resourceList)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -84,10 +82,8 @@ let make = () => {
         noDataMsg="No data available"
       />
     </PageLoaderWrapper>
-    <RenderIf condition=showAddModal>
-      <AddCertificateModal
-        showModal=showAddModal setShowModal=setShowAddModal onSuccess=onAddSuccess
-      />
-    </RenderIf>
+    <AddCertificateModal
+      showModal=showAddModal setShowModal=setShowAddModal onSuccess=onAddSuccess
+    />
   </div>
 }

@@ -1,4 +1,6 @@
 open HierarchicalConfigTypes
+open HierarchicalConfigUtils
+open LogicUtils
 
 type colType = ResourceId | MerchantIdentifier | CreatedAt
 
@@ -16,8 +18,8 @@ let getCell = (resource: resourceSummary, colType): Table.cell =>
   switch colType {
   | ResourceId => DisplayCopyCell(resource.id)
   | MerchantIdentifier =>
-    let identifier = resource->HierarchicalConfigUtils.getMerchantIdentifier
-    Text(identifier->LogicUtils.isNonEmptyString ? identifier : "-")
+    let identifier = resource->getMerchantIdentifier
+    Text(identifier->isNonEmptyString ? identifier : "-")
   | CreatedAt => Date(resource.createdAt)
   }
 

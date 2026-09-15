@@ -549,8 +549,8 @@ let hierarchicalConfigurationsSection = userHasResourceAccess => {
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: [
       ("Hierarchical Configurations", ""),
-      ("Apple Pay certificate", ""),
       ("Certificate management", ""),
+      ("Apple Pay certificate", ""),
     ],
   })
 }

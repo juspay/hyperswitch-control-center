@@ -28,13 +28,12 @@ let make = (~showModal, ~setShowModal, ~onSuccess) => {
       let payload = [("type", applePayCertificateResourceType->JSON.Encode.string)]->Dict.fromArray
       let response = await updateDetails(url, payload->JSON.Encode.object, Post)
       let dict = response->getDictFromJsonObject
-      let id = dict->getString("id", "")
       let generatedCsr =
         dict
         ->getDictfromDict("data")
         ->getDictfromDict(applePayCertificateResourceType)
         ->getString("csr", "")
-      setCsrState(_ => Generated({resourceId: id, csr: generatedCsr}))
+      setCsrState(_ => Generated({resourceId: dict->getString("id", ""), csr: generatedCsr}))
       DownloadUtils.download(~fileName=csrFileName, ~content=generatedCsr, ~fileType=csrFileType)
     } catch {
     | Exn.Error(e) =>
