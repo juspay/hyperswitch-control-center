@@ -56,6 +56,9 @@ let sessionToken = (dict): sessionTokenData => {
     payment_processing_details_at: sessionTokenDict->getOptionString(
       "payment_processing_details_at",
     ),
+    payment_processing_detail_input_type: sessionTokenDict->getOptionString(
+      "payment_processing_detail_input_type",
+    ),
     payment_processing_certificate: sessionTokenDict->getOptionString(
       "payment_processing_certificate",
     ),
@@ -202,6 +205,18 @@ let paymentProcessingMapper = state => {
   }
 }
 
+let paymentProcessingDetailInputTypeMapper = state => {
+  switch state->String.toLowerCase {
+  | "link_hierarchical_resource" => #LinkHierarchicalResource
+  | _ => #Raw
+  }
+}
+
+let paymentProcessingDetailInputTypeOptions: array<SelectBox.dropdownOption> = [
+  {label: "Enter certificate details", value: "raw"},
+  {label: "Link a managed certificate", value: "link_hierarchical_resource"},
+]
+
 let initiativeMapper = state => {
   switch state->String.toLowerCase {
   | "ios" => #ios
@@ -247,14 +262,29 @@ let validateInitiative = data => {
 }
 
 let validatePaymentProcessingDetailsAt = data => {
-  switch data.payment_processing_details_at {
-  | Some(value) =>
+  let isLinkedResource =
+    data.payment_processing_detail_input_type
+    ->Option.getOr("")
+    ->paymentProcessingDetailInputTypeMapper == #LinkHierarchicalResource
+
+  let hasRawCertificates =
+    data.payment_processing_certificate->Option.isSome &&
+      data.payment_processing_certificate_key->Option.isSome
+
+  data.payment_processing_details_at->Option.mapOr(false, value =>
+    value->paymentProcessingMapper == #Hyperswitch ? isLinkedResource || hasRawCertificates : true
+  )
+}
+
+let usesLinkHierarchicalResource = metadata => {
+  let data = metadata->getDictFromJsonObject->getDictfromDict("apple_pay_combined")->sessionToken
+
+  data.payment_processing_details_at->Option.mapOr(false, value =>
     value->paymentProcessingMapper == #Hyperswitch
-      ? data.payment_processing_certificate->Option.isSome &&
-          data.payment_processing_certificate_key->Option.isSome
-      : true
-  | None => false
-  }
+  ) &&
+    data.payment_processing_detail_input_type->Option.mapOr(false, value =>
+      value->paymentProcessingDetailInputTypeMapper == #LinkHierarchicalResource
+    )
 }
 
 let validateManualFlow = (values, ~connector) => {
