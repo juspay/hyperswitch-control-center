@@ -21,14 +21,6 @@ let getBlocklistBatchJobTypeFromString = jobType => {
   }
 }
 
-let blocklistJobTypeLabel = jobType => {
-  switch jobType {
-  | Upload => "Upload"
-  | Export => "Export"
-  | UnknownJobType => "-"
-  }
-}
-
 let isExportJob = (job: blocklistBatchJob) => {
   switch job.job_type {
   | Export => true

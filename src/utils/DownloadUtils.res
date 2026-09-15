@@ -16,11 +16,14 @@ let download = (~fileName, ~content, ~fileType) => {
 }
 
 let downloadFromUrl = url => {
+  DOMUtils.querySelectorAll(DOMUtils.document, "iframe#download-frame")->Array.forEach(frame =>
+    frame->DOMUtils.remove()
+  )
   let frame = DOMUtils.document->DOMUtils.createElement("iframe")
+  frame->DOMUtils.setAttribute("id", "download-frame")
   frame->DOMUtils.setAttribute("style", "display:none")
   frame->DOMUtils.setAttribute("src", url)
   DOMUtils.appendChild(frame)
-  let _ = setTimeout(() => frame->DOMUtils.remove(), 60000)
 }
 
 let downloadOld = (~fileName, ~content) => {

@@ -31,30 +31,37 @@ let getHeading = colType => {
 let getCell = (~onRefreshJob, ~onDownloadExport, job: blocklistBatchJob, colType): Table.cell => {
   switch colType {
   | JobId => DisplayCopyCell(job.job_id)
-  | JobType => Text(job.job_type->blocklistJobTypeLabel)
+  | JobType => Text((job.job_type :> string)->LogicUtils.snakeToTitle)
   | Status => Label({title: job.status->normalizeStatus, color: job.status->statusLabelColor})
   | TotalRows => Text(job.total_rows->Int.toString)
   | SucceededRows => Text(job->isExportJob ? "-" : job.succeeded_rows->Int.toString)
   | FailedRows => Text(job->isExportJob ? "-" : job.failed_rows->Int.toString)
   | CreatedAt => Date(job.created_at)
   | UpdatedAt => Date(job.updated_at)
-  | Actions =>
-    Table.CustomCell(
-      job->isExportJob && job.status->isTerminalStatus
-        ? <ActionIcon
-            iconName="nd-download-bar-down"
-            description="Download"
-            isDisabled={!job.downloadable}
-            onClick={() => onDownloadExport(job.job_id)->ignore}
-          />
-        : <ActionIcon
-            iconName="sync"
-            description="Refresh"
-            isDisabled={job.status->isTerminalStatus}
-            onClick={() => onRefreshJob(job.job_id)->ignore}
-          />,
-      "",
-    )
+  | Actions => {
+      let isExportDownload = job->isExportJob && job.status->isTerminalStatus
+      Table.CustomCell(
+        <>
+          <RenderIf condition={isExportDownload}>
+            <ActionIcon
+              iconName="nd-download-bar-down"
+              description="Download"
+              isDisabled={!job.downloadable}
+              onClick={() => onDownloadExport(job.job_id)->ignore}
+            />
+          </RenderIf>
+          <RenderIf condition={!isExportDownload}>
+            <ActionIcon
+              iconName="sync"
+              description="Refresh"
+              isDisabled={job.status->isTerminalStatus}
+              onClick={() => onRefreshJob(job.job_id)->ignore}
+            />
+          </RenderIf>
+        </>,
+        "",
+      )
+    }
   }
 }
 
