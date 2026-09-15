@@ -71,6 +71,7 @@ payment_link_theme_configurator=false
 allow_connected_merchants=false
 network_tokenization=false
 vault_psp_tokenization=false
+hierarchical_configurations=false
 dev_click_to_pay=true
 dev_alt_payment_methods=false
 dev_modularity_v2=true

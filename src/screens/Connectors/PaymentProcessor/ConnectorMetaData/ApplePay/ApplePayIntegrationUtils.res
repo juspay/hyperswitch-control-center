@@ -56,12 +56,8 @@ let sessionToken = (dict): sessionTokenData => {
     payment_processing_details_at: sessionTokenDict->getOptionString(
       "payment_processing_details_at",
     ),
-    payment_processing_certificate: sessionTokenDict->getOptionString(
-      "payment_processing_certificate",
-    ),
-    payment_processing_certificate_key: sessionTokenDict->getOptionString(
-      "payment_processing_certificate_key",
-    ),
+    resource_id: sessionTokenDict->getOptionString("resource_id"),
+    resource_linked: sessionTokenDict->getOptionBool("resource_linked"),
   }
 }
 
@@ -250,8 +246,7 @@ let validatePaymentProcessingDetailsAt = data => {
   switch data.payment_processing_details_at {
   | Some(value) =>
     value->paymentProcessingMapper == #Hyperswitch
-      ? data.payment_processing_certificate->Option.isSome &&
-          data.payment_processing_certificate_key->Option.isSome
+      ? data.resource_linked->Option.getOr(false)
       : true
   | None => false
   }

@@ -215,6 +215,7 @@ let useGetURL = () => {
     ~entityName: entityTypeWithVersion,
     ~methodType: Fetch.requestMethod,
     ~id=None,
+    ~idType=None,
     ~connector=None,
     ~userType: userType=#NONE,
     ~userRoleTypes: userRoleTypes=NONE,
@@ -1666,6 +1667,21 @@ let useGetURL = () => {
       | INTEGRATION_DETAILS => Default(`user/get_sandbox_integration_details`)
       | SDK_PAYMENT => Default("payments")
       | CHAT_BOT => Default(`chat/ai/data`)
+
+      /* HIERARCHICAL CONFIGURATIONS (RESOURCES) */
+      | RESOURCES =>
+        switch (methodType, id, idType) {
+        | (Post, _, _) => Olap(`hierarchical_resources`)
+        | (Put, Some(resourceId), Some(resourceType)) =>
+          Olap(`hierarchical_resources/${resourceType}/${resourceId}`)
+        | _ => Olap(`hierarchical_resources`)
+        }
+      | RESOURCES_LIST => Olap(`hierarchical_resources/list`)
+      | RESOURCES_LINK =>
+        switch id {
+        | Some(resourceId) => Olap(`hierarchical_resources/${resourceId}/link`)
+        | None => Olap(`hierarchical_resources`)
+        }
       }
 
     | V2(entityNameForv2) =>

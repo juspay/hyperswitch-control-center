@@ -109,6 +109,12 @@ let make = (~setScreenState) => {
       <AccessControl isEnabled=featureFlagDetails.complianceCertificate authorization=Access>
         <Compliance />
       </AccessControl>
+    | list{"hierarchical-configurations"} =>
+      <AccessControl
+        isEnabled=featureFlagDetails.hierarchicalConfigurations
+        authorization={userHasAccess(~groupAccess=ConnectorsManage)}>
+        <HierarchicalConfigurations />
+      </AccessControl>
     | list{"3ds"} =>
       <AccessControl authorization={userHasAccess(~groupAccess=WorkflowsView)}>
         <HSwitchThreeDS />

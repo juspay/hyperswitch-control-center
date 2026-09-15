@@ -98,6 +98,9 @@ type entityName =
   | BLOCKLIST
   | BLOCKLIST_COUNT
   | BLOCKLIST_LOOKUP
+  | RESOURCES
+  | RESOURCES_LIST
+  | RESOURCES_LINK
 
 type v2entityNameType =
   | CUSTOMERS
@@ -231,6 +234,7 @@ type getUrlTypes = (
   ~entityName: entityTypeWithVersion,
   ~methodType: Fetch.requestMethod,
   ~id: option<string>=?,
+  ~idType: option<string>=?,
   ~connector: option<string>=?,
   ~userType: userType=?,
   ~userRoleTypes: userRoleTypes=?,
