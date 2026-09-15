@@ -92,7 +92,7 @@ let make = () => {
       let url = getURL(~entityName=V1(BLOCKLIST_BATCH), ~methodType=Get, ~id=Some(jobId))
       let response = await fetchDetails(url)
       switch response->getDictFromJsonObject->getString("download_url", "")->getNonEmptyString {
-      | Some(downloadUrl) => downloadUrl->Window._open
+      | Some(downloadUrl) => downloadUrl->DownloadUtils.downloadFromUrl
       | None =>
         showToast(~message="Download link unavailable. Please try again.", ~toastType=ToastError)
       }
