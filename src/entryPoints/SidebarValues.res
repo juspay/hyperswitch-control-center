@@ -542,6 +542,19 @@ let complianceCertificateSection = {
   })
 }
 
+let hierarchicalConfigurationsSection = userHasResourceAccess => {
+  SubLevelLink({
+    name: "Hierarchical Configurations",
+    link: `/hierarchical-configurations`,
+    access: userHasResourceAccess(~resourceAccess=Connector),
+    searchOptions: [
+      ("Hierarchical Configurations", ""),
+      ("Certificate management", ""),
+      ("Apple Pay certificate", ""),
+    ],
+  })
+}
+
 let organizationSettings = (userHasAccess, checkUserEntity) => {
   SubLevelLink({
     name: "Organization Settings",
@@ -561,6 +574,7 @@ let settings = (
   ~userHasAccess,
   ~checkUserEntity,
   ~complianceCertificate,
+  ~hierarchicalConfigurations,
   ~devModularityV2Enabled,
   ~devThemeEnabled,
   ~devUsers,
@@ -574,6 +588,9 @@ let settings = (
 
   if complianceCertificate {
     settingsLinkArray->Array.push(complianceCertificateSection)->ignore
+  }
+  if hierarchicalConfigurations {
+    settingsLinkArray->Array.push(hierarchicalConfigurationsSection(userHasResourceAccess))->ignore
   }
   if !devModularityV2Enabled && devThemeEnabled {
     settingsLinkArray
