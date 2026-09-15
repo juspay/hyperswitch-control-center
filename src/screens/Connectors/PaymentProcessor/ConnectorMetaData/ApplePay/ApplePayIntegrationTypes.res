@@ -55,7 +55,7 @@ type verifyApplePay = {
 }
 
 type paymentProcessingState = [#Connector | #Hyperswitch]
-type paymentProcessingDetailInputType = [#Raw | #LinkedHierarchicalResource]
+type paymentProcessingDetailInputType = [#Raw | #LinkHierarchicalResource]
 type initiativeState = [#web | #ios]
 
 type inputType = Text | Toggle | Select

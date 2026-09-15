@@ -207,7 +207,7 @@ let paymentProcessingMapper = state => {
 
 let paymentProcessingDetailInputTypeMapper = state => {
   switch state->String.toLowerCase {
-  | "link_hierarchical_resource" => #LinkedHierarchicalResource
+  | "link_hierarchical_resource" => #LinkHierarchicalResource
   | _ => #Raw
   }
 }
@@ -265,7 +265,7 @@ let validatePaymentProcessingDetailsAt = data => {
   let isLinkedResource =
     data.payment_processing_detail_input_type
     ->Option.getOr("")
-    ->paymentProcessingDetailInputTypeMapper == #LinkedHierarchicalResource
+    ->paymentProcessingDetailInputTypeMapper == #LinkHierarchicalResource
 
   let hasRawCertificates =
     data.payment_processing_certificate->Option.isSome &&
@@ -276,14 +276,14 @@ let validatePaymentProcessingDetailsAt = data => {
   )
 }
 
-let usesLinkedHierarchicalResource = metadata => {
+let usesLinkHierarchicalResource = metadata => {
   let data = metadata->getDictFromJsonObject->getDictfromDict("apple_pay_combined")->sessionToken
 
   data.payment_processing_details_at->Option.mapOr(false, value =>
     value->paymentProcessingMapper == #Hyperswitch
   ) &&
     data.payment_processing_detail_input_type->Option.mapOr(false, value =>
-      value->paymentProcessingDetailInputTypeMapper == #LinkedHierarchicalResource
+      value->paymentProcessingDetailInputTypeMapper == #LinkHierarchicalResource
     )
 }
 

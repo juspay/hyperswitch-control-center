@@ -283,7 +283,7 @@ module ConnectorSummaryGrid = {
       <RenderIf
         condition={featureFlagDetails.hierarchicalConfigurations &&
         processorType == PaymentProcessor &&
-        connectorInfo.metadata->ApplePayIntegrationUtils.usesLinkedHierarchicalResource}>
+        connectorInfo.metadata->ApplePayIntegrationUtils.usesLinkHierarchicalResource}>
         <div className="grid grid-cols-4 border-b md:px-10 py-8">
           <div className="flex items-start">
             <h4 className={Typography.heading.sm.semibold}>

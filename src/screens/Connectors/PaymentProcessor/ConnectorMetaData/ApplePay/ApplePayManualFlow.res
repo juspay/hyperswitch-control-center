@@ -58,7 +58,7 @@ module PaymentProcessingDetailsAt = {
     let onChangeInputType = (event: ReactEvent.Form.t) => {
       let value = event->Identity.formReactEventToString->paymentProcessingDetailInputTypeMapper
       setInputType(_ => Some(value))
-      if value === #LinkedHierarchicalResource {
+      if value === #LinkHierarchicalResource {
         ["payment_processing_certificate", "payment_processing_certificate_key"]->Array.forEach(
           clearFieldName,
         )
@@ -140,7 +140,7 @@ module PaymentProcessingDetailsAt = {
           )}
         />
         {switch inputType {
-        | Some(#LinkedHierarchicalResource) =>
+        | Some(#LinkHierarchicalResource) =>
           <div className="border border-nd_gray-200 rounded-lg bg-nd_gray-25 p-4">
             <p className={`${body.md.regular} text-nd_gray-700`}>
               {"Proceed to next step to link the certificate."->React.string}
