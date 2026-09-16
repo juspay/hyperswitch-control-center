@@ -5,10 +5,16 @@ let make = (~id) => {
   open ReconEngineTransformedEntryExceptionsHelper
   open ReconEngineHooks
   open ReconEngineTransformedEntryExceptionsUtils
+  open APIUtils
 
   let getProcessingEntries = useGetProcessingEntries()
+  let getURL = useGetURL()
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
+  let showToast = ToastAdapter.useShowToast()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (reprocessButtonState, setReprocessButtonState) = React.useState(_ => Button.Normal)
   let (currentTransformedEntryDetails, setCurrentTransformedEntryDetails) = React.useState(_ =>
     Dict.make()->processingItemToObjMapper
   )
@@ -42,6 +48,43 @@ let make = (~id) => {
     None
   }, [])
 
+  let onReprocess = async () => {
+    try {
+      setReprocessButtonState(_ => Button.Loading)
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~hyperswitchReconType=#PROCESS_STAGING_ENTRY,
+        ~methodType=Post,
+        ~id=Some(currentTransformedEntryDetails.id),
+      )
+      let res = await updateDetails(url, Dict.make()->JSON.Encode.object, Post)
+      switch res->getDictFromJsonObject->getOptionString("failure") {
+      | Some(reason) => {
+          setReprocessButtonState(_ => Button.Normal)
+          showToast(~message=reason, ~toastType=ToastError)
+        }
+      | None => {
+          showToast(~message="Transformed entry processed successfully", ~toastType=ToastSuccess)
+          RescriptReactRouter.replace(
+            GlobalVars.appendDashboardPath(~url="/v1/recon-engine/exceptions/transformed-entries"),
+          )
+        }
+      }
+    } catch {
+    | Exn.Error(e) => {
+        setReprocessButtonState(_ => Button.Normal)
+        let err = Exn.message(e)->Option.getOr("")
+        showToast(
+          ~message=err
+          ->safeParse
+          ->getDictFromJsonObject
+          ->getString("message", "Failed to re-process the entry. Please try again."),
+          ~toastType=ToastError,
+        )
+      }
+    }
+  }
+
   let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
     [
@@ -72,7 +115,19 @@ let make = (~id) => {
         ]
         currentPageTitle=id
       />
-      <PageUtils.PageHeading title="Transformed Entry Detail" />
+      <div className="flex flex-row justify-between items-center mb-4">
+        <PageUtils.PageHeading title="Transformed Entry Detail" customHeadingStyle="!mb-0" />
+        <RenderIf condition={currentTransformedEntryDetails.status->isReprocessAvailable}>
+          <ACLButton
+            text="Re-process"
+            buttonType=Primary
+            buttonSize=Medium
+            buttonState=reprocessButtonState
+            authorization={userHasAccess(~groupAccess=ReconExceptionsManage)}
+            onClick={_ => onReprocess()->ignore}
+          />
+        </RenderIf>
+      </div>
     </div>
     <PageLoaderWrapper
       screenState

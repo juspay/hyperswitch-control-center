@@ -1369,6 +1369,16 @@ let useGetURL = () => {
             }
           | _ => Default("")
           }
+        | #PROCESS_STAGING_ENTRY =>
+          switch methodType {
+          | Post =>
+            switch id {
+            | Some(processingEntryId) =>
+              Default(`${reconBaseURL}/recon_engine/${processingEntryId}/process`)
+            | None => Default(``)
+            }
+          | _ => Default("")
+          }
         | #TRANSACTION_BULK_OPERATIONS =>
           switch methodType {
           | Post => Default(`${reconBaseURL}/transactions/bulk_operations`)
