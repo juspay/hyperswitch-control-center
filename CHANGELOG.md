@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.16.1
+
+### Miscellaneous Tasks
+
+- Mixpanel addition and improvements ([#5539](https://github.com/juspay/hyperswitch-control-center/pull/5539)) ([`85507ef`](https://github.com/juspay/hyperswitch-control-center/commit/85507ef3d35c55ca4be7dc7eeb1d20b0e464178d))
+
+**Full Changelog:** [`2026.09.16.0...2026.09.16.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.16.0...2026.09.16.1)
+
+- - -
+
 ## 2026.09.16.0
 
 ### Features
