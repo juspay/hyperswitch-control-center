@@ -62,6 +62,15 @@ let getHeaders = (
       headers->Dict.set("x-feature", "dynamo-simulator")
     }
 
+    // offer-engine authenticates Control Center users via x-hyperswitch-token (HSTokenAuth).
+    switch token {
+    | Some(str) if uri->String.includes("/offers/") => {
+        headers->Dict.delete("authorization")
+        headers->Dict.set("x-hyperswitch-token", `Bearer ${str}`)
+      }
+    | _ => ()
+    }
+
     // this header is specific to Chat Bot for session tracking
     if uri->String.includes("/chat/ai/data") {
       let sessionKey = "chatbot_session_id"
