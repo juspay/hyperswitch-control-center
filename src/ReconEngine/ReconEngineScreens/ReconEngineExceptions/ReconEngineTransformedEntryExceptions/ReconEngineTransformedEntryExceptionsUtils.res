@@ -47,6 +47,16 @@ let sortByVersion = (c1: processingEntryType, c2: processingEntryType) => {
   compareLogic(c1.version, c2.version)
 }
 
+let isReprocessAvailable = (status: domainStagingEntryStatus) =>
+  switch status {
+  | NeedsManualReview(_) => true
+  | Pending
+  | Processed
+  | Void
+  | Archived
+  | UnknownDomainStagingEntryStatus => false
+  }
+
 let getInnerVariant = (stage: exceptionResolutionStage): resolvingException =>
   switch stage {
   | ResolvingTransformedEntry(resolvingEx) => resolvingEx
