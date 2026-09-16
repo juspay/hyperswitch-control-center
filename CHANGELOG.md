@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.16.0
+
+### Features
+
+- Certificate Management in dashboard ([#5537](https://github.com/juspay/hyperswitch-control-center/pull/5537)) ([`8d9f606`](https://github.com/juspay/hyperswitch-control-center/commit/8d9f6066c5e3113d9978911ccce3566769004592))
+
+**Full Changelog:** [`2026.09.11.1...2026.09.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.11.1...2026.09.16.0)
+
+- - -
+
 ## 2026.09.11.1
 
 ### Features
