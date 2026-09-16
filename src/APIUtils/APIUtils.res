@@ -268,8 +268,6 @@ let useGetURL = () => {
       /* MERCHANT ACCOUNT DETAILS (Get and Post) */
       | MERCHANT_ACCOUNT => Default(`accounts/${merchantId}`)
 
-      | USER_MERCHANT_DETAILS => Default(`user/merchant_details`)
-
       /* ORGANIZATION UPDATE */
       | ORGANIZATION_RETRIEVE =>
         switch methodType {
@@ -1483,6 +1481,7 @@ let useGetURL = () => {
           | None => Default(`${userUrl}/data`)
           }
         | #MERCHANT_DATA => Default(`${userUrl}/data`)
+        | #MERCHANT_DETAILS => Default(`${userUrl}/merchant_details`)
         | #USER_INFO => Default(userUrl)
 
         // USER GROUP ACCESS

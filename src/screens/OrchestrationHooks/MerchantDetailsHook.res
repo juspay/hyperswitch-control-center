@@ -10,7 +10,11 @@ let useFetchUserMerchantDetails = () => {
     try {
       let merchantDetailsJSON = switch version {
       | V1 => {
-          let detailsUrl = getURL(~entityName=V1(USER_MERCHANT_DETAILS), ~methodType=Get)
+          let detailsUrl = getURL(
+            ~entityName=V1(USERS),
+            ~userType=#MERCHANT_DETAILS,
+            ~methodType=Get,
+          )
           await fetchDetails(detailsUrl)
         }
       | V2 => {
