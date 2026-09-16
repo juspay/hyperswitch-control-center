@@ -1665,16 +1665,16 @@ let useGetURL = () => {
       /* HIERARCHICAL CONFIGURATIONS (RESOURCES) */
       | RESOURCES =>
         switch (methodType, id, idType) {
-        | (Post, _, _) => Olap(`hierarchical_resources`)
+        | (Post, _, _) => Default(`hierarchical_resources`)
         | (Put, Some(resourceId), Some(resourceType)) =>
-          Olap(`hierarchical_resources/${resourceType}/${resourceId}`)
-        | _ => Olap(`hierarchical_resources`)
+          Default(`hierarchical_resources/${resourceType}/${resourceId}`)
+        | _ => Default(`hierarchical_resources`)
         }
-      | RESOURCES_LIST => Olap(`hierarchical_resources/list`)
+      | RESOURCES_LIST => Default(`hierarchical_resources/list`)
       | RESOURCES_LINK =>
         switch id {
-        | Some(resourceId) => Olap(`hierarchical_resources/${resourceId}/link`)
-        | None => Olap(`hierarchical_resources`)
+        | Some(resourceId) => Default(`hierarchical_resources/${resourceId}/link`)
+        | None => Default(`hierarchical_resources`)
         }
       }
 

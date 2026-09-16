@@ -1,13 +1,11 @@
-open ApplePayIntegrationTypes
+open LogicUtils
 open Typography
+open ApplePayIntegrationTypes
 open ApplePayIntegrationUtils
-open CommonConnectorHelper
 
 module PaymentProcessingDetailsAt = {
   @react.component
   let make = (~applePayField, ~connector) => {
-    open LogicUtils
-
     let form = ReactFinalForm.useForm()
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
@@ -31,14 +29,13 @@ module PaymentProcessingDetailsAt = {
         paymentProcessingDetailInputTypeMapper,
       )
     )
-    let version: UserInfoTypes.version =
-      RescriptReactRouter.useUrl().path->List.some(segment => segment == "v2") ? V2 : V1
+    let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
     let showInputTypeChoice = version == V1 && featureFlagDetails.hierarchicalConfigurations
 
     let clearFieldName = name =>
       form.change(
-        `${applePayNameMapper(~name, ~integrationType=Some(#manual), ~connector)}`,
+        applePayNameMapper(~name, ~integrationType=Some(#manual), ~connector),
         JSON.Encode.null,
       )
 
@@ -72,11 +69,11 @@ module PaymentProcessingDetailsAt = {
           field={FormRenderer.makeFieldInfo(
             ~label="Payment Processing Certificate",
             ~name={
-              `${applePayNameMapper(
-                  ~name="payment_processing_certificate",
-                  ~integrationType=Some(#manual),
-                  ~connector,
-                )}`
+              applePayNameMapper(
+                ~name="payment_processing_certificate",
+                ~integrationType=Some(#manual),
+                ~connector,
+              )
             },
             ~placeholder="Enter Processing Certificate",
             ~customInput=InputFields.textInput(),
@@ -88,11 +85,11 @@ module PaymentProcessingDetailsAt = {
           field={FormRenderer.makeFieldInfo(
             ~label="Payment Processing Key",
             ~name={
-              `${applePayNameMapper(
-                  ~name="payment_processing_certificate_key",
-                  ~integrationType=Some(#manual),
-                  ~connector,
-                )}`
+              applePayNameMapper(
+                ~name="payment_processing_certificate_key",
+                ~integrationType=Some(#manual),
+                ~connector,
+              )
             },
             ~placeholder="Enter Processing Key",
             ~customInput=InputFields.multiLineTextInput(
@@ -115,11 +112,11 @@ module PaymentProcessingDetailsAt = {
           field={FormRenderer.makeFieldInfo(
             ~label="Certificate Source",
             ~isRequired=true,
-            ~name=`${applePayNameMapper(
-                ~name="payment_processing_detail_input_type",
-                ~integrationType=Some(#manual),
-                ~connector,
-              )}`,
+            ~name=applePayNameMapper(
+              ~name="payment_processing_detail_input_type",
+              ~integrationType=Some(#manual),
+              ~connector,
+            ),
             ~customInput=(~input, ~placeholder as _) =>
               InputFields.radioInput(
                 ~customStyle="cursor-pointer gap-2",
@@ -153,13 +150,13 @@ module PaymentProcessingDetailsAt = {
     <>
       <FormRenderer.FieldRenderer
         labelClass={body.md.semibold}
-        field={radioInput(
+        field={CommonConnectorHelper.radioInput(
           ~field=applePayField,
-          ~formName=`${applePayNameMapper(
-              ~name=applePayField.name,
-              ~integrationType=Some(#manual),
-              ~connector,
-            )}`,
+          ~formName=applePayNameMapper(
+            ~name=applePayField.name,
+            ~integrationType=Some(#manual),
+            ~connector,
+          ),
           ~fill=textColor.primaryNormal,
           ~onItemChange=onChangeItem,
           (),
@@ -176,8 +173,6 @@ module PaymentProcessingDetailsAt = {
 module Initiative = {
   @react.component
   let make = (~applePayField, ~connector) => {
-    open LogicUtils
-
     let form = ReactFinalForm.useForm()
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
@@ -200,11 +195,11 @@ module Initiative = {
       setInitiative(_ => value)
       if value === #ios {
         form.change(
-          `${applePayNameMapper(
-              ~name="initiative_context",
-              ~integrationType=Some(#manual),
-              ~connector,
-            )}`,
+          applePayNameMapper(
+            ~name="initiative_context",
+            ~integrationType=Some(#manual),
+            ~connector,
+          ),
           JSON.Encode.null,
         )
       }
@@ -228,7 +223,7 @@ module Initiative = {
     <>
       <FormRenderer.FieldRenderer
         labelClass={body.md.semibold}
-        field={selectInput(
+        field={CommonConnectorHelper.selectInput(
           ~field={applePayField},
           ~formName={
             applePayNameMapper(~name="initiative", ~integrationType=Some(#manual), ~connector)
@@ -241,7 +236,7 @@ module Initiative = {
       | #web =>
         <FormRenderer.FieldRenderer
           labelClass={body.md.semibold}
-          field={textInput(
+          field={CommonConnectorHelper.textInput(
             ~field={applePayField},
             ~formName={
               applePayNameMapper(
@@ -267,7 +262,6 @@ let make = (
   ~connector,
   ~appleIntegrationType,
 ) => {
-  open LogicUtils
   open ApplePayIntegrationHelper
 
   let form = ReactFinalForm.useForm()
@@ -318,7 +312,7 @@ let make = (
         | "merchant_business_country" =>
           <FormRenderer.FieldRenderer
             labelClass={body.md.semibold}
-            field={selectInput(
+            field={CommonConnectorHelper.selectInput(
               ~field={applePayField},
               ~opt={Some(merchantBusinessCountry)},
               ~formName={

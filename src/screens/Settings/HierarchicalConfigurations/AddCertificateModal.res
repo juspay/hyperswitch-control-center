@@ -8,6 +8,7 @@ let make = (~showModal, ~setShowModal, ~onSuccess) => {
   open AddCertificateModalUtils
 
   let getURL = useGetURL()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let showToast = ToastAdapter.useShowToast()
 
@@ -59,6 +60,7 @@ let make = (~showModal, ~setShowModal, ~onSuccess) => {
   }
 
   let downloadCsr = _ => {
+    mixpanelEvent(~eventName="hierarchical_config_csr_download_clicked")
     switch resourceId {
     | Some(_) =>
       DownloadUtils.download(
@@ -121,6 +123,7 @@ let make = (~showModal, ~setShowModal, ~onSuccess) => {
         )
         let payload = [("certificate", certificate->JSON.Encode.string)]->Dict.fromArray
         let _ = await updateDetails(url, payload->JSON.Encode.object, Put)
+        mixpanelEvent(~eventName="hierarchical_config_certificate_upload_success")
         showToast(~message="Certificate uploaded successfully", ~toastType=ToastSuccess)
         onSuccess()
       } catch {
@@ -230,14 +233,20 @@ let make = (~showModal, ~setShowModal, ~onSuccess) => {
           <Button
             text="Continue"
             buttonType=Primary
-            onClick={_ => setStep(_ => Upload)}
+            onClick={_ => {
+              mixpanelEvent(~eventName="hierarchical_config_continue_to_upload_clicked")
+              setStep(_ => Upload)
+            }}
             buttonState={resourceId->Option.isSome ? Normal : Disabled}
           />
         | Upload =>
           <Button
             text="Submit"
             buttonType=Primary
-            onClick={_ => submitCertificate()->ignore}
+            onClick={_ => {
+              mixpanelEvent(~eventName="hierarchical_config_certificate_submit_clicked")
+              submitCertificate()->ignore
+            }}
             buttonState=submitState
           />
         }}
