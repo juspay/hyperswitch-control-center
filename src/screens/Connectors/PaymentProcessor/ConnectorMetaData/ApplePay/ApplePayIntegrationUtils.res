@@ -212,9 +212,15 @@ let paymentProcessingDetailInputTypeMapper = state => {
   }
 }
 
+let paymentProcessingDetailInputTypeToString = (inputType: paymentProcessingDetailInputType) =>
+  (inputType :> string)->camelToSnake
+
 let paymentProcessingDetailInputTypeOptions: array<SelectBox.dropdownOption> = [
-  {label: "Enter certificate details", value: "raw"},
-  {label: "Link a managed certificate", value: "link_hierarchical_resource"},
+  {label: "Enter certificate details", value: #Raw->paymentProcessingDetailInputTypeToString},
+  {
+    label: "Link a managed certificate",
+    value: #LinkHierarchicalResource->paymentProcessingDetailInputTypeToString,
+  },
 ]
 
 let initiativeMapper = state => {

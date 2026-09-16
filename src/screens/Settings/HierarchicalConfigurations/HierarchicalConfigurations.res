@@ -5,6 +5,7 @@ let make = () => {
   open HierarchicalConfigUtils
 
   let getURL = useGetURL()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
   let fetchList = useUpdateMethod(~showErrorToast=false)
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
   let {getResolvedUserInfo} = React.useContext(UserInfoProvider.defaultContext)
@@ -63,7 +64,12 @@ let make = () => {
           entityMapper=UserInfoUtils.transactionEntityMapper
         />
         <Button
-          text="Add new certificate" buttonType=Primary onClick={_ => setShowAddModal(_ => true)}
+          text="Add new certificate"
+          buttonType=Primary
+          onClick={_ => {
+            mixpanelEvent(~eventName="hierarchical_config_add_certificate_clicked")
+            setShowAddModal(_ => true)
+          }}
         />
       </div>
     </div>
@@ -79,7 +85,7 @@ let make = () => {
         currentFetchCount={resources->Array.length}
         entity={HierarchicalConfigTableEntity.hierarchicalConfigEntity()}
         showSerialNumber=true
-        noDataMsg="No data available"
+        noDataMsg="No certificates yet. Click 'Add new certificate' to create one."
       />
     </PageLoaderWrapper>
     <AddCertificateModal
