@@ -12,6 +12,7 @@ let make = (~merchantConnectorId) => {
   let fetchList = useUpdateMethod(~showErrorToast=false)
   let linkResource = useUpdateMethod(~showErrorToast=false)
   let showToast = ToastAdapter.useShowToast()
+  let mixpanelEvent = MixpanelHook.useSendEvent()
 
   let (resources, setResources) = React.useState(_ => [])
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -151,7 +152,10 @@ let make = (~merchantConnectorId) => {
       <Button
         text="Link"
         buttonType=Secondary
-        onClick={_ => linkSelectedResource()->ignore}
+        onClick={_ => {
+          mixpanelEvent(~eventName="hierarchical_config_link_certificate_clicked")
+          linkSelectedResource()->ignore
+        }}
         buttonState={getButtonState(~isLoading, ~selectedResourceId, ~linkedResourceId, ~isLinking)}
       />
     </div>
