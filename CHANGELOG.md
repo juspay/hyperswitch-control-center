@@ -3,6 +3,56 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.16.1
+
+### Miscellaneous Tasks
+
+- Mixpanel addition and improvements ([#5539](https://github.com/juspay/hyperswitch-control-center/pull/5539)) ([`85507ef`](https://github.com/juspay/hyperswitch-control-center/commit/85507ef3d35c55ca4be7dc7eeb1d20b0e464178d))
+
+**Full Changelog:** [`2026.09.16.0...2026.09.16.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.16.0...2026.09.16.1)
+
+- - -
+
+## 2026.09.16.0
+
+### Features
+
+- Certificate Management in dashboard ([#5537](https://github.com/juspay/hyperswitch-control-center/pull/5537)) ([`8d9f606`](https://github.com/juspay/hyperswitch-control-center/commit/8d9f6066c5e3113d9978911ccce3566769004592))
+
+**Full Changelog:** [`2026.09.11.1...2026.09.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.11.1...2026.09.16.0)
+
+- - -
+
+## 2026.09.11.1
+
+### Features
+
+- Add account updater section to payment settings ([#5525](https://github.com/juspay/hyperswitch-control-center/pull/5525)) ([`d4f5222`](https://github.com/juspay/hyperswitch-control-center/commit/d4f5222b94ebd4a8de2ebfcb58a49fd4ebe7121f))
+- Google Pay internal gateway flow integration ([#5532](https://github.com/juspay/hyperswitch-control-center/pull/5532)) ([`5f6733c`](https://github.com/juspay/hyperswitch-control-center/commit/5f6733c995d9d0abf957c2d5aeb2b883b313f407))
+
+### Bug Fixes
+
+- Sync routing history on focus and hand off cut-over flows to the Decision Engine ([#5503](https://github.com/juspay/hyperswitch-control-center/pull/5503)) ([`2394f09`](https://github.com/juspay/hyperswitch-control-center/commit/2394f095ad7f28d24eefabb0524519686fef4c18))
+
+### Miscellaneous Tasks
+
+- Scope the transformation filter to the account on transaction details ([#5530](https://github.com/juspay/hyperswitch-control-center/pull/5530)) ([`593e796`](https://github.com/juspay/hyperswitch-control-center/commit/593e7967730314e7e43fda9b29a00c74cc892871))
+
+**Full Changelog:** [`2026.09.11.0...2026.09.11.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.11.0...2026.09.11.1)
+
+- - -
+
+## 2026.09.11.0
+
+### Features
+
+- **mixpanel:** Track 4xx API failures ([#5507](https://github.com/juspay/hyperswitch-control-center/pull/5507)) ([`06d2488`](https://github.com/juspay/hyperswitch-control-center/commit/06d248806dc06bc87f59b618d386420ea8c4a627))
+- Replace olap_prefix with a full olap_url base URL ([#5451](https://github.com/juspay/hyperswitch-control-center/pull/5451)) ([`de2e5c3`](https://github.com/juspay/hyperswitch-control-center/commit/de2e5c3ac5fc9da6f44a3c40ea472fd642bc95b9))
+
+**Full Changelog:** [`2026.09.10.1...2026.09.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.10.1...2026.09.11.0)
+
+- - -
+
 ## 2026.09.10.1
 
 ### Miscellaneous Tasks

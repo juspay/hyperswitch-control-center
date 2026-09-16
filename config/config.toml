@@ -1,6 +1,7 @@
 [default.endpoints]
 api_url="http://localhost:9000/api"
-olap_prefix=""
+# Full base URL for endpoints on the OLAP routing allowlist; empty falls back to api_url.
+olap_url=""
 sdk_url="http://localhost:9050/HyperLoader.js"
 apple_pay_certificate_url=""
 dss_certificate_us_url=""
@@ -70,6 +71,7 @@ payment_link_theme_configurator=false
 allow_connected_merchants=false
 network_tokenization=false
 vault_psp_tokenization=false
+hierarchical_configurations=false
 dev_click_to_pay=true
 dev_alt_payment_methods=false
 dev_modularity_v2=true

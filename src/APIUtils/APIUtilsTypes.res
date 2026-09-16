@@ -98,6 +98,9 @@ type entityName =
   | BLOCKLIST
   | BLOCKLIST_COUNT
   | BLOCKLIST_LOOKUP
+  | RESOURCES
+  | RESOURCES_LIST
+  | RESOURCES_LINK
   | BLOCKLIST_EXPORT
 
 type v2entityNameType =
@@ -232,6 +235,7 @@ type getUrlTypes = (
   ~entityName: entityTypeWithVersion,
   ~methodType: Fetch.requestMethod,
   ~id: option<string>=?,
+  ~idType: option<string>=?,
   ~connector: option<string>=?,
   ~userType: userType=?,
   ~userRoleTypes: userRoleTypes=?,
@@ -240,7 +244,7 @@ type getUrlTypes = (
   ~queryParameters: option<string>=?,
 ) => string
 
-// Olap = on the infra OLAP allowlist, gets `olap_prefix`; Default = normal API path.
+// Olap = on the infra OLAP allowlist, served from `olap_url`; Default = normal API path.
 type endpoint =
   | Olap(string)
   | Default(string)
