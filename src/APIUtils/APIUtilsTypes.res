@@ -101,6 +101,7 @@ type entityName =
   | RESOURCES
   | RESOURCES_LIST
   | RESOURCES_LINK
+  | BLOCKLIST_EXPORT
 
 type v2entityNameType =
   | CUSTOMERS

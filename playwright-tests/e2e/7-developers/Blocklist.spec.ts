@@ -36,12 +36,14 @@ const openBlocklistTab = async (page: Page) => {
 const makeBlocklistJob = (jobId: string) => ({
   job_id: jobId,
   merchant_id: "merchant_test",
+  job_type: "upload",
   status: "completed",
   total_rows: 3,
   succeeded_rows: 3,
   failed_rows: 0,
   created_at: "2026-05-06T06:08:47.617Z",
   updated_at: "2026-05-06T06:08:47.617Z",
+  downloadable: false,
 });
 
 const makeBlocklistJobs = (count: number) =>
@@ -135,12 +137,14 @@ test.describe("Blocklist", () => {
                   {
                     job_id: "blockbatch_test",
                     merchant_id: "merchant_test",
+                    job_type: "upload",
                     status: "initiated",
                     total_rows: 3,
                     succeeded_rows: 0,
                     failed_rows: 0,
                     created_at: "2026-05-06T06:08:47.617Z",
                     updated_at: "2026-05-06T06:08:47.617Z",
+                    downloadable: false,
                   },
                 ]
               : [],
