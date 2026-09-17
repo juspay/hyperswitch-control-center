@@ -104,6 +104,7 @@ dev_sort_enabled=true
 dev_saved_views=false
 dev_clickhouse_aggregate=false
 dev_superposition=false
+dev_embed_decision_engine=false
 [default.connector_list_for_live]
 paymentProcessors = []
 threedsAuthProcessors = []
