@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.17.1
+
+### Features
+
+- Add Payment Link operations section to dashboard ([#5548](https://github.com/juspay/hyperswitch-control-center/pull/5548)) ([`a6b307b`](https://github.com/juspay/hyperswitch-control-center/commit/a6b307ba98584c22a281cfa3d179862b9f2cb6e4))
+
+### Miscellaneous Tasks
+
+- Revert "add re-process action for transformed entry exceptions" ([#5550](https://github.com/juspay/hyperswitch-control-center/pull/5550)) ([`e140174`](https://github.com/juspay/hyperswitch-control-center/commit/e140174e0a84bcecc8add30f4448452a694692e1))
+
+**Full Changelog:** [`2026.09.17.0...2026.09.17.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.17.0...2026.09.17.1)
+
+- - -
+
 ## 2026.09.17.0
 
 ### Features
