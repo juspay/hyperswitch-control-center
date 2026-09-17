@@ -91,6 +91,7 @@ type featureFlag = {
   sendV1DummyApiKeyHeader: bool,
   cugUser: bool,
   devSuperposition: bool,
+  paymentLinkOperations: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -184,6 +185,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     sendV1DummyApiKeyHeader,
     cugUser: dict->getBool("cug_user", false),
     devSuperposition: dict->getBool("dev_superposition", false),
+    paymentLinkOperations: dict->getBool("payment_link_operations", false),
   }
 }
 

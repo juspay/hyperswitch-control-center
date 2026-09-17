@@ -54,7 +54,8 @@ let make = (~setScreenState) => {
     | list{"payments", ..._}
     | list{"refunds", ..._}
     | list{"disputes", ..._}
-    | list{"payouts", ..._} =>
+    | list{"payouts", ..._}
+    | list{"payment-links", ..._} =>
       <AccessControl authorization={isCurrentMerchantPlatform ? NoAccess : Access}>
         <TransactionContainer />
       </AccessControl>
