@@ -36,7 +36,7 @@ let useGetHsSidebarValues = () => {
     devVault,
     devUsers,
     devSuperposition,
-    paymentLink,
+    paymentLinkOperations,
   } = featureFlagDetails
   let {
     isFeatureEnabledForDenyListMerchant,
@@ -65,7 +65,7 @@ let useGetHsSidebarValues = () => {
     default->operations(
       ~userHasResourceAccess,
       ~isPayoutsEnabled=payOut,
-      ~isPaymentLinkEnabled=paymentLink,
+      ~isPaymentLinkEnabled=paymentLinkOperations,
       ~userEntity,
       ~isCurrentMerchantPlatform,
     ),

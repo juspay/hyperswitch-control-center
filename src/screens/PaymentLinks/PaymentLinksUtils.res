@@ -1,43 +1,5 @@
 open LogicUtils
 
-let getPaymentLinksList = async (
-  filterValueJson,
-  ~updateDetails: (string, JSON.t, Fetch.requestMethod) => promise<JSON.t>,
-  ~setPaymentLinksData,
-  ~setScreenState,
-  ~offset,
-  ~setTotalCount,
-  ~setOffset,
-  ~getURL: APIUtilsTypes.getUrlTypes,
-) => {
-  setScreenState(_ => PageLoaderWrapper.Loading)
-  try {
-    let paymentLinksUrl = getURL(~entityName=V1(PAYMENT_LINKS), ~methodType=Post)
-    let res = await updateDetails(paymentLinksUrl, filterValueJson->JSON.Encode.object, Post)
-    let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
-    let total = res->getDictFromJsonObject->getInt("total_count", 0)
-
-    let arr = Array.make(~length=offset, Dict.make())
-    if total <= offset {
-      setOffset(_ => 0)
-    }
-
-    if total > 0 {
-      let dataArr = data->Belt.Array.keepMap(JSON.Decode.object)
-      let paymentLinksData =
-        arr->Array.concat(dataArr)->Array.map(PaymentLinksEntity.itemToObjMapper)
-      let list = paymentLinksData->Array.map(Nullable.make)
-      setPaymentLinksData(_ => list)
-      setTotalCount(_ => total)
-      setScreenState(_ => PageLoaderWrapper.Success)
-    } else {
-      setScreenState(_ => Custom)
-    }
-  } catch {
-  | _ => setScreenState(_ => Error("Failed to fetch"))
-  }
-}
-
 let (startTimeFilterKey, endTimeFilterKey) = ("start_time", "end_time")
 
 let initialFixedFilter = _ => [

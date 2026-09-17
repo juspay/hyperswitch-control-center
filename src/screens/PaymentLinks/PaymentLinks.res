@@ -1,8 +1,9 @@
+open LogicUtils
+
 @react.component
 let make = () => {
   open APIUtils
   open HSwitchRemoteFilter
-  open LogicUtils
   open PaymentLinksUtils
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -25,6 +26,44 @@ let make = () => {
 
     updateExistingKeys(Dict.fromArray([("start_time", {extendedStartDate})]))
     updateExistingKeys(Dict.fromArray([("end_time", {prevStartdate})]))
+  }
+
+  let getPaymentLinksList = async (
+    filterValueJson,
+    ~updateDetails: (string, JSON.t, Fetch.requestMethod) => promise<JSON.t>,
+    ~setPaymentLinksData,
+    ~setScreenState,
+    ~offset,
+    ~setTotalCount,
+    ~setOffset,
+    ~getURL: APIUtilsTypes.getUrlTypes,
+  ) => {
+    setScreenState(_ => PageLoaderWrapper.Loading)
+    try {
+      let paymentLinksUrl = getURL(~entityName=V1(PAYMENT_LINKS), ~methodType=Post)
+      let res = await updateDetails(paymentLinksUrl, filterValueJson->JSON.Encode.object, Post)
+      let data = res->getDictFromJsonObject->getArrayFromDict("data", [])
+      let total = res->getDictFromJsonObject->getInt("total_count", 0)
+
+      let arr = Array.make(~length=offset, Dict.make())
+      if total <= offset {
+        setOffset(_ => 0)
+      }
+
+      if total > 0 {
+        let dataArr = data->Array.filterMap(JSON.Decode.object)
+        let paymentLinksData =
+          arr->Array.concat(dataArr)->Array.map(PaymentLinksEntity.itemToObjMapper)
+        let list = paymentLinksData->Array.map(Nullable.make)
+        setPaymentLinksData(_ => list)
+        setTotalCount(_ => total)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        setScreenState(_ => Custom)
+      }
+    } catch {
+    | _ => setScreenState(_ => Error("Failed to fetch"))
+    }
   }
 
   let fetchPaymentLinks = () => {
@@ -62,63 +101,61 @@ let make = () => {
     None
   }, (offset, filters))
 
-  <ErrorBoundary>
-    <div className="min-h-50-vh">
-      <div className="flex justify-between items-center">
-        <PageUtils.PageHeading title="Payment Link" subTitle="Create and manage payment links" />
-        <CreatePaymentLinkModal refetchList=fetchPaymentLinks />
-      </div>
-      <div className="flex justify-between gap-3">
-        <div className="flex-1">
-          <RemoteTableFilters
-            title="Payment Links"
-            apiType=Post
-            setFilters
-            endTimeFilterKey
-            startTimeFilterKey
-            initialFilters={(_, _, _, _, _, _) => []}
-            initialFixedFilter
-            setOffset
-            customLeftView=React.null
-            entityName=V1(PAYMENT_LINKS)
-          />
-        </div>
-      </div>
-      <PageLoaderWrapper
-        screenState
-        customUI={<NoDataFound
-          customCssClass="my-6"
-          message="No results found"
-          renderType=ExtendDateUI
-          handleClick=handleExtendDateButtonClick
-        />}>
-        <LoadedTableWithCustomColumns
-          hideTitle=true
-          title="Payment Links"
-          actualData=paymentLinksData
-          entity={PaymentLinksEntity.paymentLinkEntity(orgId)}
-          resultsPerPage=20
-          showSerialNumber=true
-          totalResults={totalCount}
-          offset
-          setOffset
-          currentFetchCount={paymentLinksData->Array.length}
-          onEntityClick={paymentLink =>
-            GlobalVars.appendDashboardPath(
-              ~url=`/payments/${paymentLink.payment_id}/${paymentLink.profile_id}/${paymentLink.merchant_id}/${orgId}`,
-            )->Window._open}
-          defaultColumns={PaymentLinksEntity.defaultColumns}
-          customColumnMapper=TableAtoms.paymentLinksMapDefaultCols
-          showSerialNumberInCustomizeColumns=false
-          sortingBasedOnDisabled=false
-          showAutoScroll=true
-          isDraggable=true
-          visitedRows={{
-            getId: paymentLink => paymentLink.payment_id,
-            prefix_key: "payment-link",
-          }}
-        />
-      </PageLoaderWrapper>
+  <div className="min-h-50-vh">
+    <div className="flex justify-between items-center">
+      <PageUtils.PageHeading title="Payment Link" subTitle="Create and manage payment links" />
+      <CreatePaymentLinkModal refetchList=fetchPaymentLinks />
     </div>
-  </ErrorBoundary>
+    <div className="flex justify-between gap-3">
+      <div className="flex-1">
+        <RemoteTableFilters
+          title="Payment Links"
+          apiType=Post
+          setFilters
+          endTimeFilterKey
+          startTimeFilterKey
+          initialFilters={(_, _, _, _, _, _) => []}
+          initialFixedFilter
+          setOffset
+          customLeftView=React.null
+          entityName=V1(PAYMENT_LINKS)
+        />
+      </div>
+    </div>
+    <PageLoaderWrapper
+      screenState
+      customUI={<NoDataFound
+        customCssClass="my-6"
+        message="No results found"
+        renderType=ExtendDateUI
+        handleClick=handleExtendDateButtonClick
+      />}>
+      <LoadedTableWithCustomColumns
+        hideTitle=true
+        title="Payment Links"
+        actualData=paymentLinksData
+        entity={PaymentLinksEntity.paymentLinkEntity(orgId)}
+        resultsPerPage=20
+        showSerialNumber=true
+        totalResults={totalCount}
+        offset
+        setOffset
+        currentFetchCount={paymentLinksData->Array.length}
+        onEntityClick={paymentLink =>
+          GlobalVars.appendDashboardPath(
+            ~url=`/payments/${paymentLink.payment_id}/${paymentLink.profile_id}/${paymentLink.merchant_id}/${orgId}`,
+          )->Window._open}
+        defaultColumns={PaymentLinksEntity.defaultColumns}
+        customColumnMapper=TableAtoms.paymentLinksMapDefaultCols
+        showSerialNumberInCustomizeColumns=false
+        sortingBasedOnDisabled=false
+        showAutoScroll=true
+        isDraggable=true
+        visitedRows={{
+          getId: paymentLink => paymentLink.payment_id,
+          prefix_key: "payment-link",
+        }}
+      />
+    </PageLoaderWrapper>
+  </div>
 }
