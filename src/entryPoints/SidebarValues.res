@@ -78,6 +78,15 @@ let payouts = userHasResourceAccess => {
   })
 }
 
+let paymentLinks = userHasResourceAccess => {
+  SubLevelLink({
+    name: "Payment Link",
+    link: `/payment-links`,
+    access: userHasResourceAccess(~resourceAccess=Payment),
+    searchOptions: [("View and create payment links", "")],
+  })
+}
+
 let alternatePaymentMethods = isApmEnabled =>
   isApmEnabled
     ? Link({
@@ -93,6 +102,7 @@ let operations = (
   isOperationsEnabled,
   ~userHasResourceAccess,
   ~isPayoutsEnabled,
+  ~isPaymentLinkEnabled,
   ~userEntity,
   ~isCurrentMerchantPlatform,
 ) => {
@@ -105,12 +115,16 @@ let operations = (
     let refunds = refunds(userHasResourceAccess)
     let disputes = disputes(userHasResourceAccess)
     let payouts = payouts(userHasResourceAccess)
+    let paymentLinks = paymentLinks(userHasResourceAccess)
 
     let links = [payments, refunds, disputes]
     let isCustomersEnabled = userEntity !== #Profile
 
     if isPayoutsEnabled {
       links->Array.push(payouts)->ignore
+    }
+    if isPaymentLinkEnabled {
+      links->Array.push(paymentLinks)->ignore
     }
     if isCustomersEnabled {
       links->Array.push(customers)->ignore

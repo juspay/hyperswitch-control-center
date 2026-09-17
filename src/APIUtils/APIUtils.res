@@ -601,6 +601,21 @@ let useGetURL = () => {
 
         | _ => Default("")
         }
+      | PAYMENT_LINKS =>
+        switch methodType {
+        | Post =>
+          switch transactionEntity {
+          | #Merchant => Default(`payment_link/list`)
+          | #Profile => Default(`payment_link/profile/list`)
+          | _ => Default(`payment_link/list`)
+          }
+        | _ => Default("")
+        }
+      | PAYMENT_LINK_CREATE =>
+        switch methodType {
+        | Post => Default(`payments/payment_link`)
+        | _ => Default("")
+        }
 
       /* ROUTING */
       | DEFAULT_FALLBACK => Default(`routing/default`)
