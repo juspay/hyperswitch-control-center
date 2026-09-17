@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.17.0
+
+### Features
+
+- Add generate export functionality in blocklist ([#5534](https://github.com/juspay/hyperswitch-control-center/pull/5534)) ([`46299f3`](https://github.com/juspay/hyperswitch-control-center/commit/46299f3153b493d0f93a335b9195d78820f9e6db))
+- Add re-process action for transformed entry exceptions ([#5542](https://github.com/juspay/hyperswitch-control-center/pull/5542)) ([`5a18207`](https://github.com/juspay/hyperswitch-control-center/commit/5a18207f4dfe9acabfc2db2fee1356452a633a9c))
+
+### Bug Fixes
+
+- Scope the amount filter's Enter key handler to the filter itself ([#5475](https://github.com/juspay/hyperswitch-control-center/pull/5475)) ([`32e8441`](https://github.com/juspay/hyperswitch-control-center/commit/32e84419bc6098f7be0dc6b582628b49ec253410))
+
+**Full Changelog:** [`2026.09.16.1...2026.09.17.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.16.1...2026.09.17.0)
+
+- - -
+
 ## 2026.09.16.1
 
 ### Miscellaneous Tasks
