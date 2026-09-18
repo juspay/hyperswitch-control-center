@@ -200,6 +200,7 @@ let connectorList: array<connectorTypes> = [
   Processors(CITIGATE),
   Processors(ILIXIUM),
   Processors(WORLDPAYRAFT),
+  Processors(ETISALAT),
   Processors(MERCHANTE),
 ]
 
@@ -769,6 +770,10 @@ let worldpayraftInfo = {
   description: "Native RAFT is Worldpay's RESTful API for direct access to their core authorization processing platform, supporting credit, debit, gift card, and alternate payment methods for enterprise merchants in the USA.",
 }
 
+let etisalatInfo = {
+  description: "Etisalat Payment Gateway (EPG) REST is Etisalat's JSON/REST API for UAE merchants, supporting 3DS and non-3DS card payments, capture, reversal, refund, tokenization, and UAE Central Bank processing.",
+}
+
 let merchanteInfo = {
   description: "MerchantE Payment Gateway is a REST API for credit card processing — authorization, capture, settlement, refunds, voids, and AVS/CVV verification — with tokenized Card-on-File (CIT/MIT) recurring payments and Apple Pay/Google Pay support.",
 }
@@ -1066,6 +1071,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | CITIGATE => "citigate"
   | ILIXIUM => "ilixium"
   | WORLDPAYRAFT => "worldpayraft"
+  | ETISALAT => "etisalat"
   | MERCHANTE => "merchante"
   }
 
@@ -1285,6 +1291,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "citigate" => Processors(CITIGATE)
     | "ilixium" => Processors(ILIXIUM)
     | "worldpayraft" => Processors(WORLDPAYRAFT)
+    | "etisalat" => Processors(ETISALAT)
     | "merchante" => Processors(MERCHANTE)
     | _ => UnknownConnector("Not known")
     }
@@ -1480,6 +1487,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | CITIGATE => citigateInfo
   | ILIXIUM => ilixiumInfo
   | WORLDPAYRAFT => worldpayraftInfo
+  | ETISALAT => etisalatInfo
   | MERCHANTE => merchanteInfo
   }
 }
@@ -2493,6 +2501,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | CITIGATE => "Citigate"
   | ILIXIUM => "Ilixium"
   | WORLDPAYRAFT => "Worldpay Raft"
+  | ETISALAT => "Etisalat"
   | MERCHANTE => "MerchantE"
   }
 
