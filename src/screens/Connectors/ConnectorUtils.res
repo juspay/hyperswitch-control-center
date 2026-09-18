@@ -200,6 +200,7 @@ let connectorList: array<connectorTypes> = [
   Processors(CITIGATE),
   Processors(ILIXIUM),
   Processors(WORLDPAYRAFT),
+  Processors(MERCHANTE),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -768,6 +769,10 @@ let worldpayraftInfo = {
   description: "Native RAFT is Worldpay's RESTful API for direct access to their core authorization processing platform, supporting credit, debit, gift card, and alternate payment methods for enterprise merchants in the USA.",
 }
 
+let merchanteInfo = {
+  description: "MerchantE Payment Gateway is a REST API for credit card processing — authorization, capture, settlement, refunds, voids, and AVS/CVV verification — with tokenized Card-on-File (CIT/MIT) recurring payments and Apple Pay/Google Pay support.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -1061,6 +1066,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | CITIGATE => "citigate"
   | ILIXIUM => "ilixium"
   | WORLDPAYRAFT => "worldpayraft"
+  | MERCHANTE => "merchante"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1279,6 +1285,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "citigate" => Processors(CITIGATE)
     | "ilixium" => Processors(ILIXIUM)
     | "worldpayraft" => Processors(WORLDPAYRAFT)
+    | "merchante" => Processors(MERCHANTE)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1473,6 +1480,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | CITIGATE => citigateInfo
   | ILIXIUM => ilixiumInfo
   | WORLDPAYRAFT => worldpayraftInfo
+  | MERCHANTE => merchanteInfo
   }
 }
 
@@ -2485,6 +2493,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | CITIGATE => "Citigate"
   | ILIXIUM => "Ilixium"
   | WORLDPAYRAFT => "Worldpay Raft"
+  | MERCHANTE => "MerchantE"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>

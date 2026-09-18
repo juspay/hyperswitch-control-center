@@ -147,6 +147,7 @@ type processorTypes =
   | CITIGATE
   | ILIXIUM
   | WORLDPAYRAFT
+  | MERCHANTE
 
 type payoutProcessorTypes =
   | ADYEN

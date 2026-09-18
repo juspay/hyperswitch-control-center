@@ -3820,4 +3820,39 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
       },
     },
   },
+
+  merchante: {
+    label: "merchante",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "merchante_default",
+      },
+      fieldLabels: ["Profile Key *", "Profile ID *"],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Visa",
+          "Mastercard",
+          "AmericanExpress",
+          "Discover",
+          "JCB",
+          "DinersClub",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Visa",
+          "Mastercard",
+          "AmericanExpress",
+          "Discover",
+          "JCB",
+          "DinersClub",
+        ],
+      },
+    },
+  },
 };
