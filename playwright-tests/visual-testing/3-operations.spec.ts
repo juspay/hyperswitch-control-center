@@ -138,6 +138,14 @@ test.describe("Visual Testing - Payment Operations", () => {
       maxDiffPixelRatio: 0.01,
     });
 
+    // The Attempts table is its own tab on the payment details page
+    // (ShowOrder.res builds paymentDetailsTabs), so it is not in the DOM while
+    // the events-and-logs tab is selected. Select it before expanding a row.
+    const paymentAttemptsTab =
+      paymentOperations.paymentDetailsTab("Payment Attempts");
+    await paymentAttemptsTab.click();
+    await expect(paymentAttemptsTab).toHaveAttribute("aria-selected", "true");
+
     await paymentOperations.firstAttemptRowExpander.click();
     await expect(paymentOperations.connectorTransactionIdInTable).toBeVisible();
     await paymentOperations.connectorTransactionIdInTable.scrollIntoViewIfNeeded();
