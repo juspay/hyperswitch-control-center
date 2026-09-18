@@ -143,7 +143,8 @@ module PaymentProcessingDetailsAt = {
               {"Proceed to next step to link the certificate."->React.string}
             </p>
           </div>
-        | Some(#Raw) | None => rawCertificateInputs
+        | Some(#Raw) => rawCertificateInputs
+        | None => React.null
         }}
       </>
 
