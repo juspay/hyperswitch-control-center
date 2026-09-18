@@ -49,6 +49,12 @@ let reconResourceFallback: array<UserManagementTypes.resourceAccessType> = [
   ReconRule,
 ]
 
+// Offer-engine is a separate service authenticated via x-hyperswitch-token, not hyperswitch's
+// own RBAC, so there is no backend permission group to eventually cut over to here.
+let offersGroupFallback: array<UserManagementTypes.groupAccessType> = [OffersView, OffersManage]
+
+let offersResourceFallback: array<UserManagementTypes.resourceAccessType> = [Offers]
+
 let useUserGroupACLHook = () => {
   open APIUtils
   open LogicUtils
@@ -72,12 +78,18 @@ let useUserGroupACLHook = () => {
       let resourcesAccessValue =
         getStrArrayFromDict(dict, "resources", [])->Array.map(mapStringToResourceAccessType)
 
-      let effectiveGroups = reconEnginePermissions
-        ? groupsAccessValue
-        : groupsAccessValue->Array.concat(reconGroupFallback)
-      let effectiveResources = reconEnginePermissions
-        ? resourcesAccessValue
-        : resourcesAccessValue->Array.concat(reconResourceFallback)
+      let effectiveGroups =
+        (
+          reconEnginePermissions
+            ? groupsAccessValue
+            : groupsAccessValue->Array.concat(reconGroupFallback)
+        )->Array.concat(offersGroupFallback)
+      let effectiveResources =
+        (
+          reconEnginePermissions
+            ? resourcesAccessValue
+            : resourcesAccessValue->Array.concat(reconResourceFallback)
+        )->Array.concat(offersResourceFallback)
 
       let userGroupACLMap = effectiveGroups->convertValueToMapGroup
       let resourceACLMap = effectiveResources->convertValueToMapResources

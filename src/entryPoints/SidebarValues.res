@@ -673,7 +673,7 @@ let offers = userHasResourceAccess => {
   SubLevelLink({
     name: "Offers",
     link: `/offers`,
-    access: userHasResourceAccess(~resourceAccess=Payment),
+    access: userHasResourceAccess(~resourceAccess=Offers),
     searchOptions: [("View offers", "")],
   })
 }
