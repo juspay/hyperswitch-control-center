@@ -78,6 +78,15 @@ let payouts = userHasResourceAccess => {
   })
 }
 
+let paymentLinks = userHasResourceAccess => {
+  SubLevelLink({
+    name: "Payment Link",
+    link: `/payment-links`,
+    access: userHasResourceAccess(~resourceAccess=Payment),
+    searchOptions: [("View and create payment links", "")],
+  })
+}
+
 let alternatePaymentMethods = isApmEnabled =>
   isApmEnabled
     ? Link({
@@ -93,6 +102,7 @@ let operations = (
   isOperationsEnabled,
   ~userHasResourceAccess,
   ~isPayoutsEnabled,
+  ~isPaymentLinkEnabled,
   ~userEntity,
   ~isCurrentMerchantPlatform,
 ) => {
@@ -105,12 +115,16 @@ let operations = (
     let refunds = refunds(userHasResourceAccess)
     let disputes = disputes(userHasResourceAccess)
     let payouts = payouts(userHasResourceAccess)
+    let paymentLinks = paymentLinks(userHasResourceAccess)
 
     let links = [payments, refunds, disputes]
     let isCustomersEnabled = userEntity !== #Profile
 
     if isPayoutsEnabled {
       links->Array.push(payouts)->ignore
+    }
+    if isPaymentLinkEnabled {
+      links->Array.push(paymentLinks)->ignore
     }
     if isCustomersEnabled {
       links->Array.push(customers)->ignore
@@ -542,6 +556,19 @@ let complianceCertificateSection = {
   })
 }
 
+let hierarchicalConfigurationsSection = userHasResourceAccess => {
+  SubLevelLink({
+    name: "Hierarchical Configurations",
+    link: `/hierarchical-configurations`,
+    access: userHasResourceAccess(~resourceAccess=Connector),
+    searchOptions: [
+      ("Hierarchical Configurations", ""),
+      ("Certificate management", ""),
+      ("Apple Pay certificate", ""),
+    ],
+  })
+}
+
 let organizationSettings = (userHasAccess, checkUserEntity) => {
   SubLevelLink({
     name: "Organization Settings",
@@ -561,6 +588,7 @@ let settings = (
   ~userHasAccess,
   ~checkUserEntity,
   ~complianceCertificate,
+  ~hierarchicalConfigurations,
   ~devModularityV2Enabled,
   ~devThemeEnabled,
   ~devUsers,
@@ -574,6 +602,9 @@ let settings = (
 
   if complianceCertificate {
     settingsLinkArray->Array.push(complianceCertificateSection)->ignore
+  }
+  if hierarchicalConfigurations {
+    settingsLinkArray->Array.push(hierarchicalConfigurationsSection(userHasResourceAccess))->ignore
   }
   if !devModularityV2Enabled && devThemeEnabled {
     settingsLinkArray

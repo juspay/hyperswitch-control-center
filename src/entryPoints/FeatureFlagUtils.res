@@ -31,6 +31,7 @@ type featureFlag = {
   branding: bool,
   granularity: bool,
   complianceCertificate: bool,
+  hierarchicalConfigurations: bool,
   pmAuthenticationProcessor: bool,
   newAnalytics: bool,
   newAnalyticsSmartRetries: bool,
@@ -90,6 +91,7 @@ type featureFlag = {
   sendV1DummyApiKeyHeader: bool,
   cugUser: bool,
   devSuperposition: bool,
+  paymentLinkOperations: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -125,6 +127,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     branding: dict->getBool("branding", false),
     granularity: dict->getBool("granularity", false),
     complianceCertificate: dict->getBool("compliance_certificate", false),
+    hierarchicalConfigurations: dict->getBool("hierarchical_configurations", false),
     pmAuthenticationProcessor: dict->getBool("pm_authentication_processor", false),
     newAnalytics: dict->getBool("new_analytics", false),
     newAnalyticsSmartRetries: dict->getBool("new_analytics_smart_retries", false),
@@ -182,6 +185,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     sendV1DummyApiKeyHeader,
     cugUser: dict->getBool("cug_user", false),
     devSuperposition: dict->getBool("dev_superposition", false),
+    paymentLinkOperations: dict->getBool("payment_link_operations", false),
   }
 }
 

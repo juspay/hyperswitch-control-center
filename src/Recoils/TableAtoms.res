@@ -4,6 +4,11 @@ let refundsMapDefaultCols = Recoil.atom("refundsMapDefaultCols", RefundEntity.de
 
 let payoutsMapDefaultCols = Recoil.atom("payoutsMapDefaultCols", PayoutsEntity.defaultColumns)
 
+let paymentLinksMapDefaultCols = Recoil.atom(
+  "paymentLinksMapDefaultCols",
+  PaymentLinksEntity.defaultColumns,
+)
+
 let ordersMapDefaultCols = Recoil.atom("ordersMapDefaultCols", OrderEntity.defaultColumns)
 
 let ordersAdvancedMapDefaultCols = Recoil.atom(

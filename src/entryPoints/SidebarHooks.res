@@ -19,6 +19,7 @@ let useGetHsSidebarValues = () => {
     disputeAnalytics,
     configurePmts,
     complianceCertificate,
+    hierarchicalConfigurations,
     pmAuthenticationProcessor,
     taxProcessor,
     newAnalytics,
@@ -36,6 +37,7 @@ let useGetHsSidebarValues = () => {
     devVault,
     devUsers,
     devSuperposition,
+    paymentLinkOperations,
   } = featureFlagDetails
   let {
     isFeatureEnabledForDenyListMerchant,
@@ -64,6 +66,7 @@ let useGetHsSidebarValues = () => {
     default->operations(
       ~userHasResourceAccess,
       ~isPayoutsEnabled=payOut,
+      ~isPaymentLinkEnabled=paymentLinkOperations,
       ~userEntity,
       ~isCurrentMerchantPlatform,
     ),
@@ -102,6 +105,7 @@ let useGetHsSidebarValues = () => {
       ~userHasAccess,
       ~checkUserEntity,
       ~complianceCertificate,
+      ~hierarchicalConfigurations,
       ~devModularityV2Enabled=devModularityV2,
       ~devThemeEnabled=devTheme,
       ~devUsers,

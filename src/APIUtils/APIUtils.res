@@ -215,6 +215,7 @@ let useGetURL = () => {
     ~entityName: entityTypeWithVersion,
     ~methodType: Fetch.requestMethod,
     ~id=None,
+    ~idType=None,
     ~connector=None,
     ~userType: userType=#NONE,
     ~userRoleTypes: userRoleTypes=NONE,
@@ -277,6 +278,11 @@ let useGetURL = () => {
       | BLOCKLIST_LOOKUP =>
         switch (methodType, queryParameters) {
         | (Get, Some(queryParams)) => Default(`blocklist/lookup?${queryParams}`)
+        | _ => Default("")
+        }
+      | BLOCKLIST_EXPORT =>
+        switch methodType {
+        | Post => Default(`blocklist/export`)
         | _ => Default("")
         }
 
@@ -599,6 +605,21 @@ let useGetURL = () => {
           | _ => Olap(`payouts/list`)
           }
 
+        | _ => Default("")
+        }
+      | PAYMENT_LINKS =>
+        switch methodType {
+        | Post =>
+          switch transactionEntity {
+          | #Merchant => Default(`payment_link/list`)
+          | #Profile => Default(`payment_link/profile/list`)
+          | _ => Default(`payment_link/list`)
+          }
+        | _ => Default("")
+        }
+      | PAYMENT_LINK_CREATE =>
+        switch methodType {
+        | Post => Default(`payments/payment_link`)
         | _ => Default("")
         }
 
@@ -1666,6 +1687,21 @@ let useGetURL = () => {
       | INTEGRATION_DETAILS => Default(`user/get_sandbox_integration_details`)
       | SDK_PAYMENT => Default("payments")
       | CHAT_BOT => Default(`chat/ai/data`)
+
+      /* HIERARCHICAL CONFIGURATIONS (RESOURCES) */
+      | RESOURCES =>
+        switch (methodType, id, idType) {
+        | (Post, _, _) => Default(`hierarchical_resources`)
+        | (Put, Some(resourceId), Some(resourceType)) =>
+          Default(`hierarchical_resources/${resourceType}/${resourceId}`)
+        | _ => Default(`hierarchical_resources`)
+        }
+      | RESOURCES_LIST => Default(`hierarchical_resources/list`)
+      | RESOURCES_LINK =>
+        switch id {
+        | Some(resourceId) => Default(`hierarchical_resources/${resourceId}/link`)
+        | None => Default(`hierarchical_resources`)
+        }
       }
 
     | V2(entityNameForv2) =>

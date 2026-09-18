@@ -54,7 +54,8 @@ let make = (~setScreenState) => {
     | list{"payments", ..._}
     | list{"refunds", ..._}
     | list{"disputes", ..._}
-    | list{"payouts", ..._} =>
+    | list{"payouts", ..._}
+    | list{"payment-links", ..._} =>
       <AccessControl authorization={isCurrentMerchantPlatform ? NoAccess : Access}>
         <TransactionContainer />
       </AccessControl>
@@ -108,6 +109,12 @@ let make = (~setScreenState) => {
     | list{"compliance"} =>
       <AccessControl isEnabled=featureFlagDetails.complianceCertificate authorization=Access>
         <Compliance />
+      </AccessControl>
+    | list{"hierarchical-configurations"} =>
+      <AccessControl
+        isEnabled=featureFlagDetails.hierarchicalConfigurations
+        authorization={userHasAccess(~groupAccess=ConnectorsManage)}>
+        <HierarchicalConfigurations />
       </AccessControl>
     | list{"3ds"} =>
       <AccessControl authorization={userHasAccess(~groupAccess=WorkflowsView)}>

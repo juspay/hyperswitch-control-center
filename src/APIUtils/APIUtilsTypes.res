@@ -10,6 +10,8 @@ type entityName =
   | DISPUTE_FILTERS
   | PAYOUTS
   | PAYOUTS_FILTERS
+  | PAYMENT_LINKS
+  | PAYMENT_LINK_CREATE
   | ANALYTICS_FILTERS
   | ANALYTICS_PAYMENTS
   | ANALYTICS_DISPUTES
@@ -98,6 +100,10 @@ type entityName =
   | BLOCKLIST
   | BLOCKLIST_COUNT
   | BLOCKLIST_LOOKUP
+  | RESOURCES
+  | RESOURCES_LIST
+  | RESOURCES_LINK
+  | BLOCKLIST_EXPORT
 
 type v2entityNameType =
   | CUSTOMERS
@@ -231,6 +237,7 @@ type getUrlTypes = (
   ~entityName: entityTypeWithVersion,
   ~methodType: Fetch.requestMethod,
   ~id: option<string>=?,
+  ~idType: option<string>=?,
   ~connector: option<string>=?,
   ~userType: userType=?,
   ~userRoleTypes: userRoleTypes=?,
