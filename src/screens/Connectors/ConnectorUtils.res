@@ -201,6 +201,7 @@ let connectorList: array<connectorTypes> = [
   Processors(ILIXIUM),
   Processors(WORLDPAYRAFT),
   Processors(ETISALAT),
+  Processors(MERCHANTE),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -773,6 +774,10 @@ let etisalatInfo = {
   description: "Etisalat Payment Gateway (EPG) REST is Etisalat's JSON/REST API for UAE merchants, supporting 3DS and non-3DS card payments, capture, reversal, refund, tokenization, and UAE Central Bank processing.",
 }
 
+let merchanteInfo = {
+  description: "MerchantE Payment Gateway is a REST API for credit card processing — authorization, capture, settlement, refunds, voids, and AVS/CVV verification — with tokenized Card-on-File (CIT/MIT) recurring payments and Apple Pay/Google Pay support.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -1067,6 +1072,7 @@ let getConnectorNameString = (connector: processorTypes) =>
   | ILIXIUM => "ilixium"
   | WORLDPAYRAFT => "worldpayraft"
   | ETISALAT => "etisalat"
+  | MERCHANTE => "merchante"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1286,6 +1292,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "ilixium" => Processors(ILIXIUM)
     | "worldpayraft" => Processors(WORLDPAYRAFT)
     | "etisalat" => Processors(ETISALAT)
+    | "merchante" => Processors(MERCHANTE)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1481,6 +1488,7 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | ILIXIUM => ilixiumInfo
   | WORLDPAYRAFT => worldpayraftInfo
   | ETISALAT => etisalatInfo
+  | MERCHANTE => merchanteInfo
   }
 }
 
@@ -2494,6 +2502,7 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | ILIXIUM => "Ilixium"
   | WORLDPAYRAFT => "Worldpay Raft"
   | ETISALAT => "Etisalat"
+  | MERCHANTE => "MerchantE"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
