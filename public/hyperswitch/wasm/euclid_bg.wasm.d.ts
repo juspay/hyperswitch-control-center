@@ -32,6 +32,7 @@ export const getTwoLetterCountryCode: (a: number) => void;
 export const getValidConnectorsForRule: (a: number, b: number) => void;
 export const getValidWebhookStatus: (a: number, b: number, c: number) => void;
 export const getVariantValues: (a: number, b: number, c: number) => void;
+export const getWebhookStatusConfig: (a: number) => void;
 export const runProgram: (a: number, b: number, c: number) => void;
 export const seedKnowledgeGraph: (a: number, b: number) => void;
 export const setForexData: (a: number, b: number) => void;

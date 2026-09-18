@@ -6,6 +6,7 @@ export function getTaxProcessorConfig(key: string): any;
 export function getFundingSourceValues(): any;
 export function getCardSegmentTypeValues(): any;
 export function getValidWebhookStatus(key: string): any;
+export function getWebhookStatusConfig(): any;
 export function getSurchargeProcessorConfig(key: string): any;
 export function getPMAuthenticationProcessorConfig(key: string): any;
 export function getRequestPayload(input: any, response: any): any;
@@ -105,6 +106,7 @@ export interface InitOutput {
   readonly getValidConnectorsForRule: (a: number, b: number) => void;
   readonly getValidWebhookStatus: (a: number, b: number, c: number) => void;
   readonly getVariantValues: (a: number, b: number, c: number) => void;
+  readonly getWebhookStatusConfig: (a: number) => void;
   readonly runProgram: (a: number, b: number, c: number) => void;
   readonly seedKnowledgeGraph: (a: number, b: number) => void;
   readonly setForexData: (a: number, b: number) => void;
