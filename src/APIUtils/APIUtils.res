@@ -201,9 +201,16 @@ let getOlapBaseUrl = () =>
   | None => Window.env.apiBaseUrl
   }
 
+let getEulerBaseUrl = () =>
+  switch Window.env.eulerUrl->getNonEmptyString {
+  | Some(eulerUrl) => eulerUrl->String.replaceRegExp(%re("/\/+$/"), "")
+  | None => Window.env.apiBaseUrl
+  }
+
 let resolveEndpoint = endpoint =>
   switch endpoint {
   | Olap(path) => `${getOlapBaseUrl()}/${path}`
+  | Euler(path) => `${getEulerBaseUrl()}/${path}`
   | Default(path) => `${Window.env.apiBaseUrl}/${path}`
   }
 
@@ -220,6 +227,7 @@ let useGetURL = () => {
     ~userType: userType=#NONE,
     ~userRoleTypes: userRoleTypes=NONE,
     ~hyperswitchReconType: hyperswitchReconType=#NONE,
+    ~offersType: offersType=#NONE,
     ~hypersenseType: hypersenseType=#NONE,
     ~queryParameters: option<string>=None,
   ) => {
@@ -235,6 +243,7 @@ let useGetURL = () => {
     let connectorBaseURL = `account/${merchantId}/connectors`
     let recoveryAnalyticsDemo = "revenue-recovery-demo"
     let reconBaseURL = `hyperswitch-recon-engine`
+    let offersBaseURL = `offers/dashboard`
 
     let endpoint: endpoint = switch entityName {
     | V1(entityNameType) =>
@@ -1690,6 +1699,36 @@ let useGetURL = () => {
           | _ => Default("")
           }
 
+        | #NONE => Default("")
+        }
+
+      | OFFERS =>
+        switch offersType {
+        | #OFFERS_LIST =>
+          switch methodType {
+          | Post => Euler(`${offersBaseURL}/dashboard-list`)
+          | _ => Default("")
+          }
+        | #OFFER_DETAIL =>
+          switch methodType {
+          | Post => Euler(`${offersBaseURL}/detail`)
+          | _ => Default("")
+          }
+        | #OFFER_STATUS_UPDATE =>
+          switch (methodType, id) {
+          | (Post, Some(offerId)) => Euler(`${offersBaseURL}/${offerId}/status/update`)
+          | _ => Default("")
+          }
+        | #OFFER_DELETE =>
+          switch (methodType, id) {
+          | (Post, Some(offerId)) => Euler(`${offersBaseURL}/${offerId}/delete`)
+          | _ => Default("")
+          }
+        | #OFFER_CREATE =>
+          switch methodType {
+          | Post => Euler(`${offersBaseURL}/create`)
+          | _ => Default("")
+          }
         | #NONE => Default("")
         }
 

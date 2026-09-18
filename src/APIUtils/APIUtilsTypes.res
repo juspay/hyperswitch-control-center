@@ -93,6 +93,7 @@ type entityName =
   | THREE_DS_EXEMPTION_RULES
   | THREE_DS_EXEMPTION_DELETE_RULE
   | HYPERSWITCH_RECON
+  | OFFERS
   | CHAT_BOT
   | OIDC_AUTHORIZE
   | PAYMENTS_LIST
@@ -165,6 +166,15 @@ type hyperswitchReconType = [
   | #RECON_ENGINE_STATUS
   | #GENERATE_TRANSACTION_REPORT
   | #GENERATE_EXCEPTION_REPORT
+  | #NONE
+]
+
+type offersType = [
+  | #OFFERS_LIST
+  | #OFFER_DETAIL
+  | #OFFER_CREATE
+  | #OFFER_STATUS_UPDATE
+  | #OFFER_DELETE
   | #NONE
 ]
 
@@ -243,11 +253,15 @@ type getUrlTypes = (
   ~userType: userType=?,
   ~userRoleTypes: userRoleTypes=?,
   ~hyperswitchReconType: hyperswitchReconType=?,
+  ~offersType: offersType=?,
   ~hypersenseType: hypersenseType=?,
   ~queryParameters: option<string>=?,
 ) => string
 
-// Olap = on the infra OLAP allowlist, served from `olap_url`; Default = normal API path.
+// Olap = on the infra OLAP allowlist, served from `olap_url`;
+// Euler = euler-hosted service (offer-engine), served from `euler_url`;
+// Default = normal API path.
 type endpoint =
   | Olap(string)
+  | Euler(string)
   | Default(string)
