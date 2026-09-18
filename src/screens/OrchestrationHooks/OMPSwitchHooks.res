@@ -193,6 +193,8 @@ let useProfileSwitch = () => {
   }
 }
 
+let modulesWithSubPages = ["configuration-management"]
+
 let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productTypes => unit>=?) => {
   open HyperswitchAtom
   let orgSwitch = useOrgSwitch(~setActiveProductValue)
@@ -239,7 +241,13 @@ let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productType
         // When the internal switch is triggered from the dropdown,
         // and the current path is "/dashboard/payment/id",
         // update the path to "/dashboard/payment" by removing the "id" part.
-        let currentUrl = GlobalVars.extractModulePath(~path=url.path, ~query="", ~end=2)
+        // Modules with nested sub-pages (e.g. "/dashboard/configuration-management/overrides")
+        // retain the sub-page segment so the user stays on the same page.
+        let end = switch url.path {
+        | list{"dashboard", module_, ..._} if modulesWithSubPages->Array.includes(module_) => 3
+        | _ => 2
+        }
+        let currentUrl = GlobalVars.extractModulePath(~path=url.path, ~query="", ~end)
         RescriptReactRouter.replace(currentUrl)
       }
     } catch {

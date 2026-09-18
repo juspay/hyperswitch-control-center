@@ -43,11 +43,28 @@ let setThemeIdtoStore = themeId => {
   }
 }
 
+let getSuperpositionDisplayConfig = (
+  configKey: string,
+): HyperSwitchConfigTypes.superpositionDisplayConfig => {
+  switch configKey->String.lastIndexOf(".") {
+  | -1 => {folder: None, name: configKey}
+  | index => {
+      folder: configKey->String.slice(~start=0, ~end=index)->getNonEmptyString,
+      name: configKey->String.sliceToEnd(~start=index + 1),
+    }
+  }
+}
+
 let getSuperpositionConfigMapper: Dict.t<
   JSON.t,
 > => HyperSwitchConfigTypes.superpositionConfig = dict => {
   {
     organization_id: dict->getString("organization_id", ""),
     workspace: dict->getString("workspace", ""),
+    display_configs: dict
+    ->getString("display_configs", "")
+    ->String.split(",")
+    ->Array.filterMap(configKey => configKey->String.trim->getNonEmptyString)
+    ->Array.map(getSuperpositionDisplayConfig),
   }
 }

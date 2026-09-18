@@ -43,7 +43,7 @@ module ConfiguredSuperpositionApp = {
             update: canManageConfigurations,
           },
         },
-        filters: defaultFiltersConfig,
+        filters: getFiltersConfig(superpositionConfigs.display_configs),
         table: defaultTableConfig,
         theme: defaultThemeConfig,
         layout: defaultLayoutConfig,
