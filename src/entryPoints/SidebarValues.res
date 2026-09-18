@@ -742,7 +742,7 @@ let superposition = (~userHasResourceAccess, ~isEnabled) =>
   isEnabled
     ? Section({
         name: "Configuration Management",
-        icon: "nd-settings",
+        icon: "nd-config-sliders",
         showSection: true,
         links: [
           superpositionDefaultConfigs(userHasResourceAccess),
@@ -750,6 +750,6 @@ let superposition = (~userHasResourceAccess, ~isEnabled) =>
           superpositionDimensions(userHasResourceAccess),
           superpositionAuditLog(userHasResourceAccess),
         ],
-        selectedIcon: "nd-settings-fill",
+        selectedIcon: "nd-config-sliders",
       })
     : emptyComponent
