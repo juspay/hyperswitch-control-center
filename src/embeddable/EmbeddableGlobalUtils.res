@@ -4,6 +4,7 @@ let getConfigFromDict: Dict.t<JSON.t> => HyperSwitchConfigTypes.baseConfig = dic
   {
     apiBaseUrl: dict->getString("api_url", ""),
     olapUrl: dict->getString("olap_url", ""),
+    eulerUrl: dict->getString("euler_url", ""),
     mixpanelToken: dict->getString("mixpanel_token", ""),
     sdkBaseUrl: dict->getString("sdk_url", "")->getNonEmptyString,
     agreementUrl: dict->getString("agreement_url", "")->getNonEmptyString,
