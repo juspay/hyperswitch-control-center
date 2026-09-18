@@ -2749,7 +2749,8 @@ let checkIfPredecryptFlowEnabledForApplePay = connector => {
   | Processors(NMI)
   | Processors(STRIPE)
   | Processors(WORLDPAYXML)
-  | Processors(IMERCHANTSOLUTIONS) => true
+  | Processors(IMERCHANTSOLUTIONS)
+  | Processors(REVOLV3) => true
   | _ => false
   }
 }
@@ -2763,7 +2764,8 @@ let checkIfPredecryptFlowEnabledForGooglePay = connector => {
   | Processors(NMI)
   | Processors(STRIPE)
   | Processors(WORLDPAYXML)
-  | Processors(IMERCHANTSOLUTIONS) => true
+  | Processors(IMERCHANTSOLUTIONS)
+  | Processors(REVOLV3) => true
   | _ => false
   }
 }

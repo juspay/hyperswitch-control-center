@@ -193,7 +193,8 @@ module Landing = {
           <ApplePayPreDecryptLandingCard setApplePayIntegrationType appleIntegrationType />
         </>
 
-      | Processors(IMERCHANTSOLUTIONS) =>
+      | Processors(IMERCHANTSOLUTIONS)
+      | Processors(REVOLV3) =>
         <>
           <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
           <ApplePayPreDecryptLandingCard setApplePayIntegrationType appleIntegrationType />
