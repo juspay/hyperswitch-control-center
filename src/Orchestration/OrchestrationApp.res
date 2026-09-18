@@ -95,7 +95,7 @@ let make = (~setScreenState) => {
     | list{"offers", ...remainingPath} =>
       <AccessControl
         isEnabled={featureFlagDetails.devOffers}
-        authorization={userHasAccess(~groupAccess=OperationsView)}>
+        authorization={userHasAccess(~groupAccess=OffersView)}>
         <FilterContext key="Offers" index="Offers">
           <EntityScaffold
             entityName="Offers" remainingPath access=Access renderList={() => <OffersList />}

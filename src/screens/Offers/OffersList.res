@@ -22,7 +22,7 @@ let make = () => {
   let pageDetail = pageDetailDict->Dict.get(title)->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
 
-  let hasManageAccess = userHasAccess(~groupAccess=OperationsManage) === Access
+  let hasManageAccess = userHasAccess(~groupAccess=OffersManage) === Access
 
   let refetch = () => setRefetchCounter(prev => prev + 1)
 
