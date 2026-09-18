@@ -648,3 +648,10 @@ type reconEngineStatusType = {
   processor_status: reconProcessorStatus,
   pending_staging_entries: int,
 }
+
+type reconBusinessProfileType = {
+  profile_id: string,
+  merchant_id: string,
+  profile_name: string,
+  timezone: string,
+}

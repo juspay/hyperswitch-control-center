@@ -1443,6 +1443,11 @@ let useGetURL = () => {
           | Get => Default(`${reconBaseURL}/business_profiles/${profileId}/recon_engine/status`)
           | _ => Default("")
           }
+        | #RECON_ENGINE_BUSINESS_PROFILE =>
+          switch methodType {
+          | Get => Default(`${reconBaseURL}/business_profiles/${profileId}`)
+          | _ => Default("")
+          }
         | #NONE => Default("")
         }
 
