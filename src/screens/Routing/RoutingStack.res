@@ -28,23 +28,30 @@ let make = (~remainingPath, ~previewOnly=false) => {
   }, [previewOnly])
 
   let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+  let {embedDecisionEngine} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let openDecisionEngineRoutingPage = async (target, ruleId) => {
     open LogicUtils
-    try {
-      let entryUrl = getURL(~entityName=V1(ROUTING), ~methodType=Get, ~id=Some("entry"))
-      let res = await updateDetails(`${entryUrl}?target=${target}`, JSON.Encode.null, Post)
-      let redirectUrl = res->getDictFromJsonObject->getString("redirect_url", "")
-      if redirectUrl->isNonEmptyString {
-        let handoff = connectorList->RoutingUtils.decisionEngineHandoffFragment(~profileId, ~ruleId)
-        `${redirectUrl}${handoff}`->Window._open
+    if embedDecisionEngine {
+      // The embedded workspace mints its own hand-off; section slugs match the entry targets.
+      RescriptReactRouter.push(DecisionEngineUtils.workspaceUrl(~slug=target, ~ruleId))
+    } else {
+      try {
+        let entryUrl = getURL(~entityName=V1(ROUTING), ~methodType=Get, ~id=Some("entry"))
+        let res = await updateDetails(`${entryUrl}?target=${target}`, JSON.Encode.null, Post)
+        let redirectUrl = res->getDictFromJsonObject->getString("redirect_url", "")
+        if redirectUrl->isNonEmptyString {
+          let handoff =
+            connectorList->RoutingUtils.decisionEngineHandoffFragment(~profileId, ~ruleId)
+          `${redirectUrl}${handoff}`->Window._open
+        }
+      } catch {
+      | Exn.Error(_) =>
+        showToast(
+          ~message="Failed to open Decision Engine routing. Please try again.",
+          ~toastType=ToastState.ToastError,
+        )
       }
-    } catch {
-    | Exn.Error(_) =>
-      showToast(
-        ~message="Failed to open Decision Engine routing. Please try again.",
-        ~toastType=ToastState.ToastError,
-      )
     }
   }
 

@@ -351,9 +351,16 @@ let disputeAnalytics = (~userHasResourceAccess) => SubLevelLink({
   access: userHasResourceAccess(~resourceAccess=Analytics),
   searchOptions: [("View Dispute analytics", "")],
 })
-let routingAnalytics = (~userHasResourceAccess) => SubLevelLink({
+let routingAnalytics = (
+  ~userHasResourceAccess,
+  ~showDecisionEngineAnalytics=false,
+) => SubLevelLink({
   name: "Routing",
-  link: `/analytics-routing`,
+  // When the Decision Engine is embedded, this existing Analytics → Routing entry opens the DE's
+  // own routing analytics in the workspace instead of the native /analytics-routing page.
+  link: showDecisionEngineAnalytics
+    ? DecisionEngineUtils.workspacePath(~slug="analytics")
+    : `/analytics-routing`,
   access: userHasResourceAccess(~resourceAccess=Analytics),
   searchOptions: [("View routing analytics", "")],
 })
@@ -379,6 +386,7 @@ let analytics = (
   routingAnalyticsFlag,
   ~authenticationAnalyticsFlag,
   ~userHasResourceAccess,
+  ~isEmbedDecisionEngineEnabled=false,
 ) => {
   let links = [paymentAnalytcis(~userHasResourceAccess), refundAnalytics(~userHasResourceAccess)]
   if authenticationAnalyticsFlag {
@@ -392,8 +400,15 @@ let analytics = (
     links->Array.unshift(newAnalytics(~userHasResourceAccess))
   }
 
-  if routingAnalyticsFlag {
-    links->Array.push(routingAnalytics(~userHasResourceAccess))
+  // Embedding the DE routes this entry to the DE's routing analytics; surface it even if the
+  // native routing-analytics flag is off, since it replaces that page.
+  if routingAnalyticsFlag || isEmbedDecisionEngineEnabled {
+    links->Array.push(
+      routingAnalytics(
+        ~userHasResourceAccess,
+        ~showDecisionEngineAnalytics=isEmbedDecisionEngineEnabled,
+      ),
+    )
   }
 
   isAnalyticsEnabled
@@ -490,6 +505,32 @@ let vault = (isVaultEnabled, ~userHasResourceAccess) => {
     : emptyComponent
 }
 
+// When the Decision Engine is embedded (and the profile has cut over), its surfaces replace the
+// single "Routing" leaf with a dedicated expandable group in the sidebar (each item deep-links the
+// workspace by path segment, so the sidebar highlights the active section natively). The section
+// list is shared with the workspace via DecisionEngineUtils.sections; Analytics is excluded here
+// (inSidebar=false) since it lives under the Analytics section's "Routing" entry.
+let decisionEngineRouting = (showDecisionEngine, ~userHasResourceAccess) => {
+  let decisionEngineLink = (section: DecisionEngineTypes.deSection) => SubLevelLink({
+    name: section.label,
+    link: DecisionEngineUtils.workspacePath(~slug=section.slug),
+    access: userHasResourceAccess(~resourceAccess=Routing),
+    iconTag: ?section.iconTag,
+    searchOptions: section.searchOptions,
+  })
+
+  showDecisionEngine
+    ? Section({
+        name: "Decision Engine Routing",
+        icon: "nd-graph-chart-gantt",
+        showSection: true,
+        links: DecisionEngineUtils.sections
+        ->Array.filter(section => section.inSidebar)
+        ->Array.map(decisionEngineLink),
+      })
+    : emptyComponent
+}
+
 let workflow = (
   isWorkflowEnabled,
   isSurchargeEnabled,
@@ -497,13 +538,15 @@ let workflow = (
   ~userHasResourceAccess,
   ~isPayoutEnabled,
   ~userEntity,
+  ~isEmbedDecisionEngineEnabled=false,
 ) => {
   let routing = routing(userHasResourceAccess)
   let threeDs = threeDs(userHasResourceAccess)
   let payoutRouting = payoutRouting(userHasResourceAccess)
   let surcharge = surcharge(userHasResourceAccess)
 
-  let defaultWorkFlow = [routing]
+  // The DecisionEngine "Routing" group (added separately) carries routing when embedded.
+  let defaultWorkFlow = isEmbedDecisionEngineEnabled ? [] : [routing]
   let isNotProfileEntity = userEntity !== #Profile
 
   if isSurchargeEnabled && isNotProfileEntity {

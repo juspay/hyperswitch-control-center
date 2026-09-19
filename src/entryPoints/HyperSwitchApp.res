@@ -8,6 +8,12 @@ let make = () => {
   open HyperswitchAppHelper
 
   let url = RescriptReactRouter.useUrl()
+  // The embedded Decision Engine workspace owns its own chrome and needs the full content area
+  // (no page gutter, no width cap).
+  let isDecisionEngineWorkspace = switch url.path->urlPath {
+  | list{"routing", "workspace", ..._} => true
+  | _ => false
+  }
   let {
     showFeedbackModal,
     setShowFeedbackModal,
@@ -227,7 +233,9 @@ let make = () => {
                     </RenderIf>
                     <WorkflowSideDrawer />
                     <div
-                      className="p-6 md:px-12 md:py-8 flex flex-col gap-8 max-w-fixedPageWidth min-h-full">
+                      className={isDecisionEngineWorkspace
+                        ? "flex flex-col min-h-full"
+                        : "p-6 md:px-12 md:py-8 flex flex-col gap-8 max-w-fixedPageWidth min-h-full"}>
                       <ErrorBoundary>
                         {switch (activeProduct, url.path->urlPath) {
                         // /* DEFAULT HOME */

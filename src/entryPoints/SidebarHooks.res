@@ -38,6 +38,7 @@ let useGetHsSidebarValues = () => {
     devUsers,
     devSuperposition,
     paymentLinkOperations,
+    embedDecisionEngine,
   } = featureFlagDetails
   let {
     isFeatureEnabledForDenyListMerchant,
@@ -47,14 +48,22 @@ let useGetHsSidebarValues = () => {
     newAnalytics && isFeatureEnabledForDenyListMerchant(merchantSpecificConfig.newAnalytics)
   let {isCurrentMerchantPlatform, isCurrentMerchantConnected} = OMPSwitchHooks.useOMPType()
 
+  // The embedded Decision Engine layout only applies to profiles that have cut over to the DE.
+  // Cutover is a per-profile async probe (not a feature flag), so it falls back to the native
+  // routing layout until it confirms cutover.
+  let cutover = DecisionEngineHooks.useDecisionEngineCutover(~embedDecisionEngine)
+  let showDecisionEngine = embedDecisionEngine && cutover == Some(true)
+
   let standardModules = !isCurrentMerchantPlatform
     ? [
+        showDecisionEngine->decisionEngineRouting(~userHasResourceAccess),
         default->workflow(
           isSurchargeEnabled,
           threedsExemptionRules,
           ~userHasResourceAccess,
           ~isPayoutEnabled=payOut,
           ~userEntity,
+          ~isEmbedDecisionEngineEnabled=showDecisionEngine,
         ),
         devVault->vault(~userHasResourceAccess),
         devAltPaymentMethods->alternatePaymentMethods,
@@ -90,6 +99,7 @@ let useGetHsSidebarValues = () => {
       routingAnalytics,
       ~authenticationAnalyticsFlag=authenticationAnalytics,
       ~userHasResourceAccess,
+      ~isEmbedDecisionEngineEnabled=showDecisionEngine,
     ),
     ...standardModules,
     default->developers(
