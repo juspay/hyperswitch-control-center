@@ -136,6 +136,7 @@ let getV2Url = (
     }
   /* MERCHANT ACCOUNT DETAILS (Get,Post and Put) */
   | MERCHANT_ACCOUNT => Default(`v2/merchant-accounts/${merchantId}`)
+  | USER_MERCHANT_DETAILS => Default(`v2/users/merchant-details`)
   | USERS =>
     let userUrl = `user`
     switch userType {
@@ -1517,6 +1518,7 @@ let useGetURL = () => {
           | None => Default(`${userUrl}/data`)
           }
         | #MERCHANT_DATA => Default(`${userUrl}/data`)
+        | #MERCHANT_DETAILS => Default(`${userUrl}/merchant_details`)
         | #USER_INFO => Default(userUrl)
 
         // USER GROUP ACCESS
