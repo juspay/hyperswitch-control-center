@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
 
 export class PaymentSettings {
   readonly page: Page;
@@ -425,6 +425,137 @@ export class PaymentSettings {
       .last()
       .locator("[data-bool-value]")
       .first();
+  }
+
+  // ---- Payment Method Blocking (additional fields) ----
+  /**
+   * A multi-select inside one payment-method accordion, addressed by the
+   * accordion title ("Card" / "Apple Pay" / "Google Pay") and the dropdown's
+   * button text ("Select Countries", "Select Card Networks", ...).
+   */
+  paymentMethodBlockingDropdown(section: string, buttonText: string): Locator {
+    return this.page
+      .locator("div", {
+        has: this.page.getByText(section, { exact: true }),
+      })
+      .filter({
+        has: this.page.getByRole("button", { name: buttonText }),
+      })
+      .last()
+      .getByRole("button", { name: buttonText });
+  }
+
+  /**
+   * The expanded accordion body for one payment method. Used as the scope for
+   * the per-row locators below — the same toggle labels repeat in all three
+   * accordions, so a page-wide lookup would be ambiguous.
+   */
+  paymentMethodBlockingSection(section: string): Locator {
+    return this.page
+      .locator("div", {
+        has: this.page.getByText(section, { exact: true }),
+      })
+      .filter({ has: this.page.locator("[data-bool-value]") })
+      .last();
+  }
+
+  /** The single field row carrying `label` inside one accordion. */
+  paymentMethodBlockingRow(section: string, label: string): Locator {
+    return this.paymentMethodBlockingSection(section)
+      .locator("div")
+      .filter({ has: this.page.getByText(label, { exact: true }) })
+      .filter({ has: this.page.locator("[data-bool-value]") })
+      .last();
+  }
+
+  /** A blocking toggle ("Block virtual cards", ...) inside one accordion. */
+  paymentMethodBlockingToggle(section: string, label: string): Locator {
+    return this.paymentMethodBlockingRow(section, label)
+      .locator("[data-bool-value]")
+      .first();
+  }
+
+  /**
+   * The tooltip trigger next to a blocking toggle. The tooltip opens on the
+   * wrapping `span[data-state]`, not on the icon element inside it.
+   */
+  paymentMethodBlockingToggleInfo(section: string, label: string): Locator {
+    return this.paymentMethodBlockingRow(section, label)
+      .locator("span[data-state]")
+      .first();
+  }
+
+  get cardPaymentMethodBlocking(): Locator {
+    return this.page.getByText("Card", { exact: true });
+  }
+
+  /**
+   * Opens the tooltip next to a blocking toggle and returns its trigger.
+   * The underlying tooltip opens on pointer events rather than a plain
+   * `hover()`, which does not reach the trigger when the row sits below the
+   * fold.
+   */
+  async openPaymentMethodBlockingTooltip(
+    section: string,
+    label: string,
+  ): Promise<void> {
+    const trigger = this.paymentMethodBlockingToggleInfo(section, label);
+    // Do not scroll first: the tooltip dismisses itself on scroll, so a
+    // scrollIntoView before the pointer events leaves it closed.
+    await trigger.dispatchEvent("pointerenter", { pointerType: "mouse" });
+    await trigger.dispatchEvent("pointermove", { pointerType: "mouse" });
+    // The tooltip opens after a short delay; wait for it so callers can assert
+    // on its content immediately.
+    await expect(trigger).toHaveAttribute("data-state", /open/);
+  }
+
+  // ---- Account Updater section ----
+  get accountUpdaterHeading(): Locator {
+    return this.page.getByText("Account Updater", { exact: true });
+  }
+
+  get accountUpdaterDescription(): Locator {
+    return this.page.getByText(
+      /Account Updater keeps stored cards current by fetching the latest card details/,
+    );
+  }
+
+  get accountUpdaterToggle(): Locator {
+    return this.page
+      .locator("div", {
+        has: this.page.getByText("Account Updater", { exact: true }),
+      })
+      .filter({ has: this.page.locator("[data-bool-value]") })
+      .last()
+      .locator("[data-bool-value]")
+      .first();
+  }
+
+  /**
+   * The Account Updater copy block. Scoping matters: the Network Tokenization
+   * section on the same tab renders an identical "Slack" link.
+   */
+  get accountUpdaterDescriptionBlock(): Locator {
+    return this.page
+      .locator("div")
+      .filter({
+        hasText: /^Account Updater keeps stored cards current/,
+      })
+      .last();
+  }
+
+  get accountUpdaterSlackLink(): Locator {
+    return this.accountUpdaterDescriptionBlock.getByRole("link", {
+      name: "Slack",
+    });
+  }
+
+  get accountUpdaterVisaIcon(): Locator {
+    return this.page.getByAltText("VISA");
+  }
+
+  get accountUpdaterMastercardIcon(): Locator {
+    return this.page.getByAltText("MASTERCARD");
   }
 
   // Helper Methods
