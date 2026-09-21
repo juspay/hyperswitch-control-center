@@ -1,4 +1,5 @@
 open APIUtils
+open LogicUtils
 open OffersUtils
 
 let useOffersList = () => {
@@ -14,6 +15,21 @@ let useOffersList = () => {
       response->listResponseMapper
     } catch {
     | Exn.Error(e) => Exn.raiseError(Exn.message(e)->Option.getOr("Failed to fetch offers"))
+    }
+  }
+}
+
+let useOfferDetail = () => {
+  let getURL = useGetURL()
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
+
+  async offerId => {
+    try {
+      let url = getURL(~entityName=V1(OFFERS), ~methodType=Post, ~offersType=#OFFER_DETAIL)
+      let response = await updateDetails(url, buildDetailBody(offerId), Post)
+      response->getArrayDataFromJson(detailItemToObjMapper)->Array.get(0)
+    } catch {
+    | Exn.Error(e) => Exn.raiseError(Exn.message(e)->Option.getOr("Failed to fetch the offer"))
     }
   }
 }

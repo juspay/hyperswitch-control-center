@@ -98,7 +98,11 @@ let make = (~setScreenState) => {
         authorization={userHasAccess(~groupAccess=OffersView)}>
         <FilterContext key="Offers" index="Offers">
           <EntityScaffold
-            entityName="Offers" remainingPath access=Access renderList={() => <OffersList />}
+            entityName="Offers"
+            remainingPath
+            access=Access
+            renderList={() => <OffersList />}
+            renderShow={(id, _) => <ShowOffer id />}
           />
         </FilterContext>
       </AccessControl>

@@ -17,11 +17,14 @@ type calculationRule =
 type offerDescription = {
   title: string,
   displayTitle: string,
+  description: string,
+  sponsoredBy: string,
 }
 
 type benefit = {
   calculationRule: calculationRule,
   value: float,
+  maxAmount: option<float>,
 }
 
 type offer = {
@@ -51,3 +54,66 @@ type colType =
   | StartEndTime
   | CreatedAt
   | Actions
+
+@unboxed
+type language =
+  | @as("en") English
+  | @as("ar") Arabic
+  | @as("fr") French
+  | @as("pt") Portuguese
+  | @as("ru") Russian
+  | @as("uk") Ukrainian
+  | UnknownLanguage(string)
+
+type counterScope =
+  | Campaign
+  | PerCard
+
+type counterValueType =
+  | @as("OFFER_AMOUNT") AmountLimit
+  | @as("COUNT") CountLimit
+
+type currencyConstraint = {
+  name: string,
+  minOrderAmount: option<float>,
+  maxOrderAmount: option<float>,
+}
+
+type binListMode =
+  | Whitelist
+  | Blacklist
+
+type offerDetail = {
+  offer: offer,
+  language: language,
+  currencies: array<currencyConstraint>,
+  campaignAmount: option<float>,
+  campaignCount: option<int>,
+  amountPerCard: option<float>,
+  countPerCard: option<int>,
+  binListMode: option<binListMode>,
+}
+
+type offerDetailsColType =
+  | Code
+  | Id
+  | OfferTitle
+  | DisplayTitle
+  | Description
+  | Language
+  | Logo
+  | ValidFrom
+  | ValidTill
+  | OfferType
+  | OfferAmount
+  | MaxDiscountAmount
+  | MinTxnAmount
+  | MaxTxnAmount
+  | CampaignAmount
+  | CampaignCount
+
+type paymentDetailsColType =
+  | AmountPerCard
+  | CountPerCard
+  | BinList
+  | BinListType
