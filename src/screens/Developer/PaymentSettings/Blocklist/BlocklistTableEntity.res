@@ -33,9 +33,11 @@ let getCell = (~onRefreshJob, ~onDownloadExport, job: blocklistBatchJob, colType
   | JobId => DisplayCopyCell(job.job_id)
   | JobType => Text((job.job_type :> string)->LogicUtils.snakeToTitle)
   | Status => Label({title: job.status->normalizeStatus, color: job.status->statusLabelColor})
-  | TotalRows => Text(job.total_rows->Int.toString)
-  | SucceededRows => Text(job->isExportJob ? "-" : job.succeeded_rows->Int.toString)
-  | FailedRows => Text(job->isExportJob ? "-" : job.failed_rows->Int.toString)
+  | TotalRows => Text(job->isProfileCloneJob ? "-" : job.total_rows->Int.toString)
+  | SucceededRows =>
+    Text(job->isExportJob || job->isProfileCloneJob ? "-" : job.succeeded_rows->Int.toString)
+  | FailedRows =>
+    Text(job->isExportJob || job->isProfileCloneJob ? "-" : job.failed_rows->Int.toString)
   | CreatedAt => Date(job.created_at)
   | UpdatedAt => Date(job.updated_at)
   | Actions => {

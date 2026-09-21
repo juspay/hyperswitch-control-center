@@ -1,6 +1,7 @@
 type blocklistBatchJobType =
   | @as("upload") Upload
   | @as("export") Export
+  | @as("profile_clone") ProfileClone
   | @as("unknown") UnknownJobType
 
 type blocklistBatchJob = {

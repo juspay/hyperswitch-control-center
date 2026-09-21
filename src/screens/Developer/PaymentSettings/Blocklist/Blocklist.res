@@ -237,6 +237,10 @@ let make = () => {
     generateExport()->ignore
   }
 
+  let onCloneStarted = () => {
+    offset === 0 ? fetchJobs()->ignore : setOffset(_ => 0)
+  }
+
   <>
     <PaymentMethodBlocking />
     <RenderIf condition={featureFlagDetails.devBlocklist}>
@@ -363,6 +367,7 @@ let make = () => {
             />
           </div>
         </section>
+        <BlocklistCloneCard onCloneStarted />
         <PageLoaderWrapper screenState sectionHeight="h-60-vh">
           <RenderIf condition={jobs->isNonEmptyArray}>
             <LoadedTable

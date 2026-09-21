@@ -17,6 +17,7 @@ let getBlocklistBatchJobTypeFromString = jobType => {
   switch jobType->String.toLowerCase {
   | "upload" => Upload
   | "export" => Export
+  | "profile_clone" => ProfileClone
   | _ => UnknownJobType
   }
 }
@@ -24,9 +25,24 @@ let getBlocklistBatchJobTypeFromString = jobType => {
 let isExportJob = (job: blocklistBatchJob) => {
   switch job.job_type {
   | Export => true
-  | Upload | UnknownJobType => false
+  | Upload | ProfileClone | UnknownJobType => false
   }
 }
+
+let isProfileCloneJob = (job: blocklistBatchJob) => {
+  switch job.job_type {
+  | ProfileClone => true
+  | Upload | Export | UnknownJobType => false
+  }
+}
+
+let getCloneTargetProfileOptions = (
+  profileList: array<OMPSwitchTypes.ompListTypes>,
+  ~sourceProfileId,
+) =>
+  profileList->Array.filterMap(profile =>
+    profile.id != sourceProfileId ? Some({SelectBox.label: profile.name, value: profile.id}) : None
+  )
 
 let itemToObjMapper = dict => {
   {
