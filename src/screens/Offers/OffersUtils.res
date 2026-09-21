@@ -76,13 +76,6 @@ let listResponseMapper = json => {
   }
 }
 
-let defaultStartTime = "2021-12-31T18:30:00Z"
-let defaultEndTime = "3000-12-31T18:29:59Z"
-let defaultCreatedAtFrom = "2019-08-30T16:46:45.84Z"
-let oneDayInMs = 86400000.0
-
-let getDefaultCreatedAtTo = () => (Date.now() +. oneDayInMs)->Date.fromTime->Date.toISOString
-
 let buildListBody = (
   ~merchantId,
   ~limit,
@@ -98,15 +91,15 @@ let buildListBody = (
 
   let createdAt =
     [
-      ("gte", defaultCreatedAtFrom->JSON.Encode.string),
-      ("lte", getDefaultCreatedAtTo()->JSON.Encode.string),
+      ("gte", "2019-08-30T16:46:45.84Z"->JSON.Encode.string),
+      ("lte", (Date.now() +. 86400000.0)->Date.fromTime->Date.toISOString->JSON.Encode.string),
     ]->getJsonFromArrayOfJson
 
   let body =
     [
       ("merchant_id", merchantId->JSON.Encode.string),
-      ("start_time", defaultStartTime->JSON.Encode.string),
-      ("end_time", defaultEndTime->JSON.Encode.string),
+      ("start_time", "2021-12-31T18:30:00Z"->JSON.Encode.string),
+      ("end_time", "3000-12-31T18:29:59Z"->JSON.Encode.string),
       ("created_at", createdAt),
       ("sort_offers", sortOffers),
       ("limit", limit->JSON.Encode.int),
