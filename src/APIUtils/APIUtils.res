@@ -294,6 +294,11 @@ let useGetURL = () => {
         | Post => Default(`blocklist/export`)
         | _ => Default("")
         }
+      | BLOCKLIST_CLONE =>
+        switch methodType {
+        | Post => Default(`blocklist/clone`)
+        | _ => Default("")
+        }
 
       /* MERCHANT ACCOUNT DETAILS (Get and Post) */
       | MERCHANT_ACCOUNT => Default(`accounts/${merchantId}`)
