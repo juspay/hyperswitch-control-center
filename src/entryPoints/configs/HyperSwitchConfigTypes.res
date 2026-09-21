@@ -10,9 +10,15 @@ type emailConfig = {
   background_color: string,
 }
 
+type superpositionDisplayConfig = {
+  folder: option<string>,
+  name: string,
+}
+
 type superpositionConfig = {
   organization_id: string,
   workspace: string,
+  display_configs: array<superpositionDisplayConfig>,
 }
 
 type baseConfig = {

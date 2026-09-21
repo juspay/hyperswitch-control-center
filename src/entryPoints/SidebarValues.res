@@ -726,28 +726,28 @@ let developers = (
 
 let superpositionDefaultConfigs = userHasResourceAccess => SubLevelLink({
   name: "Default Configs",
-  link: "/configuration-management/default-config",
+  link: "/configuration-management-default-config",
   access: userHasResourceAccess(~resourceAccess=SuperpositionConfigs),
   searchOptions: [("View default configurations", "")],
 })
 
 let superpositionOverrides = userHasResourceAccess => SubLevelLink({
   name: "Overrides",
-  link: "/configuration-management/overrides",
+  link: "/configuration-management-overrides",
   access: userHasResourceAccess(~resourceAccess=SuperpositionConfigs),
   searchOptions: [("View context overrides", "")],
 })
 
 let superpositionDimensions = userHasResourceAccess => SubLevelLink({
   name: "Dimensions",
-  link: "/configuration-management/dimensions",
+  link: "/configuration-management-dimensions",
   access: userHasResourceAccess(~resourceAccess=SuperpositionConfigs),
   searchOptions: [("View dimensions", "")],
 })
 
 let superpositionAuditLog = userHasResourceAccess => SubLevelLink({
   name: "Audit Log",
-  link: "/configuration-management/audit",
+  link: "/configuration-management-audit",
   access: userHasResourceAccess(~resourceAccess=SuperpositionConfigs),
   searchOptions: [("View audit log", "")],
 })
@@ -756,7 +756,7 @@ let superposition = (~userHasResourceAccess, ~isEnabled) =>
   isEnabled
     ? Section({
         name: "Configuration Management",
-        icon: "nd-settings",
+        icon: "nd-config-sliders",
         showSection: true,
         links: [
           superpositionDefaultConfigs(userHasResourceAccess),
@@ -764,6 +764,6 @@ let superposition = (~userHasResourceAccess, ~isEnabled) =>
           superpositionDimensions(userHasResourceAccess),
           superpositionAuditLog(userHasResourceAccess),
         ],
-        selectedIcon: "nd-settings-fill",
+        selectedIcon: "nd-config-sliders",
       })
     : emptyComponent
