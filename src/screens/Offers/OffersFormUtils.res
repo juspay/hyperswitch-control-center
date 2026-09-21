@@ -165,15 +165,12 @@ let validateOfferForm = values => {
   ->Array.filterMap(((fieldName, rule)) =>
     rule(formValues)->Option.map(error => (fieldName, error->JSON.Encode.string))
   )
-  ->Dict.fromArray
-  ->JSON.Encode.object
+  ->getJsonFromArrayOfJson
 }
-
-let counterDimensionsJson = scope => scope->counterDimensions->getJsonFromArrayOfString
 
 let buildCounter = (~scope, ~valueType: counterValueType, ~value, ~resetPeriod) =>
   [
-    ("type", scope->counterDimensionsJson),
+    ("type", scope->counterDimensions->getJsonFromArrayOfString),
     ("value_type", (valueType :> string)->JSON.Encode.string),
     ("operator", "MAX"->JSON.Encode.string),
     ("value", value->JSON.Encode.string),
@@ -181,9 +178,30 @@ let buildCounter = (~scope, ~valueType: counterValueType, ~value, ~resetPeriod) 
     ("reset_frequency_unit", "SECOND"->JSON.Encode.string),
   ]->getJsonFromArrayOfJson
 
+let buildAmountCounter = (~scope, ~resetPeriod, amount) =>
+  buildCounter(~scope, ~valueType=AmountLimit, ~value=amount->Float.toString, ~resetPeriod)
+
+let buildCountCounter = (~scope, ~resetPeriod, count) =>
+  buildCounter(~scope, ~valueType=CountLimit, ~value=count->Int.toString, ~resetPeriod)
+
 let offerDurationInSeconds = (~startTime, ~endTime) =>
   ((endTime->Date.fromString->Date.getTime -. startTime->Date.fromString->Date.getTime) /. 1000.0)
     ->Float.toInt
+
+let cardInstrument = [("payment_method_type", "CARD"->JSON.Encode.string)]->getJsonFromArrayOfJson
+
+let cardBinFilters = bins =>
+  [
+    (
+      "whitelist",
+      [
+        [
+          ("type", "CARD_BIN"->JSON.Encode.string),
+          ("list", bins->getJsonFromArrayOfString),
+        ]->getJsonFromArrayOfJson,
+      ]->JSON.Encode.array,
+    ),
+  ]->getJsonFromArrayOfJson
 
 let buildCreateBody = (~merchantId, formValues: offerFormValues) => {
   let resetPeriod = offerDurationInSeconds(
@@ -197,38 +215,10 @@ let buildCreateBody = (~merchantId, formValues: offerFormValues) => {
 
   let counters =
     [
-      formValues.campaignAmount->Option.map(amount =>
-        buildCounter(
-          ~scope=Campaign,
-          ~valueType=AmountLimit,
-          ~value=amount->Float.toString,
-          ~resetPeriod,
-        )
-      ),
-      formValues.campaignCount->Option.map(count =>
-        buildCounter(
-          ~scope=Campaign,
-          ~valueType=CountLimit,
-          ~value=count->Int.toString,
-          ~resetPeriod,
-        )
-      ),
-      formValues.amountPerCard->Option.map(amount =>
-        buildCounter(
-          ~scope=PerCard,
-          ~valueType=AmountLimit,
-          ~value=amount->Float.toString,
-          ~resetPeriod,
-        )
-      ),
-      formValues.countPerCard->Option.map(count =>
-        buildCounter(
-          ~scope=PerCard,
-          ~valueType=CountLimit,
-          ~value=count->Int.toString,
-          ~resetPeriod,
-        )
-      ),
+      formValues.campaignAmount->Option.map(buildAmountCounter(~scope=Campaign, ~resetPeriod, _)),
+      formValues.campaignCount->Option.map(buildCountCounter(~scope=Campaign, ~resetPeriod, _)),
+      formValues.amountPerCard->Option.map(buildAmountCounter(~scope=PerCard, ~resetPeriod, _)),
+      formValues.countPerCard->Option.map(buildCountCounter(~scope=PerCard, ~resetPeriod, _)),
     ]->Array.filterMap(counter => counter)
 
   let currency =
@@ -263,28 +253,12 @@ let buildCreateBody = (~merchantId, formValues: offerFormValues) => {
       ),
       ("benefits", [benefit->JSON.Encode.object]->JSON.Encode.array),
     ]->Dict.fromArray
-  if counters->isNonEmptyArray {
-    ruleDsl->Dict.set("counters", counters->JSON.Encode.array)
-  }
-  if hasCardConfig {
-    ruleDsl->Dict.set(
-      "payment_instrument",
-      [
-        [("payment_method_type", "CARD"->JSON.Encode.string)]->getJsonFromArrayOfJson,
-      ]->JSON.Encode.array,
-    )
-  }
-  if formValues.cardBins->isNonEmptyArray {
-    let binFilter =
-      [
-        ("type", "CARD_BIN"->JSON.Encode.string),
-        ("list", formValues.cardBins->getJsonFromArrayOfString),
-      ]->getJsonFromArrayOfJson
-    ruleDsl->Dict.set(
-      "filters",
-      [("whitelist", [binFilter]->JSON.Encode.array)]->getJsonFromArrayOfJson,
-    )
-  }
+  ruleDsl->setOptionArray("counters", counters->getNonEmptyArray)
+  ruleDsl->setOptionArray("payment_instrument", hasCardConfig ? Some([cardInstrument]) : None)
+  ruleDsl->setOptionJson(
+    "filters",
+    formValues.cardBins->getNonEmptyArray->Option.map(cardBinFilters),
+  )
 
   let description =
     [

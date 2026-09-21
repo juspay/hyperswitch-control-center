@@ -102,7 +102,7 @@ let getCounter = (dict, ~scope, ~valueType: counterValueType) =>
   ->getArrayFromDict("counters", [])
   ->Array.find(counterJson => {
     let counterDict = counterJson->getDictFromJsonObject
-    counterDict->getStrArrayFromDict("type", []) == scope->counterDimensions &&
+    counterDict->getStrArrayFromDict("type", [])->isEqualStringArr(scope->counterDimensions) &&
       counterDict->getString("value_type", "") == (valueType :> string)
   })
   ->Option.map(getDictFromJsonObject)
