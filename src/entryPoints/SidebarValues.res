@@ -669,9 +669,19 @@ let paymentLinkTheme = {
   })
 }
 
+let offers = userHasResourceAccess => {
+  SubLevelLink({
+    name: "Offers",
+    link: `/offers`,
+    access: userHasResourceAccess(~resourceAccess=Offers),
+    searchOptions: [("View offers", "")],
+  })
+}
+
 let developers = (
   isDevelopersEnabled,
   ~isWebhooksEnabled,
+  ~isOffersEnabled,
   ~userHasResourceAccess,
   ~checkUserEntity,
   ~paymentLinkThemeConfigurator,
@@ -680,6 +690,7 @@ let developers = (
   let apiKeys = apiKeys(userHasResourceAccess)
   let webhooks = webhooks(userHasResourceAccess)
   let paymentSettings = paymentSettings(userHasResourceAccess)
+  let offers = offers(userHasResourceAccess)
 
   let links = if isCurrentMerchantPlatform {
     [paymentSettings, apiKeys, webhooks]
@@ -696,6 +707,9 @@ let developers = (
     }
     if paymentLinkThemeConfigurator {
       defaultDevelopersOptions->Array.push(paymentLinkTheme)
+    }
+    if isOffersEnabled {
+      defaultDevelopersOptions->Array.push(offers)
     }
     defaultDevelopersOptions
   }
