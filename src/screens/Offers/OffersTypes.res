@@ -14,11 +14,33 @@ type calculationRule =
   | @as("FIXED_EFFECTIVE_AMOUNT") FixedEffectiveAmount
   | UnknownCalculationRule(string)
 
+@unboxed
+type sponsor =
+  | @as("MERCHANT") Merchant
+  | @as("CITI") Citi
+  | @as("CRED") Cred
+  | @as("DINERS") Diners
+  | @as("MAESTRO") Maestro
+  | @as("MASTERCARD") Mastercard
+  | @as("RUPAY") Rupay
+  | @as("SODEXO") Sodexo
+  | @as("VISA") Visa
+  | @as("AMEX") AmericanExpress
+  | @as("DISCOVER") Discover
+  | @as("JCB") Jcb
+  | @as("ICICI") IciciBank
+  | @as("SBI") Sbi
+  | @as("PHONEPE") PhonePe
+  | @as("GOOGLEPAY") GooglePay
+  | @as("AMAZONPAY") AmazonPay
+  | @as("PAYTM") Paytm
+  | UnknownSponsor(string)
+
 type offerDescription = {
   title: string,
   displayTitle: string,
   description: string,
-  sponsoredBy: string,
+  sponsoredBy: sponsor,
 }
 
 type benefit = {
@@ -118,3 +140,27 @@ type paymentDetailsColType =
   | CountPerCard
   | BinList
   | BinListType
+
+type offerFormValues = {
+  offerCode: string,
+  title: string,
+  displayTitle: string,
+  description: string,
+  sponsoredBy: sponsor,
+  language: language,
+  startTime: string,
+  endTime: string,
+  calculationRule: calculationRule,
+  benefitValue: float,
+  maxAmount: option<float>,
+  currency: string,
+  minOrderAmount: float,
+  maxOrderAmount: option<float>,
+  campaignAmount: option<float>,
+  campaignCount: option<int>,
+  amountPerCard: option<float>,
+  countPerCard: option<int>,
+  cardBins: array<string>,
+}
+
+type offerFormRule = (string, offerFormValues => option<string>)

@@ -92,6 +92,12 @@ let make = (~setScreenState) => {
           />
         </FilterContext>
       </AccessControl>
+    | list{"offers", "create"} =>
+      <AccessControl
+        isEnabled={featureFlagDetails.devOffers}
+        authorization={userHasAccess(~groupAccess=OffersManage)}>
+        <CreateOffer />
+      </AccessControl>
     | list{"offers", ...remainingPath} =>
       <AccessControl
         isEnabled={featureFlagDetails.devOffers}

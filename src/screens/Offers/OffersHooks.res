@@ -34,6 +34,21 @@ let useOfferDetail = () => {
   }
 }
 
+let useCreateOffer = () => {
+  let getURL = useGetURL()
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
+  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+
+  async formValues => {
+    try {
+      let url = getURL(~entityName=V1(OFFERS), ~methodType=Post, ~offersType=#OFFER_CREATE)
+      await updateDetails(url, OffersFormUtils.buildCreateBody(~merchantId, formValues), Post)
+    } catch {
+    | Exn.Error(e) => Exn.raiseError(Exn.message(e)->Option.getOr("Failed to create the offer"))
+    }
+  }
+}
+
 let useUpdateOfferStatus = () => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod(~showErrorToast=false)

@@ -39,7 +39,7 @@ let getOfferDescription = dict => {
     title: descriptionDict->getString("title", ""),
     displayTitle: descriptionDict->getString("display_title", ""),
     description: descriptionDict->getString("description", ""),
-    sponsoredBy: descriptionDict->getString("sponsored_by", ""),
+    sponsoredBy: descriptionDict->getString("sponsored_by", "")->OffersSponsors.sponsorFromString,
   }
 }
 
@@ -235,7 +235,7 @@ let formatBenefitValue = (benefit: benefit) =>
   }
 
 let benefitLabel = (offer: offer) =>
-  offer.benefit->Option.mapOr(emptyValuePlaceholder, formatBenefitValue)
+  offer.benefit->mapOptionOrDefault(emptyValuePlaceholder, formatBenefitValue)
 
 let canPauseOrActivate = (offer: offer) =>
   switch offer.status {

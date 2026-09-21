@@ -66,9 +66,20 @@ let make = () => {
   let customUI = <NoDataFound message="No offers found" renderType={Painting} />
 
   <div className="flex flex-col gap-4">
-    <PageUtils.PageHeading
-      title customHeadingStyle="mb-2" subTitle="View and manage offers for this merchant"
-    />
+    <div className="flex justify-between items-start">
+      <PageUtils.PageHeading
+        title customHeadingStyle="mb-2" subTitle="View and manage offers for this merchant"
+      />
+      <RenderIf condition=hasManageAccess>
+        <Button
+          text="Create New Offer"
+          buttonType=Primary
+          leftIcon={CustomIcon(<Icon name="plus" size=13 />)}
+          onClick={_ =>
+            RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/offers/create"))}
+        />
+      </RenderIf>
+    </div>
     <div className="flex flex-row">
       <DynamicFilter
         title="OffersFilters"
