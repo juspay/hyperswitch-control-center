@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.21.0
+
+### Features
+
+- Add Etisalat connector in dashboard ([#5546](https://github.com/juspay/hyperswitch-control-center/pull/5546)) ([`7b2771f`](https://github.com/juspay/hyperswitch-control-center/commit/7b2771fb60b7c75dd1c3a0a859db168de29ad100))
+
+### Miscellaneous Tasks
+
+- Apple pay configuration ui changes ([#5560](https://github.com/juspay/hyperswitch-control-center/pull/5560)) ([`7eee8ac`](https://github.com/juspay/hyperswitch-control-center/commit/7eee8ac35ed88e7a67368fe406287601940f303f))
+
+**Full Changelog:** [`2026.09.17.1...2026.09.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.17.1...2026.09.21.0)
+
+- - -
+
 ## 2026.09.17.1
 
 ### Features
