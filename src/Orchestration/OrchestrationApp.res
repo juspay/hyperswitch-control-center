@@ -196,11 +196,14 @@ let make = (~setScreenState) => {
         )}>
         <ChatBot />
       </AccessControl>
-    | list{"configuration-management", ...remainingPath} =>
+    | list{"configuration-management-default-config"}
+    | list{"configuration-management-overrides"}
+    | list{"configuration-management-dimensions"}
+    | list{"configuration-management-audit"} =>
       <AccessControl
         isEnabled={featureFlagDetails.devSuperposition}
         authorization={userHasAccess(~groupAccess=ConfigurationsView)}>
-        <SuperpositionApp remainingPath />
+        <SuperpositionContainer />
       </AccessControl>
     | _ => <EmptyPage path="/home" />
     }
