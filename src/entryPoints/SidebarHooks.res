@@ -39,6 +39,7 @@ let useGetHsSidebarValues = () => {
     devSuperposition,
     paymentLinkOperations,
     embedDecisionEngine,
+    devOffers,
   } = featureFlagDetails
   let {
     isFeatureEnabledForDenyListMerchant,
@@ -104,6 +105,7 @@ let useGetHsSidebarValues = () => {
     ...standardModules,
     default->developers(
       ~isWebhooksEnabled=devWebhooks,
+      ~isOffersEnabled=devOffers,
       ~userHasResourceAccess,
       ~checkUserEntity,
       ~paymentLinkThemeConfigurator,

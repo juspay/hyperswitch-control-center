@@ -2,6 +2,8 @@
 api_url="http://localhost:9000/api"
 # Full base URL for endpoints on the OLAP routing allowlist; empty falls back to api_url.
 olap_url=""
+# Full base URL for euler-hosted services (offer-engine); empty falls back to api_url.
+euler_url=""
 sdk_url="http://localhost:9050/HyperLoader.js"
 apple_pay_certificate_url=""
 dss_certificate_us_url=""
@@ -88,6 +90,7 @@ dev_webhooks=true
 dev_blocklist=false
 recon_engine_permissions=true
 dev_recon_engine_v1=false
+dev_offers=false
 dev_recon_engine_pipelines=false
 dev_ai_chat_bot=false
 dev_launch_sage=false

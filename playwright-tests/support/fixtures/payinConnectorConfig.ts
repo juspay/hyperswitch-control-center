@@ -3820,4 +3820,28 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
       },
     },
   },
+
+  etisalat: {
+    label: "etisalat",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "etisalat_default",
+      },
+      // SignatureKey auth (api_key, key1, api_secret); no
+      // connector_webhook_details, so the form has no
+      // "Source verification key" field.
+      fieldLabels: ["EPG Password *", "EPG UserName *", "EPG Customer *"],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: ["Visa", "Mastercard", "AmericanExpress", "JCB", "DinersClub"],
+      },
+      Debit: {
+        label: "Debit",
+        methods: ["Visa", "Mastercard", "AmericanExpress", "JCB", "DinersClub"],
+      },
+    },
+  },
 };
