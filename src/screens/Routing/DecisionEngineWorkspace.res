@@ -71,38 +71,38 @@ let make = () => {
     None
   }, (sectionSlug, ruleId, profileId))
 
-  React.useEffect(() => {
-    let onMessage = ev => {
-      let event = ev->DecisionEngineTypes.toMessageEvent
-      if event.origin === Window.Location.origin {
-        let dict = event.data->JSON.Decode.object->Option.getOr(Dict.make())
-        switch dict->getString("type", "")->DecisionEngineTypes.messageTypeFromString {
-        | SessionExpired =>
-          // One-shot: skip if a mint happened within remintThrottleMs; the next section/rule/profile
-          // change re-mints.
-          if Js.Date.now() -. mintState.current.at > remintThrottleMs {
-            loadFrame()->ignore
-          }
-        | RouteChanged => {
-            let dePath = dict->getString("path", "")
-            switch dePath->sectionForDePath {
-            | Some(matched) => {
-                let ruleStillOpen =
-                  ruleId->isNonEmptyString && dePath->String.includes(`/${ruleId}/`)
-                if matched.slug !== sectionSlug || (ruleId->isNonEmptyString && !ruleStillOpen) {
-                  skipNextMint.current = true
-                  RescriptReactRouter.replace(workspaceUrl(~slug=matched.slug))
-                }
-              }
-            | None => ()
-            }
-          }
-        | UnknownMessage => ()
+  let handleMessage = ev => {
+    let event = ev->DOMUtils.toMessageEvent
+    if event.origin === Window.Location.origin {
+      let dict = event.data->JSON.Decode.object->Option.getOr(Dict.make())
+      switch dict->getString("type", "")->DecisionEngineTypes.messageTypeFromString {
+      | SessionExpired =>
+        // One-shot: skip if a mint happened within remintThrottleMs; the next section/rule/profile
+        // change re-mints.
+        if Js.Date.now() -. mintState.current.at > remintThrottleMs {
+          loadFrame()->ignore
         }
+      | RouteChanged => {
+          let dePath = dict->getString("path", "")
+          switch dePath->sectionForDePath {
+          | Some(matched) => {
+              let ruleStillOpen = ruleId->isNonEmptyString && dePath->String.includes(`/${ruleId}/`)
+              if matched.slug !== sectionSlug || (ruleId->isNonEmptyString && !ruleStillOpen) {
+                skipNextMint.current = true
+                RescriptReactRouter.replace(workspaceUrl(~slug=matched.slug))
+              }
+            }
+          | None => ()
+          }
+        }
+      | UnknownMessage => ()
       }
     }
-    Window.addEventListener("message", onMessage)
-    Some(() => Window.removeEventListener("message", onMessage))
+  }
+
+  React.useEffect(() => {
+    Window.addEventListener("message", handleMessage)
+    Some(() => Window.removeEventListener("message", handleMessage))
   }, (sectionSlug, ruleId, profileId, section.target))
 
   <div className="flex flex-col w-full h-[calc(100vh-4.75rem)]">

@@ -5,16 +5,15 @@ let useDecisionEngineCutover = (~embedDecisionEngine) => {
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let checkRoutingEntryCutover = RoutingUtils.useCheckRoutingEntryCutover()
 
+  let syncCutover = async () => {
+    setCutover(_ => None)
+    let result = await checkRoutingEntryCutover()
+    setCutover(_ => result)
+  }
+
   React.useEffect(() => {
     if embedDecisionEngine {
-      setCutover(_ => None)
-
-      (
-        async () => {
-          let result = await checkRoutingEntryCutover()
-          setCutover(_ => result)
-        }
-      )()->ignore
+      syncCutover()->ignore
     } else {
       setCutover(_ => Some(false))
     }
