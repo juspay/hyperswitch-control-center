@@ -59,7 +59,10 @@ let make = (~setScreenState) => {
       <AccessControl authorization={isCurrentMerchantPlatform ? NoAccess : Access}>
         <TransactionContainer />
       </AccessControl>
-    | list{"alerts-merchant-success", ..._} => <AlertsContainer />
+    | list{"alerts-merchant-success", ..._} =>
+      <AccessControl authorization={userHasAccess(~groupAccess=OperationsView)}>
+        <AlertsContainer />
+      </AccessControl>
     | list{"analytics-payments"}
     | list{"analytics-refunds"}
     | list{"analytics-disputes"}
