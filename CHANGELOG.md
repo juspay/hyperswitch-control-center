@@ -3,6 +3,23 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.22.0
+
+### Features
+
+- **offers:**
+  - Add API layer, euler_url config, and Offers screen scaffolding ([#5552](https://github.com/juspay/hyperswitch-control-center/pull/5552)) ([`06f1a32`](https://github.com/juspay/hyperswitch-control-center/commit/06f1a321940f72a8b8e3a3556a196d1d19071d9a))
+  - Add offers list screen with filters ([#5559](https://github.com/juspay/hyperswitch-control-center/pull/5559)) ([`6aa4d9d`](https://github.com/juspay/hyperswitch-control-center/commit/6aa4d9d59e1960ef58d36663ff4c67286b4ec9e4))
+- Add clone blocklist functionality ([#5568](https://github.com/juspay/hyperswitch-control-center/pull/5568)) ([`e964a0d`](https://github.com/juspay/hyperswitch-control-center/commit/e964a0d7cc8fe69d5b57b8197dcfd43a4a822371))
+
+### Miscellaneous Tasks
+
+- Superposition enhancement changes ([#5564](https://github.com/juspay/hyperswitch-control-center/pull/5564)) ([`3d2c135`](https://github.com/juspay/hyperswitch-control-center/commit/3d2c1357af260f3a5a0d5910483d9d04543a2a86))
+
+**Full Changelog:** [`2026.09.21.0...2026.09.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.21.0...2026.09.22.0)
+
+- - -
+
 ## 2026.09.21.0
 
 ### Features
