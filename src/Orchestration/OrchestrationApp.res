@@ -103,6 +103,7 @@ let make = (~setScreenState) => {
             remainingPath
             access=Access
             renderList={() => <OffersList />}
+            renderNewForm={() => <CreateOffer />}
             renderShow={(id, _) => <ShowOffer id />}
           />
         </FilterContext>

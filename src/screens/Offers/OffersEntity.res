@@ -125,7 +125,12 @@ let getOfferDetailsCell = (detail: offerDetail, colType: offerDetailsColType): T
   | DisplayTitle => Text(detail.offer.offerDescription.displayTitle->displayOrPlaceholder)
   | Description => Text(detail.offer.offerDescription.description->displayOrPlaceholder)
   | Language => Text(detail.language->languageToDisplayName->displayOrPlaceholder)
-  | Logo => Text(detail.offer.offerDescription.sponsoredBy->displayOrPlaceholder)
+  | Logo =>
+    Text(
+      detail.offer.offerDescription.sponsoredBy
+      ->OffersSponsors.sponsorToDisplayName
+      ->displayOrPlaceholder,
+    )
   | ValidFrom => Date(detail.offer.startTime)
   | ValidTill => Date(detail.offer.endTime)
   | OfferType => Text("Discount")
