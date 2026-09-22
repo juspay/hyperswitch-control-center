@@ -236,10 +236,7 @@ let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productType
       setApplicationState(_ => DashboardSession(userInfoFromProfile))
 
       if changePath {
-        let currentUrl =
-          url.path->HSwitchUtils.urlPath->DecisionEngineUtils.isWorkspacePath
-            ? GlobalVars.extractModulePath(~path=url.path, ~query="", ~end=url.path->List.length)
-            : GlobalVars.extractModulePath(~path=url.path, ~query="", ~end=2)
+        let currentUrl = GlobalVars.extractModulePath(~path=url.path, ~query="", ~end=2)
         RescriptReactRouter.replace(currentUrl)
       }
     } catch {
