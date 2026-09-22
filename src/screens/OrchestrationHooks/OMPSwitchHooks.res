@@ -236,18 +236,10 @@ let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productType
       setApplicationState(_ => DashboardSession(userInfoFromProfile))
 
       if changePath {
-        // When the internal switch is triggered from the dropdown,
-        // and the current path is "/dashboard/payment/id",
-        // update the path to "/dashboard/payment" by removing the "id" part.
-        // Exception: the Decision Engine workspace's sub-path (/routing/workspace/<section>) is UI
-        // state, not a stale entity id, so keep the full path — the section then survives a
-        // same-cutover switch (a non-cutover profile lands on the workspace and redirects itself to
-        // native routing).
-        let currentUrl = switch url.path->HSwitchUtils.urlPath {
-        | list{"routing", "workspace", ..._} =>
-          GlobalVars.extractModulePath(~path=url.path, ~query="", ~end=url.path->List.length)
-        | _ => GlobalVars.extractModulePath(~path=url.path, ~query="", ~end=2)
-        }
+        let currentUrl =
+          url.path->HSwitchUtils.urlPath->DecisionEngineUtils.isWorkspacePath
+            ? GlobalVars.extractModulePath(~path=url.path, ~query="", ~end=url.path->List.length)
+            : GlobalVars.extractModulePath(~path=url.path, ~query="", ~end=2)
         RescriptReactRouter.replace(currentUrl)
       }
     } catch {

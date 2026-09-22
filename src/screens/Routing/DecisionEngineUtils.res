@@ -116,3 +116,9 @@ let sectionSlugFromPath = path => {
   | idx => pathSegments->Array.get(idx + 1)->Option.getOr(defaultSection.slug)
   }
 }
+
+let isWorkspacePath = path =>
+  switch path {
+  | list{"routing", "workspace", ..._} => true
+  | _ => false
+  }

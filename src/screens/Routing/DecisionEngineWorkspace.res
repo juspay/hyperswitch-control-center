@@ -7,9 +7,9 @@ let make = () => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let url = RescriptReactRouter.useUrl()
-  let showToast = ToastAdapter.useShowToast()
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+  let openDecisionEngineNewTab = DecisionEngineHooks.useDecisionEngineNewTab()
 
   let (iframeSrc, setIframeSrc) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -58,21 +58,6 @@ let make = () => {
       if mintSeq.current === seq {
         setScreenState(_ => PageLoaderWrapper.Error(""))
       }
-    }
-  }
-
-  let openInNewTab = async () => {
-    try {
-      let (_isCutover, redirectUrl) = await mintHandoff()
-      if redirectUrl->isNonEmptyString {
-        `${redirectUrl}${handoffFragment()}`->Window._open
-      }
-    } catch {
-    | Exn.Error(_) =>
-      showToast(
-        ~message="Failed to open Decision Engine routing. Please try again.",
-        ~toastType=ToastState.ToastError,
-      )
     }
   }
 
@@ -128,7 +113,8 @@ let make = () => {
         text="Open in new tab"
         buttonType={Secondary}
         buttonSize={Small}
-        onClick={_ => openInNewTab()->ignore}
+        onClick={_ =>
+          openDecisionEngineNewTab(~target=section.target, ~ruleId, ~route=section.dePath)->ignore}
       />
     </div>
     <div className="flex-1 min-h-0">

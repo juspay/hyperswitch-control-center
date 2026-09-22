@@ -8,10 +8,7 @@ let make = () => {
   open HyperswitchAppHelper
 
   let url = RescriptReactRouter.useUrl()
-  let isDecisionEngineWorkspace = switch url.path->urlPath {
-  | list{"routing", "workspace", ..._} => true
-  | _ => false
-  }
+  let isDecisionEngineWorkspace = url.path->urlPath->DecisionEngineUtils.isWorkspacePath
   let {
     showFeedbackModal,
     setShowFeedbackModal,

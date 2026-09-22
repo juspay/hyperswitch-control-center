@@ -3,7 +3,6 @@ open APIUtils
 let make = (~remainingPath, ~previewOnly=false) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let updateDetails = useUpdateMethod(~showErrorToast=false)
   let url = RescriptReactRouter.useUrl()
   let pathVar = url.path->List.toArray->Array.joinWith("/")
 
@@ -19,7 +18,6 @@ let make = (~remainingPath, ~previewOnly=false) => {
     ).is_debit_routing_enabled->Option.getOr(false)
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let showToast = ToastAdapter.useShowToast()
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let isCutover = cutoverStatus->Option.getOr(false)
 
@@ -29,29 +27,13 @@ let make = (~remainingPath, ~previewOnly=false) => {
 
   let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let {embedDecisionEngine} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let openDecisionEngineNewTab = DecisionEngineHooks.useDecisionEngineNewTab()
 
   let openDecisionEngineRoutingPage = async (target, ruleId) => {
-    open LogicUtils
     if embedDecisionEngine {
-      // The embedded workspace mints its own hand-off; section slugs match the entry targets.
       RescriptReactRouter.push(DecisionEngineUtils.workspaceUrl(~slug=target, ~ruleId))
     } else {
-      try {
-        let entryUrl = getURL(~entityName=V1(ROUTING), ~methodType=Get, ~id=Some("entry"))
-        let res = await updateDetails(`${entryUrl}?target=${target}`, JSON.Encode.null, Post)
-        let redirectUrl = res->getDictFromJsonObject->getString("redirect_url", "")
-        if redirectUrl->isNonEmptyString {
-          let handoff =
-            connectorList->RoutingUtils.decisionEngineHandoffFragment(~profileId, ~ruleId)
-          `${redirectUrl}${handoff}`->Window._open
-        }
-      } catch {
-      | Exn.Error(_) =>
-        showToast(
-          ~message="Failed to open Decision Engine routing. Please try again.",
-          ~toastType=ToastState.ToastError,
-        )
-      }
+      await openDecisionEngineNewTab(~target, ~ruleId)
     }
   }
 

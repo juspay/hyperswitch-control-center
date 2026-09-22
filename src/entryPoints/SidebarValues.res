@@ -356,8 +356,6 @@ let routingAnalytics = (
   ~showDecisionEngineAnalytics=false,
 ) => SubLevelLink({
   name: "Routing",
-  // When the Decision Engine is embedded, this existing Analytics → Routing entry opens the DE's
-  // own routing analytics in the workspace instead of the native /analytics-routing page.
   link: showDecisionEngineAnalytics
     ? DecisionEngineUtils.workspacePath(~slug="analytics")
     : `/analytics-routing`,
@@ -540,7 +538,6 @@ let workflow = (
   let payoutRouting = payoutRouting(userHasResourceAccess)
   let surcharge = surcharge(userHasResourceAccess)
 
-  // The DecisionEngine "Routing" group (added separately) carries routing when embedded.
   let defaultWorkFlow = isEmbedDecisionEngineEnabled ? [] : [routing]
   let isNotProfileEntity = userEntity !== #Profile
 
