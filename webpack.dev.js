@@ -15,6 +15,12 @@ let proxy = [
     changeOrigin: true,
   },
   {
+    context: ["/api/alerts-internal"],
+    pathRewrite: { "^/api": "" },
+    target: "http://localhost:8082",
+    changeOrigin: true,
+  },
+  {
     context: ["/api"],
     target: "http://localhost:8080",
     pathRewrite: { "^/api": "" },
