@@ -11,6 +11,8 @@ type deSection = {
 type messageEventData = {data: JSON.t, origin: string}
 external toMessageEvent: Webapi.Dom.Event.t => messageEventData = "%identity"
 
+type mintState = {seq: int, at: float}
+
 type deMessageType = SessionExpired | RouteChanged | UnknownMessage
 
 let messageTypeFromString = messageType =>

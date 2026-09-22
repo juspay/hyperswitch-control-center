@@ -2,6 +2,8 @@ open APIUtils
 open LogicUtils
 open DecisionEngineUtils
 
+let remintThrottleMs = 5000.
+
 @react.component
 let make = () => {
   let getURL = useGetURL()
@@ -13,8 +15,7 @@ let make = () => {
 
   let (iframeSrc, setIframeSrc) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let lastMintAt = React.useRef(0.)
-  let mintSeq = React.useRef(0)
+  let mintState = React.useRef(({seq: 0, at: 0.}: DecisionEngineTypes.mintState))
   let skipNextMint = React.useRef(false)
 
   let sectionSlug = url.path->sectionSlugFromPath
@@ -36,17 +37,17 @@ let make = () => {
     )
 
   let loadFrame = async () => {
-    let seq = mintSeq.current + 1
-    mintSeq.current = seq
+    let seq = mintState.current.seq + 1
+    mintState.current = {...mintState.current, seq}
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let (isCutover, redirectUrl) = await mintHandoff()
-      if mintSeq.current === seq {
+      if mintState.current.seq === seq {
         if !isCutover {
           RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/routing"))
         } else if redirectUrl->isNonEmptyString {
           let separator = redirectUrl->String.includes("?") ? "&" : "?"
-          lastMintAt.current = Js.Date.now()
+          mintState.current = {...mintState.current, at: Js.Date.now()}
           setIframeSrc(_ => `${redirectUrl}${separator}embed=1${handoffFragment()}`)
           setScreenState(_ => PageLoaderWrapper.Success)
         } else {
@@ -55,7 +56,7 @@ let make = () => {
       }
     } catch {
     | Exn.Error(_) =>
-      if mintSeq.current === seq {
+      if mintState.current.seq === seq {
         setScreenState(_ => PageLoaderWrapper.Error(""))
       }
     }
@@ -77,7 +78,9 @@ let make = () => {
         let dict = event.data->JSON.Decode.object->Option.getOr(Dict.make())
         switch dict->getString("type", "")->DecisionEngineTypes.messageTypeFromString {
         | SessionExpired =>
-          if Js.Date.now() -. lastMintAt.current > 5000. {
+          // One-shot: skip if a mint happened within remintThrottleMs; the next section/rule/profile
+          // change re-mints.
+          if Js.Date.now() -. mintState.current.at > remintThrottleMs {
             loadFrame()->ignore
           }
         | RouteChanged => {
