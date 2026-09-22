@@ -76,7 +76,7 @@ let make = () => {
           buttonType=Primary
           leftIcon={CustomIcon(<Icon name="plus" size=13 />)}
           onClick={_ =>
-            RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/offers/create"))}
+            RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/offers/new"))}
         />
       </RenderIf>
     </div>

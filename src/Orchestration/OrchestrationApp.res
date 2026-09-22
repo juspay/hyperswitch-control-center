@@ -92,12 +92,6 @@ let make = (~setScreenState) => {
           />
         </FilterContext>
       </AccessControl>
-    | list{"offers", "create"} =>
-      <AccessControl
-        isEnabled={featureFlagDetails.devOffers}
-        authorization={userHasAccess(~groupAccess=OffersManage)}>
-        <CreateOffer />
-      </AccessControl>
     | list{"offers", ...remainingPath} =>
       <AccessControl
         isEnabled={featureFlagDetails.devOffers}
@@ -108,6 +102,7 @@ let make = (~setScreenState) => {
             remainingPath
             access=Access
             renderList={() => <OffersList />}
+            renderNewForm={() => <CreateOffer />}
             renderShow={(id, _) => <ShowOffer id />}
           />
         </FilterContext>
