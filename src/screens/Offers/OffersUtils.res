@@ -115,8 +115,7 @@ let getCounterCount = (dict, ~scope) =>
 
 let getCurrencies = dict =>
   dict
-  ->getDictfromDict("rule_dsl")
-  ->getDictfromDict("order")
+  ->getDictFromNestedDict("rule_dsl", "order")
   ->getArrayFromDict("currency", [])
   ->getMappedValueFromArrayOfJson(currencyDict => {
     name: currencyDict->getString("name", ""),
@@ -287,8 +286,4 @@ let offerAmountLabel = (detail: offerDetail) =>
 let maxDiscountAmountLabel = (detail: offerDetail) =>
   detail->optionalAmountLabel(detail.offer.benefit->Option.flatMap(benefit => benefit.maxAmount))
 
-let binListModeToDisplayName = binListMode =>
-  switch binListMode {
-  | Whitelist => "Whitelist"
-  | Blacklist => "Blacklist"
-  }
+let binListModeToDisplayName = (binListMode: OffersTypes.binListMode) => (binListMode :> string)

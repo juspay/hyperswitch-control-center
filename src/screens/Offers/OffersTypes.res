@@ -79,9 +79,10 @@ type currencyConstraint = {
   maxOrderAmount: option<float>,
 }
 
+@unboxed
 type binListMode =
-  | Whitelist
-  | Blacklist
+  | @as("Whitelist") Whitelist
+  | @as("Blacklist") Blacklist
 
 type offerDetail = {
   offer: offer,

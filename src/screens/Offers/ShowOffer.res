@@ -1,38 +1,6 @@
 open OffersHooks
 open OffersUtils
-open Typography
-
-module DisplayKeyValueParams = {
-  @react.component
-  let make = (~heading: Table.header, ~value: Table.cell) => {
-    <AddDataAttributes attributes=[("data-label", heading.title)]>
-      <div className="flex flex-col gap-2 py-4">
-        <div className={`text-nd_gray-500 ${body.md.medium}`}> {heading.title->React.string} </div>
-        <div className={`text-left text-nd_gray-600 ${body.md.semibold}`}>
-          <Table.TableCell cell=value textAlign=Table.Left fontBold=true labelMargin="!py-0" />
-        </div>
-      </div>
-    </AddDataAttributes>
-  }
-}
-
-module DetailsSection = {
-  @react.component
-  let make = (~title, ~data, ~getHeading, ~getCell, ~detailsFields) => {
-    <div className="flex flex-col gap-4">
-      <div className={`${heading.sm.semibold} text-nd_gray-700`}> {title->React.string} </div>
-      <div className="flex flex-wrap border border-nd_gray-150 bg-white rounded-xl p-5">
-        {detailsFields
-        ->Array.mapWithIndex((colType, index) =>
-          <div className="w-full md:w-1/2 lg:w-1/3" key={index->Int.toString}>
-            <DisplayKeyValueParams heading={getHeading(colType)} value={getCell(data, colType)} />
-          </div>
-        )
-        ->React.array}
-      </div>
-    </div>
-  }
-}
+open ShowOfferHelper
 
 @react.component
 let make = (~id) => {
@@ -40,7 +8,6 @@ let make = (~id) => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (offerDetail, setOfferDetail) = React.useState(_ => None)
-  let (refetchCounter, setRefetchCounter) = React.useState(_ => 0)
 
   let hasManageAccess = userHasAccess(~groupAccess=OffersManage) === Access
 
@@ -62,7 +29,7 @@ let make = (~id) => {
   React.useEffect(() => {
     getOffer()->ignore
     None
-  }, (id, refetchCounter))
+  }, [id])
 
   let goToOffersList = () =>
     RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/offers"))
@@ -88,20 +55,18 @@ let make = (~id) => {
           </div>
           <RenderIf condition=hasManageAccess>
             <OfferRowActions
-              offer=detail.offer
-              onStatusToggled={() => setRefetchCounter(prev => prev + 1)}
-              onDeleted=goToOffersList
+              offer=detail.offer onStatusToggled={() => getOffer()->ignore} onDeleted=goToOffersList
             />
           </RenderIf>
         </div>
-        <DetailsSection
+        <OfferInfoSection
           title="Offer Details"
           data=detail
           getHeading=OffersEntity.getOfferDetailsHeading
           getCell=OffersEntity.getOfferDetailsCell
           detailsFields=OffersEntity.offerDetailsFields
         />
-        <DetailsSection
+        <OfferInfoSection
           title="Payment Details"
           data=detail
           getHeading=OffersEntity.getPaymentDetailsHeading
