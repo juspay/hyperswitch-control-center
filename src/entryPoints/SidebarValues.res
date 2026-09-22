@@ -505,11 +505,6 @@ let vault = (isVaultEnabled, ~userHasResourceAccess) => {
     : emptyComponent
 }
 
-// When the Decision Engine is embedded (and the profile has cut over), its surfaces replace the
-// single "Routing" leaf with a dedicated expandable group in the sidebar (each item deep-links the
-// workspace by path segment, so the sidebar highlights the active section natively). The section
-// list is shared with the workspace via DecisionEngineUtils.sections; Analytics is excluded here
-// (inSidebar=false) since it lives under the Analytics section's "Routing" entry.
 let decisionEngineRouting = (showDecisionEngine, ~userHasResourceAccess) => {
   let decisionEngineLink = (section: DecisionEngineTypes.deSection) => SubLevelLink({
     name: section.label,

@@ -344,8 +344,6 @@ let decisionEngineHandoffFragment = (
     params->Array.push(("rule_id", ruleId->encodeURIComponent))
   }
 
-  // Names the DE page to land on. Without it the DE derives the destination from the deep-link
-  // path itself; the embedded workspace mints against one fixed path and steers with this instead.
   if route->isNonEmptyString {
     params->Array.push(("route", route->encodeURIComponent))
   }

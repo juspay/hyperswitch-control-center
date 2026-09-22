@@ -49,11 +49,8 @@ let useGetHsSidebarValues = () => {
     newAnalytics && isFeatureEnabledForDenyListMerchant(merchantSpecificConfig.newAnalytics)
   let {isCurrentMerchantPlatform, isCurrentMerchantConnected} = OMPSwitchHooks.useOMPType()
 
-  // The embedded Decision Engine layout only applies to profiles that have cut over to the DE.
-  // Cutover is a per-profile async probe (not a feature flag), so it falls back to the native
-  // routing layout until it confirms cutover.
   let cutover = DecisionEngineHooks.useDecisionEngineCutover(~embedDecisionEngine)
-  let showDecisionEngine = embedDecisionEngine && cutover == Some(true)
+  let showDecisionEngine = embedDecisionEngine && cutover->Option.getOr(false)
 
   let standardModules = !isCurrentMerchantPlatform
     ? [

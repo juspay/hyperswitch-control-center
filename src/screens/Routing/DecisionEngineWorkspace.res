@@ -1,13 +1,3 @@
-// The Decision Engine embedded in the dashboard as a same-origin iframe, replacing the
-// window.open hand-off. Every mount mints a fresh one-time SSO code (they are single-use with a
-// 60s TTL, so a minted URL must never be cached or shared between mounts); the desired DE page
-// travels in the hand-off fragment's `route` param, and `embed=1` asks the DE to render
-// chrome-less. Navigation lives in the Hyperswitch sidebar (Decision Engine Routing section) —
-// this screen is the section's iframe host. The section is a path segment
-// (/routing/workspace/<slug>) so the sidebar highlights it natively. The frame reports back over
-// same-origin postMessage: route changes are mirrored into the URL (so refresh and share restore
-// the page) and session expiry triggers a re-mint. Shared data/types/helpers live in
-// DecisionEngineUtils / DecisionEngineTypes.
 open APIUtils
 open LogicUtils
 open DecisionEngineUtils
@@ -24,11 +14,7 @@ let make = () => {
   let (iframeSrc, setIframeSrc) = React.useState(_ => "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let lastMintAt = React.useRef(0.)
-  // Mints are unordered async calls; only the newest one may commit, or a slow stale mint
-  // (earlier section click, throttle-expired re-mint) would overwrite a newer frame.
   let mintSeq = React.useRef(0)
-  // A route-changed sync rewrites the URL to mirror the frame; that URL change must not
-  // remint (it would yank the page the user just navigated to inside the frame).
   let skipNextMint = React.useRef(false)
 
   let sectionSlug = url.path->sectionSlugFromPath
@@ -57,8 +43,6 @@ let make = () => {
       let (isCutover, redirectUrl) = await mintHandoff()
       if mintSeq.current === seq {
         if !isCutover {
-          // This profile hasn't cut over to the Decision Engine — no embedded workspace. Restore
-          // the native routing page (the sidebar shows the old layout for it too).
           RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/routing"))
         } else if redirectUrl->isNonEmptyString {
           let separator = redirectUrl->String.includes("?") ? "&" : "?"
@@ -66,8 +50,6 @@ let make = () => {
           setIframeSrc(_ => `${redirectUrl}${separator}embed=1${handoffFragment()}`)
           setScreenState(_ => PageLoaderWrapper.Success)
         } else {
-          // Rare: cut over but no hand-off URL. PageLoaderWrapper renders its generic error screen
-          // with a Refresh action (it does not surface this string).
           setScreenState(_ => PageLoaderWrapper.Error(""))
         }
       }
@@ -108,19 +90,15 @@ let make = () => {
       let event = ev->DecisionEngineTypes.toMessageEvent
       if event.origin === Window.Location.origin {
         let dict = event.data->JSON.Decode.object->Option.getOr(Dict.make())
-        switch dict->getString("type", "") {
-        | "de:session-expired" =>
-          // The frame's ~20-min SSO token died; replace it with a fresh hand-off. Throttled so a
-          // hand-off that keeps failing can't remint in a loop.
+        switch dict->getString("type", "")->DecisionEngineTypes.messageTypeFromString {
+        | SessionExpired =>
           if Js.Date.now() -. lastMintAt.current > 5000. {
             loadFrame()->ignore
           }
-        | "de:route-changed" => {
+        | RouteChanged => {
             let dePath = dict->getString("path", "")
             switch dePath->sectionForDePath {
             | Some(matched) => {
-                // Drop ?rule= once the frame leaves that rule's editor, or a refresh would
-                // reopen the editor instead of the page the user is actually on.
                 let ruleStillOpen =
                   ruleId->isNonEmptyString && dePath->String.includes(`/${ruleId}/`)
                 if matched.slug !== sectionSlug || (ruleId->isNonEmptyString && !ruleStillOpen) {
@@ -131,7 +109,7 @@ let make = () => {
             | None => ()
             }
           }
-        | _ => ()
+        | UnknownMessage => ()
         }
       }
     }
