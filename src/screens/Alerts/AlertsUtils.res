@@ -11,67 +11,35 @@ let parseDimensions = dimensionsStr => {
 }
 
 let itemToObjMapper = (dict: Dict.t<JSON.t>): alert => {
-  id: dict->getString("id", ""),
-  name: dict->getString("name", ""),
-  product: dict->getString("product", ""),
-  merchantId: dict->getString("merchant_id", ""),
-  profileId: dict->getString("profile_id", ""),
-  connector: dict->getString("connector", ""),
-  paymentMethod: dict->getString("payment_method", ""),
-  tsAlert: dict->getString("ts_alert", ""),
-  startTime: dict->getString("start_time", ""),
-  endTime: dict->getString("end_time", ""),
-  priority: dict->getString("priority", ""),
-  attribution: dict->getString("attribution", ""),
+  let (profileId, connector, paymentMethod) = dict->getString("dimensions", "")->parseDimensions
+  {
+    id: dict->getString("id", ""),
+    name: dict->getString("name", ""),
+    product: dict->getString("product", ""),
+    merchantId: dict->getString("merchant_id", ""),
+    profileId,
+    connector,
+    paymentMethod,
+    tsAlert: dict->getString("ts_alert", ""),
+    startTime: dict->getString("start_time", ""),
+    endTime: dict->getString("end_time", ""),
+    priority: dict->getString("priority", ""),
+    attribution: dict->getString("attribution", ""),
+  }
 }
 
-let columnarResponseToAlerts = (json: JSON.t): array<alert> => {
-  let dict = json->getDictFromJsonObject
-  let column = key => dict->getStrArray(key)
-  let at = (col, index) => col->getValueFromArray(index, "")
+let columnarResponseToAlerts = (json: JSON.t): array<alert> =>
+  json->getArrayFromJson([])->Array.map(row => row->getDictFromJsonObject->itemToObjMapper)
 
-  let ids = column("id")
-  let names = column("name")
-  let products = column("product")
-  let merchantIds = column("merchant_id")
-  let dimensions = column("dimensions")
-  let tsAlerts = column("ts_alert")
-  let startTimes = column("start_time")
-  let endTimes = column("end_time")
-  let priorities = column("priority")
-  let attributions = column("attribution")
-
-  ids->Array.mapWithIndex((id, index) => {
-    let (profileId, connector, paymentMethod) = dimensions->at(index)->parseDimensions
-    {
-      id,
-      name: names->at(index),
-      product: products->at(index),
-      merchantId: merchantIds->at(index),
-      profileId,
-      connector,
-      paymentMethod,
-      tsAlert: tsAlerts->at(index),
-      startTime: startTimes->at(index),
-      endTime: endTimes->at(index),
-      priority: priorities->at(index),
-      attribution: attributions->at(index),
-    }
-  })
-}
-
-let dictionaryResponseToOptions = (json: JSON.t, key: string): array<string> => {
-  let dict = json->getDictFromJsonObject
-  let keys = dict->getStrArray("key_")
-  let values = dict->getStrArray("values_")
-
-  keys
-  ->Array.findIndexOpt(k => k === key)
-  ->Option.flatMap(index => values->Array.get(index))
+let dictionaryResponseToOptions = (json: JSON.t, key: string): array<string> =>
+  json
+  ->getArrayFromJson([])
+  ->Array.map(getDictFromJsonObject)
+  ->Array.find(row => row->getString("key_", "") === key)
+  ->Option.map(row => row->getString("values_", "[]"))
   ->Option.getOr("[]")
   ->safeParse
   ->getStrArrayFromJson
-}
 
 let columnarResponseToDictionary = (json: JSON.t): alertsDictionary => {
   merchantIds: json->dictionaryResponseToOptions("merchant_id"),
