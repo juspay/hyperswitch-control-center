@@ -9,6 +9,20 @@ let constructWebhookDetailsObject = webhookDetailsDict => {
   payment_created_enabled: webhookDetailsDict->getOptionBool("payment_created_enabled"),
   payment_succeeded_enabled: webhookDetailsDict->getOptionBool("payment_succeeded_enabled"),
   payment_failed_enabled: webhookDetailsDict->getOptionBool("payment_failed_enabled"),
+  payment_statuses_enabled: webhookDetailsDict->getOptionStrArrayFromDict(
+    "payment_statuses_enabled",
+  ),
+  refund_statuses_enabled: webhookDetailsDict->getOptionStrArrayFromDict("refund_statuses_enabled"),
+  payout_statuses_enabled: webhookDetailsDict->getOptionStrArrayFromDict("payout_statuses_enabled"),
+  dispute_statuses_enabled: webhookDetailsDict->getOptionStrArrayFromDict(
+    "dispute_statuses_enabled",
+  ),
+  mandate_statuses_enabled: webhookDetailsDict->getOptionStrArrayFromDict(
+    "mandate_statuses_enabled",
+  ),
+  invoice_statuses_enabled: webhookDetailsDict->getOptionStrArrayFromDict(
+    "invoice_statuses_enabled",
+  ),
 }
 
 let constructAuthConnectorObject = authConnectorDict => {
@@ -79,6 +93,14 @@ let convertOptionalBoolToOptionalJson = optBool => {
 let convertOptionalStringToOptionalJson = optString => {
   let jsonVal = switch optString {
   | Some(value) => value->JSON.Encode.string
+  | None => JSON.Encode.null
+  }
+  Some(jsonVal)
+}
+
+let convertOptionalStrArrayToOptionalJson = optArray => {
+  let jsonVal = switch optArray {
+  | Some(value) => value->Array.map(JSON.Encode.string)->JSON.Encode.array
   | None => JSON.Encode.null
   }
   Some(jsonVal)

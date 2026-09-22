@@ -21,6 +21,12 @@ type webhookDetails = {
   payment_created_enabled: option<bool>,
   payment_succeeded_enabled: option<bool>,
   payment_failed_enabled: option<bool>,
+  payment_statuses_enabled: option<array<string>>,
+  refund_statuses_enabled: option<array<string>>,
+  payout_statuses_enabled: option<array<string>>,
+  dispute_statuses_enabled: option<array<string>>,
+  mandate_statuses_enabled: option<array<string>>,
+  invoice_statuses_enabled: option<array<string>>,
 }
 type authConnectorDetailsType = {
   authentication_connectors: option<array<JSON.t>>,

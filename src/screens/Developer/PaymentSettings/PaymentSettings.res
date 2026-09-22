@@ -33,6 +33,11 @@ let make = () => {
     renderContent: () => <PaymentSettingsPaymentBehaviour />,
   }
 
+  let webhookConfigurationTab: Tabs.tab = {
+    title: "Webhook Configuration",
+    renderContent: () => <WebhookConfiguration />,
+  }
+
   let threeDsTab: Tabs.tab = {
     title: "3DS",
     renderContent: () => <PaymentSettingsThreeDs />,
@@ -70,7 +75,7 @@ let make = () => {
   ]
 
   let tabs = {
-    let baseTabs = [paymentBehaviourTab]
+    let baseTabs = [paymentBehaviourTab, webhookConfigurationTab]
 
     if version == V1 || (version == V2 && isBusinessProfileHasThreeds) {
       baseTabs->Array.push(threeDsTab)
