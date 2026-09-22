@@ -38,6 +38,8 @@ let getOfferDescription = dict => {
   {
     title: descriptionDict->getString("title", ""),
     displayTitle: descriptionDict->getString("display_title", ""),
+    description: descriptionDict->getString("description", ""),
+    sponsoredBy: descriptionDict->getString("sponsored_by", ""),
   }
 }
 
@@ -51,6 +53,7 @@ let getBenefit = dict =>
     {
       calculationRule: benefitDict->getString("calculation_rule", "")->calculationRuleFromString,
       value: benefitDict->getFloat("value", 0.0),
+      maxAmount: benefitDict->getOptionFloat("max_amount"),
     }
   })
 
@@ -63,6 +66,92 @@ let itemToObjMapper = dict => {
   endTime: dict->getString("end_time", ""),
   benefit: dict->getBenefit,
   createdAt: dict->getString("created_at", ""),
+}
+
+let languageFromString = language =>
+  switch language {
+  | "en" => English
+  | "ar" => Arabic
+  | "fr" => French
+  | "pt" => Portuguese
+  | "ru" => Russian
+  | "uk" => Ukrainian
+  | other => UnknownLanguage(other)
+  }
+
+let languageToDisplayName = language =>
+  switch language {
+  | English => "English"
+  | Arabic => "Arabic"
+  | French => "French"
+  | Portuguese => "Portuguese"
+  | Russian => "Russian"
+  | Ukrainian => "Ukrainian"
+  | UnknownLanguage(other) => other->String.toUpperCase
+  }
+
+let counterDimensions = scope =>
+  switch scope {
+  | Campaign => ["OFFER_ID", "MERCHANT_ID"]
+  | PerCard => ["OFFER_ID", "MERCHANT_ID", "CARD_IDENTIFIER"]
+  }
+
+let getCounter = (dict, ~scope, ~valueType: counterValueType) =>
+  dict
+  ->getDictfromDict("rule_dsl")
+  ->getArrayFromDict("counters", [])
+  ->Array.find(counterJson => {
+    let counterDict = counterJson->getDictFromJsonObject
+    counterDict->getStrArrayFromDict("type", []) == scope->counterDimensions &&
+      counterDict->getString("value_type", "") == (valueType :> string)
+  })
+  ->Option.map(getDictFromJsonObject)
+
+let getCounterAmount = (dict, ~scope) =>
+  dict->getCounter(~scope, ~valueType=AmountLimit)->Option.flatMap(getOptionFloat(_, "value"))
+
+let getCounterCount = (dict, ~scope) =>
+  dict->getCounter(~scope, ~valueType=CountLimit)->Option.flatMap(getOptionInt(_, "value"))
+
+let getCurrencies = dict =>
+  dict
+  ->getDictFromNestedDict("rule_dsl", "order")
+  ->getArrayFromDict("currency", [])
+  ->getMappedValueFromArrayOfJson(currencyDict => {
+    name: currencyDict->getString("name", ""),
+    minOrderAmount: currencyDict->getOptionFloat("min_order_amount"),
+    maxOrderAmount: currencyDict->getOptionFloat("max_order_amount"),
+  })
+
+let getBinListMode = dict => {
+  let filtersDict = dict->getDictfromDict("rule_dsl")->getDictfromDict("filters")
+  let hasUploadedBins = key =>
+    filtersDict
+    ->getArrayFromDict(key, [])
+    ->Array.some(entryJson => {
+      let entryDict = entryJson->getDictFromJsonObject
+      entryDict->getString("type", "") == "CARD_BIN" &&
+        entryDict->getBool("is_value_uploaded", false)
+    })
+
+  if hasUploadedBins("whitelist") {
+    Some(Whitelist)
+  } else if hasUploadedBins("blacklist") {
+    Some(Blacklist)
+  } else {
+    None
+  }
+}
+
+let detailItemToObjMapper = dict => {
+  offer: dict->itemToObjMapper,
+  language: dict->getString("language", "")->languageFromString,
+  currencies: dict->getCurrencies,
+  campaignAmount: dict->getCounterAmount(~scope=Campaign),
+  campaignCount: dict->getCounterCount(~scope=Campaign),
+  amountPerCard: dict->getCounterAmount(~scope=PerCard),
+  countPerCard: dict->getCounterCount(~scope=PerCard),
+  binListMode: dict->getBinListMode,
 }
 
 let listResponseMapper = json => {
@@ -121,6 +210,9 @@ let buildListBody = (
   body->JSON.Encode.object
 }
 
+let buildDetailBody = offerId =>
+  [("offer_ids", [offerId]->getJsonFromArrayOfString)]->getJsonFromArrayOfJson
+
 let buildStatusUpdateBody = (~status: offerStatus) =>
   [("status", (status :> string)->JSON.Encode.string)]->getJsonFromArrayOfJson
 
@@ -162,3 +254,36 @@ let nextStatusOnToggle = (offer: offer) =>
   | Active => Paused
   | _ => Active
   }
+
+let amountWithCurrency = (~amount: float, ~currency) =>
+  `${amount->Float.toString} ${currency}`->String.trim
+
+let primaryCurrency = (detail: offerDetail) =>
+  detail.currencies->Array.get(0)->mapOptionOrDefault("", currency => currency.name)
+
+let currencyRangeLabel = (detail: offerDetail, ~getAmount) =>
+  detail.currencies
+  ->Array.filterMap(currency =>
+    currency->getAmount->Option.map(amount => amountWithCurrency(~amount, ~currency=currency.name))
+  )
+  ->Array.joinWith(", ")
+  ->displayOrPlaceholder
+
+let optionalAmountLabel = (detail: offerDetail, amount) =>
+  amount->mapOptionOrDefault(emptyValuePlaceholder, amount =>
+    amountWithCurrency(~amount, ~currency=detail->primaryCurrency)
+  )
+
+let optionalCountLabel = count => count->mapOptionOrDefault(emptyValuePlaceholder, Int.toString)
+
+let offerAmountLabel = (detail: offerDetail) =>
+  switch detail.offer.benefit {
+  | Some({calculationRule: Percentage, value}) => `${value->Float.toString}%`
+  | Some({value}) => detail->optionalAmountLabel(Some(value))
+  | None => emptyValuePlaceholder
+  }
+
+let maxDiscountAmountLabel = (detail: offerDetail) =>
+  detail->optionalAmountLabel(detail.offer.benefit->Option.flatMap(benefit => benefit.maxAmount))
+
+let binListModeToDisplayName = (binListMode: OffersTypes.binListMode) => (binListMode :> string)
