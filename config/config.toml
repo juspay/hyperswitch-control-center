@@ -88,6 +88,7 @@ dev_webhooks=true
 dev_blocklist=false
 recon_engine_permissions=true
 dev_recon_engine_v1=false
+dev_alerts=false
 dev_recon_engine_pipelines=false
 dev_ai_chat_bot=false
 dev_launch_sage=false
