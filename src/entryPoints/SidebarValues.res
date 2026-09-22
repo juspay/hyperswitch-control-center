@@ -87,6 +87,26 @@ let paymentLinks = userHasResourceAccess => {
   })
 }
 
+let alerts = userHasAccess => {
+  SubLevelLink({
+    name: "Monitoring & Merchant Success",
+    link: `/alerts-merchant-success`,
+    access: userHasAccess(~groupAccess=OperationsView),
+    searchOptions: [("View alerts", "")],
+  })
+}
+
+let alertsSection = (~isAlertsEnabled, ~userHasAccess) =>
+  isAlertsEnabled
+    ? Section({
+        name: "Alerts",
+        icon: "nd-alerts",
+        selectedIcon: "nd-alerts-fill",
+        showSection: userHasAccess(~groupAccess=OperationsView) === Access,
+        links: [alerts(userHasAccess)],
+      })
+    : emptyComponent
+
 let alternatePaymentMethods = isApmEnabled =>
   isApmEnabled
     ? Link({
