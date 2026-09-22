@@ -100,7 +100,7 @@ let sectionForDePath = path => {
   })
 }
 
-let workspaceBasePath = "/routing/workspace"
+let workspaceBasePath = "/routing-workspace"
 
 let workspacePath = (~slug) => `${workspaceBasePath}/${slug}`
 
@@ -111,7 +111,7 @@ let workspaceUrl = (~slug, ~ruleId="") => {
 
 let sectionSlugFromPath = path => {
   let pathSegments = path->List.toArray
-  switch pathSegments->Array.findIndex(seg => seg === "workspace") {
+  switch pathSegments->Array.findIndex(seg => seg === "routing-workspace") {
   | -1 => defaultSection.slug
   | idx => pathSegments->Array.get(idx + 1)->Option.getOr(defaultSection.slug)
   }
@@ -119,6 +119,6 @@ let sectionSlugFromPath = path => {
 
 let isWorkspacePath = path =>
   switch path {
-  | list{"routing", "workspace", ..._} => true
+  | list{"routing-workspace", ..._} => true
   | _ => false
   }

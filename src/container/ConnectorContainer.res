@@ -166,7 +166,7 @@ let make = () => {
         </SDKProvider>
       </AccessControl>
     // Routing
-    | list{"routing", "workspace", ..._} =>
+    | list{"routing-workspace", ..._} =>
       <AccessControl
         isEnabled={featureFlagDetails.embedDecisionEngine}
         authorization={userHasAccess(~groupAccess=WorkflowsView)}>
