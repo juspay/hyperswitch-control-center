@@ -44,6 +44,15 @@ let getCloneTargetProfileOptions = (
     profile.id != sourceProfileId ? Some({SelectBox.label: profile.name, value: profile.id}) : None
   )
 
+let cloneTargetMapper = dict => {
+  {
+    profile_id: dict->getString("profile_id", ""),
+    status: dict->getString("status", ""),
+    processed_rows: dict->getInt("processed_rows", 0),
+    error_message: dict->getOptionString("error_message"),
+  }
+}
+
 let itemToObjMapper = dict => {
   {
     job_id: dict->getString("job_id", ""),
@@ -56,6 +65,10 @@ let itemToObjMapper = dict => {
     downloadable: dict->getBool("downloadable", false),
     created_at: dict->getString("created_at", ""),
     updated_at: dict->getString("updated_at", ""),
+    clone_targets: dict
+    ->getDictfromDict("metadata")
+    ->getArrayFromDict("targets", [])
+    ->getMappedValueFromArrayOfJson(cloneTargetMapper),
   }
 }
 
@@ -98,6 +111,14 @@ let isTerminalStatus = status => {
 }
 
 let normalizeStatus = status => status->isNonEmptyString ? status->snakeToTitle : "Unknown"
+
+let getCloneTargetsSummary = (targets: array<cloneTargetMetadata>) => {
+  let completedCount =
+    targets
+    ->Array.filter(target => target.status->getBlocklistBatchStatusFromString == Completed)
+    ->Array.length
+  `${completedCount->Int.toString}/${targets->Array.length->Int.toString} completed`
+}
 
 let isCsvFileName = fileName => fileName->String.toLowerCase->String.endsWith(".csv")
 
