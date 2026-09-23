@@ -315,6 +315,7 @@ let decisionEngineHandoffFragment = (
   connectorList: array<ConnectorTypes.connectorPayloadCommonType>,
   ~profileId,
   ~ruleId="",
+  ~route="",
 ) => {
   let connectors =
     connectorList
@@ -341,6 +342,10 @@ let decisionEngineHandoffFragment = (
   }
   if ruleId->isNonEmptyString {
     params->Array.push(("rule_id", ruleId->encodeURIComponent))
+  }
+
+  if route->isNonEmptyString {
+    params->Array.push(("route", route->encodeURIComponent))
   }
 
   params->isEmptyArray
