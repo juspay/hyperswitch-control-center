@@ -11,6 +11,7 @@ let make = () => {
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let showToast = ToastState.useShowToast()
+  let {devOffers} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let onSubmit = async (values, _) => {
     try {
@@ -43,6 +44,9 @@ let make = () => {
           path=[{title: "Offers", link: "/offers"}] currentPageTitle="Create a New Offer"
         />
       </div>
+      <RenderIf condition={!devOffers}>
+        <DemoModeBanner />
+      </RenderIf>
       <Form onSubmit validate=validateOfferForm initialValues>
         <div className="flex flex-col gap-6">
           <FormSection title="Offer Details">
@@ -63,7 +67,10 @@ let make = () => {
             <BinListUpload />
           </FormSection>
           <FormRenderer.SubmitButton
-            text="Create Offer" buttonType=Primary customSubmitButtonStyle="!w-fit"
+            text="Create Offer"
+            buttonType=Primary
+            customSubmitButtonStyle="!w-fit"
+            disabledParameter={!devOffers}
           />
         </div>
       </Form>

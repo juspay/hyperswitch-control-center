@@ -727,6 +727,7 @@ let paymentLinkTheme = {
 let offers = userHasResourceAccess => {
   SubLevelLink({
     name: "Offers",
+    iconTag: "newTag",
     link: `/offers`,
     access: userHasResourceAccess(~resourceAccess=Offers),
     searchOptions: [("View offers", "")],
@@ -736,7 +737,6 @@ let offers = userHasResourceAccess => {
 let developers = (
   isDevelopersEnabled,
   ~isWebhooksEnabled,
-  ~isOffersEnabled,
   ~userHasResourceAccess,
   ~checkUserEntity,
   ~paymentLinkThemeConfigurator,
@@ -763,9 +763,7 @@ let developers = (
     if paymentLinkThemeConfigurator {
       defaultDevelopersOptions->Array.push(paymentLinkTheme)
     }
-    if isOffersEnabled {
-      defaultDevelopersOptions->Array.push(offers)
-    }
+    defaultDevelopersOptions->Array.push(offers)
     defaultDevelopersOptions
   }
 
