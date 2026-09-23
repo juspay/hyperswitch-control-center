@@ -10,6 +10,15 @@ let parseDimensions = dimensionsStr => {
   )
 }
 
+let priorityFromString = priority =>
+  switch priority {
+  | "P0" => P0
+  | "P1" => P1
+  | "P2" => P2
+  | "P3" => P3
+  | other => UnknownPriority(other)
+  }
+
 let itemToObjMapper = (dict: Dict.t<JSON.t>): alert => {
   let (profileId, connector, paymentMethod) = dict->getString("dimensions", "")->parseDimensions
   {
@@ -23,7 +32,7 @@ let itemToObjMapper = (dict: Dict.t<JSON.t>): alert => {
     tsAlert: dict->getString("ts_alert", ""),
     startTime: dict->getString("start_time", ""),
     endTime: dict->getString("end_time", ""),
-    priority: dict->getString("priority", "Unknown")->priorityFromString,
+    priority: dict->getString("priority", "")->priorityFromString,
     attribution: dict->getString("attribution", ""),
   }
 }
@@ -109,5 +118,5 @@ let priorityToLabelColor = (priority: priority): TableUtils.labelColor =>
   | P0 => LabelRed
   | P1 => LabelOrange
   | P2 => LabelYellow
-  | P3 | PriorityUnknown => LabelGray
+  | P3 | UnknownPriority(_) => LabelGray
   }

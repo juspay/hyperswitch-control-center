@@ -1,3 +1,4 @@
+open LogicUtils
 open AlertsTypes
 open AlertsUtils
 
@@ -28,7 +29,7 @@ let getHeading = (colType: colType) =>
   | AlertAttribution => Table.makeHeaderInfo(~key="attribution", ~title="Attribution")
   }
 
-let placeholderIfEmpty = value => value->LogicUtils.isNonEmptyString ? value : "-"
+let placeholderIfEmpty = value => value->isNonEmptyString ? value : "-"
 
 let getCell = (alert: alert, colType: colType): Table.cell =>
   switch colType {
@@ -38,7 +39,7 @@ let getCell = (alert: alert, colType: colType): Table.cell =>
   | AlertDuration => EllipsisText(formatDuration(alert.startTime, alert.endTime), "w-fit")
   | AlertPriority =>
     Label({
-      title: alert.priority->priorityToString,
+      title: (alert.priority :> string),
       color: alert.priority->priorityToLabelColor,
     })
   | AlertMerchantId =>
@@ -54,7 +55,7 @@ let getCell = (alert: alert, colType: colType): Table.cell =>
   | AlertProfileId => Text(alert.profileId->placeholderIfEmpty)
   | AlertConnector => Text(alert.connector->placeholderIfEmpty)
   | AlertStatus => {
-      let isActive = alert.endTime->LogicUtils.isEmptyString
+      let isActive = alert.endTime->isEmptyString
       Label({title: isActive ? "Active" : "Inactive", color: isActive ? LabelGreen : LabelGray})
     }
   | AlertAttribution => EllipsisText(alert.attribution, "w-64")

@@ -1,14 +1,17 @@
+@unboxed
 type priority =
   | @as("P0") P0
   | @as("P1") P1
   | @as("P2") P2
   | @as("P3") P3
-  | @as("Unknown") PriorityUnknown
-
-external priorityFromString: string => priority = "%identity"
-external priorityToString: priority => string = "%identity"
+  | UnknownPriority(string)
 
 let allPriorities = [P0, P1, P2, P3]
+
+@unboxed
+type alertState =
+  | @as("firing") Firing
+  | @as("recovered") Recovered
 
 type alert = {
   id: string,

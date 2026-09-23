@@ -45,7 +45,7 @@ let useAlertsDictionary = () => {
       let response = await updateDetails(url, body, Post)
       response->columnarResponseToDictionary
     } catch {
-    | Exn.Error(_) => Dict.make()->JSON.Encode.object->columnarResponseToDictionary
+    | _ => Dict.make()->JSON.Encode.object->columnarResponseToDictionary
     }
   }
 }

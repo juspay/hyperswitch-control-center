@@ -1,4 +1,6 @@
 open HSAnalyticsUtils
+open FilterSelectBox
+open AlertsTypes
 
 let priorityFilterKey = "priority"
 let merchantIdFilterKey = "merchant_id"
@@ -7,16 +9,14 @@ let connectorFilterKey = "connector"
 let paymentMethodFilterKey = "payment_method"
 let stateFilterKey = "state"
 
-let priorityOptions: array<
-  FilterSelectBox.dropdownOption,
-> = AlertsTypes.allPriorities->Array.map(priority => {
-  let value = priority->AlertsTypes.priorityToString
-  {FilterSelectBox.label: value, value}
+let priorityOptions: array<dropdownOption> = allPriorities->Array.map(priority => {
+  let value = (priority :> string)
+  {label: value, value}
 })
 
-let stateOptions: array<FilterSelectBox.dropdownOption> = [
-  {FilterSelectBox.label: "Active", value: "firing"},
-  {FilterSelectBox.label: "Inactive", value: "recovered"},
+let stateOptions: array<dropdownOption> = [
+  {label: "Active", value: (Firing :> string)},
+  {label: "Inactive", value: (Recovered :> string)},
 ]
 
 let multiSelectField = (~name, ~label, ~options: array<string>): EntityType.initialFilters<'t> => {
@@ -25,7 +25,7 @@ let multiSelectField = (~name, ~label, ~options: array<string>): EntityType.init
     ~label,
     ~name,
     ~customInput=InputFields.filterMultiSelectInput(
-      ~options=options->FilterSelectBox.makeOptions,
+      ~options=options->makeOptions,
       ~buttonText=label,
       ~showSelectionAsChips=false,
       ~searchable=true,
@@ -34,9 +34,7 @@ let multiSelectField = (~name, ~label, ~options: array<string>): EntityType.init
   ),
 }
 
-let initialFilters = (~dictionary: AlertsTypes.alertsDictionary): array<
-  EntityType.initialFilters<'t>,
-> => [
+let initialFilters = (~dictionary: alertsDictionary): array<EntityType.initialFilters<'t>> => [
   {
     localFilter: None,
     field: FormRenderer.makeFieldInfo(

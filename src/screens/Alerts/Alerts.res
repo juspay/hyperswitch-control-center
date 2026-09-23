@@ -3,110 +3,40 @@ open LogicUtils
 @react.component
 let make = () => {
   open HSAnalyticsUtils
-  open AlertsTypes
   open AlertsFilters
 
-  let fetchAlerts = AlertsHooks.useAlertsList()
   let fetchDictionary = AlertsHooks.useAlertsDictionary()
   let {filterValueJson, filterValue, updateExistingKeys, reset} = React.useContext(
     FilterContext.filterContext,
   )
 
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (alertsData, setAlertsData) = React.useState(_ => [])
-  let (totalCount, setTotalCount) = React.useState(_ => 0)
-  let (offset, setOffset) = React.useState(_ => 0)
-
-  let (resolvedScreenState, setResolvedScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (resolvedAlerts, setResolvedAlerts) = React.useState(_ => [])
-  let (resolvedTotalCount, setResolvedTotalCount) = React.useState(_ => 0)
-  let (resolvedOffset, setResolvedOffset) = React.useState(_ => 0)
-
-  let (dictionary, setDictionary) = React.useState(_ =>
+  let (alertsDictionary, setAlertsDictionary) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->AlertsUtils.columnarResponseToDictionary
   )
-  let resultsPerPage = 10
+  let (alertsRefetch, setAlertsRefetch) = React.useState(() => () => ())
+  let (resolvedRefetch, setResolvedRefetch) = React.useState(() => () => ())
 
   let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=7)
   let startTime = filterValueJson->getString(startTimeFilterKey, defaultDate.start_time)
   let endTime = filterValueJson->getString(endTimeFilterKey, defaultDate.end_time)
 
-  let fetchSection = async (~isResolved, ~offset, ~setData, ~setTotalCount, ~setScreenState) => {
-    setScreenState(_ => PageLoaderWrapper.Loading)
-    try {
-      let list = await fetchAlerts(
-        ~limit=resultsPerPage,
-        ~offset,
-        ~startTime,
-        ~endTime,
-        ~filterValueJson,
-        ~isResolved,
-        ~onTotalCount=total => setTotalCount(_ => total),
-      )
-
-      if list->isNonEmptyArray {
-        let padding = Array.make(~length=offset, Dict.make()->AlertsUtils.itemToObjMapper)
-        setData(_ => padding->Array.concat(list))
-        setScreenState(_ => PageLoaderWrapper.Success)
-      } else {
-        setData(_ => [])
-        setScreenState(_ => PageLoaderWrapper.Custom)
-      }
-    } catch {
-    | Exn.Error(e) =>
-      setScreenState(_ => PageLoaderWrapper.Error(
-        Exn.message(e)->Option.getOr("Failed to fetch alerts"),
-      ))
-    }
-  }
-
-  let getAlerts = () =>
-    fetchSection(
-      ~isResolved=false,
-      ~offset,
-      ~setData=setAlertsData,
-      ~setTotalCount,
-      ~setScreenState,
-    )
-
-  let getResolvedAlerts = () =>
-    fetchSection(
-      ~isResolved=true,
-      ~offset=resolvedOffset,
-      ~setData=setResolvedAlerts,
-      ~setTotalCount=setResolvedTotalCount,
-      ~setScreenState=setResolvedScreenState,
-    )
-
-  let getDictionary = async () => {
+  let getAlertsDictionary = async () => {
     let result = await fetchDictionary()
-    setDictionary(_ => result)
+    setAlertsDictionary(_ => result)
   }
 
   React.useEffect(() => {
-    getDictionary()->ignore
+    getAlertsDictionary()->ignore
     None
   }, [])
 
   let refresh = () => {
-    getAlerts()->ignore
-    getResolvedAlerts()->ignore
-    getDictionary()->ignore
+    alertsRefetch()
+    resolvedRefetch()
+    getAlertsDictionary()->ignore
   }
 
-  React.useEffect(() => {
-    getAlerts()->ignore
-    None
-  }, (offset, filterValue))
-
-  React.useEffect(() => {
-    getResolvedAlerts()->ignore
-    None
-  }, (resolvedOffset, filterValue))
-
-  let customUI = <NoDataFound message="No alerts found" renderType={Painting} />
-  let resolvedCustomUI = <NoDataFound message="No resolved alerts found" renderType={Painting} />
-  let filters = AlertsFilters.initialFilters(~dictionary)
+  let filters = AlertsFilters.initialFilters(~dictionary=alertsDictionary)
 
   <div className="flex flex-col gap-4">
     <div className="flex justify-between items-center">
@@ -144,52 +74,19 @@ let make = () => {
       updateUrlWith=updateExistingKeys
       clearFilters={() => reset()}
     />
-    <PageLoaderWrapper screenState customUI>
-      <LoadedTableWithCustomColumns
-        title="Alerts"
-        hideTitle=true
-        actualData={alertsData->Array.map(Nullable.make)}
-        entity=AlertsEntity.alertsEntity
-        resultsPerPage
-        totalResults=totalCount
-        offset
-        setOffset
-        currentFetchCount={alertsData->Array.length}
-        customColumnMapper=TableAtoms.alertsMapDefaultCols
-        defaultColumns={AlertsEntity.defaultColumns}
-        showSerialNumber=false
-        showSerialNumberInCustomizeColumns=false
-        sortingBasedOnDisabled=false
-        showAutoScroll=true
-        isDraggable=true
-        visitedRows={{getId: alert => alert.id, prefix_key: "alert"}}
-      />
-    </PageLoaderWrapper>
-    <div className="flex flex-col gap-2 mt-3">
-      <div className={`${Typography.heading.sm.semibold} text-nd_gray-800`}>
-        {"Resolved Alerts"->React.string}
-      </div>
-      <PageLoaderWrapper screenState=resolvedScreenState customUI=resolvedCustomUI>
-        <LoadedTableWithCustomColumns
-          title="ResolvedAlerts"
-          hideTitle=true
-          actualData={resolvedAlerts->Array.map(Nullable.make)}
-          entity=AlertsEntity.alertsEntity
-          resultsPerPage
-          totalResults=resolvedTotalCount
-          offset=resolvedOffset
-          setOffset=setResolvedOffset
-          currentFetchCount={resolvedAlerts->Array.length}
-          customColumnMapper=TableAtoms.alertsMapDefaultCols
-          defaultColumns={AlertsEntity.defaultColumns}
-          showSerialNumber=false
-          showSerialNumberInCustomizeColumns=false
-          sortingBasedOnDisabled=false
-          showAutoScroll=true
-          isDraggable=true
-          visitedRows={{getId: alert => alert.id, prefix_key: "resolved-alert"}}
-        />
-      </PageLoaderWrapper>
-    </div>
+    <AlertsTable
+      startTime
+      endTime
+      filterValueJson
+      filterValue
+      registerRefetch={fn => setAlertsRefetch(_ => fn)}
+    />
+    <ResolvedAlertsTable
+      startTime
+      endTime
+      filterValueJson
+      filterValue
+      registerRefetch={fn => setResolvedRefetch(_ => fn)}
+    />
   </div>
 }
