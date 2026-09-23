@@ -142,25 +142,10 @@ module ActionButtons = {
         authorization
         text={isBlacklisted ? "Remove blacklist" : "Blacklist"}
         buttonType=Secondary
-        leftIcon={CustomIcon(<Icon name="nd-shield" size=14 />)}
         onClick={_ => onBlacklist()}
       />
-      <ACLButton
-        authorization
-        text="Snooze"
-        buttonType=Secondary
-        leftIcon={CustomIcon(<Icon name="clock" size=14 />)}
-        onClick={_ => onSnooze()}
-      />
-      <ACLButton
-        authorization
-        text="Resolve"
-        buttonType=Primary
-        leftIcon={CustomIcon(
-          <Icon name="nd-check-circle-outline" size=14 className="text-white" />,
-        )}
-        onClick={_ => onResolve()}
-      />
+      <ACLButton authorization text="Snooze" buttonType=Secondary onClick={_ => onSnooze()} />
+      <ACLButton authorization text="Resolve" buttonType=Primary onClick={_ => onResolve()} />
     </div>
   }
 }
