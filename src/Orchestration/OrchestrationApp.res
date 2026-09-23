@@ -94,17 +94,17 @@ let make = (~setScreenState) => {
         </FilterContext>
       </AccessControl>
     | list{"offers", ...remainingPath} =>
-      <AccessControl
-        isEnabled={featureFlagDetails.devOffers}
-        authorization={userHasAccess(~groupAccess=OffersView)}>
+      <AccessControl authorization={userHasAccess(~groupAccess=OffersView)}>
         <FilterContext key="Offers" index="Offers">
           <EntityScaffold
             entityName="Offers"
             remainingPath
             access=Access
-            renderList={() => <OffersList />}
+            renderList={() =>
+              featureFlagDetails.devOffers ? <OffersList /> : <OffersHelpers.DemoLanding />}
             renderNewForm={() => <CreateOffer />}
-            renderShow={(id, _) => <ShowOffer id />}
+            renderShow={(id, _) =>
+              featureFlagDetails.devOffers ? <ShowOffer id /> : <OffersHelpers.DemoLanding />}
           />
         </FilterContext>
       </AccessControl>

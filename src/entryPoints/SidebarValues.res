@@ -701,7 +701,6 @@ let offers = userHasResourceAccess => {
 let developers = (
   isDevelopersEnabled,
   ~isWebhooksEnabled,
-  ~isOffersEnabled,
   ~userHasResourceAccess,
   ~checkUserEntity,
   ~paymentLinkThemeConfigurator,
@@ -728,9 +727,7 @@ let developers = (
     if paymentLinkThemeConfigurator {
       defaultDevelopersOptions->Array.push(paymentLinkTheme)
     }
-    if isOffersEnabled {
-      defaultDevelopersOptions->Array.push(offers)
-    }
+    defaultDevelopersOptions->Array.push(offers)
     defaultDevelopersOptions
   }
 

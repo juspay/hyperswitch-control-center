@@ -39,7 +39,6 @@ let useGetHsSidebarValues = () => {
     devUsers,
     devSuperposition,
     paymentLinkOperations,
-    devOffers,
     devAlerts,
   } = featureFlagDetails
   let {
@@ -98,7 +97,6 @@ let useGetHsSidebarValues = () => {
     ...standardModules,
     default->developers(
       ~isWebhooksEnabled=devWebhooks,
-      ~isOffersEnabled=devOffers,
       ~userHasResourceAccess,
       ~checkUserEntity,
       ~paymentLinkThemeConfigurator,
