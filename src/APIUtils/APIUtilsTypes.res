@@ -180,7 +180,7 @@ type offersType = [
   | #NONE
 ]
 
-type alertsType = [#ALERTS_LIST | #ALERTS_DICTIONARY | #NONE]
+type alertsType = [#ALERTS_LIST | #ALERTS_DICTIONARY | #ALERTS_DETAILS | #ALERTS_SAVE | #NONE]
 
 type userType = [
   | #CONNECT_ACCOUNT

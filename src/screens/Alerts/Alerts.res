@@ -1,4 +1,5 @@
 open LogicUtils
+open Typography
 
 @react.component
 let make = () => {
@@ -88,8 +89,11 @@ let make = () => {
       registerRefetch={fn => setAlertsRefetch(_ => fn)}
     />
     <div className="flex flex-col gap-2 mt-3">
-      <div className={`${Typography.heading.sm.semibold} text-nd_gray-800`}>
-        {"Resolved Alerts"->React.string}
+      <div className="flex justify-between items-center">
+        <div className={`${heading.sm.semibold} text-nd_gray-800`}>
+          {"Resolved Alerts"->React.string}
+        </div>
+        <PortalCapture key="ResolvedAlertsCustomizeColumn" name="ResolvedAlertsCustomizeColumn" />
       </div>
       <AlertsTable
         isResolved=true

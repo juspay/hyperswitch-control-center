@@ -1742,6 +1742,16 @@ let useGetURL = () => {
           | Post => Default(`${alertsBaseURL}/getDictionary`)
           | _ => Default("")
           }
+        | #ALERTS_DETAILS =>
+          switch methodType {
+          | Post => Default(`${alertsBaseURL}/getAlertDetails`)
+          | _ => Default("")
+          }
+        | #ALERTS_SAVE =>
+          switch methodType {
+          | Post => Default(`${alertsBaseURL}/updateAlert`)
+          | _ => Default("")
+          }
         | #NONE => Default("")
         }
       /* TO BE CHECKED */

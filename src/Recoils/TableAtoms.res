@@ -26,6 +26,11 @@ let offersMapDefaultCols = Recoil.atom("offersMapDefaultCols", OffersEntity.defa
 
 let alertsMapDefaultCols = Recoil.atom("alertsMapDefaultCols", AlertsEntity.defaultColumns)
 
+let resolvedAlertsMapDefaultCols = Recoil.atom(
+  "resolvedAlertsMapDefaultCols",
+  AlertsEntity.defaultColumns,
+)
+
 let revenueRecoveryMapDefaultCols = Recoil.atom(
   "revenueRecoveryMapDefaultCols",
   RevenueRecoveryEntity.defaultColumns,

@@ -1,11 +1,14 @@
-open LogicUtils
 open AlertsTypes
+open LogicUtils
 open AlertsUtils
+open AlertsHelper
 
 let defaultColumns: array<colType> = [
   AlertDate,
   AlertType,
   AlertProduct,
+  AlertBlacklisted,
+  AlertSnoozeStatus,
   AlertDuration,
   AlertPriority,
   AlertMerchantId,
@@ -17,9 +20,11 @@ let allColumns: array<colType> =
 
 let getHeading = (colType: colType) =>
   switch colType {
-  | AlertDate => Table.makeHeaderInfo(~key="ts_alert", ~title="Date")
+  | AlertDate => Table.makeHeaderInfo(~key="tsAlert", ~title="Date", ~showSort=true)
   | AlertType => Table.makeHeaderInfo(~key="name", ~title="Type")
   | AlertProduct => Table.makeHeaderInfo(~key="product", ~title="Product")
+  | AlertBlacklisted => Table.makeHeaderInfo(~key="isBlacklisted", ~title="Blacklisted")
+  | AlertSnoozeStatus => Table.makeHeaderInfo(~key="isSnoozed", ~title="Snooze Status")
   | AlertDuration => Table.makeHeaderInfo(~key="duration", ~title="Duration")
   | AlertPriority => Table.makeHeaderInfo(~key="priority", ~title="Priority")
   | AlertMerchantId => Table.makeHeaderInfo(~key="merchant_id", ~title="Merchant ID")
@@ -33,9 +38,42 @@ let placeholderIfEmpty = value => value->isNonEmptyString ? value : "-"
 
 let getCell = (alert: alert, colType: colType): Table.cell =>
   switch colType {
-  | AlertDate => Date(alert.tsAlert)
-  | AlertType => EllipsisText(alert.name, "w-fit")
+  | AlertDate =>
+    CustomCell(
+      <TableUtils.DateCell timestamp=alert.tsAlert textAlign={TableUtils.Left} />,
+      alert.tsAlert,
+    )
+  | AlertType => EllipsisText(alert.name, "w-52")
   | AlertProduct => Text(alert.product->placeholderIfEmpty)
+  | AlertBlacklisted => {
+      let text = (alert.isBlacklisted ? Blacklisted : NotBlacklisted :> string)
+      CustomCell(
+        <div className="flex items-center gap-1.5 min-w-max">
+          <TableUtils.LabelCell labelColor={alert.isBlacklisted ? LabelRed : LabelGreen} text />
+          <BlacklistScopeTooltip
+            isBlacklisted=alert.isBlacklisted fields={alert->getBlacklistFields}
+          />
+        </div>,
+        text,
+      )
+    }
+  | AlertSnoozeStatus => {
+      let entry = alert->getSnoozeEntry
+      CustomCell(
+        <div className="flex items-center gap-1.5 min-w-max">
+          <TableUtils.LabelCell
+            labelColor={alert.isSnoozed ? LabelOrange : LabelBlue}
+            text={alert.isSnoozed ? "Snoozed" : "Not Snoozed"}
+          />
+          <SnoozeWindowTooltip
+            hasSnooze=alert.isSnoozed
+            startTime={entry->getString("snooze_start_time", "")}
+            endTime={entry->getString("snooze_end_time", "")}
+          />
+        </div>,
+        alert.isSnoozed ? "true" : "false",
+      )
+    }
   | AlertDuration => EllipsisText(formatDuration(alert.startTime, alert.endTime), "w-fit")
   | AlertPriority =>
     Label({
@@ -69,4 +107,10 @@ let alertsEntity = EntityType.makeEntity(
   ~getHeading,
   ~getCell,
   ~dataKey="",
+  ~getShowLink={
+    alert =>
+      GlobalVars.appendDashboardPath(
+        ~url=`/alerts-merchant-success/${alert.id->encodeURIComponent}`,
+      )
+  },
 )

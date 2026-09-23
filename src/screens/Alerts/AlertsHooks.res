@@ -26,6 +26,36 @@ let useAlertsList = () => {
   }
 }
 
+let useAlertDetails = () => {
+  let getURL = useGetURL()
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
+
+  async (~id) => {
+    try {
+      let url = getURL(~entityName=V1(ALERTS), ~methodType=Post, ~alertsType=#ALERTS_DETAILS)
+      let body = [("id", id->JSON.Encode.string)]->LogicUtils.getJsonFromArrayOfJson
+      let response = await updateDetails(url, body, Post)
+      response->responseToAlertDetail
+    } catch {
+    | Exn.Error(e) => Exn.raiseError(Exn.message(e)->Option.getOr("Failed to fetch alert"))
+    }
+  }
+}
+
+let useSaveAlertConfig = () => {
+  let getURL = useGetURL()
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
+
+  async (~body: JSON.t) => {
+    try {
+      let url = getURL(~entityName=V1(ALERTS), ~methodType=Post, ~alertsType=#ALERTS_SAVE)
+      let _ = await updateDetails(url, body, Post)
+    } catch {
+    | Exn.Error(e) => Exn.raiseError(Exn.message(e)->Option.getOr("Failed to save alert"))
+    }
+  }
+}
+
 let useAlertsDictionary = () => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod(~showErrorToast=false)

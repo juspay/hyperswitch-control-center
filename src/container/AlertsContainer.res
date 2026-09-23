@@ -17,7 +17,7 @@ let make = () => {
           remainingPath
           access=Access
           renderList={() => <Alerts />}
-          renderShow={(id, _) => <ShowAlert id />}
+          renderShow={(id, _) => <ShowAlert id={id->decodeURIComponent} />}
         />
       </FilterContext>
     </AccessControl>
