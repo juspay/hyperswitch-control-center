@@ -104,7 +104,12 @@ let make = () => {
   <div className="min-h-50-vh">
     <div className="flex justify-between items-center">
       <PageUtils.PageHeading title="Payment Link" subTitle="Create and manage payment links" />
-      <CreatePaymentLinkModal refetchList=fetchPaymentLinks />
+      <CreatePaymentLinkModal
+        refetchList={() =>
+          updateExistingKeys(
+            Dict.fromArray([(endTimeFilterKey, getDateFilteredObject().end_time)]),
+          )}
+      />
     </div>
     <div className="flex justify-between gap-3">
       <div className="flex-1">
