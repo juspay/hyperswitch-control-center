@@ -59,6 +59,7 @@ let make = (~setScreenState) => {
       <AccessControl authorization={isCurrentMerchantPlatform ? NoAccess : Access}>
         <TransactionContainer />
       </AccessControl>
+    | list{"alerts-merchant-success", ..._} => <AlertsContainer />
     | list{"analytics-payments"}
     | list{"analytics-refunds"}
     | list{"analytics-disputes"}
@@ -98,7 +99,12 @@ let make = (~setScreenState) => {
         authorization={userHasAccess(~groupAccess=OffersView)}>
         <FilterContext key="Offers" index="Offers">
           <EntityScaffold
-            entityName="Offers" remainingPath access=Access renderList={() => <OffersList />}
+            entityName="Offers"
+            remainingPath
+            access=Access
+            renderList={() => <OffersList />}
+            renderNewForm={() => <CreateOffer />}
+            renderShow={(id, _) => <ShowOffer id />}
           />
         </FilterContext>
       </AccessControl>
