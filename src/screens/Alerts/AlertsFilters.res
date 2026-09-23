@@ -7,8 +7,12 @@ let connectorFilterKey = "connector"
 let paymentMethodFilterKey = "payment_method"
 let stateFilterKey = "state"
 
-let priorityOptions: array<FilterSelectBox.dropdownOption> =
-  ["P0", "P1", "P2", "P3"]->Array.map(value => {FilterSelectBox.label: value, value})
+let priorityOptions: array<
+  FilterSelectBox.dropdownOption,
+> = AlertsTypes.allPriorities->Array.map(priority => {
+  let value = priority->AlertsTypes.priorityToString
+  {FilterSelectBox.label: value, value}
+})
 
 let stateOptions: array<FilterSelectBox.dropdownOption> = [
   {FilterSelectBox.label: "Active", value: "firing"},

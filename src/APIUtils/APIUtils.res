@@ -2100,9 +2100,6 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~isEmbeddableSession=isEmbeddableSession(),
         ~signal?,
       )
-      // Reading headers doesn't touch the body stream, so this can run before
-      // responseHandler's own res->json() without consuming it out from under
-      // it. Callers that don't pass this see no change at all.
       onRawResponse->Option.forEach(fn => fn(res))
       await responseHandler(
         ~url,

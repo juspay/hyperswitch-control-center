@@ -37,7 +37,10 @@ let getCell = (alert: alert, colType: colType): Table.cell =>
   | AlertProduct => Text(alert.product->placeholderIfEmpty)
   | AlertDuration => EllipsisText(formatDuration(alert.startTime, alert.endTime), "w-fit")
   | AlertPriority =>
-    Label({title: alert.priority->placeholderIfEmpty, color: alert.priority->priorityToLabelColor})
+    Label({
+      title: alert.priority->priorityToString,
+      color: alert.priority->priorityToLabelColor,
+    })
   | AlertMerchantId =>
     CustomCell(
       <HelperComponents.CopyTextCustomComp

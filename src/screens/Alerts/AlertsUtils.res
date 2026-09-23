@@ -23,7 +23,7 @@ let itemToObjMapper = (dict: Dict.t<JSON.t>): alert => {
     tsAlert: dict->getString("ts_alert", ""),
     startTime: dict->getString("start_time", ""),
     endTime: dict->getString("end_time", ""),
-    priority: dict->getString("priority", ""),
+    priority: dict->getString("priority", "Unknown")->priorityFromString,
     attribution: dict->getString("attribution", ""),
   }
 }
@@ -104,10 +104,10 @@ let buildListBody = (
   }->getJsonFromArrayOfJson
 }
 
-let priorityToLabelColor = (priority): TableUtils.labelColor =>
+let priorityToLabelColor = (priority: priority): TableUtils.labelColor =>
   switch priority {
-  | "P0" => LabelRed
-  | "P1" => LabelOrange
-  | "P2" => LabelYellow
-  | _ => LabelGray
+  | P0 => LabelRed
+  | P1 => LabelOrange
+  | P2 => LabelYellow
+  | P3 | PriorityUnknown => LabelGray
   }
