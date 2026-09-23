@@ -692,6 +692,7 @@ let paymentLinkTheme = {
 let offers = userHasResourceAccess => {
   SubLevelLink({
     name: "Offers",
+    iconTag: "newTag",
     link: `/offers`,
     access: userHasResourceAccess(~resourceAccess=Offers),
     searchOptions: [("View offers", "")],
