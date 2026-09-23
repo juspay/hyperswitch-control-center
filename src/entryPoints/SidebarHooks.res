@@ -39,7 +39,7 @@ let useGetHsSidebarValues = () => {
     devUsers,
     devSuperposition,
     paymentLinkOperations,
-    devOffers,
+    embedDecisionEngine,
     devAlerts,
   } = featureFlagDetails
   let {
@@ -50,14 +50,19 @@ let useGetHsSidebarValues = () => {
     newAnalytics && isFeatureEnabledForDenyListMerchant(merchantSpecificConfig.newAnalytics)
   let {isCurrentMerchantPlatform, isCurrentMerchantConnected} = OMPSwitchHooks.useOMPType()
 
+  let cutover = DecisionEngineHooks.useDecisionEngineCutover(~embedDecisionEngine)
+  let showDecisionEngine = embedDecisionEngine && cutover->Option.getOr(false)
+
   let standardModules = !isCurrentMerchantPlatform
     ? [
+        showDecisionEngine->decisionEngineRouting(~userHasResourceAccess),
         default->workflow(
           isSurchargeEnabled,
           threedsExemptionRules,
           ~userHasResourceAccess,
           ~isPayoutEnabled=payOut,
           ~userEntity,
+          ~isEmbedDecisionEngineEnabled=showDecisionEngine,
         ),
         devVault->vault(~userHasResourceAccess),
         devAltPaymentMethods->alternatePaymentMethods,
@@ -93,12 +98,12 @@ let useGetHsSidebarValues = () => {
       routingAnalytics,
       ~authenticationAnalyticsFlag=authenticationAnalytics,
       ~userHasResourceAccess,
+      ~isEmbedDecisionEngineEnabled=showDecisionEngine,
     ),
     alertsSection(~isAlertsEnabled={devAlerts && isInternalUser}, ~userHasAccess),
     ...standardModules,
     default->developers(
       ~isWebhooksEnabled=devWebhooks,
-      ~isOffersEnabled=devOffers,
       ~userHasResourceAccess,
       ~checkUserEntity,
       ~paymentLinkThemeConfigurator,

@@ -26,6 +26,7 @@ let make = (~setScreenState) => {
     | list{"configure-pmts", ..._}
     | list{"payment-link-theme", ..._}
     | list{"routing", ..._}
+    | list{"routing-workspace", ..._}
     | list{"payoutrouting", ..._}
     | list{"sdk"}
     | list{"vault-onboarding", ..._}
@@ -94,17 +95,17 @@ let make = (~setScreenState) => {
         </FilterContext>
       </AccessControl>
     | list{"offers", ...remainingPath} =>
-      <AccessControl
-        isEnabled={featureFlagDetails.devOffers}
-        authorization={userHasAccess(~groupAccess=OffersView)}>
+      <AccessControl authorization={userHasAccess(~groupAccess=OffersView)}>
         <FilterContext key="Offers" index="Offers">
           <EntityScaffold
             entityName="Offers"
             remainingPath
             access=Access
-            renderList={() => <OffersList />}
+            renderList={() =>
+              featureFlagDetails.devOffers ? <OffersList /> : <OffersHelpers.DemoLanding />}
             renderNewForm={() => <CreateOffer />}
-            renderShow={(id, _) => <ShowOffer id />}
+            renderShow={(id, _) =>
+              featureFlagDetails.devOffers ? <ShowOffer id /> : <OffersHelpers.DemoLanding />}
           />
         </FilterContext>
       </AccessControl>

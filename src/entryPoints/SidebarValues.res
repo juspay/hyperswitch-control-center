@@ -371,9 +371,14 @@ let disputeAnalytics = (~userHasResourceAccess) => SubLevelLink({
   access: userHasResourceAccess(~resourceAccess=Analytics),
   searchOptions: [("View Dispute analytics", "")],
 })
-let routingAnalytics = (~userHasResourceAccess) => SubLevelLink({
+let routingAnalytics = (
+  ~userHasResourceAccess,
+  ~showDecisionEngineAnalytics=false,
+) => SubLevelLink({
   name: "Routing",
-  link: `/analytics-routing`,
+  link: showDecisionEngineAnalytics
+    ? DecisionEngineUtils.workspacePath(~slug="analytics")
+    : `/analytics-routing`,
   access: userHasResourceAccess(~resourceAccess=Analytics),
   searchOptions: [("View routing analytics", "")],
 })
@@ -399,6 +404,7 @@ let analytics = (
   routingAnalyticsFlag,
   ~authenticationAnalyticsFlag,
   ~userHasResourceAccess,
+  ~isEmbedDecisionEngineEnabled=false,
 ) => {
   let links = [paymentAnalytcis(~userHasResourceAccess), refundAnalytics(~userHasResourceAccess)]
   if authenticationAnalyticsFlag {
@@ -412,8 +418,15 @@ let analytics = (
     links->Array.unshift(newAnalytics(~userHasResourceAccess))
   }
 
-  if routingAnalyticsFlag {
-    links->Array.push(routingAnalytics(~userHasResourceAccess))
+  // Embedding the DE routes this entry to the DE's routing analytics; surface it even if the
+  // native routing-analytics flag is off, since it replaces that page.
+  if routingAnalyticsFlag || isEmbedDecisionEngineEnabled {
+    links->Array.push(
+      routingAnalytics(
+        ~userHasResourceAccess,
+        ~showDecisionEngineAnalytics=isEmbedDecisionEngineEnabled,
+      ),
+    )
   }
 
   isAnalyticsEnabled
@@ -510,6 +523,27 @@ let vault = (isVaultEnabled, ~userHasResourceAccess) => {
     : emptyComponent
 }
 
+let decisionEngineRouting = (showDecisionEngine, ~userHasResourceAccess) => {
+  let decisionEngineLink = (section: DecisionEngineTypes.deSection) => SubLevelLink({
+    name: section.label,
+    link: DecisionEngineUtils.workspacePath(~slug=section.slug),
+    access: userHasResourceAccess(~resourceAccess=Routing),
+    iconTag: ?section.iconTag,
+    searchOptions: section.searchOptions,
+  })
+
+  showDecisionEngine
+    ? Section({
+        name: "Decision Engine Routing",
+        icon: "nd-graph-chart-gantt",
+        showSection: true,
+        links: DecisionEngineUtils.sections
+        ->Array.filter(section => section.inSidebar)
+        ->Array.map(decisionEngineLink),
+      })
+    : emptyComponent
+}
+
 let workflow = (
   isWorkflowEnabled,
   isSurchargeEnabled,
@@ -517,13 +551,14 @@ let workflow = (
   ~userHasResourceAccess,
   ~isPayoutEnabled,
   ~userEntity,
+  ~isEmbedDecisionEngineEnabled=false,
 ) => {
   let routing = routing(userHasResourceAccess)
   let threeDs = threeDs(userHasResourceAccess)
   let payoutRouting = payoutRouting(userHasResourceAccess)
   let surcharge = surcharge(userHasResourceAccess)
 
-  let defaultWorkFlow = [routing]
+  let defaultWorkFlow = isEmbedDecisionEngineEnabled ? [] : [routing]
   let isNotProfileEntity = userEntity !== #Profile
 
   if isSurchargeEnabled && isNotProfileEntity {
@@ -692,6 +727,7 @@ let paymentLinkTheme = {
 let offers = userHasResourceAccess => {
   SubLevelLink({
     name: "Offers",
+    iconTag: "newTag",
     link: `/offers`,
     access: userHasResourceAccess(~resourceAccess=Offers),
     searchOptions: [("View offers", "")],
@@ -701,7 +737,6 @@ let offers = userHasResourceAccess => {
 let developers = (
   isDevelopersEnabled,
   ~isWebhooksEnabled,
-  ~isOffersEnabled,
   ~userHasResourceAccess,
   ~checkUserEntity,
   ~paymentLinkThemeConfigurator,
@@ -728,9 +763,7 @@ let developers = (
     if paymentLinkThemeConfigurator {
       defaultDevelopersOptions->Array.push(paymentLinkTheme)
     }
-    if isOffersEnabled {
-      defaultDevelopersOptions->Array.push(offers)
-    }
+    defaultDevelopersOptions->Array.push(offers)
     defaultDevelopersOptions
   }
 
