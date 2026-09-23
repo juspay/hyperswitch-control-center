@@ -136,20 +136,24 @@ module Card = {
 module ActionButtons = {
   @react.component
   let make = (~isBlacklisted, ~onBlacklist, ~onSnooze, ~onResolve) => {
+    let authorization = AlertsHooks.useAlertsManageAccess()
     <div className="flex gap-2">
-      <Button
+      <ACLButton
+        authorization
         text={isBlacklisted ? "Remove blacklist" : "Blacklist"}
         buttonType=Secondary
         leftIcon={CustomIcon(<Icon name="nd-shield" size=14 />)}
         onClick={_ => onBlacklist()}
       />
-      <Button
+      <ACLButton
+        authorization
         text="Snooze"
         buttonType=Secondary
         leftIcon={CustomIcon(<Icon name="clock" size=14 />)}
         onClick={_ => onSnooze()}
       />
-      <Button
+      <ACLButton
+        authorization
         text="Resolve"
         buttonType=Primary
         leftIcon={CustomIcon(

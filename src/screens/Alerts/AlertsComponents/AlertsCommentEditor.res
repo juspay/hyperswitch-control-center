@@ -11,6 +11,7 @@ let make = (~alert: alert, ~onSaved) => {
   let {email} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
   let (isUnderEdit, setIsUnderEdit) = React.useState(_ => false)
   let (isSaving, setIsSaving) = React.useState(_ => false)
+  let authorization = AlertsHooks.useAlertsManageAccess()
   let comment = alert.metadata->getDictFromJsonObject->getString("comment", "")
 
   let onSubmit = async (values, _) => {
@@ -81,8 +82,8 @@ let make = (~alert: alert, ~onSaved) => {
               : "text-nd_gray-400"}`}>
           {(comment->isNonEmptyString ? comment : "Add a comment")->React.string}
         </span>
-        <Button
-          ariaLabel="Edit comment"
+        <ACLButton
+          authorization
           buttonType=Transparent
           buttonSize=XSmall
           customButtonStyle="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
