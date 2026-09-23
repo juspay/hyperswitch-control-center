@@ -26,6 +26,7 @@ let make = (~setScreenState) => {
     | list{"configure-pmts", ..._}
     | list{"payment-link-theme", ..._}
     | list{"routing", ..._}
+    | list{"routing-workspace", ..._}
     | list{"payoutrouting", ..._}
     | list{"sdk"}
     | list{"vault-onboarding", ..._}

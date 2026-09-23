@@ -8,6 +8,7 @@ let make = () => {
   open HyperswitchAppHelper
 
   let url = RescriptReactRouter.useUrl()
+  let isDecisionEngineWorkspace = url.path->urlPath->DecisionEngineUtils.isWorkspacePath
   let {
     showFeedbackModal,
     setShowFeedbackModal,
@@ -245,7 +246,9 @@ let make = () => {
                     </RenderIf>
                     <WorkflowSideDrawer />
                     <div
-                      className="p-6 md:px-12 md:py-8 flex flex-col gap-8 max-w-fixedPageWidth min-h-full">
+                      className={isDecisionEngineWorkspace
+                        ? "flex flex-col min-h-full"
+                        : "p-6 md:px-12 md:py-8 flex flex-col gap-8 max-w-fixedPageWidth min-h-full"}>
                       <ErrorBoundary>
                         {switch (activeProduct, url.path->urlPath) {
                         // /* DEFAULT HOME */
