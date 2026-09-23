@@ -21,8 +21,12 @@ let make = () => {
   let endTime = filterValueJson->getString(endTimeFilterKey, defaultDate.end_time)
 
   let getAlertsDictionary = async () => {
-    let result = await fetchDictionary()
-    setAlertsDictionary(_ => result)
+    try {
+      let result = await fetchDictionary()
+      setAlertsDictionary(_ => result)
+    } catch {
+    | Exn.Error(_) => ()
+    }
   }
 
   React.useEffect(() => {
