@@ -17,18 +17,6 @@ let eventClassConfigMapper = (json): webhookEventClassConfig => {
   }
 }
 
-let getWebhookEventClassConfigs = () => {
-  try {
-    Window.getWebhookStatusConfig()->Array.map(eventClassConfigMapper)
-  } catch {
-  | Exn.Error(e) => {
-      Js.log2("FAILED TO LOAD WEBHOOK STATUS CONFIG", e)
-      []
-    }
-  | _ => []
-  }
-}
-
 let resourceTitle = config => config.apiField->String.replace("_statuses_enabled", "")->snakeToTitle
 
 let makeStatusField = (config: webhookEventClassConfig) => {

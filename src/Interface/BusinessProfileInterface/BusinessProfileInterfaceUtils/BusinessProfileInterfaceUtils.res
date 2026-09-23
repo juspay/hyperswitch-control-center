@@ -99,11 +99,11 @@ let convertOptionalStringToOptionalJson = optString => {
 }
 
 let convertOptionalStrArrayToOptionalJson = optArray => {
-  let jsonVal = switch optArray {
-  | Some(value) => value->Array.map(JSON.Encode.string)->JSON.Encode.array
-  | None => JSON.Encode.null
-  }
-  Some(jsonVal)
+  Some(
+    optArray->mapOptionOrDefault(JSON.Encode.null, value =>
+      value->Array.map(JSON.Encode.string)->JSON.Encode.array
+    ),
+  )
 }
 
 let convertOptionalIntToOptionalJson = optInt => {

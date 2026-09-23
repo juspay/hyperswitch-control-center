@@ -14,6 +14,18 @@ module EventClassSection = {
   }
 }
 
+let getEventClassConfigs = () => {
+  try {
+    Window.getWebhookStatusConfig()->Array.map(WebhookConfigurationUtils.eventClassConfigMapper)
+  } catch {
+  | Exn.Error(e) => {
+      Js.log2("FAILED TO LOAD WEBHOOK STATUS CONFIG", e)
+      []
+    }
+  | _ => []
+  }
+}
+
 @react.component
 let make = () => {
   open FormRenderer
@@ -29,9 +41,19 @@ let make = () => {
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let (eventClassConfigs, setEventClassConfigs) = React.useState(_ => [])
 
-  let eventClassConfigs = React.useMemo(() => {
-    WebhookConfigurationUtils.getWebhookEventClassConfigs()
+  React.useEffect(() => {
+    let loadEventClassConfigs = async () => {
+      try {
+        let _ = await Window.connectorWasmInit()
+      } catch {
+      | _ => ()
+      }
+      setEventClassConfigs(_ => getEventClassConfigs())
+    }
+    loadEventClassConfigs()->ignore
+    None
   }, [])
 
   let accordion: array<Accordion.accordion> = eventClassConfigs->Array.map(config => {
