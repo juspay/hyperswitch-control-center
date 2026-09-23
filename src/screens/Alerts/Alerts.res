@@ -9,6 +9,7 @@ let make = () => {
   let {filterValueJson, filterValue, updateExistingKeys, reset} = React.useContext(
     FilterContext.filterContext,
   )
+  let showToast = ToastAdapter.useShowToast()
 
   let (alertsDictionary, setAlertsDictionary) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->AlertsUtils.columnarResponseToDictionary
@@ -25,7 +26,7 @@ let make = () => {
       let result = await fetchDictionary()
       setAlertsDictionary(_ => result)
     } catch {
-    | Exn.Error(_) => ()
+    | Exn.Error(_) => showToast(~message="Failed to fetch alerts dictionary", ~toastType=ToastError)
     }
   }
 

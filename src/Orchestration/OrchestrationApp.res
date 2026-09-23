@@ -9,8 +9,11 @@ let make = (~setScreenState) => {
     merchantSpecificConfig,
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let userContext = React.useContext(UserInfoProvider.defaultContext)
+  let {checkUserEntity} = userContext
   let {isCurrentMerchantPlatform, isCurrentMerchantConnected} = OMPSwitchHooks.useOMPType()
+  let {roleId} = userContext.getResolvedUserInfo()
+  let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
 
   {
     switch url.path->HSwitchUtils.urlPath {
@@ -61,7 +64,9 @@ let make = (~setScreenState) => {
         <TransactionContainer />
       </AccessControl>
     | list{"alerts-merchant-success", ..._} =>
-      <AccessControl authorization={userHasAccess(~groupAccess=OperationsView)}>
+      <AccessControl
+        isEnabled={featureFlagDetails.devAlerts && isInternalUser}
+        authorization={userHasAccess(~groupAccess=OperationsView)}>
         <AlertsContainer />
       </AccessControl>
     | list{"analytics-payments"}

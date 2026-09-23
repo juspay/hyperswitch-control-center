@@ -45,7 +45,8 @@ let useAlertsDictionary = () => {
       let response = await updateDetails(url, body, Post)
       response->columnarResponseToDictionary
     } catch {
-    | _ => Dict.make()->JSON.Encode.object->columnarResponseToDictionary
+    | Exn.Error(e) =>
+      Exn.raiseError(Exn.message(e)->Option.getOr("Failed to fetch alerts dictionary"))
     }
   }
 }

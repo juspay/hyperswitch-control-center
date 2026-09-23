@@ -22,7 +22,9 @@ let make = (~startTime, ~endTime, ~filterValueJson, ~filterValue, ~registerRefet
         ~onTotalCount=total => setTotalCount(_ => total),
       )
 
-      if list->isNonEmptyArray {
+      if list->isEmptyArray && offset > 0 {
+        setOffset(_ => 0)
+      } else if list->isNonEmptyArray {
         let padding = Array.make(~length=offset, Dict.make()->AlertsUtils.itemToObjMapper)
         setResolvedAlerts(_ => padding->Array.concat(list))
         setScreenState(_ => PageLoaderWrapper.Success)

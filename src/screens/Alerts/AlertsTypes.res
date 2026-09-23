@@ -8,7 +8,6 @@ type priority =
 
 let allPriorities = [P0, P1, P2, P3]
 
-@unboxed
 type alertState =
   | @as("firing") Firing
   | @as("recovered") Recovered
