@@ -26,6 +26,7 @@ let make = (~setScreenState) => {
     | list{"configure-pmts", ..._}
     | list{"payment-link-theme", ..._}
     | list{"routing", ..._}
+    | list{"routing-workspace", ..._}
     | list{"payoutrouting", ..._}
     | list{"sdk"}
     | list{"vault-onboarding", ..._}
@@ -102,7 +103,12 @@ let make = (~setScreenState) => {
         authorization={userHasAccess(~groupAccess=OffersView)}>
         <FilterContext key="Offers" index="Offers">
           <EntityScaffold
-            entityName="Offers" remainingPath access=Access renderList={() => <OffersList />}
+            entityName="Offers"
+            remainingPath
+            access=Access
+            renderList={() => <OffersList />}
+            renderNewForm={() => <CreateOffer />}
+            renderShow={(id, _) => <ShowOffer id />}
           />
         </FilterContext>
       </AccessControl>

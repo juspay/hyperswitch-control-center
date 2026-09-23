@@ -3,6 +3,41 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.23.0
+
+### Features
+
+- **offers:**
+  - Add offer detail page ([#5569](https://github.com/juspay/hyperswitch-control-center/pull/5569)) ([`3b66c26`](https://github.com/juspay/hyperswitch-control-center/commit/3b66c267265d88f579452fc0230956b92727b296))
+  - Add create offer form ([#5570](https://github.com/juspay/hyperswitch-control-center/pull/5570)) ([`2762ca9`](https://github.com/juspay/hyperswitch-control-center/commit/2762ca9c6fadccf3db9e9dc2c9aec795cb8ebfcf))
+- **revolv3:** Add Support for Apple Pay and Google Pay Predecrypted Flow ([#5558](https://github.com/juspay/hyperswitch-control-center/pull/5558)) ([`2c18b1d`](https://github.com/juspay/hyperswitch-control-center/commit/2c18b1da385bc79cfa9b4da6204bf869cfc50f42))
+- Add MerchantE connector in dashboard ([#5557](https://github.com/juspay/hyperswitch-control-center/pull/5557)) ([`195feca`](https://github.com/juspay/hyperswitch-control-center/commit/195fecaf823b87a02f1a5d6f6352330c0185912f))
+
+### Miscellaneous Tasks
+
+- **alerts:** Scaffold internal alerts section ([#5574](https://github.com/juspay/hyperswitch-control-center/pull/5574)) ([`42f0f16`](https://github.com/juspay/hyperswitch-control-center/commit/42f0f169634645a6ef44caa94405f4a987f97ef0))
+
+**Full Changelog:** [`2026.09.22.0...2026.09.23.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.22.0...2026.09.23.0)
+
+- - -
+
+## 2026.09.22.0
+
+### Features
+
+- **offers:**
+  - Add API layer, euler_url config, and Offers screen scaffolding ([#5552](https://github.com/juspay/hyperswitch-control-center/pull/5552)) ([`06f1a32`](https://github.com/juspay/hyperswitch-control-center/commit/06f1a321940f72a8b8e3a3556a196d1d19071d9a))
+  - Add offers list screen with filters ([#5559](https://github.com/juspay/hyperswitch-control-center/pull/5559)) ([`6aa4d9d`](https://github.com/juspay/hyperswitch-control-center/commit/6aa4d9d59e1960ef58d36663ff4c67286b4ec9e4))
+- Add clone blocklist functionality ([#5568](https://github.com/juspay/hyperswitch-control-center/pull/5568)) ([`e964a0d`](https://github.com/juspay/hyperswitch-control-center/commit/e964a0d7cc8fe69d5b57b8197dcfd43a4a822371))
+
+### Miscellaneous Tasks
+
+- Superposition enhancement changes ([#5564](https://github.com/juspay/hyperswitch-control-center/pull/5564)) ([`3d2c135`](https://github.com/juspay/hyperswitch-control-center/commit/3d2c1357af260f3a5a0d5910483d9d04543a2a86))
+
+**Full Changelog:** [`2026.09.21.0...2026.09.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.21.0...2026.09.22.0)
+
+- - -
+
 ## 2026.09.21.0
 
 ### Features
