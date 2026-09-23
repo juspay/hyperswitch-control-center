@@ -220,6 +220,7 @@ let useGetURL = () => {
     ~userType: userType=#NONE,
     ~userRoleTypes: userRoleTypes=NONE,
     ~hyperswitchReconType: hyperswitchReconType=#NONE,
+    ~alertsType: alertsType=#NONE,
     ~hypersenseType: hypersenseType=#NONE,
     ~queryParameters: option<string>=None,
   ) => {
@@ -235,6 +236,7 @@ let useGetURL = () => {
     let connectorBaseURL = `account/${merchantId}/connectors`
     let recoveryAnalyticsDemo = "revenue-recovery-demo"
     let reconBaseURL = `hyperswitch-recon-engine`
+    let alertsBaseURL = `observability-plane/alert-manager`
 
     let endpoint: endpoint = switch entityName {
     | V1(entityNameType) =>
@@ -1683,6 +1685,20 @@ let useGetURL = () => {
         | #NONE => Default("")
         }
 
+      | ALERTS =>
+        switch alertsType {
+        | #ALERTS_LIST =>
+          switch methodType {
+          | Post => Default(`${alertsBaseURL}/getAlerts`)
+          | _ => Default("")
+          }
+        | #ALERTS_DICTIONARY =>
+          switch methodType {
+          | Post => Default(`${alertsBaseURL}/getDictionary`)
+          | _ => Default("")
+          }
+        | #NONE => Default("")
+        }
       /* TO BE CHECKED */
       | INTEGRATION_DETAILS => Default(`user/get_sandbox_integration_details`)
       | SDK_PAYMENT => Default("payments")
@@ -2020,6 +2036,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
     ~contentType=AuthHooks.Headers("application/json"),
     ~version=UserInfoTypes.V1,
     ~signal=?,
+    ~onRawResponse: option<Fetch.Response.t => unit>=?,
   ) => {
     try {
       let res = await fetchApi(
@@ -2038,6 +2055,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~isEmbeddableSession=isEmbeddableSession(),
         ~signal?,
       )
+      onRawResponse->Option.forEach(fn => fn(res))
       await responseHandler(
         ~url,
         ~res,
