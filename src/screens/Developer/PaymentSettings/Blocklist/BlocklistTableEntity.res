@@ -6,7 +6,6 @@ let defaultColumns = [
   JobId,
   JobType,
   Status,
-  Targets,
   TotalRows,
   SucceededRows,
   FailedRows,
@@ -20,7 +19,6 @@ let getHeading = colType => {
   | JobId => Table.makeHeaderInfo(~key="job_id", ~title="Job ID")
   | JobType => Table.makeHeaderInfo(~key="job_type", ~title="Type")
   | Status => Table.makeHeaderInfo(~key="status", ~title="Status", ~dataType=LabelType)
-  | Targets => Table.makeHeaderInfo(~key="targets", ~title="Targets")
   | TotalRows => Table.makeHeaderInfo(~key="total_rows", ~title="Total Rows")
   | SucceededRows => Table.makeHeaderInfo(~key="succeeded_rows", ~title="Succeeded")
   | FailedRows => Table.makeHeaderInfo(~key="failed_rows", ~title="Failed")
@@ -30,21 +28,11 @@ let getHeading = colType => {
   }
 }
 
-let getCell = (
-  ~onRefreshJob,
-  ~onDownloadExport,
-  ~profileList,
-  job: blocklistBatchJob,
-  colType,
-): Table.cell => {
+let getCell = (~onRefreshJob, ~onDownloadExport, job: blocklistBatchJob, colType): Table.cell => {
   switch colType {
   | JobId => DisplayCopyCell(job.job_id)
   | JobType => Text((job.job_type :> string)->LogicUtils.snakeToTitle)
   | Status => Label({title: job.status->normalizeStatus, color: job.status->statusLabelColor})
-  | Targets =>
-    job->isProfileCloneJob
-      ? Table.CustomCell(<CloneTargetsCell targets=job.clone_targets profileList />, "")
-      : Text("-")
   | TotalRows => Text(job->isProfileCloneJob ? "-" : job.total_rows->Int.toString)
   | SucceededRows =>
     Text(job->isExportJob || job->isProfileCloneJob ? "-" : job.succeeded_rows->Int.toString)
@@ -79,15 +67,13 @@ let getCell = (
   }
 }
 
-let blocklistEntity = (~onRefreshJob, ~onDownloadExport, ~profileList) => {
+let blocklistEntity = (~onRefreshJob, ~onDownloadExport) => {
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=_ => [],
     ~defaultColumns,
     ~getHeading,
-    ~getCell={
-      (job, colType) => getCell(~onRefreshJob, ~onDownloadExport, ~profileList, job, colType)
-    },
+    ~getCell={(job, colType) => getCell(~onRefreshJob, ~onDownloadExport, job, colType)},
     ~dataKey="",
   )
 }

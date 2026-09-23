@@ -4,13 +4,6 @@ type blocklistBatchJobType =
   | @as("profile_clone") ProfileClone
   | @as("unknown") UnknownJobType
 
-type cloneTargetMetadata = {
-  profile_id: string,
-  status: string,
-  processed_rows: int,
-  error_message: option<string>,
-}
-
 type blocklistBatchJob = {
   job_id: string,
   merchant_id: string,
@@ -22,7 +15,6 @@ type blocklistBatchJob = {
   downloadable: bool,
   created_at: string,
   updated_at: string,
-  clone_targets: array<cloneTargetMetadata>,
 }
 
 type blocklistBatchStatus =
@@ -36,7 +28,6 @@ type blocklistBatchColType =
   | JobId
   | JobType
   | Status
-  | Targets
   | TotalRows
   | SucceededRows
   | FailedRows

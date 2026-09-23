@@ -3,7 +3,6 @@ open FormDataUtils
 open LogicUtils
 open APIUtils
 open Typography
-open HyperswitchAtom
 
 @react.component
 let make = () => {
@@ -14,8 +13,7 @@ let make = () => {
   let showToast = ToastAdapter.useShowToast()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let profileList = profileListAtom->Recoil.useRecoilValueFromAtom
+  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let resultsPerPage = 10
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
@@ -389,7 +387,6 @@ let make = () => {
               entity={BlocklistTableEntity.blocklistEntity(
                 ~onRefreshJob=refreshJob,
                 ~onDownloadExport=downloadExport,
-                ~profileList,
               )}
               showSerialNumber=true
               showAutoScroll=true
