@@ -94,6 +94,7 @@ type entityName =
   | THREE_DS_EXEMPTION_DELETE_RULE
   | HYPERSWITCH_RECON
   | OFFERS
+  | ALERTS
   | CHAT_BOT
   | OIDC_AUTHORIZE
   | PAYMENTS_LIST
@@ -178,6 +179,8 @@ type offersType = [
   | #NONE
 ]
 
+type alertsType = [#ALERTS_LIST | #ALERTS_DICTIONARY | #NONE]
+
 type userType = [
   | #CONNECT_ACCOUNT
   | #SIGNUP
@@ -254,6 +257,7 @@ type getUrlTypes = (
   ~userRoleTypes: userRoleTypes=?,
   ~hyperswitchReconType: hyperswitchReconType=?,
   ~offersType: offersType=?,
+  ~alertsType: alertsType=?,
   ~hypersenseType: hypersenseType=?,
   ~queryParameters: option<string>=?,
 ) => string
