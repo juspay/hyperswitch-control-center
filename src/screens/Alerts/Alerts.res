@@ -12,7 +12,7 @@ let make = () => {
   let showToast = ToastAdapter.useShowToast()
 
   let (alertsDictionary, setAlertsDictionary) = React.useState(_ =>
-    Dict.make()->JSON.Encode.object->AlertsUtils.columnarResponseToDictionary
+    Dict.make()->JSON.Encode.object->AlertsUtils.alertsDictionaryResponseMapper
   )
   let (alertsRefetch, setAlertsRefetch) = React.useState(() => () => ())
   let (resolvedRefetch, setResolvedRefetch) = React.useState(() => () => ())
@@ -80,18 +80,25 @@ let make = () => {
       clearFilters={() => reset()}
     />
     <AlertsTable
+      isResolved=false
       startTime
       endTime
       filterValueJson
       filterValue
       registerRefetch={fn => setAlertsRefetch(_ => fn)}
     />
-    <ResolvedAlertsTable
-      startTime
-      endTime
-      filterValueJson
-      filterValue
-      registerRefetch={fn => setResolvedRefetch(_ => fn)}
-    />
+    <div className="flex flex-col gap-2 mt-3">
+      <div className={`${Typography.heading.sm.semibold} text-nd_gray-800`}>
+        {"Resolved Alerts"->React.string}
+      </div>
+      <AlertsTable
+        isResolved=true
+        startTime
+        endTime
+        filterValueJson
+        filterValue
+        registerRefetch={fn => setResolvedRefetch(_ => fn)}
+      />
+    </div>
   </div>
 }

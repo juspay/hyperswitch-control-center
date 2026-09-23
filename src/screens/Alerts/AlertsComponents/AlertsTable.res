@@ -1,7 +1,14 @@
 open LogicUtils
 
 @react.component
-let make = (~startTime, ~endTime, ~filterValueJson, ~filterValue, ~registerRefetch) => {
+let make = (
+  ~isResolved,
+  ~startTime,
+  ~endTime,
+  ~filterValueJson,
+  ~filterValue,
+  ~registerRefetch,
+) => {
   let fetchAlerts = AlertsHooks.useAlertsList()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (alertsData, setAlertsData) = React.useState(_ => [])
@@ -18,7 +25,7 @@ let make = (~startTime, ~endTime, ~filterValueJson, ~filterValue, ~registerRefet
         ~startTime,
         ~endTime,
         ~filterValueJson,
-        ~isResolved=false,
+        ~isResolved,
         ~onTotalCount=total => setTotalCount(_ => total),
       )
 
@@ -46,11 +53,14 @@ let make = (~startTime, ~endTime, ~filterValueJson, ~filterValue, ~registerRefet
     None
   }, (offset, filterValue))
 
-  let customUI = <NoDataFound message="No alerts found" renderType={Painting} />
+  let customUI =
+    <NoDataFound
+      message={isResolved ? "No resolved alerts found" : "No alerts found"} renderType={Painting}
+    />
 
   <PageLoaderWrapper screenState customUI>
     <LoadedTableWithCustomColumns
-      title="Alerts"
+      title={isResolved ? "ResolvedAlerts" : "Alerts"}
       hideTitle=true
       actualData={alertsData->Array.map(Nullable.make)}
       entity=AlertsEntity.alertsEntity
@@ -66,7 +76,7 @@ let make = (~startTime, ~endTime, ~filterValueJson, ~filterValue, ~registerRefet
       sortingBasedOnDisabled=false
       showAutoScroll=true
       isDraggable=true
-      visitedRows={{getId: alert => alert.id, prefix_key: "alert"}}
+      visitedRows={{getId: alert => alert.id, prefix_key: isResolved ? "resolved-alert" : "alert"}}
     />
   </PageLoaderWrapper>
 }

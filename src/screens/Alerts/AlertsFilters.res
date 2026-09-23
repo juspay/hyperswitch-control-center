@@ -19,13 +19,15 @@ let stateOptions: array<dropdownOption> = [
   {label: "Inactive", value: (Recovered :> string)},
 ]
 
-let multiSelectField = (~name, ~label, ~options: array<string>): EntityType.initialFilters<'t> => {
+let multiSelectField = (~name, ~label, ~options: array<dropdownOption>): EntityType.initialFilters<
+  't,
+> => {
   localFilter: None,
   field: FormRenderer.makeFieldInfo(
     ~label,
     ~name,
     ~customInput=InputFields.filterMultiSelectInput(
-      ~options=options->makeOptions,
+      ~options,
       ~buttonText=label,
       ~showSelectionAsChips=false,
       ~searchable=true,
@@ -35,20 +37,7 @@ let multiSelectField = (~name, ~label, ~options: array<string>): EntityType.init
 }
 
 let initialFilters = (~dictionary: alertsDictionary): array<EntityType.initialFilters<'t>> => [
-  {
-    localFilter: None,
-    field: FormRenderer.makeFieldInfo(
-      ~label="Priority",
-      ~name=priorityFilterKey,
-      ~customInput=InputFields.filterMultiSelectInput(
-        ~options=priorityOptions,
-        ~buttonText="Priority",
-        ~showSelectionAsChips=false,
-        ~searchable=true,
-        (),
-      ),
-    ),
-  },
+  multiSelectField(~name=priorityFilterKey, ~label="Priority", ~options=priorityOptions),
   {
     localFilter: None,
     field: FormRenderer.makeFieldInfo(
@@ -66,14 +55,22 @@ let initialFilters = (~dictionary: alertsDictionary): array<EntityType.initialFi
   multiSelectField(
     ~name=merchantIdFilterKey,
     ~label="Merchant ID",
-    ~options=dictionary.merchantIds,
+    ~options=dictionary.merchantIds->makeOptions,
   ),
-  multiSelectField(~name=profileIdFilterKey, ~label="Profile ID", ~options=dictionary.profileIds),
-  multiSelectField(~name=connectorFilterKey, ~label="Connector", ~options=dictionary.connectors),
+  multiSelectField(
+    ~name=profileIdFilterKey,
+    ~label="Profile ID",
+    ~options=dictionary.profileIds->makeOptions,
+  ),
+  multiSelectField(
+    ~name=connectorFilterKey,
+    ~label="Connector",
+    ~options=dictionary.connectors->makeOptions,
+  ),
   multiSelectField(
     ~name=paymentMethodFilterKey,
     ~label="Payment Method",
-    ~options=dictionary.paymentMethods,
+    ~options=dictionary.paymentMethods->makeOptions,
   ),
 ]
 
