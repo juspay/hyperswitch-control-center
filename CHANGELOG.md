@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.23.0
+
+### Features
+
+- **offers:**
+  - Add offer detail page ([#5569](https://github.com/juspay/hyperswitch-control-center/pull/5569)) ([`3b66c26`](https://github.com/juspay/hyperswitch-control-center/commit/3b66c267265d88f579452fc0230956b92727b296))
+  - Add create offer form ([#5570](https://github.com/juspay/hyperswitch-control-center/pull/5570)) ([`2762ca9`](https://github.com/juspay/hyperswitch-control-center/commit/2762ca9c6fadccf3db9e9dc2c9aec795cb8ebfcf))
+- **revolv3:** Add Support for Apple Pay and Google Pay Predecrypted Flow ([#5558](https://github.com/juspay/hyperswitch-control-center/pull/5558)) ([`2c18b1d`](https://github.com/juspay/hyperswitch-control-center/commit/2c18b1da385bc79cfa9b4da6204bf869cfc50f42))
+- Add MerchantE connector in dashboard ([#5557](https://github.com/juspay/hyperswitch-control-center/pull/5557)) ([`195feca`](https://github.com/juspay/hyperswitch-control-center/commit/195fecaf823b87a02f1a5d6f6352330c0185912f))
+
+### Miscellaneous Tasks
+
+- **alerts:** Scaffold internal alerts section ([#5574](https://github.com/juspay/hyperswitch-control-center/pull/5574)) ([`42f0f16`](https://github.com/juspay/hyperswitch-control-center/commit/42f0f169634645a6ef44caa94405f4a987f97ef0))
+
+**Full Changelog:** [`2026.09.22.0...2026.09.23.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.22.0...2026.09.23.0)
+
+- - -
+
 ## 2026.09.22.0
 
 ### Features
