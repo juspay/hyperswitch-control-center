@@ -149,9 +149,9 @@ export class PaymentSettings {
     });
   }
 
-  webhookStatusesDropdown(eventClassLabel: string): Locator {
+  webhookStatusesDropdown(resourceLabel: string): Locator {
     return this.page.getByRole("button", {
-      name: `Select ${eventClassLabel} Statuses`,
+      name: `Select ${resourceLabel} Statuses`,
     });
   }
 

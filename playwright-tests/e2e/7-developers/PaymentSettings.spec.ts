@@ -483,7 +483,7 @@ test.describe("Payment Settings", () => {
       await paymentSettings.fillWebhookUrl(webhookUrl);
 
       await paymentSettings.webhookEventClassAccordion("Payments").click();
-      await paymentSettings.webhookStatusesDropdown("Payments").click();
+      await paymentSettings.webhookStatusesDropdown("Payment").click();
       await paymentSettings.dropdownValueByText("Succeeded").click();
       await page.keyboard.press("Escape");
 
