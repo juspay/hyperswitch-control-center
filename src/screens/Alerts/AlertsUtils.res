@@ -37,7 +37,7 @@ let itemToObjMapper = (dict: Dict.t<JSON.t>): alert => {
   }
 }
 
-let columnarResponseToAlerts = (json: JSON.t): array<alert> =>
+let alertsResponseMapper = (json: JSON.t): array<alert> =>
   json->getArrayFromJson([])->Array.map(row => row->getDictFromJsonObject->itemToObjMapper)
 
 let dictionaryResponseToOptions = (json: JSON.t, key: string): array<string> =>
@@ -50,7 +50,7 @@ let dictionaryResponseToOptions = (json: JSON.t, key: string): array<string> =>
   ->safeParse
   ->getStrArrayFromJson
 
-let columnarResponseToDictionary = (json: JSON.t): alertsDictionary => {
+let alertsDictionaryResponseMapper = (json: JSON.t): alertsDictionary => {
   merchantIds: json->dictionaryResponseToOptions("merchant_id"),
   profileIds: json->dictionaryResponseToOptions("profile_id"),
   connectors: json->dictionaryResponseToOptions("connector"),
@@ -85,7 +85,7 @@ let buildListBody = (
   ~startTime,
   ~endTime,
   ~filterValueJson: Dict.t<JSON.t>,
-  ~isResolved: option<bool>=None,
+  ~isResolved,
 ) => {
   let excludedKeys = [HSAnalyticsUtils.startTimeFilterKey, HSAnalyticsUtils.endTimeFilterKey]
 
@@ -94,23 +94,20 @@ let buildListBody = (
     ->Dict.toArray
     ->Array.filter(((key, _)) => !(excludedKeys->Array.includes(key)))
 
-  let body =
-    [
-      ("limit", limit->Int.toFloat->JSON.Encode.float),
-      ("offset", offset->Int.toFloat->JSON.Encode.float),
-      (
-        "ts_alert",
-        [
-          ("start", startTime->JSON.Encode.string),
-          ("end", endTime->JSON.Encode.string),
-        ]->getJsonFromArrayOfJson,
-      ),
-    ]->Array.concat(extraFilters)
-
-  switch isResolved {
-  | Some(resolved) => body->Array.concat([("is_resolved", resolved->JSON.Encode.bool)])
-  | None => body
-  }->getJsonFromArrayOfJson
+  [
+    ("limit", limit->Int.toFloat->JSON.Encode.float),
+    ("offset", offset->Int.toFloat->JSON.Encode.float),
+    (
+      "ts_alert",
+      [
+        ("start", startTime->JSON.Encode.string),
+        ("end", endTime->JSON.Encode.string),
+      ]->getJsonFromArrayOfJson,
+    ),
+    ("is_resolved", isResolved->JSON.Encode.bool),
+  ]
+  ->Array.concat(extraFilters)
+  ->getJsonFromArrayOfJson
 }
 
 let priorityToLabelColor = (priority: priority): TableUtils.labelColor =>
