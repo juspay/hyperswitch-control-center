@@ -14,18 +14,6 @@ module EventClassSection = {
   }
 }
 
-let getEventClassConfigs = () => {
-  try {
-    Window.getWebhookStatusConfig()->Array.map(WebhookConfigurationUtils.eventClassConfigMapper)
-  } catch {
-  | Exn.Error(e) => {
-      Js.log2("FAILED TO LOAD WEBHOOK STATUS CONFIG", e)
-      []
-    }
-  | _ => []
-  }
-}
-
 @react.component
 let make = () => {
   open FormRenderer
@@ -43,16 +31,20 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (eventClassConfigs, setEventClassConfigs) = React.useState(_ => [])
 
-  React.useEffect(() => {
-    let loadEventClassConfigs = async () => {
-      try {
-        let _ = await Window.connectorWasmInit()
-      } catch {
-      | _ => ()
-      }
-      setEventClassConfigs(_ => getEventClassConfigs())
+  let getEventClassConfigs = async () => {
+    try {
+      let _ = await Window.connectorWasmInit()
+      let configs =
+        Window.getWebhookStatusConfig()->Array.map(WebhookConfigurationUtils.eventClassConfigMapper)
+      setEventClassConfigs(_ => configs)
+    } catch {
+    | Exn.Error(e) => Js.log2("FAILED TO LOAD WEBHOOK STATUS CONFIG", e)
+    | _ => ()
     }
-    loadEventClassConfigs()->ignore
+  }
+
+  React.useEffect(() => {
+    getEventClassConfigs()->ignore
     None
   }, [])
 

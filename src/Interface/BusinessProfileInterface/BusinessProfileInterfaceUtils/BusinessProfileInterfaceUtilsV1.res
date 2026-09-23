@@ -40,22 +40,22 @@ let constructWebhookDetailsRequestObject: _ => webhookDetailsRequest_v1 = webhoo
   ->BusinessProfileInterfaceUtils.convertOptionalStringToOptionalJson,
   payment_statuses_enabled: webhookDetailsDict
   ->getOptionStrArrayFromDict("payment_statuses_enabled")
-  ->BusinessProfileInterfaceUtils.convertOptionalStrArrayToOptionalJson,
+  ->convertOptionalStrArrayToOptionalJson,
   refund_statuses_enabled: webhookDetailsDict
   ->getOptionStrArrayFromDict("refund_statuses_enabled")
-  ->BusinessProfileInterfaceUtils.convertOptionalStrArrayToOptionalJson,
+  ->convertOptionalStrArrayToOptionalJson,
   payout_statuses_enabled: webhookDetailsDict
   ->getOptionStrArrayFromDict("payout_statuses_enabled")
-  ->BusinessProfileInterfaceUtils.convertOptionalStrArrayToOptionalJson,
+  ->convertOptionalStrArrayToOptionalJson,
   dispute_statuses_enabled: webhookDetailsDict
   ->getOptionStrArrayFromDict("dispute_statuses_enabled")
-  ->BusinessProfileInterfaceUtils.convertOptionalStrArrayToOptionalJson,
+  ->convertOptionalStrArrayToOptionalJson,
   mandate_statuses_enabled: webhookDetailsDict
   ->getOptionStrArrayFromDict("mandate_statuses_enabled")
-  ->BusinessProfileInterfaceUtils.convertOptionalStrArrayToOptionalJson,
+  ->convertOptionalStrArrayToOptionalJson,
   invoice_statuses_enabled: webhookDetailsDict
   ->getOptionStrArrayFromDict("invoice_statuses_enabled")
-  ->BusinessProfileInterfaceUtils.convertOptionalStrArrayToOptionalJson,
+  ->convertOptionalStrArrayToOptionalJson,
 }
 
 let mapV1WebhookDetailsToCommonType: webhookDetails_v1 => BusinessProfileInterfaceTypes.webhookDetails = webhookDetailsRecord => {
