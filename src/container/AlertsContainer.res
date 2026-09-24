@@ -6,7 +6,7 @@ let make = () => {
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
 
   switch url.path->HSwitchUtils.urlPath {
-  | list{"alerts-merchant-success", ...remainingPath} =>
+  | list{"alerts-business-insights", ...remainingPath} =>
     // TODO: switch to the dedicated alerts permission once it is added
     <AccessControl isEnabled={devAlerts && isInternalUser} authorization=Access>
       <FilterContext key="Alerts" index="Alerts">

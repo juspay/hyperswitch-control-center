@@ -90,8 +90,8 @@ let paymentLinks = userHasResourceAccess => {
 // TODO: gate with the dedicated alerts permission once it is added
 let alerts = {
   SubLevelLink({
-    name: "Monitoring & Merchant Success",
-    link: `/alerts-merchant-success`,
+    name: "Business Insights",
+    link: `/alerts-business-insights`,
     access: Access,
     searchOptions: [("View alerts", "")],
   })

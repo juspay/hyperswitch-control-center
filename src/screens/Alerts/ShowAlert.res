@@ -43,7 +43,8 @@ let make = (~id: string) => {
           <div>
             <PageUtils.PageHeading title=alert.name customHeadingStyle="mb-2" />
             <BreadCrumbNavigation
-              path=[{title: "Alerts", link: "/alerts-merchant-success"}] currentPageTitle=alert.name
+              path=[{title: "Alerts", link: "/alerts-business-insights"}]
+              currentPageTitle=alert.name
             />
           </div>
           <ActionButtons

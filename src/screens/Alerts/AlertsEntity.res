@@ -110,7 +110,7 @@ let alertsEntity = EntityType.makeEntity(
   ~getShowLink={
     alert =>
       GlobalVars.appendDashboardPath(
-        ~url=`/alerts-merchant-success/${alert.id->encodeURIComponent}`,
+        ~url=`/alerts-business-insights/${alert.id->encodeURIComponent}`,
       )
   },
 )

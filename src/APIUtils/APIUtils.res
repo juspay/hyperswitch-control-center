@@ -246,7 +246,7 @@ let useGetURL = () => {
     let recoveryAnalyticsDemo = "revenue-recovery-demo"
     let reconBaseURL = `hyperswitch-recon-engine`
     let offersBaseURL = `offers/dashboard`
-    let alertsBaseURL = `observability-plane/alert-manager/ui`
+    let alertsBaseURL = `observability-plane/alerts-manager/ui`
 
     let endpoint: endpoint = switch entityName {
     | V1(entityNameType) =>
