@@ -87,23 +87,24 @@ let paymentLinks = userHasResourceAccess => {
   })
 }
 
-let alerts = userHasAccess => {
+// TODO: gate with the dedicated alerts permission once it is added
+let alerts = {
   SubLevelLink({
-    name: "Monitoring & Merchant Success",
-    link: `/alerts-merchant-success`,
-    access: userHasAccess(~groupAccess=OperationsView),
+    name: "Business Insights",
+    link: `/alerts-business-insights`,
+    access: Access,
     searchOptions: [("View alerts", "")],
   })
 }
 
-let alertsSection = (~isAlertsEnabled, ~userHasAccess) =>
+let alertsSection = (~isAlertsEnabled) =>
   isAlertsEnabled
     ? Section({
         name: "Alerts",
         icon: "nd-alerts",
         selectedIcon: "nd-alerts-fill",
-        showSection: userHasAccess(~groupAccess=OperationsView) === Access,
-        links: [alerts(userHasAccess)],
+        showSection: true,
+        links: [alerts],
       })
     : emptyComponent
 

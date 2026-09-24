@@ -69,7 +69,9 @@ let make = (
       offset
       setOffset
       currentFetchCount={alertsData->Array.length}
-      customColumnMapper=TableAtoms.alertsMapDefaultCols
+      customColumnMapper={isResolved
+        ? TableAtoms.resolvedAlertsMapDefaultCols
+        : TableAtoms.alertsMapDefaultCols}
       defaultColumns={AlertsEntity.defaultColumns}
       showSerialNumber=false
       showSerialNumberInCustomizeColumns=false

@@ -93,7 +93,7 @@ let useGetHsSidebarValues = () => {
       ~authenticationAnalyticsFlag=authenticationAnalytics,
       ~userHasResourceAccess,
     ),
-    alertsSection(~isAlertsEnabled={devAlerts && isInternalUser}, ~userHasAccess),
+    alertsSection(~isAlertsEnabled={devAlerts && isInternalUser}),
     ...standardModules,
     default->developers(
       ~isWebhooksEnabled=devWebhooks,
