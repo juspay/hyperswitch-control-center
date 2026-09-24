@@ -8,6 +8,7 @@ let make = (~alert: alert, ~showModal, ~setShowModal, ~onSaved) => {
 
   let saveConfig = AlertsHooks.useSaveAlertConfig()
   let showToast = ToastAdapter.useShowToast()
+  let initialValues = React.useMemo(() => alert->getResolveInitialValues, [alert])
 
   let onSubmit = async (values, _) => {
     try {
@@ -31,7 +32,7 @@ let make = (~alert: alert, ~showModal, ~setShowModal, ~onSaved) => {
     modalHeading="Resolve Alert"
     alignModal="justify-center"
     modalClass="mt-20 overflow-auto max-h-85-vh">
-    <Form onSubmit initialValues={alert->getResolveInitialValues}>
+    <Form onSubmit initialValues>
       <div className="flex flex-col gap-3 p-4 w-100 max-w-full">
         <div className="grid grid-cols-2 gap-3">
           {selectField(

@@ -9,6 +9,7 @@ let make = (~alert: alert, ~onSaved) => {
   let saveConfig = AlertsHooks.useSaveAlertConfig()
   let showToast = ToastAdapter.useShowToast()
   let {email} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
+  let initialValues = React.useMemo2(() => alert->getCommentInitialValues(~email), (alert, email))
   let (isUnderEdit, setIsUnderEdit) = React.useState(_ => false)
   let (isSaving, setIsSaving) = React.useState(_ => false)
   let authorization = AlertsHooks.useAlertsManageAccess()
@@ -34,7 +35,7 @@ let make = (~alert: alert, ~onSaved) => {
 
   <div className="min-w-0 w-full">
     <RenderIf condition=isUnderEdit>
-      <Form onSubmit initialValues={alert->getCommentInitialValues(~email)}>
+      <Form onSubmit initialValues>
         <div className="flex items-center gap-1">
           <div className="flex-1 min-w-0">
             <ReactFinalForm.Field name="metadata.comment">

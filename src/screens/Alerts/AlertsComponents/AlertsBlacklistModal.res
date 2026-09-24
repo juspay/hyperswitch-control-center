@@ -8,19 +8,18 @@ let make = (~alert: alert, ~showModal, ~setShowModal, ~onSaved) => {
 
   let saveConfig = AlertsHooks.useSaveAlertConfig()
   let showToast = ToastAdapter.useShowToast()
+  let initialValues = React.useMemo(() => alert->getBlacklistInitialValues, [alert])
   let (isSaving, setIsSaving) = React.useState(_ => false)
 
   let saveBlacklist = async (~suppression, ~metadata, ~successMessage) => {
     try {
-      let _ = await Promise.all([
-        saveConfig(~body=suppression),
-        saveConfig(
-          ~body=[
-            ("id", alert.id->JSON.Encode.string),
-            ("metadata", metadata->getJsonFromArrayOfJson),
-          ]->getJsonFromArrayOfJson,
-        ),
-      ])
+      await saveConfig(~body=suppression)
+      await saveConfig(
+        ~body=[
+          ("id", alert.id->JSON.Encode.string),
+          ("metadata", metadata->getJsonFromArrayOfJson),
+        ]->getJsonFromArrayOfJson,
+      )
       showToast(~message=successMessage, ~toastType=ToastSuccess)
       setShowModal(_ => false)
       onSaved()
@@ -108,7 +107,7 @@ let make = (~alert: alert, ~showModal, ~setShowModal, ~onSaved) => {
       </div>
     </RenderIf>
     <RenderIf condition={!alert.isBlacklisted}>
-      <Form onSubmit initialValues={alert->getBlacklistInitialValues}>
+      <Form onSubmit initialValues>
         <div className="flex flex-col gap-3 p-4 w-100 max-w-full">
           <div className={`${body.sm.regular} text-nd_gray-500`}>
             {"Pick which fields this rule is blacklisted by. Only merchant/profile affect suppression."->React.string}

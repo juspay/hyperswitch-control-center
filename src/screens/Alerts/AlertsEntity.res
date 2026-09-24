@@ -20,7 +20,7 @@ let allColumns: array<colType> =
 
 let getHeading = (colType: colType) =>
   switch colType {
-  | AlertDate => Table.makeHeaderInfo(~key="tsAlert", ~title="Date", ~showSort=true)
+  | AlertDate => Table.makeHeaderInfo(~key="tsAlert", ~title="Date")
   | AlertType => Table.makeHeaderInfo(~key="name", ~title="Type")
   | AlertProduct => Table.makeHeaderInfo(~key="product", ~title="Product")
   | AlertBlacklisted => Table.makeHeaderInfo(~key="isBlacklisted", ~title="Blacklisted")

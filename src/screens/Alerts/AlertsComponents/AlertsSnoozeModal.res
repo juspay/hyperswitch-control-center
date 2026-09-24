@@ -10,6 +10,7 @@ let make = (~alert: alert, ~showModal, ~setShowModal, ~onSaved) => {
 
   let saveConfig = AlertsHooks.useSaveAlertConfig()
   let showToast = ToastAdapter.useShowToast()
+  let initialValues = React.useMemo(() => alert->getSnoozeInitialValues, [alert])
   let (isSaving, setIsSaving) = React.useState(_ => false)
   let currentEntry = alert->getSnoozeEntry
 
@@ -95,7 +96,7 @@ let make = (~alert: alert, ~showModal, ~setShowModal, ~onSaved) => {
       </div>
     </RenderIf>
     <RenderIf condition={!alert.isSnoozed}>
-      <Form onSubmit initialValues={alert->getSnoozeInitialValues}>
+      <Form onSubmit initialValues>
         <div className="flex flex-col gap-4 p-4 w-133 max-w-full">
           <div className={`${body.sm.regular} text-nd_gray-500`}>
             {"Suppress this alert for one time window."->React.string}
