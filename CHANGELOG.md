@@ -3,6 +3,29 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.24.1
+
+### Features
+
+- **alerts:** Add resolve, blacklist, and snooze actions to alert details ([#5585](https://github.com/juspay/hyperswitch-control-center/pull/5585)) ([`ff7f5e5`](https://github.com/juspay/hyperswitch-control-center/commit/ff7f5e50c1e45ee840fd3787230a451c61bcb5eb))
+
+### Bug Fixes
+
+- **ci:** Stop image-less tags from exhausting the Playwright tag budget ([#5477](https://github.com/juspay/hyperswitch-control-center/pull/5477)) ([`c81589f`](https://github.com/juspay/hyperswitch-control-center/commit/c81589f0340479a53b84f693ecd3666292fb2694))
+- **payment-links:** Refresh end time after creating a payment link ([#5587](https://github.com/juspay/hyperswitch-control-center/pull/5587)) ([`a1b9432`](https://github.com/juspay/hyperswitch-control-center/commit/a1b9432293c4ba9a7052c5470b533fce337f0f1b))
+
+### Testing
+
+- **playwright:** Fix visual specs that assert UI on the wrong view ([#5511](https://github.com/juspay/hyperswitch-control-center/pull/5511)) ([`41d451b`](https://github.com/juspay/hyperswitch-control-center/commit/41d451b64c645269da94ac230d359b67e61847cb))
+
+### Miscellaneous Tasks
+
+- Align blocklist permission gating and show clone job progress ([#5579](https://github.com/juspay/hyperswitch-control-center/pull/5579)) ([`5863af4`](https://github.com/juspay/hyperswitch-control-center/commit/5863af451bbbdacdfbed3055c4eaf57fec7e0930))
+
+**Full Changelog:** [`2026.09.24.0...2026.09.24.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.24.0...2026.09.24.1)
+
+- - -
+
 ## 2026.09.24.0
 
 ### Features
