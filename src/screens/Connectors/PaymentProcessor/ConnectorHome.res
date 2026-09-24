@@ -258,9 +258,11 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true, ~showBreadCrumbWarnin
           <ConnectorCustomMetadata
             setCurrentStep connector setInitialValues initialValues isUpdateFlow
           />
+
+        | WebhookRegistration =>
+          <ConnectorWebhookRegistration connector initialValues setCurrentStep isUpdateFlow />
         | SummaryAndTest
         | Preview =>
-          // <PaymentProcessorSummary />
           <ConnectorPreview
             connectorInfo={initialValues}
             currentStep
