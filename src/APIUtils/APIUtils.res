@@ -245,7 +245,7 @@ let useGetURL = () => {
     let recoveryAnalyticsDemo = "revenue-recovery-demo"
     let reconBaseURL = `hyperswitch-recon-engine`
     let offersBaseURL = `offers/dashboard`
-    let alertsBaseURL = `observability-plane/alert-manager`
+    let alertsBaseURL = `observability-plane/alerts-manager/ui`
 
     let endpoint: endpoint = switch entityName {
     | V1(entityNameType) =>
@@ -1738,6 +1738,16 @@ let useGetURL = () => {
         | #ALERTS_DICTIONARY =>
           switch methodType {
           | Post => Default(`${alertsBaseURL}/getDictionary`)
+          | _ => Default("")
+          }
+        | #ALERTS_DETAILS =>
+          switch methodType {
+          | Post => Default(`${alertsBaseURL}/getAlertDetails`)
+          | _ => Default("")
+          }
+        | #ALERTS_SAVE =>
+          switch methodType {
+          | Post => Default(`${alertsBaseURL}/updateAlert`)
           | _ => Default("")
           }
         | #NONE => Default("")
