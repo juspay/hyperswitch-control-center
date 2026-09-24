@@ -60,15 +60,12 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let _ = await updateBusinessProfile(~body=values, ~shouldTransform=true)
       mixpanelEvent(~eventName="payment_settings_webhook_configuration")
-      showToast(~message=`Webhook configuration updated`, ~toastType=ToastState.ToastSuccess)
+      showToast(~message=`Details updated`, ~toastType=ToastState.ToastSuccess)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => {
         setScreenState(_ => PageLoaderWrapper.Success)
-        showToast(
-          ~message=`Failed to update webhook configuration`,
-          ~toastType=ToastState.ToastError,
-        )
+        showToast(~message=`Failed to update`, ~toastType=ToastState.ToastError)
       }
     }
     Nullable.null
