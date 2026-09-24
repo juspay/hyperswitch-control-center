@@ -13,6 +13,7 @@ let make = () => {
   let (hasNext, setHasNext) = React.useState(_ => false)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (offset, setOffset) = React.useState(_ => 0)
+
   let (filters, setFilters) = React.useState(_ => None)
   let (transactionViewStatuses, setTransactionViewStatuses) = React.useState(_ => [])
 
@@ -128,7 +129,10 @@ let make = () => {
           ->getStrArrayFromJsonArray
         )}
       customLeftView={<SearchBarFilter
-        placeholder="Search for dispute ID" setSearchVal=handleSearchTextChange searchVal=searchText
+        placeholder="Search for dispute ID"
+        setSearchVal=handleSearchTextChange
+        searchVal=searchText
+        sanitizeSearchInput=HSwitchRemoteFilter.sanitizeTransactionId
       />}
       entityName=V1(DISPUTE_FILTERS)
       title="Disputes"
