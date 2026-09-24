@@ -80,14 +80,19 @@ let make = () => {
       updateUrlWith=updateExistingKeys
       clearFilters={() => reset()}
     />
-    <AlertsTable
-      isResolved=false
-      startTime
-      endTime
-      filterValueJson
-      filterValue
-      registerRefetch={fn => setAlertsRefetch(_ => fn)}
-    />
+    <div className="flex flex-col gap-2">
+      <div className={`${heading.sm.semibold} text-nd_gray-800`}>
+        {"Unresolved Alerts"->React.string}
+      </div>
+      <AlertsTable
+        isResolved=false
+        startTime
+        endTime
+        filterValueJson
+        filterValue
+        registerRefetch={fn => setAlertsRefetch(_ => fn)}
+      />
+    </div>
     <div className="flex flex-col gap-2 mt-3">
       <div className="flex justify-between items-center">
         <div className={`${heading.sm.semibold} text-nd_gray-800`}>
