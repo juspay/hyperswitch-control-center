@@ -273,7 +273,7 @@ let selectField = (~label, ~name, ~options) =>
       ~label,
       ~name,
       ~customInput=InputFields.selectInput(
-        ~options,
+        ~options=options->SelectBox.makeOptions,
         ~buttonText="Select",
         ~marginTop="mt-0",
         ~fullLength=true,

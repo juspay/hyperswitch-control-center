@@ -53,18 +53,14 @@ let allInternalClassifications = [
 type actionableStatus =
   | @as("Actionable") Actionable
   | @as("Non-Actionable") NonActionable
-  | @as("Unknown") ActionableUnknown
 
-let allActionableStatuses = [Actionable, NonActionable, ActionableUnknown]
+let allActionableStatuses = [Actionable, NonActionable]
 
-type yesNoUnknown =
-  | @as("Unknown") YnUnknown
-  | @as("Yes") Yn_Yes
-  | @as("No") Yn_No
+type yesNo =
+  | @as("Yes") YesValue
+  | @as("No") NoValue
 
-let allYesNoUnknown = [YnUnknown, Yn_Yes, Yn_No]
-
-type metadataPlaceholder = | @as("Unknown") UnknownPlaceholder
+let binaryOptions = [YesValue, NoValue]
 
 type blacklistStatus =
   | @as("Blacklisted") Blacklisted

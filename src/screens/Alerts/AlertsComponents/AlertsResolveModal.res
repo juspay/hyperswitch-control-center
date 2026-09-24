@@ -38,37 +38,27 @@ let make = (~alert: alert, ~showModal, ~setShowModal, ~onSaved) => {
           {selectField(
             ~label="Resolution",
             ~name="metadata.resolution",
-            ~options=allResolutionStatuses
-            ->Array.map((v): string => (v :> string))
-            ->SelectBox.makeOptions,
+            ~options=allResolutionStatuses->Array.map((v): string => (v :> string)),
           )}
           {selectField(
             ~label="Classification",
             ~name="metadata.is_internal",
-            ~options=allInternalClassifications
-            ->Array.map((v): string => (v :> string))
-            ->SelectBox.makeOptions,
+            ~options=allInternalClassifications->Array.map((v): string => (v :> string)),
           )}
           {selectField(
             ~label="Actionable",
             ~name="metadata.is_actionable",
-            ~options=allActionableStatuses
-            ->Array.map((v): string => (v :> string))
-            ->SelectBox.makeOptions,
+            ~options=allActionableStatuses->Array.map((v): string => (v :> string)),
           )}
           {selectField(
             ~label="Visible to Merchant",
             ~name="metadata.is_visible_to_merchant",
-            ~options=allYesNoUnknown
-            ->Array.map((v): string => (v :> string))
-            ->SelectBox.makeOptions,
+            ~options=binaryOptions->Array.map((v): string => (v :> string)),
           )}
           {selectField(
             ~label="Mimir RCA Helpful",
             ~name="metadata.is_mimir_rca_helpful",
-            ~options=allYesNoUnknown
-            ->Array.map((v): string => (v :> string))
-            ->SelectBox.makeOptions,
+            ~options=binaryOptions->Array.map((v): string => (v :> string)),
           )}
           <FieldRenderer
             field={makeFieldInfo(
@@ -99,7 +89,7 @@ let make = (~alert: alert, ~showModal, ~setShowModal, ~onSaved) => {
               ->getString("is_mimir_rca_correct_comment", "")
               ->isNonEmptyString
             <RenderIf
-              condition={fieldState.input.value->getStringFromJson("") === (Yn_Yes :> string) ||
+              condition={fieldState.input.value->getStringFromJson("") === (YesValue :> string) ||
                 hasRcaComment}>
               <FieldRenderer
                 field={makeFieldInfo(

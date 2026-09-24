@@ -104,9 +104,7 @@ let make = (~id: string) => {
                 ->Array.filterMap(((key, value)) =>
                   value->JSON.Decode.string->Option.map(text => (key, text))
                 )
-                ->Array.filter(((_, text)) =>
-                  text->isNonEmptyString && text !== (AlertsTypes.UnknownPlaceholder :> string)
-                )
+                ->Array.filter(((_, text)) => text->isNonEmptyString && text !== "Unknown")
                 ->Array.map(((key, text)) =>
                   <AlertDetailRow key label={key->snakeToTitle} cell={Text(text)} />
                 )
