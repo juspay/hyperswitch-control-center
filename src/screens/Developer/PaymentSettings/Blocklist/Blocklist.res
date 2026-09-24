@@ -331,7 +331,12 @@ let make = () => {
                   </p>
                 </div>
               </div>
-              <Button text="Choose File" buttonType=Secondary onClick=triggerFilePicker />
+              <ACLButton
+                text="Choose File"
+                buttonType=Secondary
+                onClick=triggerFilePicker
+                authorization={userHasAccess(~groupAccess=AccountManage)}
+              />
             </div>
           </RenderIf>
           <RenderIf condition={selectedFile->Option.isSome}>

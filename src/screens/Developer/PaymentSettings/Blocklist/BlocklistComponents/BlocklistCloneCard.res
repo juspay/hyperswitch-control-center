@@ -12,7 +12,8 @@ let make = (~onCloneStarted) => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchProfileList = ProfileListHook.useFetchProfileList()
-  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let {getCommonSessionDetails, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = getCommonSessionDetails()
   let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
   let (showModal, setShowModal) = React.useState(_ => false)
 
@@ -58,7 +59,7 @@ let make = (~onCloneStarted) => {
     Nullable.null
   }
 
-  <RenderIf condition={targetProfileOptions->isNonEmptyArray}>
+  <>
     <section
       className="max-w-3xl border border-nd_gray-200 rounded-lg bg-white p-5 flex flex-col gap-4">
       <div className="flex items-start justify-between gap-4">
@@ -74,7 +75,9 @@ let make = (~onCloneStarted) => {
           text="Clone Blocklist"
           buttonType=Primary
           onClick=openModal
-          authorization={userHasAccess(~groupAccess=AccountManage)}
+          authorization={checkUserEntity([#Profile])
+            ? NoAccess
+            : userHasAccess(~groupAccess=AccountManage)}
         />
       </div>
     </section>
@@ -138,5 +141,5 @@ let make = (~onCloneStarted) => {
         </Form>
       </Modal>
     </RenderIf>
-  </RenderIf>
+  </>
 }
