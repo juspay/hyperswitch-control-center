@@ -100,7 +100,7 @@ let useGetHsSidebarValues = () => {
       ~userHasResourceAccess,
       ~isEmbedDecisionEngineEnabled=showDecisionEngine,
     ),
-    alertsSection(~isAlertsEnabled={devAlerts && isInternalUser}, ~userHasAccess),
+    alertsSection(~isAlertsEnabled={devAlerts && isInternalUser}),
     ...standardModules,
     default->developers(
       ~isWebhooksEnabled=devWebhooks,

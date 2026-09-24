@@ -15,7 +15,7 @@ let proxy = [
     changeOrigin: true,
   },
   {
-    context: ["/api/observability-plane/alert-manager"],
+    context: ["/api/observability-plane/alerts-manager/ui"],
     pathRewrite: { "^/api": "" },
     target: "",
     changeOrigin: true,
