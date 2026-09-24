@@ -27,8 +27,16 @@ let getIcon = step => {
   }
 }
 
+let requiresProcessorReference = billingConnector =>
+  switch billingConnector->ConnectorUtils.getConnectorNameTypeFromString(
+    ~connectorType=ConnectorTypes.BillingProcessor,
+  ) {
+  | ConnectorTypes.BillingProcessor(CUSTOMBILLING) | ConnectorTypes.UnknownConnector(_) => false
+  | _ => true
+  }
+
 open VerticalStepIndicatorTypes
-let getSections = isLiveMode => {
+let getSections = (~isLiveMode, ~billingConnector) => {
   let platformSubsectionsDefaultSteps = [
     {
       id: (#selectAPlatform: revenueRecoverySubsections :> string),
@@ -40,7 +48,7 @@ let getSections = isLiveMode => {
     },
   ]
 
-  if !isLiveMode {
+  if !isLiveMode || billingConnector->requiresProcessorReference {
     platformSubsectionsDefaultSteps->Array.push({
       id: (#processorSetUp: revenueRecoverySubsections :> string),
       name: #processorSetUp->getStepName,
@@ -93,23 +101,23 @@ let defaultStepBilling = {
 }
 
 open VerticalStepIndicatorUtils
-let getNextStep = (currentStep: step, isLiveMode): option<step> => {
-  findNextStep(getSections(isLiveMode), currentStep)
+let getNextStep = (currentStep: step, ~isLiveMode, ~billingConnector): option<step> => {
+  findNextStep(getSections(~isLiveMode, ~billingConnector), currentStep)
 }
 
-let getPreviousStep = (currentStep: step, isLiveMode): option<step> => {
-  findPreviousStep(getSections(isLiveMode), currentStep)
+let getPreviousStep = (currentStep: step, ~isLiveMode, ~billingConnector): option<step> => {
+  findPreviousStep(getSections(~isLiveMode, ~billingConnector), currentStep)
 }
 
-let onNextClick = (currentStep, setNextStep, isLiveMode) => {
-  switch getNextStep(currentStep, isLiveMode) {
+let onNextClick = (currentStep, setNextStep, ~isLiveMode, ~billingConnector) => {
+  switch getNextStep(currentStep, ~isLiveMode, ~billingConnector) {
   | Some(nextStep) => setNextStep(_ => nextStep)
   | None => ()
   }
 }
 
-let onPreviousClick = (currentStep, setNextStep, isLiveMode) => {
-  switch getPreviousStep(currentStep, isLiveMode) {
+let onPreviousClick = (currentStep, setNextStep, ~isLiveMode, ~billingConnector) => {
+  switch getPreviousStep(currentStep, ~isLiveMode, ~billingConnector) {
   | Some(previousStep) => setNextStep(_ => previousStep)
   | None => ()
   }
@@ -152,7 +160,10 @@ let billingConnectorList: array<connectorTypes> = [
   BillingProcessor(CUSTOMBILLING),
 ]
 
-let prodBillingConnectorList: array<connectorTypes> = [BillingProcessor(CUSTOMBILLING)]
+let prodBillingConnectorList: array<connectorTypes> = [
+  BillingProcessor(CHARGEBEE),
+  BillingProcessor(CUSTOMBILLING),
+]
 
 let billingConnectorProdList: array<BillingProcessorsUtils.optionType> = [
   {
