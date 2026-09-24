@@ -3,6 +3,19 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.24.0
+
+### Features
+
+- **alerts:** Add support to list active and in active alerts ([#5582](https://github.com/juspay/hyperswitch-control-center/pull/5582)) ([`f4db453`](https://github.com/juspay/hyperswitch-control-center/commit/f4db4534d1c7c2d74ca5bf2f7fe7a02b3c65d16a))
+- **offers:** Show offers in demo mode when dev_offers is disabled ([#5580](https://github.com/juspay/hyperswitch-control-center/pull/5580)) ([`c89bb7c`](https://github.com/juspay/hyperswitch-control-center/commit/c89bb7c1c3a657a01a18ef92544fced582c9140c))
+- **routing:** Embed the Decision Engine in a workspace instead of new tabs ([#5553](https://github.com/juspay/hyperswitch-control-center/pull/5553)) ([`605cb8a`](https://github.com/juspay/hyperswitch-control-center/commit/605cb8ac78522cfde4137336ee66dba9c1eb1fab))
+- Decouple dashboard bootstrap from merchant account API ([#4903](https://github.com/juspay/hyperswitch-control-center/pull/4903)) ([`08feba4`](https://github.com/juspay/hyperswitch-control-center/commit/08feba4c4669fe72207f546d7891a9b5cb2147da))
+
+**Full Changelog:** [`2026.09.23.0...2026.09.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.23.0...2026.09.24.0)
+
+- - -
+
 ## 2026.09.23.0
 
 ### Features
