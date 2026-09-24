@@ -6,6 +6,7 @@ window._env_ = {
   },
   endpoints: {
     api_url: "",
-    olap_prefix: "",
+    olap_url: "",
+    euler_url: "",
   },
 };

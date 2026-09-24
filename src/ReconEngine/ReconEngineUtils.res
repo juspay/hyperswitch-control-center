@@ -680,6 +680,12 @@ let stringTransformationRuleMapper = (dict): stringTransformationRule => {
   | "json_extract" => StrJsonExtract(dict->getString("pointer", ""))
   | "regex" =>
     StrRegex({pattern: dict->getString("pattern", ""), group: dict->getOptionInt("group")})
+  | "replace_char" =>
+    StrReplaceChar({
+      fromChar: dict->getString("from", ""),
+      toChar: dict->getOptionString("to"),
+      mode: dict->getDictfromDict("mode")->replaceModeMapper,
+    })
   | _ => UnknownStringTransformationRule
   }
 }

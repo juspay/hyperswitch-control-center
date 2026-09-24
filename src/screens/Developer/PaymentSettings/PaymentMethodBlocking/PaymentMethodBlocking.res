@@ -45,10 +45,7 @@ let make = () => {
     | _ => []
     },
     cardNetworks: try {
-      Window.getVariantValues("card_network")->Array.map((value): SelectBox.dropdownOption => {
-        label: value->camelCaseToTitle,
-        value,
-      })
+      Window.getVariantValues("card_network")->SelectBox.makeOptions
     } catch {
     | _ => []
     },

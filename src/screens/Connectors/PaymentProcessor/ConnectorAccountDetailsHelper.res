@@ -44,6 +44,24 @@ let multiValueInput = (~label, ~fieldName1, ~fieldName2) => {
   )
 }
 
+let pemInput = (~isDisabled) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder) => {
+  let input = {
+    ...input,
+    onBlur: ev => {
+      let value = input.value->LogicUtils.getStringFromJson("")
+      let normalizedValue = value->LogicUtils.getNormalizedPemValue
+      if normalizedValue != value {
+        input.onChange(normalizedValue->Identity.stringToFormReactEvent)
+      }
+      input.onBlur(ev)
+    },
+  }
+  InputFields.multiLineTextInput(~isDisabled, ~rows=Some(6), ~cols=None, ~customClass="w-full")(
+    ~input,
+    ~placeholder,
+  )
+}
+
 let inputField = (
   ~name,
   ~field,
@@ -53,6 +71,7 @@ let inputField = (
   ~checkRequiredFields,
   ~disabled,
   ~description,
+  ~customInput=InputFields.textInput(~isDisabled=disabled),
   ~toolTipPosition: ToolTip.toolTipPosition=ToolTip.Right,
   (),
 ) =>
@@ -61,7 +80,7 @@ let inputField = (
     ~name,
     ~description,
     ~toolTipPosition,
-    ~customInput=InputFields.textInput(~isDisabled=disabled),
+    ~customInput,
     ~placeholder=switch getPlaceholder {
     | Some(fun) => fun(label)
     | None => `Enter ${label->LogicUtils.snakeToTitle}`
@@ -143,6 +162,9 @@ module RenderConnectorInputFields = {
                   ~getPlaceholder,
                   ~disabled,
                   ~description,
+                  ~customInput=connector->checkIsPemField(field)
+                    ? pemInput(~isDisabled=disabled)
+                    : InputFields.textInput(~isDisabled=disabled),
                   (),
                 )
               }}

@@ -34,6 +34,9 @@ let make = (
   ~renderCard=?,
   ~tableLocalFilter=false,
   ~tableheadingClass="",
+  ~tableHeadingTextClass="",
+  ~nonFrozenTableParentClass="",
+  ~loadedTableParentClass="",
   ~tableBorderClass="",
   ~tableDataBorderClass="",
   ~collapseTableRow=false,
@@ -158,6 +161,9 @@ let make = (
     ?setFilterObj
     ?filterIcon
     tableheadingClass
+    tableHeadingTextClass
+    nonFrozenTableParentClass
+    loadedTableParentClass
     tableDataBackgroundClass
     showPagination
     showResultsPerPageSelector

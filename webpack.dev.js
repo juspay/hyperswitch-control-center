@@ -15,6 +15,12 @@ let proxy = [
     changeOrigin: true,
   },
   {
+    context: ["/api/observability-plane/alert-manager"],
+    pathRewrite: { "^/api": "" },
+    target: "",
+    changeOrigin: true,
+  },
+  {
     context: ["/api"],
     target: "http://localhost:8080",
     pathRewrite: { "^/api": "" },

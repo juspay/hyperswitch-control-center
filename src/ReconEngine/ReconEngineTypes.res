@@ -390,6 +390,7 @@ type stringTransformationRule =
   | StrTrim
   | StrJsonExtract(string)
   | StrRegex({pattern: string, group: option<int>})
+  | StrReplaceChar({fromChar: string, toChar: option<string>, mode: replaceMode})
   | UnknownStringTransformationRule
 
 type currencyTransformationRule =

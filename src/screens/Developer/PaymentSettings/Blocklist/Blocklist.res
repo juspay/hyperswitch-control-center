@@ -14,7 +14,7 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let resultsPerPage = 20
+  let resultsPerPage = 10
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->getValueFromDict("Blocklist", defaultValue)
@@ -24,6 +24,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (selectedFile, setSelectedFile) = React.useState(_ => None)
   let (uploadButtonState, setUploadButtonState) = React.useState(_ => Button.Normal)
+  let (exportButtonState, setExportButtonState) = React.useState(_ => Button.Normal)
   let inputRef = React.useRef(Nullable.null)
   let fileSelectionTokenRef = React.useRef(0)
 
@@ -82,6 +83,22 @@ let make = () => {
     } catch {
     | Exn.Error(e) =>
       let errorMessage = Exn.message(e)->Option.getOr("Failed to refresh job status")
+      showToast(~message=errorMessage, ~toastType=ToastError)
+    }
+  }
+
+  let downloadExport = async jobId => {
+    try {
+      let url = getURL(~entityName=V1(BLOCKLIST_BATCH), ~methodType=Get, ~id=Some(jobId))
+      let response = await fetchDetails(url)
+      switch response->getDictFromJsonObject->getString("download_url", "")->getNonEmptyString {
+      | Some(downloadUrl) => downloadUrl->DownloadUtils.downloadFromUrl
+      | None =>
+        showToast(~message="Download link unavailable. Please try again.", ~toastType=ToastError)
+      }
+    } catch {
+    | Exn.Error(e) =>
+      let errorMessage = Exn.message(e)->Option.getOr("Failed to download blocklist export")
       showToast(~message=errorMessage, ~toastType=ToastError)
     }
   }
@@ -184,6 +201,29 @@ let make = () => {
     }
   }
 
+  let generateExport = async () => {
+    try {
+      setExportButtonState(_ => Button.Loading)
+      let url = getURL(~entityName=V1(BLOCKLIST_EXPORT), ~methodType=Post)
+      let response = await updateDetails(url, Dict.make()->JSON.Encode.object, Post)
+      let fileName = response->getDictFromJsonObject->getString("file_name", "")
+      let message =
+        fileName->isNonEmptyString
+          ? `Blocklist export started. File: ${fileName}`
+          : "Blocklist export started."
+      showToast(~message, ~toastType=ToastSuccess)
+      offset === 0 ? await fetchJobs() : setOffset(_ => 0)
+    } catch {
+    | Exn.Error(e) =>
+      let errorMessage =
+        Exn.message(e)
+        ->Option.getOr("Failed to generate blocklist export")
+        ->parseBlocklistErrorMessage
+      showToast(~message=errorMessage, ~toastType=ToastError)
+    }
+    setExportButtonState(_ => Button.Normal)
+  }
+
   let selectedFileName = selectedFile->getFileName
   let selectedFileSize = selectedFile->getFileSize->formatFileSize
 
@@ -192,116 +232,142 @@ let make = () => {
     uploadFile()->ignore
   }
 
+  let onGenerateExportClick = _ => {
+    mixpanelEvent(~eventName="blocklist_generate_export")
+    generateExport()->ignore
+  }
+
+  let onCloneStarted = () => {
+    offset === 0 ? fetchJobs()->ignore : setOffset(_ => 0)
+  }
+
   <>
     <PaymentMethodBlocking />
     <RenderIf condition={featureFlagDetails.devBlocklist}>
       <hr className="my-8 border-nd_gray-150" />
       <PageUtils.PageHeading
         title="Blocklist"
-        subTitle="Upload blocklist CSV files and track batch processing status."
         customTitleStyle={`!${body.lg.semibold} text-nd_gray-700`}
         customSubTitleStyle={`${body.md.medium} text-nd_gray-500`}
         showPermLink=false
       />
       <div className="flex flex-col gap-6">
+        <BlocklistCountSummary />
+        <BlocklistLookupCard />
         <BlocklistEntryCard
           operation=AddBlocklistEntry
           title="Add to Blocklist"
-          description="Block a single card BIN, extended card BIN, or fingerprint."
+          description="Block a single card BIN or fingerprint."
           buttonText="Add Entry"
           eventName="blocklist_add_entry"
         />
         <BlocklistEntryCard
           operation=DeleteBlocklistEntry
           title="Remove from Blocklist"
-          description="Unblock a single card BIN, extended card BIN, or fingerprint."
+          description="Unblock a single card BIN or fingerprint."
           buttonText="Remove Entry"
           eventName="blocklist_delete_entry"
         />
-        <div className="max-w-3xl">
-          <section
-            className="border border-nd_gray-200 rounded-lg bg-white p-5 flex flex-col gap-4">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2 className={`text-nd_gray-700 ${body.lg.semibold}`}>
-                  {"Upload CSV"->React.string}
-                </h2>
-                <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}>
-                  {"Upload a CSV file to create an asynchronous blocklist batch job."->React.string}
-                </p>
-                <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}>
-                  {"This configuration applies to all profiles in the current merchant account."->React.string}
-                </p>
+        <section
+          className="max-w-3xl border border-nd_gray-200 rounded-lg bg-white p-5 flex flex-col gap-4">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className={`text-nd_gray-700 ${body.lg.semibold}`}>
+                {"Upload CSV"->React.string}
+              </h2>
+              <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}>
+                {"Block multiple card BINs or fingerprints at once. Track progress in the jobs table below."->React.string}
+              </p>
+            </div>
+            <Button
+              text="Download Sample File"
+              buttonType=Secondary
+              onClick=downloadSampleFile
+              leftIcon={CustomIcon(<Icon name="nd-download-bar-down" size=15 />)}
+            />
+          </div>
+          <input
+            type_="file"
+            accept=".csv"
+            className="hidden"
+            ref={inputRef->ReactDOM.Ref.domRef}
+            onChange=handleFileChange
+          />
+          <RenderIf condition={selectedFile->Option.isSome}>
+            <div
+              className="border border-nd_gray-200 rounded-lg bg-nd_gray-25 p-4 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3 min-w-0">
+                <Icon name="nd-file" size=28 className="text-nd_gray-600" />
+                <div className="min-w-0">
+                  <p className={`text-nd_gray-700 truncate ${body.md.medium}`}>
+                    {selectedFileName->React.string}
+                  </p>
+                  <p className={`text-nd_gray-400 ${body.sm.medium}`}>
+                    {selectedFileSize->React.string}
+                  </p>
+                </div>
               </div>
-              <Button
-                text="Download Sample File"
-                buttonType=Secondary
-                onClick=downloadSampleFile
-                leftIcon={CustomIcon(<Icon name="nd-download-bar-down" size=15 />)}
+              <Icon
+                name="trash-alt"
+                className="cursor-pointer text-nd_gray-500"
+                onClick=resetSelectedFile
               />
             </div>
-            <input
-              type_="file"
-              accept=".csv"
-              className="hidden"
-              ref={inputRef->ReactDOM.Ref.domRef}
-              onChange=handleFileChange
+          </RenderIf>
+          <RenderIf condition={selectedFile->Option.isNone}>
+            <div
+              className="border border-dashed border-nd_gray-300 rounded-lg bg-nd_gray-25 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-4 min-w-0">
+                <div
+                  className="h-11 w-11 shrink-0 rounded-lg border border-nd_gray-200 bg-white flex items-center justify-center">
+                  <Icon name="nd-upload" size=22 className="text-nd_gray-600" />
+                </div>
+                <div className="min-w-0">
+                  <p className={`text-nd_gray-700 ${body.md.medium}`}>
+                    {`Upload a CSV file with up to ${maxBlocklistCsvDataRowsLabel} rows and a maximum size of ${maxBlocklistCsvFileSizeLabel}`->React.string}
+                  </p>
+                  <p className={`text-nd_gray-500 mt-1 ${body.sm.medium}`}>
+                    {"CSV files above either limit cannot be processed. Only .csv files are supported."->React.string}
+                  </p>
+                </div>
+              </div>
+              <Button text="Choose File" buttonType=Secondary onClick=triggerFilePicker />
+            </div>
+          </RenderIf>
+          <RenderIf condition={selectedFile->Option.isSome}>
+            <div className="flex justify-end">
+              <ACLButton
+                text="Upload"
+                buttonType=Primary
+                onClick=onUploadClick
+                buttonState=uploadButtonState
+                authorization={userHasAccess(~groupAccess=AccountManage)}
+                leftIcon={CustomIcon(<Icon name="nd-upload" size=15 className="text-white" />)}
+              />
+            </div>
+          </RenderIf>
+        </section>
+        <section
+          className="max-w-3xl border border-nd_gray-200 rounded-lg bg-white p-5 flex flex-col gap-4">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className={`text-nd_gray-700 ${body.lg.semibold}`}>
+                {"Generate Export"->React.string}
+              </h2>
+              <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}>
+                {"Export this profile's blocklist as a CSV file. Download it from the jobs table once the export completes."->React.string}
+              </p>
+            </div>
+            <ACLButton
+              text="Generate Export"
+              buttonType=Primary
+              onClick=onGenerateExportClick
+              buttonState=exportButtonState
+              authorization={userHasAccess(~groupAccess=AccountManage)}
             />
-            <RenderIf condition={selectedFile->Option.isSome}>
-              <div
-                className="border border-nd_gray-200 rounded-lg bg-nd_gray-25 p-4 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3 min-w-0">
-                  <Icon name="nd-file" size=28 className="text-nd_gray-600" />
-                  <div className="min-w-0">
-                    <p className={`text-nd_gray-700 truncate ${body.md.medium}`}>
-                      {selectedFileName->React.string}
-                    </p>
-                    <p className={`text-nd_gray-400 ${body.sm.medium}`}>
-                      {selectedFileSize->React.string}
-                    </p>
-                  </div>
-                </div>
-                <Icon
-                  name="trash-alt"
-                  className="cursor-pointer text-nd_gray-500"
-                  onClick=resetSelectedFile
-                />
-              </div>
-            </RenderIf>
-            <RenderIf condition={selectedFile->Option.isNone}>
-              <div
-                className="border border-dashed border-nd_gray-300 rounded-lg bg-nd_gray-25 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-4 min-w-0">
-                  <div
-                    className="h-11 w-11 shrink-0 rounded-lg border border-nd_gray-200 bg-white flex items-center justify-center">
-                    <Icon name="nd-upload" size=22 className="text-nd_gray-600" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className={`text-nd_gray-700 ${body.md.medium}`}>
-                      {`Upload a CSV file with up to ${maxBlocklistCsvDataRowsLabel} rows and a maximum size of ${maxBlocklistCsvFileSizeLabel}`->React.string}
-                    </p>
-                    <p className={`text-nd_gray-500 mt-1 ${body.sm.medium}`}>
-                      {"CSV files above either limit cannot be processed. Only .csv files are supported."->React.string}
-                    </p>
-                  </div>
-                </div>
-                <Button text="Choose File" buttonType=Secondary onClick=triggerFilePicker />
-              </div>
-            </RenderIf>
-            <RenderIf condition={selectedFile->Option.isSome}>
-              <div className="flex justify-end">
-                <ACLButton
-                  text="Upload"
-                  buttonType=Primary
-                  onClick=onUploadClick
-                  buttonState=uploadButtonState
-                  authorization={userHasAccess(~groupAccess=AccountManage)}
-                  leftIcon={CustomIcon(<Icon name="nd-upload" size=15 className="text-white" />)}
-                />
-              </div>
-            </RenderIf>
-          </section>
-        </div>
+          </div>
+        </section>
+        <BlocklistCloneCard onCloneStarted />
         <PageLoaderWrapper screenState sectionHeight="h-60-vh">
           <RenderIf condition={jobs->isNonEmptyArray}>
             <LoadedTable
@@ -313,9 +379,13 @@ let make = () => {
               offset
               setOffset
               currentFetchCount={jobs->Array.length}
-              entity={BlocklistTableEntity.blocklistEntity(~onRefreshJob=refreshJob)}
+              entity={BlocklistTableEntity.blocklistEntity(
+                ~onRefreshJob=refreshJob,
+                ~onDownloadExport=downloadExport,
+              )}
               showSerialNumber=true
               showAutoScroll=true
+              showResultsPerPageSelector=false
             />
           </RenderIf>
         </PageLoaderWrapper>

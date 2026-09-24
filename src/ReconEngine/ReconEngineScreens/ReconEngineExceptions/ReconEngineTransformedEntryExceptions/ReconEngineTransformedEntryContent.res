@@ -163,6 +163,9 @@ let make = (~accountId: string) => {
         customFilterActions=transformationConfigFilter
         refreshFilters=false
       />
+      <PortalCapture
+        key={`${title}CustomizeColumn`} name={`${title}CustomizeColumn`} customStyle="ml-auto mt-4"
+      />
     </div>
   }
 
@@ -180,7 +183,7 @@ let make = (~accountId: string) => {
     <div className="flex-shrink-0 mt-3"> {topFilterUi} </div>
     <PageLoaderWrapper screenState=tableScreenState>
       <div className="flex flex-col gap-4">
-        <LoadedTable
+        <LoadedTableWithCustomColumns
           title
           hideTitle=true
           actualData={processingEntries->Array.map(Nullable.make)}
@@ -188,6 +191,12 @@ let make = (~accountId: string) => {
             `v1/recon-engine/exceptions/transformed-entries`,
             ~authorization=Access,
           )}
+          customColumnMapper=TableAtoms.reconTransformedEntryExceptionsCols
+          defaultColumns=ReconEngineExceptionEntity.processingMandatoryColumns
+          showSerialNumberInCustomizeColumns=false
+          sortingBasedOnDisabled=false
+          isDraggable=true
+          customizeColumnButtonIcon="nd-filter-horizontal"
           resultsPerPage=10
           totalResults={processingEntries->Array.length}
           offset=0

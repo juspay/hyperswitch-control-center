@@ -136,6 +136,7 @@ let getV2Url = (
     }
   /* MERCHANT ACCOUNT DETAILS (Get,Post and Put) */
   | MERCHANT_ACCOUNT => Default(`v2/merchant-accounts/${merchantId}`)
+  | USER_MERCHANT_DETAILS => Default(`v2/users/merchant-details`)
   | USERS =>
     let userUrl = `user`
     switch userType {
@@ -194,11 +195,24 @@ let getV2Url = (
   }
 }
 
+// OLAP endpoints are served from `olap_url`; an empty value falls back to the main API host.
+let getOlapBaseUrl = () =>
+  switch Window.env.olapUrl->getNonEmptyString {
+  | Some(olapUrl) => olapUrl->String.replaceRegExp(%re("/\/+$/"), "")
+  | None => Window.env.apiBaseUrl
+  }
+
+let getEulerBaseUrl = () =>
+  switch Window.env.eulerUrl->getNonEmptyString {
+  | Some(eulerUrl) => eulerUrl->String.replaceRegExp(%re("/\/+$/"), "")
+  | None => Window.env.apiBaseUrl
+  }
+
 let resolveEndpoint = endpoint =>
   switch endpoint {
-  | Olap(path) =>
-    Window.env.olapPrefix->String.length > 0 ? `${Window.env.olapPrefix}/${path}` : path
-  | Default(path) => path
+  | Olap(path) => `${getOlapBaseUrl()}/${path}`
+  | Euler(path) => `${getEulerBaseUrl()}/${path}`
+  | Default(path) => `${Window.env.apiBaseUrl}/${path}`
   }
 
 let useGetURL = () => {
@@ -209,10 +223,13 @@ let useGetURL = () => {
     ~entityName: entityTypeWithVersion,
     ~methodType: Fetch.requestMethod,
     ~id=None,
+    ~idType=None,
     ~connector=None,
     ~userType: userType=#NONE,
     ~userRoleTypes: userRoleTypes=NONE,
     ~hyperswitchReconType: hyperswitchReconType=#NONE,
+    ~offersType: offersType=#NONE,
+    ~alertsType: alertsType=#NONE,
     ~hypersenseType: hypersenseType=#NONE,
     ~queryParameters: option<string>=None,
   ) => {
@@ -228,6 +245,8 @@ let useGetURL = () => {
     let connectorBaseURL = `account/${merchantId}/connectors`
     let recoveryAnalyticsDemo = "revenue-recovery-demo"
     let reconBaseURL = `hyperswitch-recon-engine`
+    let offersBaseURL = `offers/dashboard`
+    let alertsBaseURL = `observability-plane/alert-manager`
 
     let endpoint: endpoint = switch entityName {
     | V1(entityNameType) =>
@@ -261,6 +280,26 @@ let useGetURL = () => {
       | BLOCKLIST =>
         switch methodType {
         | Post | Delete => Default(`blocklist`)
+        | _ => Default("")
+        }
+      | BLOCKLIST_COUNT =>
+        switch (methodType, queryParameters) {
+        | (Get, Some(queryParams)) => Default(`blocklist/count?${queryParams}`)
+        | _ => Default("")
+        }
+      | BLOCKLIST_LOOKUP =>
+        switch (methodType, queryParameters) {
+        | (Get, Some(queryParams)) => Default(`blocklist/lookup?${queryParams}`)
+        | _ => Default("")
+        }
+      | BLOCKLIST_EXPORT =>
+        switch methodType {
+        | Post => Default(`blocklist/export`)
+        | _ => Default("")
+        }
+      | BLOCKLIST_CLONE =>
+        switch methodType {
+        | Post => Default(`blocklist/clone`)
         | _ => Default("")
         }
 
@@ -583,6 +622,21 @@ let useGetURL = () => {
           | _ => Olap(`payouts/list`)
           }
 
+        | _ => Default("")
+        }
+      | PAYMENT_LINKS =>
+        switch methodType {
+        | Post =>
+          switch transactionEntity {
+          | #Merchant => Default(`payment_link/list`)
+          | #Profile => Default(`payment_link/profile/list`)
+          | _ => Default(`payment_link/list`)
+          }
+        | _ => Default("")
+        }
+      | PAYMENT_LINK_CREATE =>
+        switch methodType {
+        | Post => Default(`payments/payment_link`)
         | _ => Default("")
         }
 
@@ -1480,6 +1534,7 @@ let useGetURL = () => {
           | None => Default(`${userUrl}/data`)
           }
         | #MERCHANT_DATA => Default(`${userUrl}/data`)
+        | #MERCHANT_DETAILS => Default(`${userUrl}/merchant_details`)
         | #USER_INFO => Default(userUrl)
 
         // USER GROUP ACCESS
@@ -1646,10 +1701,68 @@ let useGetURL = () => {
         | #NONE => Default("")
         }
 
+      | OFFERS =>
+        switch offersType {
+        | #OFFERS_LIST =>
+          switch methodType {
+          | Post => Euler(`${offersBaseURL}/dashboard-list`)
+          | _ => Default("")
+          }
+        | #OFFER_DETAIL =>
+          switch methodType {
+          | Post => Euler(`${offersBaseURL}/detail`)
+          | _ => Default("")
+          }
+        | #OFFER_STATUS_UPDATE =>
+          switch (methodType, id) {
+          | (Post, Some(offerId)) => Euler(`${offersBaseURL}/${offerId}/status/update`)
+          | _ => Default("")
+          }
+        | #OFFER_DELETE =>
+          switch (methodType, id) {
+          | (Post, Some(offerId)) => Euler(`${offersBaseURL}/${offerId}/delete`)
+          | _ => Default("")
+          }
+        | #OFFER_CREATE =>
+          switch methodType {
+          | Post => Euler(`${offersBaseURL}/create`)
+          | _ => Default("")
+          }
+        | #NONE => Default("")
+        }
+      | ALERTS =>
+        switch alertsType {
+        | #ALERTS_LIST =>
+          switch methodType {
+          | Post => Default(`${alertsBaseURL}/getAlerts`)
+          | _ => Default("")
+          }
+        | #ALERTS_DICTIONARY =>
+          switch methodType {
+          | Post => Default(`${alertsBaseURL}/getDictionary`)
+          | _ => Default("")
+          }
+        | #NONE => Default("")
+        }
       /* TO BE CHECKED */
       | INTEGRATION_DETAILS => Default(`user/get_sandbox_integration_details`)
       | SDK_PAYMENT => Default("payments")
       | CHAT_BOT => Default(`chat/ai/data`)
+
+      /* HIERARCHICAL CONFIGURATIONS (RESOURCES) */
+      | RESOURCES =>
+        switch (methodType, id, idType) {
+        | (Post, _, _) => Default(`hierarchical_resources`)
+        | (Put, Some(resourceId), Some(resourceType)) =>
+          Default(`hierarchical_resources/${resourceType}/${resourceId}`)
+        | _ => Default(`hierarchical_resources`)
+        }
+      | RESOURCES_LIST => Default(`hierarchical_resources/list`)
+      | RESOURCES_LINK =>
+        switch id {
+        | Some(resourceId) => Default(`hierarchical_resources/${resourceId}/link`)
+        | None => Default(`hierarchical_resources`)
+        }
       }
 
     | V2(entityNameForv2) =>
@@ -1665,7 +1778,7 @@ let useGetURL = () => {
       )
     }
 
-    `${Window.env.apiBaseUrl}/${endpoint->resolveEndpoint}`
+    endpoint->resolveEndpoint
   }
   getUrl
 }
@@ -1708,6 +1821,27 @@ let useHandleLogout = (~eventName="user_sign_out") => {
 
 let sessionExpired = ref(false)
 
+let getApiErrorMetaData = (
+  ~url,
+  ~methodType: Fetch.requestMethod,
+  ~statusClass,
+  ~status,
+  ~xRequestId,
+  ~errorCode,
+  ~errorMessage,
+  ~response,
+) =>
+  [
+    ("url", url->JSON.Encode.string),
+    ("status", status->JSON.Encode.int),
+    ("statusClass", statusClass->JSON.Encode.string),
+    ("method", methodType->methodStr->JSON.Encode.string),
+    ("x-request-id", xRequestId->JSON.Encode.string),
+    ("errorCode", errorCode->JSON.Encode.string),
+    ("errorMessage", errorMessage->JSON.Encode.string),
+    ("response", response),
+  ]->getJsonFromArrayOfJson
+
 let responseHandler = async (
   ~url,
   ~res,
@@ -1724,6 +1858,7 @@ let responseHandler = async (
     ~section: string=?,
     ~metadata: JSON.t=?,
   ) => unit,
+  ~methodType: Fetch.requestMethod,
   ~isEmbeddableSession=false,
 ) => {
   let json = try {
@@ -1733,19 +1868,6 @@ let responseHandler = async (
   }
 
   let responseStatus = res->Fetch.Response.status
-  let responseHeaders = res->Fetch.Response.headers
-
-  if responseStatus >= 500 && responseStatus < 600 {
-    let xRequestId = responseHeaders->Fetch.Headers.get("x-request-id")->Option.getOr("")
-    let metaData =
-      [
-        ("url", url->JSON.Encode.string),
-        ("response", json),
-        ("status", responseStatus->JSON.Encode.int),
-        ("x-request-id", xRequestId->JSON.Encode.string),
-      ]->getJsonFromArrayOfJson
-    sendEvent(~eventName="API Error", ~description=Some(responseStatus), ~metadata=metaData)
-  }
 
   let noAccessControlText = "You do not have the required permissions to access this module. Please contact your admin."
 
@@ -1755,6 +1877,27 @@ let responseHandler = async (
   | _ => {
       let errorDict = json->getDictFromJsonObject->getObj("error", Dict.make())
       let errorStringifiedJson = errorDict->JSON.Encode.object->JSON.stringify
+
+      if responseStatus >= 400 && responseStatus < 600 {
+        let is4xx = responseStatus < 500
+        sendEvent(
+          ~eventName=is4xx ? "API Error 4xx" : "API Error",
+          ~description=Some(responseStatus),
+          ~metadata=getApiErrorMetaData(
+            ~url,
+            ~methodType,
+            ~statusClass=is4xx ? "4xx" : "5xx",
+            ~status=responseStatus,
+            ~xRequestId=res
+            ->Fetch.Response.headers
+            ->Fetch.Headers.get("x-request-id")
+            ->Option.getOr(""),
+            ~errorCode=errorDict->getString("code", ""),
+            ~errorMessage=errorDict->getString("message", ""),
+            ~response=json,
+          ),
+        )
+      }
 
       if isPlayground && responseStatus === 403 {
         popUpCallBack()
@@ -1887,6 +2030,7 @@ let useGetMethod = (~showErrorToast=true) => {
         ~popUpCallBack,
         ~handleLogout,
         ~sendEvent,
+        ~methodType=Get,
         ~isEmbeddableSession=isEmbeddableSession(),
       )
     } catch {
@@ -1937,6 +2081,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
     ~contentType=AuthHooks.Headers("application/json"),
     ~version=UserInfoTypes.V1,
     ~signal=?,
+    ~onRawResponse: option<Fetch.Response.t => unit>=?,
   ) => {
     try {
       let res = await fetchApi(
@@ -1955,6 +2100,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~isEmbeddableSession=isEmbeddableSession(),
         ~signal?,
       )
+      onRawResponse->Option.forEach(fn => fn(res))
       await responseHandler(
         ~url,
         ~res,
@@ -1965,6 +2111,7 @@ let useUpdateMethod = (~showErrorToast=true) => {
         ~popUpCallBack,
         ~handleLogout,
         ~sendEvent,
+        ~methodType=method,
         ~isEmbeddableSession=isEmbeddableSession(),
       )
     } catch {

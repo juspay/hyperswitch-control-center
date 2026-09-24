@@ -200,6 +200,8 @@ let connectorList: array<connectorTypes> = [
   Processors(CITIGATE),
   Processors(ILIXIUM),
   Processors(WORLDPAYRAFT),
+  Processors(ETISALAT),
+  Processors(MERCHANTE),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -768,6 +770,14 @@ let worldpayraftInfo = {
   description: "Native RAFT is Worldpay's RESTful API for direct access to their core authorization processing platform, supporting credit, debit, gift card, and alternate payment methods for enterprise merchants in the USA.",
 }
 
+let etisalatInfo = {
+  description: "Etisalat Payment Gateway (EPG) REST is Etisalat's JSON/REST API for UAE merchants, supporting 3DS and non-3DS card payments, capture, reversal, refund, tokenization, and UAE Central Bank processing.",
+}
+
+let merchanteInfo = {
+  description: "MerchantE Payment Gateway is a REST API for credit card processing — authorization, capture, settlement, refunds, voids, and AVS/CVV verification — with tokenized Card-on-File (CIT/MIT) recurring payments and Apple Pay/Google Pay support.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -1061,6 +1071,8 @@ let getConnectorNameString = (connector: processorTypes) =>
   | CITIGATE => "citigate"
   | ILIXIUM => "ilixium"
   | WORLDPAYRAFT => "worldpayraft"
+  | ETISALAT => "etisalat"
+  | MERCHANTE => "merchante"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1279,6 +1291,8 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "citigate" => Processors(CITIGATE)
     | "ilixium" => Processors(ILIXIUM)
     | "worldpayraft" => Processors(WORLDPAYRAFT)
+    | "etisalat" => Processors(ETISALAT)
+    | "merchante" => Processors(MERCHANTE)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1473,6 +1487,8 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | CITIGATE => citigateInfo
   | ILIXIUM => ilixiumInfo
   | WORLDPAYRAFT => worldpayraftInfo
+  | ETISALAT => etisalatInfo
+  | MERCHANTE => merchanteInfo
   }
 }
 
@@ -1865,6 +1881,13 @@ let checkAuthKeyMapRequiredFields = (connector: connectorTypes, fieldName) => {
   switch (connector, fieldName) {
   | (Processors(PAYLOAD), "processing_account_id") => false
   | _ => true
+  }
+}
+
+let checkIsPemField = (connector: connectorTypes, fieldName: string) => {
+  switch (connector, fieldName) {
+  | (PayoutProcessor(DEUTSCHEBANK), "api_secret" | "key2") => true
+  | _ => false
   }
 }
 
@@ -2478,6 +2501,8 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | CITIGATE => "Citigate"
   | ILIXIUM => "Ilixium"
   | WORLDPAYRAFT => "Worldpay Raft"
+  | ETISALAT => "Etisalat"
+  | MERCHANTE => "MerchantE"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -2742,7 +2767,8 @@ let checkIfPredecryptFlowEnabledForApplePay = connector => {
   | Processors(NMI)
   | Processors(STRIPE)
   | Processors(WORLDPAYXML)
-  | Processors(IMERCHANTSOLUTIONS) => true
+  | Processors(IMERCHANTSOLUTIONS)
+  | Processors(REVOLV3) => true
   | _ => false
   }
 }
@@ -2756,7 +2782,8 @@ let checkIfPredecryptFlowEnabledForGooglePay = connector => {
   | Processors(NMI)
   | Processors(STRIPE)
   | Processors(WORLDPAYXML)
-  | Processors(IMERCHANTSOLUTIONS) => true
+  | Processors(IMERCHANTSOLUTIONS)
+  | Processors(REVOLV3) => true
   | _ => false
   }
 }
