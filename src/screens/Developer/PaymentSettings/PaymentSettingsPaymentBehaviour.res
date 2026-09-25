@@ -187,21 +187,6 @@ module ClickToPaySection = {
   }
 }
 
-module WebHook = {
-  @react.component
-  let make = () => {
-    open FormRenderer
-
-    <div className="ml-1 mt-4">
-      <FieldRenderer
-        field={webhookUrl}
-        labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
-        fieldWrapperClass="max-w-xl  "
-      />
-    </div>
-  }
-}
-
 module ReturnUrl = {
   @react.component
   let make = () => {
@@ -553,7 +538,6 @@ let make = () => {
       <ClickToPaySection />
       <hr />
       <ReturnUrl />
-      <WebHook />
       <DesktopRow wrapperClass="mt-8">
         <div className="flex justify-end mt-4 w-full">
           <SubmitButton text="Update" buttonType=Button.Primary buttonSize=Button.Medium />

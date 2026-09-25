@@ -309,6 +309,14 @@ function getCardSegmentTypeValues() {
   }
 }
 
+function getWebhookStatusConfig() {
+  if (wasm) {
+    return wasm.getWebhookStatusConfig();
+  } else {
+    return [];
+  }
+}
+
 const getAccessibleColor = (hex) => {
   let color = hex.replace(/#/g, "");
   // if shorthand notation is passed in
