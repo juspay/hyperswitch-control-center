@@ -184,6 +184,7 @@ type frmTypes =
   | Signifyd
   | Riskifyed
   | CybersourceDecisionManager
+  | SanlamPayshield
 
 type pmAuthenticationProcessorTypes = PLAID
 

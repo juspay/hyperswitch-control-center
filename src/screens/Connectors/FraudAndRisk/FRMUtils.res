@@ -80,22 +80,22 @@ let validate = (~values, ~selectedFRMInfo: ConnectorTypes.integrationFields) => 
   errors->JSON.Encode.object
 }
 
-let parseConnectorConfig = (connector: ConnectorTypes.connectorPayloadCommonType) => {
+let parseConnectorConfig = (
+  connector: ConnectorTypes.connectorPayloadCommonType,
+  ~paymentMethods,
+) => {
   let connectorName = connector.connector_name
   let connectorPaymentMethods = connector.payment_methods_enabled
   let pmDict = Dict.make()
 
-  let sortedArray = connectorPaymentMethods->Array.toSorted((a, b) => {
-    if a.payment_method_type->getPaymentMethodFromString == Card {
-      -1.
-    } else if b.payment_method_type->getPaymentMethodFromString == Card {
-      1.
-    } else {
-      0.
-    }
-  })
+  // Only the methods this FRM player can screen make it into the config, so an empty
+  // dict reliably means "nothing to toggle on for this connector".
+  let supportedPaymentMethods =
+    connectorPaymentMethods->Array.filter(item =>
+      paymentMethods->Array.includes(item.payment_method_type->getPaymentMethodFromString)
+    )
 
-  sortedArray->Array.forEach(item => {
+  supportedPaymentMethods->Array.forEach(item => {
     let pmTypes =
       item.payment_method_subtypes
       ->Array.map(item => item.payment_method_subtype)
@@ -137,22 +137,54 @@ let updateConfigDict = (configDict, connectorName, paymentMethodsDict) => {
 
 let filterConnectorArrayByPaymentMethod = (
   ~connectorList: array<ConnectorTypes.connectorPayloadCommonType>,
+  ~paymentMethods,
 ) => {
   let filteredArray = connectorList->Array.filter(connector => {
     connector.payment_methods_enabled->Array.some(item =>
-      item.payment_method_type->getPaymentMethodFromString == Card
+      paymentMethods->Array.includes(item.payment_method_type->getPaymentMethodFromString)
     )
   })
   filteredArray
 }
 
-let getConnectorConfig = (connectors: array<ConnectorTypes.connectorPayloadCommonType>) => {
-  let configDict = Dict.make()
-  let filteredConnectors = filterConnectorArrayByPaymentMethod(~connectorList=connectors)
-  filteredConnectors->Array.forEach(connector => {
-    let (connectorName, paymentMethodsDict) = connector->parseConnectorConfig
-    updateConfigDict(configDict, connectorName, paymentMethodsDict)
+// The already-configured connectors an FRM player is allowed to screen, one group per
+// connector category its compatibility declares, each carrying the payment methods the
+// player screens on that category.
+let getEligibleConnectorsByCategory = (
+  ~compatibility: frmCompatibility,
+  ~paymentConnectorList,
+  ~payoutConnectorList,
+) => {
+  compatibility.screenableMethodsByCategory->Array.map(((category, paymentMethods)) => {
+    let connectorList = switch category {
+    | ConnectorTypes.PayoutProcessor => payoutConnectorList
+    | _ => paymentConnectorList
+    }
+    (filterConnectorArrayByPaymentMethod(~connectorList, ~paymentMethods), paymentMethods)
   })
+}
+
+let getEligibleConnectorList = (~compatibility, ~paymentConnectorList, ~payoutConnectorList) => {
+  getEligibleConnectorsByCategory(
+    ~compatibility,
+    ~paymentConnectorList,
+    ~payoutConnectorList,
+  )->Array.reduce([], (acc, (connectors, _)) => acc->Array.concat(connectors))
+}
+
+let getConnectorConfig = (
+  connectorsByCategory: array<(
+    array<ConnectorTypes.connectorPayloadCommonType>,
+    array<ConnectorTypes.paymentMethod>,
+  )>,
+) => {
+  let configDict = Dict.make()
+  connectorsByCategory->Array.forEach(((connectors, paymentMethods)) =>
+    connectors->Array.forEach(connector => {
+      let (connectorName, paymentMethodsDict) = connector->parseConnectorConfig(~paymentMethods)
+      updateConfigDict(configDict, connectorName, paymentMethodsDict)
+    })
+  )
 
   configDict
 }
@@ -180,13 +212,14 @@ let createAllOptions = connectorsConfig => {
   })
 }
 
+// `paymentMethodsDict` only ever holds the methods the player can screen - the filtering
+// happens once, in `parseConnectorConfig`.
 let generateFRMPaymentMethodsConfig = (paymentMethodsDict): array<
   ConnectorTypes.frm_payment_method,
 > => {
   open ConnectorTypes
   paymentMethodsDict
   ->Dict.keysToArray
-  ->Array.filter(item => item->getPaymentMethodFromString == Card)
   ->Array.map(paymentMethodName => {
     {
       payment_method: paymentMethodName,

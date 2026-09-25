@@ -83,14 +83,17 @@ let make = () => {
   let (filteredFRMData, setFilteredFRMData) = React.useState(_ => [])
   let (offset, setOffset) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
-  let connectorList = ConnectorListInterface.useFilteredConnectorList(
+  let paymentConnectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=PaymentProcessor,
+  )
+  let payoutConnectorList = ConnectorListInterface.useFilteredConnectorList(
+    ~retainInList=PayoutProcessor,
   )
   let frmConnectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=PaymentVas)
 
   let customUI =
     <BlurredTableComponent
-      infoText="No connectors configured yet. Try connecting a connector with card enabled as a payment method."
+      infoText="No compatible connectors configured yet. Try connecting a payment connector with card or bank debit enabled, or a payout connector with bank transfer enabled."
       buttonText="Take me to connectors"
       onClickElement={React.null}
       onClickUrl="connectors"
@@ -98,11 +101,20 @@ let make = () => {
       moduleSubtitle="Connect and configure processors to screen transactions and mitigate fraud"
     />
 
+  // The page is usable as soon as a single player has something it can screen - each
+  // player declares which connector categories and payment methods it supports.
+  let hasScreenableConnector =
+    FRMInfo.frmList->Array.some(frm =>
+      FRMUtils.getEligibleConnectorList(
+        ~compatibility=frm->FRMInfo.getFRMCompatibility,
+        ~paymentConnectorList,
+        ~payoutConnectorList,
+      )->Array.length > 0
+    )
+
   let getConnectorList = async _ => {
     try {
-      let filteredArrayLength =
-        FRMUtils.filterConnectorArrayByPaymentMethod(~connectorList)->Array.length
-      if filteredArrayLength > 0 {
+      if hasScreenableConnector {
         setConfiguredFRMs(_ => frmConnectorList)
         setFilteredFRMData(_ => frmConnectorList->Array.map(Nullable.make))
         setScreenState(_ => Success)
