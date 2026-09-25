@@ -53,9 +53,9 @@ let make = (
   let {updateExistingKeys, removeKeys, filterValueJson, filterValue, filterKeys, setfilterKeys} =
     FilterContext.filterContext->React.useContext
   let {devClickhouseAggregate} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
   let isClickhouseAggregateEnabled =
-    devClickhouseAggregate && userHasAccess(~groupAccess=AnalyticsView) === Access
+    devClickhouseAggregate && userHasResourceAccess(~resourceAccess=Analytics) === Access
   let (aggregateResponse, setAggregateResponse) = React.useState(_ =>
     Dict.make()->JSON.Encode.object
   )
