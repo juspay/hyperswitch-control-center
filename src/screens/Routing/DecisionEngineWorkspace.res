@@ -18,7 +18,9 @@ let make = () => {
   let mintState = React.useRef(({seq: 0, at: 0.}: DecisionEngineTypes.mintState))
   let skipNextMint = React.useRef(false)
 
-  let sectionSlug = url.path->sectionSlugFromPath
+  let sectionSlugOpt = url.path->sectionSlugFromPathOpt
+  let sectionSlug = sectionSlugOpt->Option.getOr(defaultSection.slug)
+  let lastSectionSlug = React.useRef(defaultSection.slug)
   let ruleId = url.search->getDictFromUrlSearchParams->Dict.get("rule")->Option.getOr("")
   let section = sections->Array.find(s => s.slug === sectionSlug)->Option.getOr(defaultSection)
 
@@ -61,6 +63,15 @@ let make = () => {
       }
     }
   }
+
+  // An OMP switch truncates the path to /dashboard/routing-workspace, dropping the user onto Rule-Based.
+  React.useEffect(() => {
+    switch sectionSlugOpt {
+    | Some(slug) => lastSectionSlug.current = slug
+    | None => RescriptReactRouter.replace(workspaceUrl(~slug=lastSectionSlug.current))
+    }
+    None
+  }, [sectionSlug])
 
   React.useEffect(() => {
     if skipNextMint.current {
@@ -108,10 +119,8 @@ let make = () => {
   <div className="flex flex-col w-full h-[calc(100vh-4.75rem)]">
     <div
       className="flex items-center justify-between px-5 h-12 flex-shrink-0 border-b border-nd_gray-200 bg-white">
-      <BreadCrumbNavigation
-        path=[{title: "Smart Routing Configurations", link: "/routing"}]
-        currentPageTitle={section.label}
-      />
+      // No parent crumb: a cut-over profile should not be sent back to the legacy routing screen.
+      <BreadCrumbNavigation currentPageTitle={section.label} />
       <Button
         text="Open in new tab"
         buttonType={Secondary}

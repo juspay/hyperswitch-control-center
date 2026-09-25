@@ -25,6 +25,12 @@ let businessProfileFromIdAtomInterface = Recoil.atom(
 
 let themeListAtom: Recoil.recoilAtom<JSON.t> = Recoil.atom("themeListAtom", JSON.Encode.null)
 
+// Cutover probe result, shared across the live SidebarHooks instances and keyed "<merchantId>:<profileId>".
+let decisionEngineCutoverAtom: Recoil.recoilAtom<option<(string, option<bool>)>> = Recoil.atom(
+  "decisionEngineCutoverAtom",
+  None,
+)
+
 let enumVariantAtom = Recoil.atom("enumVariantDetails", "")
 
 let featureFlagAtom = FeatureFlagAtom.featureFlagAtom

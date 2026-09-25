@@ -1,26 +1,45 @@
 open APIUtils
 
+// Several live instances (sidebar, global search, search results); the ref collapses them to one probe per key.
+let probedKey = ref("")
+
 let useDecisionEngineCutover = (~embedDecisionEngine) => {
-  let (cutover, setCutover) = React.useState(_ => None)
-  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let (cutoverState, setCutoverState) = Recoil.useRecoilState(
+    HyperswitchAtom.decisionEngineCutoverAtom,
+  )
+  let {merchantId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
   let checkRoutingEntryCutover = RoutingUtils.useCheckRoutingEntryCutover()
 
+  let key = `${merchantId}:${profileId}`
+  // Probing before the session names a merchant and profile can only 400.
+  let sessionReady =
+    merchantId->LogicUtils.isNonEmptyString && profileId->LogicUtils.isNonEmptyString
+
   let syncCutover = async () => {
-    setCutover(_ => None)
     let result = await checkRoutingEntryCutover()
-    setCutover(_ => result)
+    setCutoverState(_ => Some((key, result)))
   }
 
   React.useEffect(() => {
-    if embedDecisionEngine {
-      syncCutover()->ignore
-    } else {
-      setCutover(_ => Some(false))
+    if probedKey.contents !== key {
+      if !embedDecisionEngine {
+        probedKey := key
+        setCutoverState(_ => Some((key, Some(false))))
+      } else if sessionReady {
+        probedKey := key
+        syncCutover()->ignore
+      }
     }
     None
-  }, (profileId, embedDecisionEngine))
+  }, (key, embedDecisionEngine, sessionReady))
 
-  cutover
+  // A stale key reads as None, so an OMP switch never shows the previous profile's answer.
+  switch cutoverState {
+  | Some((storedKey, value)) if storedKey === key => value
+  | _ => None
+  }
 }
 
 let useDecisionEngineNewTab = () => {
