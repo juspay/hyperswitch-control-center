@@ -274,9 +274,9 @@ let buildCreateBody = (~merchantId, formValues: offerFormValues) => {
     (
       "ui_configs",
       [
-        ("auto_apply", false->JSON.Encode.bool),
-        ("should_validate", true->JSON.Encode.bool),
-        ("is_hidden", false->JSON.Encode.bool),
+        ("auto_apply", "false"->JSON.Encode.string),
+        ("should_validate", "true"->JSON.Encode.string),
+        ("is_hidden", "false"->JSON.Encode.string),
       ]->getJsonFromArrayOfJson,
     ),
     ("start_time", formValues.startTime->JSON.Encode.string),
