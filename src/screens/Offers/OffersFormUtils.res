@@ -168,21 +168,21 @@ let validateOfferForm = values => {
   ->getJsonFromArrayOfJson
 }
 
-let buildCounter = (~scope, ~valueType: counterValueType, ~value: JSON.t, ~resetPeriod) =>
+let buildCounter = (~scope, ~valueType: counterValueType, ~value, ~resetPeriod) =>
   [
     ("type", scope->counterDimensions->getJsonFromArrayOfString),
     ("value_type", (valueType :> string)->JSON.Encode.string),
     ("operator", "MAX"->JSON.Encode.string),
-    ("value", value),
-    ("reset_period", resetPeriod->JSON.Encode.int),
+    ("value", value->JSON.Encode.string),
+    ("reset_period", resetPeriod->Int.toString->JSON.Encode.string),
     ("reset_frequency_unit", "SECOND"->JSON.Encode.string),
   ]->getJsonFromArrayOfJson
 
 let buildAmountCounter = (~scope, ~resetPeriod, amount) =>
-  buildCounter(~scope, ~valueType=AmountLimit, ~value=amount->JSON.Encode.float, ~resetPeriod)
+  buildCounter(~scope, ~valueType=AmountLimit, ~value=amount->Float.toString, ~resetPeriod)
 
 let buildCountCounter = (~scope, ~resetPeriod, count) =>
-  buildCounter(~scope, ~valueType=CountLimit, ~value=count->JSON.Encode.int, ~resetPeriod)
+  buildCounter(~scope, ~valueType=CountLimit, ~value=count->Int.toString, ~resetPeriod)
 
 let offerDurationInSeconds = (~startTime, ~endTime) =>
   ((endTime->Date.fromString->Date.getTime -. startTime->Date.fromString->Date.getTime) /. 1000.0)
@@ -225,9 +225,12 @@ let buildCreateBody = (~merchantId, formValues: offerFormValues) => {
   let currency =
     [
       ("name", formValues.currency->JSON.Encode.string),
-      ("min_order_amount", formValues.minOrderAmount->JSON.Encode.float),
+      ("min_order_amount", formValues.minOrderAmount->Float.toString->JSON.Encode.string),
     ]->Dict.fromArray
-  currency->setOptionFloat("max_order_amount", formValues.maxOrderAmount)
+  currency->setOptionString(
+    "max_order_amount",
+    formValues.maxOrderAmount->Option.map(Float.toString),
+  )
 
   let benefit =
     [
@@ -274,9 +277,9 @@ let buildCreateBody = (~merchantId, formValues: offerFormValues) => {
     (
       "ui_configs",
       [
-        ("auto_apply", false->JSON.Encode.bool),
-        ("should_validate", true->JSON.Encode.bool),
-        ("is_hidden", false->JSON.Encode.bool),
+        ("auto_apply", "false"->JSON.Encode.string),
+        ("should_validate", "true"->JSON.Encode.string),
+        ("is_hidden", "false"->JSON.Encode.string),
       ]->getJsonFromArrayOfJson,
     ),
     ("start_time", formValues.startTime->JSON.Encode.string),
