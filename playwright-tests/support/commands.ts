@@ -148,11 +148,99 @@ export async function createAPIKey(
   return body.api_key as string;
 }
 
+// The payment methods a dummy connector can be stood up with. FRM players are only
+// offered the connectors that expose a method they can screen, so a test has to pick
+// the one its player supports.
+export type DummyPaymentMethod = "card" | "bank_debit" | "bank_transfer";
+
+const DUMMY_PAYMENT_METHODS_ENABLED: Record<DummyPaymentMethod, unknown[]> = {
+  card: [
+    {
+      payment_method: "card",
+      payment_method_types: [
+        {
+          payment_method_type: "debit",
+          card_networks: ["Mastercard"],
+          minimum_amount: 0,
+          maximum_amount: 68607706,
+          recurring_enabled: true,
+          installment_payment_enabled: false,
+        },
+        {
+          payment_method_type: "debit",
+          card_networks: ["Visa"],
+          minimum_amount: 0,
+          maximum_amount: 68607706,
+          recurring_enabled: true,
+          installment_payment_enabled: false,
+        },
+      ],
+    },
+    {
+      payment_method: "card",
+      payment_method_types: [
+        {
+          payment_method_type: "credit",
+          card_networks: ["Mastercard"],
+          minimum_amount: 0,
+          maximum_amount: 68607706,
+          recurring_enabled: true,
+          installment_payment_enabled: false,
+        },
+        {
+          payment_method_type: "credit",
+          card_networks: ["Visa"],
+          minimum_amount: 0,
+          maximum_amount: 68607706,
+          recurring_enabled: true,
+          installment_payment_enabled: false,
+        },
+      ],
+    },
+  ],
+  bank_transfer: [
+    {
+      payment_method: "bank_transfer",
+      payment_method_types: [
+        {
+          payment_method_type: "ach",
+          minimum_amount: 0,
+          maximum_amount: 68607706,
+          recurring_enabled: true,
+          installment_payment_enabled: false,
+        },
+      ],
+    },
+  ],
+  bank_debit: [
+    {
+      payment_method: "bank_debit",
+      payment_method_types: [
+        {
+          payment_method_type: "ach",
+          minimum_amount: 0,
+          maximum_amount: 68607706,
+          recurring_enabled: true,
+          installment_payment_enabled: false,
+        },
+        {
+          payment_method_type: "sepa",
+          minimum_amount: 0,
+          maximum_amount: 68607706,
+          recurring_enabled: true,
+          installment_payment_enabled: false,
+        },
+      ],
+    },
+  ],
+};
+
 export async function createDummyConnectorAPI(
   merchantId: string,
   connectorLabel: string,
   context?: APIRequestContext,
   page?: Page,
+  paymentMethod: DummyPaymentMethod = "card",
 ): Promise<void> {
   const ctx = context ?? (await request.newContext());
   const jwt = page ? await getJwtFromLocalStorage(page) : "";
@@ -177,50 +265,7 @@ export async function createDummyConnectorAPI(
         },
         status: "active",
         test_mode: true,
-        payment_methods_enabled: [
-          {
-            payment_method: "card",
-            payment_method_types: [
-              {
-                payment_method_type: "debit",
-                card_networks: ["Mastercard"],
-                minimum_amount: 0,
-                maximum_amount: 68607706,
-                recurring_enabled: true,
-                installment_payment_enabled: false,
-              },
-              {
-                payment_method_type: "debit",
-                card_networks: ["Visa"],
-                minimum_amount: 0,
-                maximum_amount: 68607706,
-                recurring_enabled: true,
-                installment_payment_enabled: false,
-              },
-            ],
-          },
-          {
-            payment_method: "card",
-            payment_method_types: [
-              {
-                payment_method_type: "credit",
-                card_networks: ["Mastercard"],
-                minimum_amount: 0,
-                maximum_amount: 68607706,
-                recurring_enabled: true,
-                installment_payment_enabled: false,
-              },
-              {
-                payment_method_type: "credit",
-                card_networks: ["Visa"],
-                minimum_amount: 0,
-                maximum_amount: 68607706,
-                recurring_enabled: true,
-                installment_payment_enabled: false,
-              },
-            ],
-          },
-        ],
+        payment_methods_enabled: DUMMY_PAYMENT_METHODS_ENABLED[paymentMethod],
       },
     },
   );

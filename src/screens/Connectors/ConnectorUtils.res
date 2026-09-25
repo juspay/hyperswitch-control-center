@@ -89,6 +89,7 @@ let surchargeProcessorList: array<connectorTypes> = [SurchargeProcessor(INTERPAY
 let connectorList: array<connectorTypes> = [
   Processors(STRIPE),
   Processors(PAYPAL),
+  Processors(ABSA),
   Processors(ACI),
   Processors(ADYEN),
   Processors(AFFIRM),
@@ -837,6 +838,20 @@ let cyberSourceDecisionManagerInfo = {
     },
   ],
 }
+
+let sanlamPayshieldInfo = {
+  description: "Sanlam Payshield is a Fraud and Risk management service that offers real time payment screening.",
+  validate: [
+    {
+      placeholder: "Enter API Key",
+      label: "API Key",
+      name: "connector_account_details.api_key",
+      isRequired: true,
+      encodeToBase64: false,
+    },
+  ],
+}
+
 let archipelInfo = {
   description: "Full-service processor offering secure payment solutions and innovative banking technologies for businesses of all sizes.",
 }
@@ -1114,6 +1129,7 @@ let getFRMNameString = (frm: frmTypes) => {
   | Signifyd => "signifyd"
   | Riskifyed => "riskified"
   | CybersourceDecisionManager => "cybersourcedecisionmanager"
+  | SanlamPayshield => "sanlam_payshield"
   }
 }
 
@@ -1334,6 +1350,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "riskified" => FRM(Riskifyed)
     | "signifyd" => FRM(Signifyd)
     | "cybersourcedecisionmanager" => FRM(CybersourceDecisionManager)
+    | "sanlam_payshield" => FRM(SanlamPayshield)
     | _ => UnknownConnector("Not known")
     }
   | PMAuthenticationProcessor =>
@@ -1531,6 +1548,7 @@ let getFrmInfo = frm =>
   | Signifyd => signifydInfo
   | Riskifyed => riskifyedInfo
   | CybersourceDecisionManager => cyberSourceDecisionManagerInfo
+  | SanlamPayshield => sanlamPayshieldInfo
   }
 
 let getOpenBankingProcessorInfo = (
@@ -2544,6 +2562,7 @@ let getDisplayNameForFRMConnector = frmConnector =>
   | Signifyd => "Signifyd"
   | Riskifyed => "Riskified"
   | CybersourceDecisionManager => "Cybersource Decision Manager"
+  | SanlamPayshield => "Sanlam Payshield"
   }
 
 let getDisplayNameForOpenBankingProcessor = pmAuthenticationConnector => {

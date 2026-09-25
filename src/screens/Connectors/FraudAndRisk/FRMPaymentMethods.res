@@ -43,7 +43,7 @@ module CheckBoxRenderer = {
     let setConfigJson = {frmConfigInput.onChange}
 
     let isToggleDisabled = switch connectorPaymentMethods {
-    | Some(paymentMethods) => paymentMethods->Dict.keysToArray->Array.length <= 0
+    | Some(connectorPms) => connectorPms->Dict.keysToArray->Array.length <= 0
     | _ => true
     }
 
@@ -83,8 +83,8 @@ module CheckBoxRenderer = {
       if !isToggleDisabled {
         if !isOpen {
           switch connectorPaymentMethods {
-          | Some(paymentMethods) => {
-              frmConfigInfo.payment_methods = paymentMethods->generateFRMPaymentMethodsConfig
+          | Some(connectorPms) => {
+              frmConfigInfo.payment_methods = connectorPms->generateFRMPaymentMethodsConfig
               setConfigJson(frmConfigs->Identity.anyTypeToReactEvent)
             }
           | _ => ()
@@ -173,19 +173,28 @@ module CheckBoxRenderer = {
 module PaymentMethodsRenderer = {
   open FRMUtils
   @react.component
-  let make = (~isUpdateFlow) => {
+  let make = (~isUpdateFlow, ~selectedFRMName) => {
     let (pageState, setPageState) = React.useState(_ => PageLoaderWrapper.Loading)
     let frmConfigInput = ReactFinalForm.useField("frm_configs").input
     let frmConfigs = parseFRMConfig(frmConfigInput.value)
     let (connectorConfig, setConnectorConfig) = React.useState(_ => Dict.make())
     let setConfigJson = frmConfigInput.onChange
-    let connectorsList = ConnectorListInterface.useFilteredConnectorList(
+    let paymentConnectorList = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=PaymentProcessor,
+    )
+    let payoutConnectorList = ConnectorListInterface.useFilteredConnectorList(
+      ~retainInList=PayoutProcessor,
+    )
+    let compatibility = selectedFRMName->FRMInfo.getFRMCompatibility
+    let connectorsByCategory = FRMUtils.getEligibleConnectorsByCategory(
+      ~compatibility,
+      ~paymentConnectorList,
+      ~payoutConnectorList,
     )
 
     let getConfiguredConnectorDetails = async () => {
       try {
-        let connectorsConfig = connectorsList->getConnectorConfig
+        let connectorsConfig = connectorsByCategory->getConnectorConfig
         let updateFRMConfig =
           connectorsConfig
           ->createAllOptions
@@ -211,6 +220,20 @@ module PaymentMethodsRenderer = {
 
     <PageLoaderWrapper screenState={pageState}>
       <div className="flex flex-col gap-4">
+        <RenderIf condition={compatibility.note->Option.isSome}>
+          <div
+            className="flex gap-2 items-start p-4 rounded border border-nd_primary_blue-200 bg-nd_primary_blue-50">
+            <Icon name="nd-info-circle" size=16 className="mt-0.5 text-nd_primary_blue-500" />
+            <p className={`${Typography.body.md.medium} text-nd_gray-600`}>
+              {compatibility.note->Option.getOr("")->React.string}
+            </p>
+          </div>
+        </RenderIf>
+        <RenderIf condition={frmConfigs->Array.length == 0}>
+          <p className={`${Typography.body.md.medium} text-nd_gray-500`}>
+            {"No compatible connector is configured yet. Configure one from the Payment Processors or Payouts page to screen it with this processor."->React.string}
+          </p>
+        </RenderIf>
         {frmConfigs
         ->Array.mapWithIndex((configInfo, i) => {
           <CheckBoxRenderer
@@ -229,7 +252,13 @@ module PaymentMethodsRenderer = {
 }
 
 @react.component
-let make = (~setCurrentStep, ~retrievedValues=None, ~setInitialValues, ~isUpdateFlow: bool) => {
+let make = (
+  ~setCurrentStep,
+  ~retrievedValues=None,
+  ~setInitialValues,
+  ~isUpdateFlow: bool,
+  ~selectedFRMName,
+) => {
   open FRMInfo
   open FRMUtils
   open LogicUtils
@@ -272,7 +301,7 @@ let make = (~setCurrentStep, ~retrievedValues=None, ~setInitialValues, ~isUpdate
           <FormRenderer.SubmitButton text="Proceed" />
         </div>
         <div className="flex flex-col gap-2 col-span-3">
-          <PaymentMethodsRenderer isUpdateFlow />
+          <PaymentMethodsRenderer isUpdateFlow selectedFRMName />
         </div>
       </div>
     </div>
