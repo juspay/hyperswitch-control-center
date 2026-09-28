@@ -8,6 +8,7 @@ let make = () => {
   open HyperswitchAppHelper
 
   let url = RescriptReactRouter.useUrl()
+  let isDecisionEngineWorkspace = url.path->urlPath->DecisionEngineUtils.isWorkspacePath
   let {
     showFeedbackModal,
     setShowFeedbackModal,
@@ -20,7 +21,9 @@ let make = () => {
     ProductSelectionProvider.defaultContext,
   )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let merchantDetailsTypedValue = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
+  let (merchantDetailsTypedValue, setMerchantDetailsValue) = Recoil.useRecoilState(
+    merchantDetailsValueAtom,
+  )
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
@@ -28,6 +31,7 @@ let make = () => {
   let {fetchUserGroupACL, hasAnyGroupAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchMerchantList = MerchantListHook.useFetchMerchantList()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
+  let fetchUserMerchantDetails = MerchantDetailsHook.useFetchUserMerchantDetails()
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
   let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
@@ -56,10 +60,14 @@ let make = () => {
       // NOTE: Treat groupACL map similar to screenstate
       setScreenState(_ => PageLoaderWrapper.Loading)
       setuserGroupACL(_ => None)
+      // Reset so a switch to a merchant without account access doesn't keep the previous keys
+      setMerchantDetailsValue(_ =>
+        JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails
+      )
       setActiveProductValue(UnknownProduct)
       Window.connectorWasmInit()->ignore
       // Initiate all independent api requests concurrently for performance improvement
-      let merchantDetailsFetch = fetchMerchantAccountDetails(~version)
+      let merchantDetailsFetch = fetchUserMerchantDetails(~version)
       let merchantConfigFetch = fetchMerchantSpecificConfig()
       let merchantListFetch = if !isInternalUser {
         fetchMerchantList()
@@ -67,13 +75,24 @@ let make = () => {
         Promise.resolve()
       }
       let userGroupACLFetch = fetchUserGroupACL()
-      let (merchantResponse, _, _, _) = await Promise.all4((
+      // The full merchant account needs the account resource, so wait for the ACL
+      // and only fetch it for roles that hold it; everyone else keeps the defaults
+      let merchantAccountFetch = async () => {
+        let {resources} = await userGroupACLFetch
+        switch resources->Map.get(UserManagementTypes.Account) {
+        | Some(CommonAuthTypes.Access) =>
+          let _ = await fetchMerchantAccountDetails(~version)
+        | _ => ()
+        }
+      }
+      let (productType, _, _, _, _) = await Promise.all5((
         merchantDetailsFetch,
         merchantConfigFetch,
         merchantListFetch,
         userGroupACLFetch,
+        merchantAccountFetch(),
       ))
-      setActiveProductValue(merchantResponse.product_type)
+      setActiveProductValue(productType)
       setShowSideBar(_ => true)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
@@ -227,7 +246,9 @@ let make = () => {
                     </RenderIf>
                     <WorkflowSideDrawer />
                     <div
-                      className="p-6 md:px-12 md:py-8 flex flex-col gap-8 max-w-fixedPageWidth min-h-full">
+                      className={isDecisionEngineWorkspace
+                        ? "flex flex-col min-h-full"
+                        : "p-6 md:px-12 md:py-8 flex flex-col gap-8 max-w-fixedPageWidth min-h-full"}>
                       <ErrorBoundary>
                         {switch (activeProduct, url.path->urlPath) {
                         // /* DEFAULT HOME */

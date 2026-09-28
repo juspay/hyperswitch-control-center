@@ -2,23 +2,58 @@ open BlocklistTypes
 open LogicUtils
 
 let sampleCsv = `type,data,metadata
-card_bin,411111,source=fraud_team;reason=chargeback
-extended_card_bin,41111100,
+generic_card_bin,411111,source=fraud_team;reason=chargeback
+generic_card_bin,4111111100,
 fingerprint,fp_abc123,`
 
+let maxCardBinLength = 10
+let maxBlocklistLookupLength = 20
 let maxBlocklistCsvFileSize = 5 * 1024 * 1024
 let maxBlocklistCsvDataRows = 100000
 let bytesPerKilobyte = 1024
 let bytesPerMegabyte = bytesPerKilobyte * 1024
 
+let getBlocklistBatchJobTypeFromString = jobType => {
+  switch jobType->String.toLowerCase {
+  | "upload" => Upload
+  | "export" => Export
+  | "profile_clone" => ProfileClone
+  | _ => UnknownJobType
+  }
+}
+
+let isExportJob = (job: blocklistBatchJob) => {
+  switch job.job_type {
+  | Export => true
+  | Upload | ProfileClone | UnknownJobType => false
+  }
+}
+
+let isProfileCloneJob = (job: blocklistBatchJob) => {
+  switch job.job_type {
+  | ProfileClone => true
+  | Upload | Export | UnknownJobType => false
+  }
+}
+
+let getCloneTargetProfileOptions = (
+  profileList: array<OMPSwitchTypes.ompListTypes>,
+  ~sourceProfileId,
+) =>
+  profileList->Array.filterMap(profile =>
+    profile.id != sourceProfileId ? Some({SelectBox.label: profile.name, value: profile.id}) : None
+  )
+
 let itemToObjMapper = dict => {
   {
     job_id: dict->getString("job_id", ""),
     merchant_id: dict->getString("merchant_id", ""),
+    job_type: dict->getString("job_type", "")->getBlocklistBatchJobTypeFromString,
     status: dict->getString("status", ""),
     total_rows: dict->getInt("total_rows", 0),
     succeeded_rows: dict->getInt("succeeded_rows", 0),
     failed_rows: dict->getInt("failed_rows", 0),
+    downloadable: dict->getBool("downloadable", false),
     created_at: dict->getString("created_at", ""),
     updated_at: dict->getString("updated_at", ""),
   }
@@ -94,19 +129,21 @@ let blocklistDataKindToString = dataKind => {
   switch dataKind {
   | CardBin => "card_bin"
   | ExtendedCardBin => "extended_card_bin"
+  | GenericCardBin => "generic_card_bin"
   | Fingerprint => "fingerprint"
   }
 }
 
 let blocklistDataKindToLabel = dataKind => {
   switch dataKind {
-  | CardBin => "Card BIN"
-  | ExtendedCardBin => "Extended Card BIN"
+  | CardBin => "Card BIN (6 digits)"
+  | ExtendedCardBin => "Card BIN (8 digits)"
+  | GenericCardBin => "Generic Card BIN"
   | Fingerprint => "Fingerprint"
   }
 }
 
-let allBlocklistDataKinds = [CardBin, ExtendedCardBin, Fingerprint]
+let allBlocklistDataKinds = [GenericCardBin, Fingerprint]
 
 let blocklistDataKindOptions: array<SelectBox.dropdownOption> = allBlocklistDataKinds->Array.map((
   dataKind
@@ -117,7 +154,7 @@ let blocklistDataKindOptions: array<SelectBox.dropdownOption> = allBlocklistData
 
 let blocklistEntryItemToObjMapper = dict => {
   {
-    BlocklistTypes.fingerprint_id: dict->getString("fingerprint_id", ""),
+    fingerprint_id: dict->getString("fingerprint_id", ""),
     data_kind: dict->getString("data_kind", ""),
     created_at: dict->getString("created_at", ""),
   }
@@ -132,11 +169,12 @@ let blocklistEntryBody = (~dataKind, ~data) => {
 
 let cardBinRegex = %re("/^\d{6}$/")
 let extendedCardBinRegex = %re("/^\d{8}$/")
+let genericCardBinRegex = %re("/^\d{6,10}$/")
 let digitOnlyRegex = %re("/^\d*$/")
 
 let isDigitOnlyBlocklistDataKind = dataKind => {
   switch dataKind {
-  | CardBin | ExtendedCardBin => true
+  | CardBin | ExtendedCardBin | GenericCardBin => true
   | Fingerprint => false
   }
 }
@@ -149,6 +187,7 @@ let blocklistEntryDataHint = dataKind => {
   switch dataKind {
   | CardBin => "Must be exactly 6 digits, e.g. 411111"
   | ExtendedCardBin => "Must be exactly 8 digits, e.g. 41111100"
+  | GenericCardBin => "Must be 6 to 10 digits, e.g. 411111"
   | Fingerprint => "e.g. fp_abc123"
   }
 }
@@ -157,13 +196,14 @@ let blocklistEntryPlaceholder = dataKind => {
   switch dataKind {
   | CardBin => "411111"
   | ExtendedCardBin => "41111100"
+  | GenericCardBin => "411111"
   | Fingerprint => "fp_abc123"
   }
 }
 
 let blocklistEntryInputMode = dataKind => {
   switch dataKind {
-  | CardBin | ExtendedCardBin => "numeric"
+  | CardBin | ExtendedCardBin | GenericCardBin => "numeric"
   | Fingerprint => "text"
   }
 }
@@ -172,6 +212,7 @@ let blocklistEntryMaxLength = dataKind => {
   switch dataKind {
   | CardBin => Some(6)
   | ExtendedCardBin => Some(8)
+  | GenericCardBin => Some(maxCardBinLength)
   | Fingerprint => None
   }
 }
@@ -180,6 +221,7 @@ let getBlocklistDataKindFromString = dataKind => {
   switch dataKind {
   | "card_bin" => Some(CardBin)
   | "extended_card_bin" => Some(ExtendedCardBin)
+  | "generic_card_bin" => Some(GenericCardBin)
   | "fingerprint" => Some(Fingerprint)
   | _ => None
   }
@@ -199,6 +241,10 @@ let validateBlocklistEntryData = (~dataKind, ~data, ~operation) => {
       extendedCardBinRegex->RegExp.test(trimmedData)
         ? None
         : Some("Extended Card BIN must be exactly 8 digits.")
+    | GenericCardBin =>
+      genericCardBinRegex->RegExp.test(trimmedData)
+        ? None
+        : Some("Card BIN must be 6 to 10 digits.")
     | Fingerprint => None
     }
   }
@@ -271,5 +317,49 @@ let getBlocklistCsvDataRowCountError = fileContents => {
     Some(`CSV files with more than ${maxBlocklistCsvDataRowsLabel} rows cannot be processed.`)
   } else {
     None
+  }
+}
+
+let blocklistDataKindToQueryParam = dataKind => {
+  switch dataKind {
+  | CardBin => "card_bin"
+  | ExtendedCardBin => "extended_card_bin"
+  | GenericCardBin => "generic_card_bin"
+  | Fingerprint => "payment_method"
+  }
+}
+
+let formatBlocklistCount = count => count->DateTimeUtils.toLocaleStringWithLocale("en-US")
+
+let defaultBlocklistCountResponse: blocklistCountResponse = {total_count: 0, counts_by_length: []}
+
+let defaultBlocklistCountsByKind: blocklistCountsByKind = {
+  cardBin: defaultBlocklistCountResponse,
+  fingerprint: defaultBlocklistCountResponse,
+}
+
+let getBlocklistCountFromResponse = json => {
+  let dict = json->getDictFromJsonObject
+  let countsByLength =
+    dict
+    ->getDictfromDict("counts_by_length")
+    ->Dict.toArray
+    ->Array.filterMap(((length, count)) =>
+      length
+      ->getOptionIntFromString
+      ->Option.map(length => (length, count->getIntFromJson(0)))
+    )
+  countsByLength->Array.sort(((lengthA, _), (lengthB, _)) => (lengthA - lengthB)->Int.toFloat)
+  {
+    total_count: dict->getInt("total_count", 0),
+    counts_by_length: countsByLength,
+  }
+}
+
+let getBlocklistLookupFromResponse = json => {
+  let dict = json->getDictFromJsonObject
+  {
+    data: dict->getString("data", ""),
+    blocked: dict->getBool("blocked", false),
   }
 }

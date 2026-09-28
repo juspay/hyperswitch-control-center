@@ -3,7 +3,10 @@
 export function getPayoutConnectorConfig(key: string): any;
 export function getAuthenticationConnectorConfig(key: string): any;
 export function getTaxProcessorConfig(key: string): any;
+export function getFundingSourceValues(): any;
+export function getCardSegmentTypeValues(): any;
 export function getValidWebhookStatus(key: string): any;
+export function getWebhookStatusConfig(): any;
 export function getSurchargeProcessorConfig(key: string): any;
 export function getPMAuthenticationProcessorConfig(key: string): any;
 export function getRequestPayload(input: any, response: any): any;
@@ -80,10 +83,12 @@ export interface InitOutput {
   readonly getAllPayoutKeys: (a: number) => void;
   readonly getAuthenticationConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getBillingConnectorConfig: (a: number, b: number, c: number) => void;
+  readonly getCardSegmentTypeValues: (a: number) => void;
   readonly getCardSubtypeValues: (a: number) => void;
   readonly getCardTypeValues: (a: number) => void;
   readonly getConnectorConfig: (a: number, b: number, c: number) => void;
   readonly getDescriptionCategory: (a: number) => void;
+  readonly getFundingSourceValues: (a: number) => void;
   readonly getKeyType: (a: number, b: number, c: number) => void;
   readonly getMerchantCategoryCodeWithName: (a: number) => void;
   readonly getPMAuthenticationProcessorConfig: (a: number, b: number, c: number) => void;
@@ -101,6 +106,7 @@ export interface InitOutput {
   readonly getValidConnectorsForRule: (a: number, b: number) => void;
   readonly getValidWebhookStatus: (a: number, b: number, c: number) => void;
   readonly getVariantValues: (a: number, b: number, c: number) => void;
+  readonly getWebhookStatusConfig: (a: number) => void;
   readonly runProgram: (a: number, b: number, c: number) => void;
   readonly seedKnowledgeGraph: (a: number, b: number) => void;
   readonly setForexData: (a: number, b: number) => void;

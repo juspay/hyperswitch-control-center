@@ -31,6 +31,7 @@ type featureFlag = {
   branding: bool,
   granularity: bool,
   complianceCertificate: bool,
+  hierarchicalConfigurations: bool,
   pmAuthenticationProcessor: bool,
   newAnalytics: bool,
   newAnalyticsSmartRetries: bool,
@@ -48,6 +49,7 @@ type featureFlag = {
   devAltPaymentMethods: bool,
   devHypersenseV2Product: bool,
   devModularityV2: bool,
+  embedDecisionEngine: bool,
   maintenanceAlert: string,
   forceCookies: bool,
   authenticationAnalytics: bool,
@@ -61,6 +63,8 @@ type featureFlag = {
   exploreRecipes: bool,
   devOrchestrationV2Product: bool,
   devReconEngineV1: bool,
+  devOffers: bool,
+  devAlerts: bool,
   devReconEnginePipelines: bool,
   devAiChatBot: bool,
   devLaunchSage: bool,
@@ -90,6 +94,7 @@ type featureFlag = {
   sendV1DummyApiKeyHeader: bool,
   cugUser: bool,
   devSuperposition: bool,
+  paymentLinkOperations: bool,
 }
 
 let featureFlagType = (featureFlags: JSON.t) => {
@@ -125,6 +130,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     branding: dict->getBool("branding", false),
     granularity: dict->getBool("granularity", false),
     complianceCertificate: dict->getBool("compliance_certificate", false),
+    hierarchicalConfigurations: dict->getBool("hierarchical_configurations", false),
     pmAuthenticationProcessor: dict->getBool("pm_authentication_processor", false),
     newAnalytics: dict->getBool("new_analytics", false),
     newAnalyticsSmartRetries: dict->getBool("new_analytics_smart_retries", false),
@@ -142,6 +148,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     forceCookies: dict->getBool("force_cookies", false),
     authenticationAnalytics: dict->getBool("authentication_analytics", false),
     devModularityV2: dict->getBool("dev_modularity_v2", false),
+    embedDecisionEngine: dict->getBool("dev_embed_decision_engine", false),
     devAltPaymentMethods: dict->getBool("dev_alt_payment_methods", false),
     devIntelligentRoutingV2: dict->getBool("dev_intelligent_routing_v2", false),
     googlePayDirectFlow: dict->getBool("google_pay_direct_flow", false),
@@ -153,6 +160,8 @@ let featureFlagType = (featureFlags: JSON.t) => {
     threedsExemptionRules: dict->getBool("threeds_exemption", false),
     devOrchestrationV2Product: dict->getBool("dev_orchestration_v2_product", false),
     devReconEngineV1: dict->getBool("dev_recon_engine_v1", false),
+    devOffers: dict->getBool("dev_offers", false),
+    devAlerts: dict->getBool("dev_alerts", false),
     devReconEnginePipelines: dict->getBool("dev_recon_engine_pipelines", false),
     devAiChatBot: dict->getBool("dev_ai_chat_bot", false),
     devLaunchSage: dict->getBool("dev_launch_sage", false),
@@ -182,6 +191,7 @@ let featureFlagType = (featureFlags: JSON.t) => {
     sendV1DummyApiKeyHeader,
     cugUser: dict->getBool("cug_user", false),
     devSuperposition: dict->getBool("dev_superposition", false),
+    paymentLinkOperations: dict->getBool("payment_link_operations", false),
   }
 }
 

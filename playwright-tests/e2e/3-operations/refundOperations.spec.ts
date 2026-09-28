@@ -13,6 +13,9 @@ import {
 import PaymentOperations from "../../support/pages/operations/PaymentOperations";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
+// A 1st-of-month instant — the day blend mislabels sub-day presets. Pinned
+// deliberately so the Date Selector test below stays a regression guard.
+const FIRST_OF_MONTH = "2026-09-01T12:00:00.000Z";
 const refundColumnSize = 12;
 let email: string;
 
@@ -262,6 +265,15 @@ test.describe("Refunds Operations", () => {
         await setupRefund(page, homePage, context.request);
 
         await goToRefunds(page, homePage);
+
+        // Pinned to the 1st on purpose. blend checks its "This month" preset before
+        // the sub-day ones and accepts any range starting within 25h of the 1st at
+        // 00:00, so on the 1st the trigger renders "This month" instead of the preset
+        // that was clicked (juspay/blend-design-system#1743). Pinning here keeps this
+        // a regression guard: it fails if the patches/@juspay+blend-design-system
+        // reorder is ever dropped, e.g. when regenerating the patch on a blend
+        // upgrade. Set here, not in beforeEach, so signup/setup run at real time.
+        await page.clock.setFixedTime(new Date(FIRST_OF_MONTH));
 
         await paymentOperations.customDateRangeButton.click();
         await page.getByRole("menuitem", { name: "Last 30 minutes" }).click();

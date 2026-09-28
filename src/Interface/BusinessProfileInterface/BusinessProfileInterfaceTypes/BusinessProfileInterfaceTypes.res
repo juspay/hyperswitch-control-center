@@ -21,6 +21,12 @@ type webhookDetails = {
   payment_created_enabled: option<bool>,
   payment_succeeded_enabled: option<bool>,
   payment_failed_enabled: option<bool>,
+  payment_statuses_enabled: option<array<string>>,
+  refund_statuses_enabled: option<array<string>>,
+  payout_statuses_enabled: option<array<string>>,
+  dispute_statuses_enabled: option<array<string>>,
+  mandate_statuses_enabled: option<array<string>>,
+  invoice_statuses_enabled: option<array<string>>,
 }
 type authConnectorDetailsType = {
   authentication_connectors: option<array<JSON.t>>,
@@ -77,7 +83,19 @@ type externalVaultConnectorDetails = {
 
 type surchargeConnectorDetails = {surcharge_connector_id: string}
 
-type paymentMethodBlockingEntry = {card_types: option<array<string>>}
+type paymentMethodBlockingEntry = {
+  issuing_country: option<array<string>>,
+  card_types: option<array<string>>,
+  card_networks: option<array<string>>,
+  funding_sources: option<array<string>>,
+  card_segment_types: option<array<string>>,
+  card_subtypes: option<array<string>>,
+  issuers: option<array<string>>,
+  block_virtual_cards: option<bool>,
+  block_non_reloadable_prepaid_cards: option<bool>,
+  gambling_blocked: option<bool>,
+  block_if_bin_info_unavailable: option<bool>,
+}
 
 type paymentMethodBlockingWallet = {
   apple_pay: option<paymentMethodBlockingEntry>,

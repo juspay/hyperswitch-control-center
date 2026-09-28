@@ -30,6 +30,8 @@ let mapGroupAccessTypeToString = groupAccessType =>
   | ReconExceptionsManage => "recon_exceptions_manage"
   | ConfigurationsView => "configurations_view"
   | ConfigurationsManage => "configurations_manage"
+  | OffersView => "offers_view"
+  | OffersManage => "offers_manage"
   | UnknownGroupAccess(val) => val
   }
 
@@ -62,6 +64,8 @@ let mapStringToGroupAccessType = val =>
   | "recon_exceptions_manage" => ReconExceptionsManage
   | "configurations_view" => ConfigurationsView
   | "configurations_manage" => ConfigurationsManage
+  | "offers_view" => OffersView
+  | "offers_manage" => OffersManage
   | val => UnknownGroupAccess(val)
   }
 
@@ -92,6 +96,7 @@ let mapStringToResourceAccessType = val =>
   | "recon_transaction" => ReconTransaction
   | "recon_rule" => ReconRule
   | "superposition_config" => SuperpositionConfigs
+  | "offers" => Offers
   | _ => UnknownResourceAccess(val)
   }
 
@@ -123,6 +128,8 @@ let defaultValueForGroupAccessJson = {
   reconExceptionsManage: NoAccess,
   configurationsView: NoAccess,
   configurationsManage: NoAccess,
+  offersView: NoAccess,
+  offersManage: NoAccess,
 }
 
 let convertValueToMapGroup = arrayValue => {
@@ -168,5 +175,7 @@ let getGroupAccessJson = groupACL => {
     reconExceptionsManage: getAccess(ReconExceptionsManage),
     configurationsView: getAccess(ConfigurationsView),
     configurationsManage: getAccess(ConfigurationsManage),
+    offersView: getAccess(OffersView),
+    offersManage: getAccess(OffersManage),
   }
 }

@@ -187,105 +187,6 @@ module ClickToPaySection = {
   }
 }
 
-module PaymentMethodBlocking = {
-  @react.component
-  let make = () => {
-    open FormRenderer
-
-    let cardTypeOptions: array<SelectBox.dropdownOption> = ["credit", "debit"]->Array.map(item => {
-      SelectBox.label: item->LogicUtils.snakeToTitle,
-      value: item,
-    })
-
-    let blocklistCardTypes = makeFieldInfo(
-      ~label="Card Types",
-      ~name="payment_method_blocking.card.card_types",
-      ~customInput=InputFields.multiSelectInput(
-        ~options=cardTypeOptions,
-        ~buttonText="Select Card Types",
-        ~showSelectionAsChips=false,
-        ~customButtonStyle="!rounded-lg",
-        ~fixedDropDownDirection=BottomRight,
-        ~searchable=true,
-      ),
-    )
-
-    let makeBlocklistWalletTypes = (walletType, label) =>
-      makeFieldInfo(
-        ~label,
-        ~name=`payment_method_blocking.wallet.${walletType}.card_types`,
-        ~customInput=InputFields.multiSelectInput(
-          ~options=cardTypeOptions,
-          ~buttonText="Select Card Types",
-          ~showSelectionAsChips=false,
-          ~customButtonStyle="!rounded-lg",
-          ~fixedDropDownDirection=BottomRight,
-          ~searchable=true,
-        ),
-      )
-
-    let blocklistApplePayCardTypes = makeBlocklistWalletTypes("apple_pay", "Card Types")
-    let blocklistGooglePayCardTypes = makeBlocklistWalletTypes("google_pay", "Card Types")
-
-    <DesktopRow itemWrapperClass="mx-1">
-      <div className="w-full py-8 flex flex-col gap-6">
-        <div>
-          <p className={`${body.lg.semibold} text-nd_gray-700`}>
-            {"Payment Method Blocking"->React.string}
-          </p>
-          <p className={`${body.md.medium} text-nd_gray-400 pt-2`}>
-            {"Block specific card types for card, Apple Pay, and Google Pay payment methods"->React.string}
-          </p>
-        </div>
-        <div className="flex flex-col gap-2">
-          <p className={`${body.md.semibold} text-nd_gray-700`}> {"Card"->React.string} </p>
-          <FieldRenderer
-            field={blocklistCardTypes}
-            labelClass={`!${body.md.medium} !text-nd-gray-600`}
-            fieldWrapperClass="max-w-xl"
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <p className={`${body.md.semibold} text-nd_gray-700`}> {"Wallet"->React.string} </p>
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <p className={`${body.md.medium} text-nd_gray-600`}> {"Apple Pay"->React.string} </p>
-              <FieldRenderer
-                field={blocklistApplePayCardTypes}
-                labelClass={`!${body.md.medium} !text-nd-gray-600`}
-                fieldWrapperClass="max-w-xl"
-              />
-            </div>
-            <div className="flex flex-col gap-2">
-              <p className={`${body.md.medium} text-nd_gray-600`}> {"Google Pay"->React.string} </p>
-              <FieldRenderer
-                field={blocklistGooglePayCardTypes}
-                labelClass={`!${body.md.medium} !text-nd-gray-600`}
-                fieldWrapperClass="max-w-xl"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </DesktopRow>
-  }
-}
-
-module WebHook = {
-  @react.component
-  let make = () => {
-    open FormRenderer
-
-    <div className="ml-1 mt-4">
-      <FieldRenderer
-        field={webhookUrl}
-        labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
-        fieldWrapperClass="max-w-xl  "
-      />
-    </div>
-  }
-}
-
 module ReturnUrl = {
   @react.component
   let make = () => {
@@ -366,6 +267,51 @@ module SplitTransactions = {
           ~customInput=customSplitTransactionInput,
         )}
       />
+    </DesktopRow>
+  }
+}
+
+module AccountUpdaterSection = {
+  @react.component
+  let make = () => {
+    open FormRenderer
+
+    <DesktopRow wrapperClass="!flex-col" itemWrapperClass="mx-1">
+      <div className="w-full flex justify-between items-center pt-8">
+        <p className={`${body.lg.semibold} text-nd_gray-700`}>
+          {"Account Updater"->React.string}
+        </p>
+        <SwitchAdapter
+          isSelected=false
+          setIsSelected={_ => ()}
+          isDisabled=true
+          boolCustomClass="rounded-lg"
+          toggleBorder="border-nd_primary_blue-450"
+          toggleEnableColor="bg-nd_primary_blue-450"
+        />
+      </div>
+      <div className={`${body.md.medium} ml-1 text-nd_gray-400 pb-8 flex flex-col gap-3`}>
+        <div>
+          {"Account Updater keeps stored cards current by fetching the latest card details from the network when a card is reissued, expired or replaced, so recurring payments do not fail. Supported on "->React.string}
+          <span className={`${body.md.semibold} text-nd_gray-600`}> {"Visa"->React.string} </span>
+          {" and "->React.string}
+          <span className={`${body.md.semibold} text-nd_gray-600`}>
+            {"Mastercard"->React.string}
+          </span>
+          {". To enable this feature for your merchant account, please reach out to us on "->React.string}
+          <a
+            href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
+            className="text-primary hover:cursor-pointer hover:underline"
+            target="_blank">
+            {"Slack"->React.string}
+          </a>
+          {"."->React.string}
+        </div>
+        <div className="flex items-center gap-1">
+          <GatewayIcon gateway="VISA" className="h-5" />
+          <GatewayIcon gateway="MASTERCARD" className="h-5" />
+        </div>
+      </div>
     </DesktopRow>
   }
 }
@@ -583,18 +529,15 @@ let make = () => {
         </div>
       </DesktopRow>
       <hr />
+      <AccountUpdaterSection />
+      <hr />
       <RenderIf condition={featureFlagDetails.debitRouting}>
         <MerchantCategoryCode />
         <hr />
       </RenderIf>
       <ClickToPaySection />
       <hr />
-      <RenderIfVersion visibleForVersion=V1>
-        <PaymentMethodBlocking />
-        <hr />
-      </RenderIfVersion>
       <ReturnUrl />
-      <WebHook />
       <DesktopRow wrapperClass="mt-8">
         <div className="flex justify-end mt-4 w-full">
           <SubmitButton text="Update" buttonType=Button.Primary buttonSize=Button.Medium />

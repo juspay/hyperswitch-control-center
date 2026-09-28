@@ -144,6 +144,7 @@ module ConnectorSummaryGrid = {
       HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
 
     let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let copyValueOfWebhookEndpoint = getWebhooksUrl(
       ~connectorName={connectorInfo.connector_name},
       ~merchantId,
@@ -279,6 +280,23 @@ module ConnectorSummaryGrid = {
         </div>
         <div />
       </div>
+      <RenderIf
+        condition={featureFlagDetails.hierarchicalConfigurations &&
+        processorType == PaymentProcessor &&
+        connectorInfo.metadata->ApplePayIntegrationUtils.usesLinkHierarchicalResource}>
+        <div className="grid grid-cols-4 border-b md:px-10 py-8">
+          <div className="flex items-start">
+            <h4 className={Typography.heading.sm.semibold}>
+              {"Apple Pay Certificate"->React.string}
+            </h4>
+          </div>
+          <div className="col-span-3 w-5/6">
+            <ApplePayResourceCertificateSelector
+              merchantConnectorId={connectorInfo.merchant_connector_id}
+            />
+          </div>
+        </div>
+      </RenderIf>
       {switch updateStepValue {
       | Some(state) =>
         <div className="grid grid-cols-4 border-b md:px-10 py-8">

@@ -496,7 +496,6 @@ let getOpenExceptions = (
       | CurrencyMismatch
       | SplitMismatch
       | PartiallyReconciled
-      | Expected
       | Missing =>
         statusAcc + status.count
       | Posted(Manual)
@@ -504,6 +503,7 @@ let getOpenExceptions = (
       | Matched(Manual)
       | Matched(Force)
       | Matched(WithTolerance)
+      | Expected
       | Void
       | Archived
       | UnknownDomainTransactionStatus
@@ -960,9 +960,11 @@ let getRuleActivityItems = (~overviewRules: array<overviewRulesResponse>): array
   overviewRules
   ->Array.map(rule => {
     let volume = rule.status_breakdown->Array.reduce(0, (acc, status) => acc + status.count)
-    let (matchedCount, exceptionCount, _, _) = getBreakdownCategoryCounts(rule.status_breakdown)
+    let (matchedCount, exceptionCount, _, missingCount) = getBreakdownCategoryCounts(
+      rule.status_breakdown,
+    )
     let matchRate = getPercentage(~count=matchedCount, ~total=volume)
-    {overview_rule: rule, volume, exceptions: exceptionCount, matchRate}
+    {overview_rule: rule, volume, exceptions: exceptionCount + missingCount, matchRate}
   })
   ->Array.toSorted((a, b) => Int.compare(b.exceptions, a.exceptions))
 }

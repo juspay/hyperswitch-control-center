@@ -42,6 +42,7 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(TRUSTLY),
   PayoutProcessor(SANTANDER),
   PayoutProcessor(DEUTSCHEBANK),
+  PayoutProcessor(GOTYME),
 ]
 
 let payoutConnectorListForLive: array<connectorTypes> = [
@@ -199,6 +200,8 @@ let connectorList: array<connectorTypes> = [
   Processors(CITIGATE),
   Processors(ILIXIUM),
   Processors(WORLDPAYRAFT),
+  Processors(ETISALAT),
+  Processors(MERCHANTE),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -767,6 +770,14 @@ let worldpayraftInfo = {
   description: "Native RAFT is Worldpay's RESTful API for direct access to their core authorization processing platform, supporting credit, debit, gift card, and alternate payment methods for enterprise merchants in the USA.",
 }
 
+let etisalatInfo = {
+  description: "Etisalat Payment Gateway (EPG) REST is Etisalat's JSON/REST API for UAE merchants, supporting 3DS and non-3DS card payments, capture, reversal, refund, tokenization, and UAE Central Bank processing.",
+}
+
+let merchanteInfo = {
+  description: "MerchantE Payment Gateway is a REST API for credit card processing — authorization, capture, settlement, refunds, voids, and AVS/CVV verification — with tokenized Card-on-File (CIT/MIT) recurring payments and Apple Pay/Google Pay support.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -935,6 +946,10 @@ let absaInfo = {
   description: "Absa Bank is a leading African financial services provider offering a wide range of banking and payment solutions.",
 }
 
+let gotymeInfo = {
+  description: "GoTyme enables fast, secure, real-time payouts to customers and businesses across South Africa through PayShap, with immediate processing and payment status updates.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ABSA => "absa_sanlam"
@@ -1056,6 +1071,8 @@ let getConnectorNameString = (connector: processorTypes) =>
   | CITIGATE => "citigate"
   | ILIXIUM => "ilixium"
   | WORLDPAYRAFT => "worldpayraft"
+  | ETISALAT => "etisalat"
+  | MERCHANTE => "merchante"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1079,6 +1096,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | TRUSTLY => "trustly"
   | SANTANDER => "santander"
   | DEUTSCHEBANK => "deutschebank"
+  | GOTYME => "gotyme_sanlam"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -1273,6 +1291,8 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "citigate" => Processors(CITIGATE)
     | "ilixium" => Processors(ILIXIUM)
     | "worldpayraft" => Processors(WORLDPAYRAFT)
+    | "etisalat" => Processors(ETISALAT)
+    | "merchante" => Processors(MERCHANTE)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1296,6 +1316,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "trustly" => PayoutProcessor(TRUSTLY)
     | "santander" => PayoutProcessor(SANTANDER)
     | "deutschebank" => PayoutProcessor(DEUTSCHEBANK)
+    | "gotyme_sanlam" => PayoutProcessor(GOTYME)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -1466,6 +1487,8 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | CITIGATE => citigateInfo
   | ILIXIUM => ilixiumInfo
   | WORLDPAYRAFT => worldpayraftInfo
+  | ETISALAT => etisalatInfo
+  | MERCHANTE => merchanteInfo
   }
 }
 
@@ -1490,6 +1513,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | TRUSTLY => trustlyInfo
   | SANTANDER => santanderInfo
   | DEUTSCHEBANK => deutscheBankInfo
+  | GOTYME => gotymeInfo
   }
 }
 
@@ -1857,6 +1881,13 @@ let checkAuthKeyMapRequiredFields = (connector: connectorTypes, fieldName) => {
   switch (connector, fieldName) {
   | (Processors(PAYLOAD), "processing_account_id") => false
   | _ => true
+  }
+}
+
+let checkIsPemField = (connector: connectorTypes, fieldName: string) => {
+  switch (connector, fieldName) {
+  | (PayoutProcessor(DEUTSCHEBANK), "api_secret" | "key2") => true
+  | _ => false
   }
 }
 
@@ -2470,6 +2501,8 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | CITIGATE => "Citigate"
   | ILIXIUM => "Ilixium"
   | WORLDPAYRAFT => "Worldpay Raft"
+  | ETISALAT => "Etisalat"
+  | MERCHANTE => "MerchantE"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -2493,6 +2526,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | TRUSTLY => "Trustly"
   | SANTANDER => "Santander"
   | DEUTSCHEBANK => "Deutsche Bank"
+  | GOTYME => "GoTyme"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
@@ -2733,7 +2767,8 @@ let checkIfPredecryptFlowEnabledForApplePay = connector => {
   | Processors(NMI)
   | Processors(STRIPE)
   | Processors(WORLDPAYXML)
-  | Processors(IMERCHANTSOLUTIONS) => true
+  | Processors(IMERCHANTSOLUTIONS)
+  | Processors(REVOLV3) => true
   | _ => false
   }
 }
@@ -2747,7 +2782,8 @@ let checkIfPredecryptFlowEnabledForGooglePay = connector => {
   | Processors(NMI)
   | Processors(STRIPE)
   | Processors(WORLDPAYXML)
-  | Processors(IMERCHANTSOLUTIONS) => true
+  | Processors(IMERCHANTSOLUTIONS)
+  | Processors(REVOLV3) => true
   | _ => false
   }
 }

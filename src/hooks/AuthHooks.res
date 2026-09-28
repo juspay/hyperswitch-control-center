@@ -13,6 +13,18 @@ let headersForXFeature = (~uri, ~headers) => {
   }
 }
 
+// offer-engine authenticates Control Center users via x-hyperswitch-token (HSTokenAuth)
+// and is not merchant/profile scoped, so those headers must not be sent either.
+let headersForOffers = (~headers, ~token) => {
+  headers->Dict.delete("authorization")
+  headers->Dict.delete("X-Profile-Id")
+  headers->Dict.delete("X-Merchant-Id")
+  switch token {
+  | Some(str) => headers->Dict.set("x-hyperswitch-token", `Bearer ${str}`)
+  | None => ()
+  }
+}
+
 let getHeaders = (
   ~uri,
   ~headers,
@@ -73,6 +85,11 @@ let getHeaders = (
     // headers for V2
     headers->Dict.set("X-Profile-Id", profileId)
     headers->Dict.set("X-Merchant-Id", merchantId)
+
+    if uri->String.includes("/offers/") {
+      headersForOffers(~headers, ~token)
+    }
+
     headers
   }
   Fetch.HeadersInit.make(headerObj->Identity.dictOfAnyTypeToObj)

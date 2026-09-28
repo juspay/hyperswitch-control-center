@@ -7,6 +7,7 @@ type sessionTokenData = {
   merchant_identifier: option<string>,
   merchant_business_country: option<string>,
   payment_processing_details_at: option<string>,
+  payment_processing_detail_input_type: option<string>,
   payment_processing_certificate: option<string>,
   payment_processing_certificate_key: option<string>,
 }
@@ -54,6 +55,7 @@ type verifyApplePay = {
 }
 
 type paymentProcessingState = [#Connector | #Hyperswitch]
+type paymentProcessingDetailInputType = [#Raw | #LinkHierarchicalResource]
 type initiativeState = [#web | #ios]
 
 type inputType = Text | Toggle | Select

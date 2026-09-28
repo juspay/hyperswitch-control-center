@@ -2,26 +2,8 @@ open SuperpositionTypes
 open SuperpositionBindings
 open LogicUtils
 
-let displayConfigs = [
-  ShouldPerformEligibility,
-  ShouldCallPMModularService,
-  EnableExtendedCardBin,
-  ShouldStoreEligibilityCheckDataForAuthentication,
-]
-
-let getConfigFolder = config =>
-  switch config {
-  | ShouldPerformEligibility
-  | EnableExtendedCardBin
-  | ShouldStoreEligibilityCheckDataForAuthentication =>
-    Some(Payments)
-  | ShouldCallPMModularService => None
-  }
-
-let getConfigKey = config =>
-  config
-  ->getConfigFolder
-  ->mapOptionOrDefault((config :> string), folder => `${(folder :> string)}.${(config :> string)}`)
+let getConfigKey = ({folder, name}: HyperSwitchConfigTypes.superpositionDisplayConfig) =>
+  folder->mapOptionOrDefault(name, folder => `${folder}.${name}`)
 
 let getDimensionsForFixedContext = dimensionEntity =>
   switch dimensionEntity {
@@ -48,7 +30,9 @@ let defaultTableConfig: tableConfig = {
   audit: leftSearchTablePageConfig,
 }
 
-let defaultFiltersConfig: filtersConfig = {
+let getFiltersConfig = (
+  displayConfigs: array<HyperSwitchConfigTypes.superpositionDisplayConfig>,
+): filtersConfig => {
   defaultConfigPrefix: displayConfigs->Array.map(getConfigKey),
 }
 

@@ -20,6 +20,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
     | Processors(STRIPE)
     | Processors(WORLDPAYXML)
     | Processors(IMERCHANTSOLUTIONS)
+    | Processors(REVOLV3)
     | Processors(CHECKOUT) =>
       <GPayFlow connector closeAccordionFn update onCloseClickCustomFun />
 

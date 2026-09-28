@@ -34,6 +34,13 @@ export class PaymentSettings {
     return this.page.locator("text=Payment Behaviour");
   }
 
+  get webhookConfigurationTab(): Locator {
+    return this.page.getByRole("tab", {
+      name: "Webhook Configuration",
+      exact: true,
+    });
+  }
+
   get threeDSTab(): Locator {
     return this.page.locator("text=3DS");
   }
@@ -48,6 +55,16 @@ export class PaymentSettings {
 
   get paymentLinkTab(): Locator {
     return this.page.getByText("Payment Link", { exact: true });
+  }
+
+  get blockListTab(): Locator {
+    return this.page.getByRole("tab", { name: "Block List", exact: true });
+  }
+
+  paymentMethodBlockingAccordion(label: string): Locator {
+    return this.page.getByRole("button").filter({
+      has: this.page.getByText(label, { exact: true }),
+    });
   }
 
   get vaultTab(): Locator {
@@ -119,6 +136,23 @@ export class PaymentSettings {
 
   get webhookUrlInput(): Locator {
     return this.page.getByPlaceholder("Enter Webhook URL");
+  }
+
+  // Webhook Configuration Tab Elements
+  get webhookConfigurationHeading(): Locator {
+    return this.page.getByText("Event Configuration", { exact: true });
+  }
+
+  webhookEventClassAccordion(label: string): Locator {
+    return this.page.getByRole("button").filter({
+      has: this.page.getByText(label, { exact: true }),
+    });
+  }
+
+  webhookStatusesDropdown(resourceLabel: string): Locator {
+    return this.page.getByRole("button", {
+      name: `Select ${resourceLabel} Statuses`,
+    });
   }
 
   get merchantCategoryCodeDropdown(): Locator {
@@ -425,6 +459,7 @@ export class PaymentSettings {
   async clickTab(
     tabName:
       | "paymentBehaviour"
+      | "webhookConfiguration"
       | "3ds"
       | "customHeaders"
       | "metadataHeaders"
@@ -432,6 +467,7 @@ export class PaymentSettings {
   ): Promise<void> {
     const tabs: Record<string, Locator> = {
       paymentBehaviour: this.paymentBehaviourTab,
+      webhookConfiguration: this.webhookConfigurationTab,
       "3ds": this.threeDSTab,
       customHeaders: this.customHeadersTab,
       metadataHeaders: this.metadataHeadersTab,

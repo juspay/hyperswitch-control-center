@@ -110,74 +110,14 @@ module EntryAuditTrailInfo = {
   open ReconEngineTypes
 
   @react.component
-  let make = (~openedTransaction: transactionType, ~entriesList: array<entryType>=[]) => {
-    open EntriesTableEntity
-    open ReconEngineTransactionsUtils
-    open ReconEngineUtils
-
-    let accountGroups = React.useMemo(() => {
-      let groupedByAccount = entriesList->Array.reduce(Dict.make(), (acc, entry) => {
-        let accountId = entry.account_id
-        let existing = acc->getValueFromDict(accountId, [])
-        acc->Dict.set(accountId, [...existing, entry])
-        acc
-      })
-
-      groupedByAccount
-      ->Dict.toArray
-      ->Array.map(((accountId, entries)) => {
-        let entry = entries->getValueFromArray(0, Dict.make()->entryItemToObjMapper)
-        let accountName = entry.account_name
-        ({accountId, accountName, entries}: ReconEngineTransactionsTypes.accountGroup)
-      })
-    }, [entriesList])
-
-    let heading = detailsFields->Array.map(getHeading)
-
-    let getSectionRowDetails = (sectionIndex: int, rowIndex: int) => {
-      let group = accountGroups->getValueFromArray(
-        sectionIndex,
-        (
-          {
-            accountId: "",
-            accountName: "",
-            entries: [],
-          }: ReconEngineTransactionsTypes.accountGroup
-        ),
-      )
-      let entry = group.entries->getValueFromArray(rowIndex, Dict.make()->entryItemToObjMapper)
-      let filteredEntryMetadata = entry.metadata->getFilteredMetadataFromEntries
-      let hasEntryMetadata = !(filteredEntryMetadata->isEmptyDict)
-
-      <RenderIf condition={rowIndex < group.entries->Array.length}>
-        <RenderIf condition={hasEntryMetadata}>
-          <div className="p-4">
-            <div className="w-full bg-nd_gray-50 rounded-xl overflow-y-scroll !max-h-60 py-2 px-6">
-              <PrettyPrintJson
-                jsonToDisplay={filteredEntryMetadata->JSON.Encode.object->JSON.stringify}
-              />
-            </div>
-          </div>
-        </RenderIf>
-      </RenderIf>
-    }
-
-    let sections = accountGroups->Array.map(group => {
-      open ReconEngineExceptionTransactionTypes
-      {
-        titleElement: <p className={`text-nd_gray-800 ${body.lg.semibold} mb-2`}>
-          {group.accountName->React.string}
-        </p>,
-        rows: group.entries->Array.map(entry =>
-          detailsFields->Array.map(colType => getCell(entry, colType))
-        ),
-        rowData: group.entries->Array.map(entry => entry->Identity.genericTypeToJson),
-      }
-    })
-
-    <div className="flex flex-col gap-4 px-2 my-6">
+  let make = (
+    ~openedTransaction: transactionType,
+    ~accountIds: array<string>,
+    ~accountsData: array<accountType>,
+  ) => {
+    <div className="flex flex-col gap-4 px-2 mb-6">
       <RenderIf condition={openedTransaction.data.reason->Option.isSome}>
-        <div className="flex flex-col gap-2 p-4 border border-nd_gray-150 rounded-lg w-full">
+        <div className="flex flex-col gap-2 p-4 mt-6 border border-nd_gray-150 rounded-lg w-full">
           <div className="flex flex-row justify-between">
             <p className={`${body.lg.semibold} text-nd_gray-700`}>
               {"Resolution Remark"->React.string}
@@ -188,8 +128,11 @@ module EntryAuditTrailInfo = {
           </p>
         </div>
       </RenderIf>
-      <ReconEngineCustomExpandableSelectionTable
-        title="" heading getSectionRowDetails showScrollBar=true showOptions=false sections
+      <ReconEngineTransactionEntries
+        primaryTransactionId={openedTransaction.id}
+        accountIds
+        accountsData
+        entriesDetailFields=EntriesTableEntity.detailsFields
       />
       <RenderIf condition={openedTransaction.linked_transaction->Option.isSome}>
         <div className="flex flex-col gap-4">
@@ -239,23 +182,18 @@ module HierarchicalMoreEntriesRenderer = {
 
 module AuditTrail = {
   @react.component
-  let make = (~allTransactionDetails) => {
+  let make = (
+    ~allTransactionDetails,
+    ~accountIds: array<string>,
+    ~accountsData: array<ReconEngineTypes.accountType>,
+  ) => {
     open AuditTrailStepIndicatorTypes
     open ReconEngineTransactionsUtils
-    open ReconEngineTypes
-    open APIUtils
-
-    let getURL = useGetURL()
-    let fetchDetails = useGetMethod()
 
     let (showModal, setShowModal) = React.useState(_ => false)
     let (openedTransaction, setOpenedTransaction) = React.useState(_ =>
       Dict.make()->getTransactionsPayloadFromDict
     )
-    let (entriesList, setEntriesList) = React.useState(_ => [
-      Dict.make()->transactionsEntryItemToObjMapperFromDict,
-    ])
-    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
     React.useMemo(() => {
       if allTransactionDetails->Array.length > 0 {
@@ -263,66 +201,31 @@ module AuditTrail = {
       }
     }, [allTransactionDetails])
 
-    let getEntriesDetails = async _ => {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      try {
-        let url = getURL(
-          ~entityName=V1(HYPERSWITCH_RECON),
-          ~methodType=Get,
-          ~hyperswitchReconType=#PROCESSED_ENTRIES_LIST_WITH_TRANSACTION,
-          ~id=Some(openedTransaction.transaction_id),
-        )
-        let res = await fetchDetails(url)
-        let entriesList = res->getArrayDataFromJson(transactionsEntryItemToObjMapperFromDict)
-        let entriesDataArray = openedTransaction.entries->Array.map(entry => {
-          let foundEntry =
-            entriesList
-            ->Array.find(e => entry.entry_id == e.entry_id)
-            ->Option.getOr(Dict.make()->transactionsEntryItemToObjMapperFromDict)
+    let sections =
+      allTransactionDetails->Array.map((transaction: ReconEngineTypes.transactionType) => {
+        let reasonText = switch transaction.data.reason {
+        | Some(reason) if reason->isNonEmptyString => Some(reason)
+        | _ => transaction.discarded_data->Option.flatMap(discardedData => discardedData.reason)
+        }
 
-          {
-            ...foundEntry,
-            account_name: entry.account.account_name,
-          }
-        })
-        setEntriesList(_ => entriesDataArray)
-        setScreenState(_ => PageLoaderWrapper.Success)
-      } catch {
-      | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch transaction details"))
-      }
-    }
-
-    let sections = allTransactionDetails->Array.map((transaction: transactionType) => {
-      let reasonText = switch transaction.data.reason {
-      | Some(reason) if reason->isNonEmptyString => Some(reason)
-      | _ => transaction.discarded_data->Option.flatMap(discardedData => discardedData.reason)
-      }
-
-      let customComponent = {
-        id: transaction.version->Int.toString,
-        customComponent: Some(
-          <TransactionDetailInfo
-            currentTransactionDetails=transaction
-            detailsFields=[Status, Variance, CreatedAt]
-            customWidthClass="w-1/3"
-          />,
-        ),
-        onClick: _ => {
-          setOpenedTransaction(_ => transaction)
-          setShowModal(_ => true)
-        },
-        reasonText,
-        modifiedBy: transaction.modified_by,
-      }
-      customComponent
-    })
-
-    React.useEffect(() => {
-      if showModal {
-        getEntriesDetails()->ignore
-      }
-      None
-    }, [showModal])
+        let customComponent = {
+          id: transaction.version->Int.toString,
+          customComponent: Some(
+            <TransactionDetailInfo
+              currentTransactionDetails=transaction
+              detailsFields=[Status, Variance, CreatedAt]
+              customWidthClass="w-1/3"
+            />,
+          ),
+          onClick: _ => {
+            setOpenedTransaction(_ => transaction)
+            setShowModal(_ => true)
+          },
+          reasonText,
+          modifiedBy: transaction.modified_by,
+        }
+        customComponent
+      })
 
     let modalHeading = {
       <div className="flex justify-between border-b">
@@ -364,35 +267,24 @@ module AuditTrail = {
         modalClass="flex flex-col justify-start h-screen w-2/5 float-right overflow-hidden !bg-white dark:!bg-jp-gray-lightgray_background"
         childClass="relative h-full"
         customModalHeading=modalHeading>
-        <PageLoaderWrapper
-          screenState
-          customLoader={<div className="h-full flex flex-col justify-center items-center">
-            <div className="animate-spin mb-1">
-              <Icon name="spinner" size=20 />
-            </div>
-          </div>}>
-          <div className="h-full relative">
-            <div className="absolute inset-0 overflow-y-auto px-2 pb-20">
-              <RenderIf condition={entriesList->Array.length > 0}>
-                <EntryAuditTrailInfo openedTransaction entriesList />
-              </RenderIf>
-              <RenderIf condition={entriesList->Array.length === 0}>
-                <div className="text-center text-nd_gray-500 py-8">
-                  {"No entries found"->React.string}
-                </div>
-              </RenderIf>
-            </div>
-            <div
-              className="absolute bottom-0 left-0 right-0 bg-white dark:bg-jp-gray-lightgray_background p-4 border-t border-nd_gray-150">
-              <Button
-                customButtonStyle="!w-full"
-                buttonType=Button.Primary
-                onClick={_ => setShowModal(_ => false)}
-                text="OK"
+        <div className="h-full relative">
+          <div className="absolute inset-0 overflow-y-auto px-2 pb-20">
+            <RenderIf condition={showModal && openedTransaction.id->isNonEmptyString}>
+              <EntryAuditTrailInfo
+                key={openedTransaction.id} openedTransaction accountIds accountsData
               />
-            </div>
+            </RenderIf>
           </div>
-        </PageLoaderWrapper>
+          <div
+            className="absolute bottom-0 left-0 right-0 bg-white dark:bg-jp-gray-lightgray_background p-4 border-t border-nd_gray-150">
+            <Button
+              customButtonStyle="!w-full"
+              buttonType=Button.Primary
+              onClick={_ => setShowModal(_ => false)}
+              text="OK"
+            />
+          </div>
+        </div>
       </Modal>
     </>
   }
@@ -400,7 +292,11 @@ module AuditTrail = {
 
 module AuditTrailTab = {
   @react.component
-  let make = (~transactionId: string) => {
+  let make = (
+    ~transactionId: string,
+    ~accountIds: array<string>,
+    ~accountsData: array<ReconEngineTypes.accountType>,
+  ) => {
     let getTransactions = ReconEngineHooks.useGetTransactions()
     let (allTransactionDetails, setAllTransactionDetails) = React.useState(_ => [])
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
@@ -425,7 +321,7 @@ module AuditTrailTab = {
 
     <PageLoaderWrapper
       screenState customLoader={<Shimmer styleClass="h-40 w-full mt-8 rounded-xl" />}>
-      <AuditTrail allTransactionDetails />
+      <AuditTrail allTransactionDetails accountIds accountsData />
     </PageLoaderWrapper>
   }
 }
