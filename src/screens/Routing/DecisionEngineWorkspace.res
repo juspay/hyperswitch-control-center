@@ -64,6 +64,7 @@ let make = () => {
     }
   }
 
+  // TODO: Remove this once OMP switching preserves section paths.
   React.useEffect(() => {
     switch sectionSlugOpt {
     | Some(slug) => lastSectionSlug.current = slug
@@ -127,7 +128,7 @@ let make = () => {
       <PageUtils.PageHeading
         title={section.label}
         customHeadingStyle="!mb-0"
-        customTitleStyle="!text-base text-nd_gray-700"
+        customTitleStyle={`!${Typography.body.lg.semibold} text-nd_gray-700`}
         showPermLink=false
       />
       <Button

@@ -11,47 +11,36 @@ let useSyncDecisionEngineCutover = (~embedDecisionEngine) => {
     merchantId->LogicUtils.isNonEmptyString && profileId->LogicUtils.isNonEmptyString
 
   React.useEffect(() => {
-    let active = ref(true)
-    let pending = ref(false)
-    let resolved = ref(false)
-    let retryTimer = ref(None)
+    let probeState: DecisionEngineTypes.cutoverProbeState = {
+      active: true,
+      pending: false,
+      resolved: false,
+    }
     setCutoverState(_ => None)
 
-    let rec probe = async attempt => {
-      if active.contents && !pending.contents && !resolved.contents {
-        pending := true
+    let probe = async () => {
+      if probeState.active && !probeState.pending && !probeState.resolved {
+        probeState.pending = true
         let result = try {
           await checkRoutingEntryCutover()
         } catch {
         | _ => None
         }
-        pending := false
-        if active.contents {
+        probeState.pending = false
+        if probeState.active {
           setCutoverState(_ => Some((key, result)))
-          switch result {
-          | Some(_) => resolved := true
-          | None if attempt < 2 => retryTimer := Some(setTimeout(() => {
-                  retryTimer := None
-                  probe(attempt + 1)->ignore
-                }, 1000 * (attempt + 1)))
-          | None => ()
-          }
+          probeState.resolved = result->Option.isSome
         }
       }
     }
-    let retryOnFocus = _ => {
-      if retryTimer.contents->Option.isNone {
-        probe(0)->ignore
-      }
-    }
+    let retryOnFocus = _ => probe()->ignore
     if embedDecisionEngine && sessionReady {
-      probe(0)->ignore
+      probe()->ignore
       Window.addEventListener("focus", retryOnFocus)
     }
     Some(
       () => {
-        active := false
-        retryTimer.contents->Option.forEach(clearTimeout)
+        probeState.active = false
         Window.removeEventListener("focus", retryOnFocus)
         setCutoverState(_ => None)
       },

@@ -8,6 +8,12 @@ type deSection = {
   inSidebar: bool,
 }
 
+type cutoverProbeState = {
+  mutable active: bool,
+  mutable pending: bool,
+  mutable resolved: bool,
+}
+
 type mintState = {seq: int, at: float}
 
 type deMessageType = SessionExpired | RouteChanged | UnknownMessage

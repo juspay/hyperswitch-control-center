@@ -3,6 +3,12 @@ open RoutingUtils
 @react.component
 let make = (~routingType) => {
   open LogicUtils
+  let {embedDecisionEngine} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let workspaceCutover = DecisionEngineHooks.useDecisionEngineCutover(~embedDecisionEngine)
+  let isWorkspaceFallback =
+    routingType->routingTypeFromName === DEFAULTFALLBACK &&
+    embedDecisionEngine &&
+    workspaceCutover !== Some(false)
   let baseUrlForRedirection = "/routing"
   let url = RescriptReactRouter.useUrl()
   let showToast = ToastAdapter.useShowToast()
@@ -68,11 +74,16 @@ let make = (~routingType) => {
 
   <PageLoaderWrapper screenState>
     <div className="flex flex-col gap-2">
-      <PageUtils.PageHeading title="Smart Routing Configurations" customHeadingStyle="!mb-0" />
-      <BreadCrumbNavigation
-        path=[{title: "Smart Routing Configurations", link: "/routing"}]
-        currentPageTitle={getContent(currentRouting).heading}
+      <PageUtils.PageHeading
+        title={isWorkspaceFallback ? "Default Fallback" : "Smart Routing Configurations"}
+        customHeadingStyle="!mb-0"
       />
+      <RenderIf condition={!isWorkspaceFallback}>
+        <BreadCrumbNavigation
+          path=[{title: "Smart Routing Configurations", link: "/routing"}]
+          currentPageTitle={getContent(currentRouting).heading}
+        />
+      </RenderIf>
       {switch currentRouting {
       | VOLUME_SPLIT =>
         <VolumeSplitRouting

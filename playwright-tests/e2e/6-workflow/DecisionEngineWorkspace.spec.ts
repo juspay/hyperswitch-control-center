@@ -57,6 +57,9 @@ test.describe("Decision Engine routing workspace", () => {
     ).toBeVisible();
     await page.getByRole("link", { name: "Default Fallback" }).click();
     await expect(page).toHaveURL(/\/routing\/default/);
+    await expect(
+      page.getByRole("link", { name: "Smart Routing Configurations" }),
+    ).toHaveCount(0);
   });
 
   test("workspace heading does not link back to the legacy routing screen", async ({
