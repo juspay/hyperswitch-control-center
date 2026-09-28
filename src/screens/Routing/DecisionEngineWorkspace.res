@@ -119,8 +119,7 @@ let make = () => {
   <div className="flex flex-col w-full h-[calc(100vh-4.75rem)]">
     <div
       className="flex items-center justify-between px-5 h-12 flex-shrink-0 border-b border-nd_gray-200 bg-white">
-      // No parent crumb: a cut-over profile should not be sent back to the legacy routing screen.
-      <BreadCrumbNavigation currentPageTitle={section.label} />
+      <h1 className="text-base font-semibold text-nd_gray-700"> {React.string(section.label)} </h1>
       <Button
         text="Open in new tab"
         buttonType={Secondary}
