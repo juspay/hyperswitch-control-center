@@ -132,7 +132,7 @@ let make = () => {
                 placeholder="Search for payment ID or refund ID"
                 setSearchVal=setSearchText
                 searchVal=searchText
-                sanitizeSearchInput=HSwitchRemoteFilter.sanitizeTransactionId
+                isValidSearchInput=HSwitchRemoteFilter.isValidTransactionId
               />
             </div>}
             entityName=V1(REFUND_FILTERS)

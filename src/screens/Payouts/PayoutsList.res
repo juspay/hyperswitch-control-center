@@ -124,7 +124,7 @@ let make = () => {
               placeholder="Search for payout ID"
               setSearchVal=setSearchText
               searchVal=searchText
-              sanitizeSearchInput=HSwitchRemoteFilter.sanitizeTransactionId
+              isValidSearchInput=HSwitchRemoteFilter.isValidTransactionId
             />}
             entityName=V1(PAYOUTS_FILTERS)
             connectorTypes=[PayoutProcessor]

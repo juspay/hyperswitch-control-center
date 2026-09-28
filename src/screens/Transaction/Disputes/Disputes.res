@@ -132,7 +132,7 @@ let make = () => {
         placeholder="Search for dispute ID"
         setSearchVal=handleSearchTextChange
         searchVal=searchText
-        sanitizeSearchInput=HSwitchRemoteFilter.sanitizeTransactionId
+        isValidSearchInput=HSwitchRemoteFilter.isValidTransactionId
       />}
       entityName=V1(DISPUTE_FILTERS)
       title="Disputes"
