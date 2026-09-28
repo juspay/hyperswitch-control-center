@@ -56,6 +56,7 @@ test.describe("Decision Engine routing workspace", () => {
   test("probes routing/entry once per session, not once per sidebar consumer", async ({
     page,
   }) => {
+    counter.calls = 0;
     await page.goto("/dashboard/home");
     await page.waitForLoadState("networkidle");
     // One shared probe per merchant+profile. Before the fix this was one per
@@ -75,7 +76,7 @@ test.describe("Decision Engine routing workspace", () => {
     await expect(page).toHaveURL(/\/routing\/default/);
   });
 
-  test("workspace breadcrumb does not link back to the legacy routing screen", async ({
+  test("workspace heading does not link back to the legacy routing screen", async ({
     page,
   }) => {
     await page.goto("/dashboard/routing-workspace/rule");
@@ -85,12 +86,31 @@ test.describe("Decision Engine routing workspace", () => {
     ).toHaveCount(0);
   });
 
-  test("keeps the open section across a profile switch", async ({ page }) => {
-    await page.goto("/dashboard/routing-workspace/volume");
-    await expect(page).toHaveURL(/routing-workspace\/volume/);
-    // An OMP switch truncates the path to /dashboard/routing-workspace; the
-    // workspace restores the section rather than dropping to Rule-Based.
-    await page.goto("/dashboard/routing-workspace");
-    await expect(page).toHaveURL(/routing-workspace\/volume/);
-  });
+  for (const section of ["volume", "rule"]) {
+    test(`restores ${section} without minting an intermediate section`, async ({
+      page,
+    }) => {
+      await page.goto(`/dashboard/routing-workspace/${section}`);
+      await expect(
+        page.locator('iframe[title="Decision Engine"]'),
+      ).toBeVisible();
+      const targets: Array<string | null> = [];
+      page.on("request", (request) => {
+        const url = new URL(request.url());
+        if (url.pathname.endsWith("/routing/entry")) {
+          targets.push(url.searchParams.get("target"));
+        }
+      });
+      // Match the SPA navigation performed by the OMP switch, preserving refs.
+      await page.evaluate(() => {
+        window.history.pushState({}, "", "/dashboard/routing-workspace");
+        window.dispatchEvent(new PopStateEvent("popstate"));
+      });
+      await expect(page).toHaveURL(new RegExp(`routing-workspace/${section}`));
+      await expect(
+        page.locator('iframe[title="Decision Engine"]'),
+      ).toBeVisible();
+      expect(targets).toEqual([section]);
+    });
+  }
 });

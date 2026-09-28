@@ -1,44 +1,80 @@
 open APIUtils
 
-// Several live instances (sidebar, global search, search results); the ref collapses them to one probe per key.
-let probedKey = ref("")
-
-let useDecisionEngineCutover = (~embedDecisionEngine) => {
-  let (cutoverState, setCutoverState) = Recoil.useRecoilState(
-    HyperswitchAtom.decisionEngineCutoverAtom,
-  )
+// One owner in the authenticated app; sidebar/search consumers only read the result.
+let useSyncDecisionEngineCutover = (~embedDecisionEngine) => {
+  let setCutoverState = Recoil.useSetRecoilState(HyperswitchAtom.decisionEngineCutoverAtom)
   let {merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
   let checkRoutingEntryCutover = RoutingUtils.useCheckRoutingEntryCutover()
-
   let key = `${merchantId}:${profileId}`
-  // Probing before the session names a merchant and profile can only 400.
   let sessionReady =
     merchantId->LogicUtils.isNonEmptyString && profileId->LogicUtils.isNonEmptyString
 
-  let syncCutover = async () => {
-    let result = await checkRoutingEntryCutover()
-    setCutoverState(_ => Some((key, result)))
-  }
-
   React.useEffect(() => {
-    if probedKey.contents !== key {
-      if !embedDecisionEngine {
-        probedKey := key
-        setCutoverState(_ => Some((key, Some(false))))
-      } else if sessionReady {
-        probedKey := key
-        syncCutover()->ignore
+    let active = ref(true)
+    let pending = ref(false)
+    let resolved = ref(false)
+    let retryTimer = ref(None)
+    setCutoverState(_ => None)
+
+    let rec probe = async attempt => {
+      if active.contents && !pending.contents && !resolved.contents {
+        pending := true
+        let result = try {
+          await checkRoutingEntryCutover()
+        } catch {
+        | _ => None
+        }
+        pending := false
+        if active.contents {
+          setCutoverState(_ => Some((key, result)))
+          switch result {
+          | Some(_) => resolved := true
+          | None if attempt < 2 => retryTimer := Some(setTimeout(() => {
+                  retryTimer := None
+                  probe(attempt + 1)->ignore
+                }, 1000 * (attempt + 1)))
+          | None => ()
+          }
+        }
       }
     }
-    None
+    let retryOnFocus = _ => {
+      if retryTimer.contents->Option.isNone {
+        probe(0)->ignore
+      }
+    }
+    if embedDecisionEngine && sessionReady {
+      probe(0)->ignore
+      Window.addEventListener("focus", retryOnFocus)
+    }
+    Some(
+      () => {
+        active := false
+        retryTimer.contents->Option.forEach(clearTimeout)
+        Window.removeEventListener("focus", retryOnFocus)
+        setCutoverState(_ => None)
+      },
+    )
   }, (key, embedDecisionEngine, sessionReady))
+}
+
+let useDecisionEngineCutover = (~embedDecisionEngine) => {
+  let cutoverState = HyperswitchAtom.decisionEngineCutoverAtom->Recoil.useRecoilValueFromAtom
+  let {merchantId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
+  let key = `${merchantId}:${profileId}`
 
   // A stale key reads as None, so an OMP switch never shows the previous profile's answer.
-  switch cutoverState {
-  | Some((storedKey, value)) if storedKey === key => value
-  | _ => None
+  if !embedDecisionEngine {
+    Some(false)
+  } else {
+    switch cutoverState {
+    | Some((storedKey, value)) if storedKey === key => value
+    | _ => None
+    }
   }
 }
 

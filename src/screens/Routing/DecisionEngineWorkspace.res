@@ -71,16 +71,20 @@ let make = () => {
     | None => RescriptReactRouter.replace(workspaceUrl(~slug=lastSectionSlug.current))
     }
     None
-  }, [sectionSlug])
+  }, [sectionSlugOpt])
 
   React.useEffect(() => {
     if skipNextMint.current {
       skipNextMint.current = false
-    } else {
+    } else if sectionSlugOpt->Option.isSome {
       loadFrame()->ignore
     }
-    None
-  }, (sectionSlug, ruleId, profileId))
+    Some(
+      () => {
+        mintState.current = {...mintState.current, seq: mintState.current.seq + 1}
+      },
+    )
+  }, (sectionSlugOpt, ruleId, profileId))
 
   let handleMessage = ev => {
     let event = ev->DOMUtils.toMessageEvent
@@ -90,7 +94,9 @@ let make = () => {
       | SessionExpired =>
         // One-shot: skip if a mint happened within remintThrottleMs; the next section/rule/profile
         // change re-mints.
-        if Js.Date.now() -. mintState.current.at > remintThrottleMs {
+        if (
+          sectionSlugOpt->Option.isSome && Js.Date.now() -. mintState.current.at > remintThrottleMs
+        ) {
           loadFrame()->ignore
         }
       | RouteChanged => {
@@ -114,12 +120,17 @@ let make = () => {
   React.useEffect(() => {
     Window.addEventListener("message", handleMessage)
     Some(() => Window.removeEventListener("message", handleMessage))
-  }, (sectionSlug, ruleId, profileId, section.target))
+  }, (sectionSlugOpt, ruleId, profileId, section.target))
 
   <div className="flex flex-col w-full h-[calc(100vh-4.75rem)]">
     <div
       className="flex items-center justify-between px-5 h-12 flex-shrink-0 border-b border-nd_gray-200 bg-white">
-      <h1 className="text-base font-semibold text-nd_gray-700"> {React.string(section.label)} </h1>
+      <PageUtils.PageHeading
+        title={section.label}
+        customHeadingStyle="!mb-0"
+        customTitleStyle="!text-base text-nd_gray-700"
+        showPermLink=false
+      />
       <Button
         text="Open in new tab"
         buttonType={Secondary}
