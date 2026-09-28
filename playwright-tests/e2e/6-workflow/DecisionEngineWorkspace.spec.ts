@@ -3,19 +3,6 @@ import type { Page, Route } from "@playwright/test";
 import { generateUniqueEmail } from "../../support/helper";
 import { signupUser, loginUI } from "../../support/commands";
 
-// ---------------------------------------------------------------------------
-// Embedded Decision Engine routing workspace.
-//
-// `routing/entry` is stubbed rather than driven off a real cut-over profile:
-// cut-over is decided by the router's open_router flags plus Superposition, which
-// the Playwright stack does not run. Stubbing also makes the probe countable,
-// which is the point of the first test — the hook used to fire one request per
-// live SidebarHooks consumer (sidebar, global search bar, search results page).
-//
-// Requires `dev_embed_decision_engine` on the dashboard under test; the suite
-// skips rather than fails when it is off, so it is safe on an env without it.
-// ---------------------------------------------------------------------------
-
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 const stubCutover = async (page: Page, counter: { calls: number }) => {
@@ -26,8 +13,6 @@ const stubCutover = async (page: Page, counter: { calls: number }) => {
       contentType: "application/json",
       body: JSON.stringify({
         is_cutover: true,
-        // Same-origin so the frame stays inside the harness; the frame's own
-        // content is not what these tests assert on.
         redirect_url: `${new URL(page.url()).origin}/decision-engine/routing/rules`,
       }),
     });
@@ -59,8 +44,6 @@ test.describe("Decision Engine routing workspace", () => {
     counter.calls = 0;
     await page.goto("/dashboard/home");
     await page.waitForLoadState("networkidle");
-    // One shared probe per merchant+profile. Before the fix this was one per
-    // live useDecisionEngineCutover instance.
     expect(counter.calls).toBe(1);
   });
 
@@ -101,7 +84,6 @@ test.describe("Decision Engine routing workspace", () => {
           targets.push(url.searchParams.get("target"));
         }
       });
-      // Match the SPA navigation performed by the OMP switch, preserving refs.
       await page.evaluate(() => {
         window.history.pushState({}, "", "/dashboard/routing-workspace");
         window.dispatchEvent(new PopStateEvent("popstate"));

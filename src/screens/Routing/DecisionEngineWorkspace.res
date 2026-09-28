@@ -64,7 +64,6 @@ let make = () => {
     }
   }
 
-  // An OMP switch truncates the path to /dashboard/routing-workspace, dropping the user onto Rule-Based.
   React.useEffect(() => {
     switch sectionSlugOpt {
     | Some(slug) => lastSectionSlug.current = slug

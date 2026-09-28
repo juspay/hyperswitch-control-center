@@ -1,5 +1,3 @@
-// Run after npm run re:build: node --test tests/decision-engine-cutover.test.cjs
-// Exercise the compiled hook with isolated React effect/Recoil/timer boundaries.
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");

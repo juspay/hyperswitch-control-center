@@ -541,7 +541,6 @@ let decisionEngineRouting = (showDecisionEngine, ~userHasResourceAccess) => {
         links: DecisionEngineUtils.sections
         ->Array.filter(section => section.inSidebar)
         ->Array.map(decisionEngineLink)
-        // No Decision Engine section for fallback, and cut-over profiles lose the Workflow > Routing link.
         ->Array.concat([
           SubLevelLink({
             name: "Default Fallback",

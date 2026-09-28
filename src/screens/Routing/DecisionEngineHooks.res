@@ -1,6 +1,5 @@
 open APIUtils
 
-// One owner in the authenticated app; sidebar/search consumers only read the result.
 let useSyncDecisionEngineCutover = (~embedDecisionEngine) => {
   let setCutoverState = Recoil.useSetRecoilState(HyperswitchAtom.decisionEngineCutoverAtom)
   let {merchantId, profileId} = React.useContext(
@@ -67,7 +66,6 @@ let useDecisionEngineCutover = (~embedDecisionEngine) => {
   ).getCommonSessionDetails()
   let key = `${merchantId}:${profileId}`
 
-  // A stale key reads as None, so an OMP switch never shows the previous profile's answer.
   if !embedDecisionEngine {
     Some(false)
   } else {
