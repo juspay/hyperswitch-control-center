@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.28.0
+
+### Features
+
+- Add granular webhook event configuration to Payment Settings ([#5575](https://github.com/juspay/hyperswitch-control-center/pull/5575)) ([`8c5fdda`](https://github.com/juspay/hyperswitch-control-center/commit/8c5fddaeb1b544aeac8ca80108e7a49f1dd32ee5))
+
+### Bug Fixes
+
+- **alerts:** Allow write actions for internal roles ([#5592](https://github.com/juspay/hyperswitch-control-center/pull/5592)) ([`bebde7d`](https://github.com/juspay/hyperswitch-control-center/commit/bebde7d4d7a0d1fda5afcbf338264a862ad0c075))
+- **payments:** Use analytics aggregate only with Analytics access ([#5595](https://github.com/juspay/hyperswitch-control-center/pull/5595)) ([`95b1e90`](https://github.com/juspay/hyperswitch-control-center/commit/95b1e904a83e1c01dcea57499afb320ad1aacb31))
+
+**Full Changelog:** [`2026.09.24.1...2026.09.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.24.1...2026.09.28.0)
+
+- - -
+
 ## 2026.09.24.1
 
 ### Features
