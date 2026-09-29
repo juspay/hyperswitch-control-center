@@ -10,6 +10,7 @@ let make = () => {
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let url = RescriptReactRouter.useUrl()
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let isRoutingEntryAllowed = DecisionEngineHooks.useRoutingEntryAllowed()
   let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let openDecisionEngineNewTab = DecisionEngineHooks.useDecisionEngineNewTab()
 
@@ -65,7 +66,7 @@ let make = () => {
   React.useEffect(() => {
     if skipNextMint.current {
       skipNextMint.current = false
-    } else {
+    } else if isRoutingEntryAllowed {
       loadFrame()->ignore
     }
     Some(
@@ -73,7 +74,7 @@ let make = () => {
         mintState.current = {...mintState.current, seq: mintState.current.seq + 1}
       },
     )
-  }, (sectionSlug, ruleId, profileId))
+  }, (sectionSlug, ruleId, profileId, isRoutingEntryAllowed))
 
   let handleMessage = ev => {
     let event = ev->DOMUtils.toMessageEvent
@@ -83,7 +84,7 @@ let make = () => {
       | SessionExpired =>
         // One-shot: skip if a mint happened within remintThrottleMs; the next section/rule/profile
         // change re-mints.
-        if Js.Date.now() -. mintState.current.at > remintThrottleMs {
+        if isRoutingEntryAllowed && Js.Date.now() -. mintState.current.at > remintThrottleMs {
           loadFrame()->ignore
         }
       | RouteChanged => {
@@ -107,7 +108,7 @@ let make = () => {
   React.useEffect(() => {
     Window.addEventListener("message", handleMessage)
     Some(() => Window.removeEventListener("message", handleMessage))
-  }, (sectionSlug, ruleId, profileId, section.target))
+  }, (sectionSlug, ruleId, profileId, section.target, isRoutingEntryAllowed))
 
   <div className="flex flex-col w-full h-[calc(100vh-4.75rem)]">
     <div
