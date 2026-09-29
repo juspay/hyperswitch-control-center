@@ -48,7 +48,7 @@ let make = () => {
           RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/routing"))
         } else if redirectUrl->isNonEmptyString {
           let separator = redirectUrl->String.includes("?") ? "&" : "?"
-          mintState.current = {...mintState.current, at: Js.Date.now()}
+          mintState.current = {...mintState.current, at: Date.now()}
           setIframeSrc(_ => `${redirectUrl}${separator}embed=1${handoffFragment()}`)
           setScreenState(_ => PageLoaderWrapper.Success)
         } else {
@@ -84,7 +84,7 @@ let make = () => {
       | SessionExpired =>
         // One-shot: skip if a mint happened within remintThrottleMs; the next section/rule/profile
         // change re-mints.
-        if isRoutingEntryAllowed && Js.Date.now() -. mintState.current.at > remintThrottleMs {
+        if isRoutingEntryAllowed && Date.now() -. mintState.current.at > remintThrottleMs {
           loadFrame()->ignore
         }
       | RouteChanged => {
