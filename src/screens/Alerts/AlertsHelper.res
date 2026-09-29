@@ -177,7 +177,7 @@ module DimensionFields = {
                 field={FormRenderer.makeFieldInfo(
                   ~label=key,
                   ~name=`${valuesName}.${key}`,
-                  ~customInput=InputFields.textInput(),
+                  ~customInput=InputFields.textInput(~isDisabled=true),
                 )}
               />
             )
