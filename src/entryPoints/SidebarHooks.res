@@ -50,7 +50,7 @@ let useGetHsSidebarValues = () => {
     newAnalytics && isFeatureEnabledForDenyListMerchant(merchantSpecificConfig.newAnalytics)
   let {isCurrentMerchantPlatform, isCurrentMerchantConnected} = OMPSwitchHooks.useOMPType()
 
-  let cutover = DecisionEngineHooks.useDecisionEngineCutover(~embedDecisionEngine)
+  let cutover = DecisionEngineHooks.useDecisionEngineCutover()
   let showDecisionEngine = embedDecisionEngine && cutover->Option.getOr(false)
 
   let standardModules = !isCurrentMerchantPlatform
