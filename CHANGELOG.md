@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.29.0
+
+### Bug Fixes
+
+- **offers:** Match create-offer body field types to offers engine ([#5596](https://github.com/juspay/hyperswitch-control-center/pull/5596)) ([`fd2ce70`](https://github.com/juspay/hyperswitch-control-center/commit/fd2ce702c261d2951e1b44852881dafc29c7e110))
+
+**Full Changelog:** [`2026.09.28.0...2026.09.29.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.28.0...2026.09.29.0)
+
+- - -
+
 ## 2026.09.28.0
 
 ### Features
