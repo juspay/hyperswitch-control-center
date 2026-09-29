@@ -109,15 +109,13 @@ let workspaceUrl = (~slug, ~ruleId="") => {
   GlobalVars.appendDashboardPath(~url=`${workspacePath(~slug)}${query}`)
 }
 
-let sectionSlugFromPathOpt = path => {
+let sectionSlugFromPath = path => {
   let pathSegments = path->List.toArray
   switch pathSegments->Array.findIndex(seg => seg === "routing-workspace") {
-  | -1 => None
-  | idx => pathSegments->Array.get(idx + 1)
+  | -1 => defaultSection.slug
+  | idx => pathSegments->Array.get(idx + 1)->Option.getOr(defaultSection.slug)
   }
 }
-
-let sectionSlugFromPath = path => path->sectionSlugFromPathOpt->Option.getOr(defaultSection.slug)
 
 let isWorkspacePath = path =>
   switch path {

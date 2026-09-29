@@ -18,9 +18,7 @@ let make = () => {
   let mintState = React.useRef(({seq: 0, at: 0.}: DecisionEngineTypes.mintState))
   let skipNextMint = React.useRef(false)
 
-  let sectionSlugOpt = url.path->sectionSlugFromPathOpt
-  let sectionSlug = sectionSlugOpt->Option.getOr(defaultSection.slug)
-  let lastSectionSlug = React.useRef(defaultSection.slug)
+  let sectionSlug = url.path->sectionSlugFromPath
   let ruleId = url.search->getDictFromUrlSearchParams->Dict.get("rule")->Option.getOr("")
   let section = sections->Array.find(s => s.slug === sectionSlug)->Option.getOr(defaultSection)
 
@@ -64,19 +62,10 @@ let make = () => {
     }
   }
 
-  // TODO: Remove this once OMP switching preserves section paths.
-  React.useEffect(() => {
-    switch sectionSlugOpt {
-    | Some(slug) => lastSectionSlug.current = slug
-    | None => RescriptReactRouter.replace(workspaceUrl(~slug=lastSectionSlug.current))
-    }
-    None
-  }, [sectionSlugOpt])
-
   React.useEffect(() => {
     if skipNextMint.current {
       skipNextMint.current = false
-    } else if sectionSlugOpt->Option.isSome {
+    } else {
       loadFrame()->ignore
     }
     Some(
@@ -84,7 +73,7 @@ let make = () => {
         mintState.current = {...mintState.current, seq: mintState.current.seq + 1}
       },
     )
-  }, (sectionSlugOpt, ruleId, profileId))
+  }, (sectionSlug, ruleId, profileId))
 
   let handleMessage = ev => {
     let event = ev->DOMUtils.toMessageEvent
@@ -94,9 +83,7 @@ let make = () => {
       | SessionExpired =>
         // One-shot: skip if a mint happened within remintThrottleMs; the next section/rule/profile
         // change re-mints.
-        if (
-          sectionSlugOpt->Option.isSome && Js.Date.now() -. mintState.current.at > remintThrottleMs
-        ) {
+        if Js.Date.now() -. mintState.current.at > remintThrottleMs {
           loadFrame()->ignore
         }
       | RouteChanged => {
@@ -120,7 +107,7 @@ let make = () => {
   React.useEffect(() => {
     Window.addEventListener("message", handleMessage)
     Some(() => Window.removeEventListener("message", handleMessage))
-  }, (sectionSlugOpt, ruleId, profileId, section.target))
+  }, (sectionSlug, ruleId, profileId, section.target))
 
   <div className="flex flex-col w-full h-[calc(100vh-4.75rem)]">
     <div

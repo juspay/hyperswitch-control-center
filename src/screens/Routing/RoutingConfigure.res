@@ -3,12 +3,9 @@ open RoutingUtils
 @react.component
 let make = (~routingType) => {
   open LogicUtils
-  let {embedDecisionEngine} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let workspaceCutover = DecisionEngineHooks.useDecisionEngineCutover(~embedDecisionEngine)
+  let workspaceCutover = DecisionEngineHooks.useDecisionEngineCutover()
   let isWorkspaceFallback =
-    routingType->routingTypeFromName === DEFAULTFALLBACK &&
-    embedDecisionEngine &&
-    workspaceCutover !== Some(false)
+    routingType->routingTypeFromName === DEFAULTFALLBACK && workspaceCutover->Option.getOr(false)
   let baseUrlForRedirection = "/routing"
   let url = RescriptReactRouter.useUrl()
   let showToast = ToastAdapter.useShowToast()

@@ -166,3 +166,11 @@ let merchantTypeOptions: array<SelectBox.dropdownOption> = [
     description: "Standard merchants are independent within a Platform Organization. The platform merchant can generate their API keys, but all other operations for the standard merchant are handled independently.",
   },
 ]
+
+let getPathAfterSwitch = path => {
+  let end = switch path {
+  | list{_, "routing-workspace", ..._} => 3
+  | _ => 2
+  }
+  GlobalVars.extractModulePath(~path, ~query="", ~end)
+}

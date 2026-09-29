@@ -1,6 +1,10 @@
 import { test, expect } from "../../support/test";
 import type { Page, Route } from "@playwright/test";
-import { generateUniqueEmail } from "../../support/helper";
+import { HomePage } from "../../support/pages/homepage/HomePage";
+import {
+  generateUniqueEmail,
+  generateDateTimeString,
+} from "../../support/helper";
 import { signupUser, loginUI } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
@@ -73,10 +77,12 @@ test.describe("Decision Engine routing workspace", () => {
   });
 
   for (const section of ["volume", "rule"]) {
-    test(`restores ${section} without minting an intermediate section`, async ({
+    test(`preserves ${section} and clears the old rule on profile switch`, async ({
       page,
     }) => {
-      await page.goto(`/dashboard/routing-workspace/${section}`);
+      await page.goto(`/dashboard/routing-workspace/${section}?rule=old-rule`);
+      const homePage = new HomePage(page);
+      const profileName = `pw_profile_${generateDateTimeString()}`;
       await expect(
         page.locator('iframe[title="Decision Engine"]'),
       ).toBeVisible();
@@ -87,15 +93,20 @@ test.describe("Decision Engine routing workspace", () => {
           targets.push(url.searchParams.get("target"));
         }
       });
-      await page.evaluate(() => {
-        window.history.pushState({}, "", "/dashboard/routing-workspace");
-        window.dispatchEvent(new PopStateEvent("popstate"));
-      });
-      await expect(page).toHaveURL(new RegExp(`routing-workspace/${section}`));
+      await homePage.profileDropdown.click();
+      await homePage.clickCreateNewOption();
+      await homePage.newProfileNameInput.fill(profileName);
+      await homePage.addProfileButton.click();
+      await expect(homePage.ompDropdownItem(profileName)).toBeVisible();
+      await homePage.ompDropdownItem(profileName).click();
+      await expect(homePage.profileDropdown).toContainText(profileName);
+      await expect(page).toHaveURL(
+        new RegExp(`routing-workspace/${section}/?$`),
+      );
       await expect(
         page.locator('iframe[title="Decision Engine"]'),
       ).toBeVisible();
-      expect(targets).toEqual([section]);
+      expect(targets.filter((target) => target !== null)).toEqual([section]);
     });
   }
 });

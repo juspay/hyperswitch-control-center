@@ -1,6 +1,7 @@
 open APIUtils
 
-let useSyncDecisionEngineCutover = (~embedDecisionEngine) => {
+let useSyncDecisionEngineCutover = () => {
+  let {embedDecisionEngine} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let setCutoverState = Recoil.useSetRecoilState(HyperswitchAtom.decisionEngineCutoverAtom)
   let {merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
@@ -10,45 +11,29 @@ let useSyncDecisionEngineCutover = (~embedDecisionEngine) => {
   let sessionReady =
     merchantId->LogicUtils.isNonEmptyString && profileId->LogicUtils.isNonEmptyString
 
-  React.useEffect(() => {
-    let probeState: DecisionEngineTypes.cutoverProbeState = {
-      active: true,
-      pending: false,
-      resolved: false,
+  let fetchCutoverStatus = async (~isActive) => {
+    let result = await checkRoutingEntryCutover()
+    if isActive.contents {
+      setCutoverState(_ => Some((key, result)))
     }
-    setCutoverState(_ => None)
+  }
 
-    let probe = async () => {
-      if probeState.active && !probeState.pending && !probeState.resolved {
-        probeState.pending = true
-        let result = try {
-          await checkRoutingEntryCutover()
-        } catch {
-        | _ => None
-        }
-        probeState.pending = false
-        if probeState.active {
-          setCutoverState(_ => Some((key, result)))
-          probeState.resolved = result->Option.isSome
-        }
-      }
-    }
-    let retryOnFocus = _ => probe()->ignore
+  React.useEffect(() => {
+    let isActive = ref(true)
     if embedDecisionEngine && sessionReady {
-      probe()->ignore
-      Window.addEventListener("focus", retryOnFocus)
+      fetchCutoverStatus(~isActive)->ignore
     }
     Some(
       () => {
-        probeState.active = false
-        Window.removeEventListener("focus", retryOnFocus)
+        isActive := false
         setCutoverState(_ => None)
       },
     )
-  }, (key, embedDecisionEngine, sessionReady))
+  }, (key, embedDecisionEngine))
 }
 
-let useDecisionEngineCutover = (~embedDecisionEngine) => {
+let useDecisionEngineCutover = () => {
+  let {embedDecisionEngine} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let cutoverState = HyperswitchAtom.decisionEngineCutoverAtom->Recoil.useRecoilValueFromAtom
   let {merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
