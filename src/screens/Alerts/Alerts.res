@@ -7,7 +7,7 @@ let make = () => {
   open AlertsFilters
 
   let fetchDictionary = AlertsHooks.useAlertsDictionary()
-  let {filterValueJson, filterValue, updateExistingKeys, reset} = React.useContext(
+  let {filterValueJson, filterValue, updateExistingKeys, reset, setfilterKeys} = React.useContext(
     FilterContext.filterContext,
   )
   let showToast = ToastAdapter.useShowToast()
@@ -15,7 +15,6 @@ let make = () => {
   let (alertsDictionary, setAlertsDictionary) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->AlertsUtils.alertsDictionaryResponseMapper
   )
-  let (dictionaryVersion, setDictionaryVersion) = React.useState(_ => 0)
   let (alertsRefetch, setAlertsRefetch) = React.useState(() => () => ())
   let (resolvedRefetch, setResolvedRefetch) = React.useState(() => () => ())
 
@@ -27,7 +26,7 @@ let make = () => {
     try {
       let result = await fetchDictionary()
       setAlertsDictionary(_ => result)
-      setDictionaryVersion(version => version + 1)
+      setfilterKeys(keys => keys->Array.map(key => key))
     } catch {
     | Exn.Error(_) => showToast(~message="Failed to fetch alerts dictionary", ~toastType=ToastError)
     }
@@ -59,7 +58,7 @@ let make = () => {
       />
     </div>
     <Filter
-      key={`AlertsFilters-${dictionaryVersion->Int.toString}`}
+      key="AlertsFilters"
       title="Alerts"
       defaultFilters={""->JSON.Encode.string}
       fixedFilters={initialFixedFilter()}

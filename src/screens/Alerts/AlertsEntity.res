@@ -41,17 +41,15 @@ let placeholderIfEmpty = value => value->isNonEmptyString ? value : "-"
 let xyneChannelCell = (alert: alert): Table.cell =>
   alert.threadUrl->isNonEmptyString
     ? CustomCell(
-        <a
-          href=alert.threadUrl
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 underline"
-          onClick={event => event->ReactEvent.Mouse.stopPropagation}>
+        <Link
+          to_=alert.threadUrl
+          openInNewTab=true
+          className="text-nd_primary_blue-600 underline hover:text-nd_primary_blue-700 w-fit whitespace-nowrap">
           {"Xyne message"->React.string}
-        </a>,
+        </Link>,
         "Xyne message",
       )
-    : Text("-")
+    : CustomCell(<div> {"-"->React.string} </div>, "-")
 
 let getCell = (alert: alert, colType: colType): Table.cell =>
   switch colType {
