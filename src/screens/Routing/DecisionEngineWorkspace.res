@@ -68,7 +68,11 @@ let make = () => {
     } else {
       loadFrame()->ignore
     }
-    None
+    Some(
+      () => {
+        mintState.current = {...mintState.current, seq: mintState.current.seq + 1}
+      },
+    )
   }, (sectionSlug, ruleId, profileId))
 
   let handleMessage = ev => {
@@ -108,9 +112,11 @@ let make = () => {
   <div className="flex flex-col w-full h-[calc(100vh-4.75rem)]">
     <div
       className="flex items-center justify-between px-5 h-12 flex-shrink-0 border-b border-nd_gray-200 bg-white">
-      <BreadCrumbNavigation
-        path=[{title: "Smart Routing Configurations", link: "/routing"}]
-        currentPageTitle={section.label}
+      <PageUtils.PageHeading
+        title={section.label}
+        customHeadingStyle="!mb-0"
+        customTitleStyle={`!${Typography.body.lg.semibold} text-nd_gray-700`}
+        showPermLink=false
       />
       <Button
         text="Open in new tab"
