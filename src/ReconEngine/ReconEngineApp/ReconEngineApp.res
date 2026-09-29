@@ -38,8 +38,7 @@ let make = () => {
         </AccessControl>
       | list{"v1", "recon-engine", "pipelines", ..._} =>
         <AccessControl
-          isEnabled={featureFlagDetails.devReconEngineV1 &&
-          featureFlagDetails.devReconEnginePipelines}
+          isEnabled={featureFlagDetails.devReconEngineV1}
           authorization={userHasAccess(~groupAccess=ReconSourcesView)}>
           <ReconEnginePipelinesContainer />
         </AccessControl>
