@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.29.1
+
+### Bug Fixes
+
+- **routing:** Dedupe the Decision Engine cutover probe and tighten workspace navigation ([#5591](https://github.com/juspay/hyperswitch-control-center/pull/5591)) ([`c1a673d`](https://github.com/juspay/hyperswitch-control-center/commit/c1a673db1aba3894e494f800e7d10784916fda24))
+
+**Full Changelog:** [`2026.09.29.0...2026.09.29.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.29.0...2026.09.29.1)
+
+- - -
+
 ## 2026.09.29.0
 
 ### Bug Fixes

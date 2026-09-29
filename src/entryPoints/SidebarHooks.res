@@ -50,7 +50,7 @@ let useGetHsSidebarValues = () => {
     newAnalytics && isFeatureEnabledForDenyListMerchant(merchantSpecificConfig.newAnalytics)
   let {isCurrentMerchantPlatform, isCurrentMerchantConnected} = OMPSwitchHooks.useOMPType()
 
-  let cutover = DecisionEngineHooks.useDecisionEngineCutover(~embedDecisionEngine)
+  let cutover = DecisionEngineHooks.useDecisionEngineCutover()
   let showDecisionEngine = embedDecisionEngine && cutover->Option.getOr(false)
 
   let standardModules = !isCurrentMerchantPlatform
@@ -181,11 +181,7 @@ let useGetAllProductSections = (~products: array<productTypes>) => {
   products->Array.map(productType => {
     let links = switch productType {
     | Recon(V1) =>
-      ReconEngineSidebarValues.reconEngineSidebars(
-        ~userHasResourceAccess,
-        ~userHasAccess,
-        ~isReconEnginePipelinesEnabled=featureFlagDetails.devReconEnginePipelines,
-      )
+      ReconEngineSidebarValues.reconEngineSidebars(~userHasResourceAccess, ~userHasAccess)
     | Recon(V2) => ReconSidebarValues.reconSidebars
     | Recovery => RevenueRecoverySidebarValues.recoverySidebars(isLiveMode)
     | Vault => VaultSidebarValues.vaultSidebars
@@ -295,11 +291,7 @@ let useGetSidebarValuesForCurrentActive = () => {
   | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
   | Orchestration(V2) => orchestratorV2Sidebars
   | Recon(V1) =>
-    ReconEngineSidebarValues.reconEngineSidebars(
-      ~userHasResourceAccess,
-      ~userHasAccess,
-      ~isReconEnginePipelinesEnabled=featureFlagDetails.devReconEnginePipelines,
-    )
+    ReconEngineSidebarValues.reconEngineSidebars(~userHasResourceAccess, ~userHasAccess)
   | OnBoarding(_)
   | UnknownProduct => []
   }

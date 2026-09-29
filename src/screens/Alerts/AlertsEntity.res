@@ -105,7 +105,20 @@ let getCell = (alert: alert, colType: colType): Table.cell =>
       />,
       "",
     )
-  | AlertProfileId => Text(alert.profileId->placeholderIfEmpty)
+  | AlertProfileId =>
+    if alert.profileId->isEmptyString {
+      Text("-")
+    } else {
+      CustomCell(
+        <HelperComponents.CopyTextCustomComp
+          customTextCss="w-32 truncate whitespace-nowrap"
+          displayValue={Some(alert.profileId)}
+          copyValue={Some(alert.profileId)}
+          showTooltip=true
+        />,
+        "",
+      )
+    }
   | AlertChannel => alert->xyneChannelCell
   | AlertConnector => Text(alert.connector->placeholderIfEmpty)
   | AlertStatus => {

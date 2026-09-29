@@ -13,8 +13,12 @@ let make = (
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (alertsData, setAlertsData) = React.useState(_ => [])
   let (totalCount, setTotalCount) = React.useState(_ => 0)
-  let (offset, setOffset) = React.useState(_ => 0)
-  let resultsPerPage = 10
+  let title = isResolved ? "ResolvedAlerts" : "Alerts"
+  let defaultPageDetail: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}
+  let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
+  let pageDetail = pageDetailDict->Dict.get(title)->Option.getOr(defaultPageDetail)
+  let resultsPerPage = pageDetail.resultsPerPage
+  let (offset, setOffset) = React.useState(_ => pageDetail.offset)
 
   let getAlerts = async () => {
     setScreenState(_ => PageLoaderWrapper.Loading)
@@ -51,7 +55,7 @@ let make = (
     getAlerts()->ignore
     registerRefetch(() => getAlerts()->ignore)
     None
-  }, (offset, filterValue))
+  }, (offset, filterValue, resultsPerPage))
 
   let customUI =
     <NoDataFound
@@ -60,7 +64,7 @@ let make = (
 
   <PageLoaderWrapper screenState customUI>
     <LoadedTableWithCustomColumns
-      title={isResolved ? "ResolvedAlerts" : "Alerts"}
+      title
       hideTitle=true
       actualData={alertsData->Array.map(Nullable.make)}
       entity=AlertsEntity.alertsEntity
