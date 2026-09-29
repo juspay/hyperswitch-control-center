@@ -15,6 +15,7 @@ let make = () => {
   let (alertsDictionary, setAlertsDictionary) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->AlertsUtils.alertsDictionaryResponseMapper
   )
+  let (dictionaryVersion, setDictionaryVersion) = React.useState(_ => 0)
   let (alertsRefetch, setAlertsRefetch) = React.useState(() => () => ())
   let (resolvedRefetch, setResolvedRefetch) = React.useState(() => () => ())
 
@@ -26,6 +27,7 @@ let make = () => {
     try {
       let result = await fetchDictionary()
       setAlertsDictionary(_ => result)
+      setDictionaryVersion(version => version + 1)
     } catch {
     | Exn.Error(_) => showToast(~message="Failed to fetch alerts dictionary", ~toastType=ToastError)
     }
@@ -57,7 +59,7 @@ let make = () => {
       />
     </div>
     <Filter
-      key="AlertsFilters"
+      key={`AlertsFilters-${dictionaryVersion->Int.toString}`}
       title="Alerts"
       defaultFilters={""->JSON.Encode.string}
       fixedFilters={initialFixedFilter()}
@@ -72,6 +74,7 @@ let make = () => {
         endTimeFilterKey,
         priorityFilterKey,
         stateFilterKey,
+        orgIdFilterKey,
         merchantIdFilterKey,
         profileIdFilterKey,
         connectorFilterKey,
