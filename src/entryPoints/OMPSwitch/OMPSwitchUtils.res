@@ -167,6 +167,7 @@ let merchantTypeOptions: array<SelectBox.dropdownOption> = [
   },
 ]
 
+// OMP switches drop entity IDs and queries; routing workspace keeps its section because it is a sub-page.
 let getPathAfterSwitch = path => {
   let end = switch path {
   | list{_, "routing-workspace", ..._} => 3

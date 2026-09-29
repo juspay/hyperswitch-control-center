@@ -1,15 +1,15 @@
 open APIUtils
+open HyperswitchAtom
+open LogicUtils
 
 let useSyncDecisionEngineCutover = () => {
-  let {embedDecisionEngine} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let setCutoverState = Recoil.useSetRecoilState(HyperswitchAtom.decisionEngineCutoverAtom)
+  let {embedDecisionEngine} = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let setCutoverState = Recoil.useSetRecoilState(decisionEngineCutoverAtom)
   let {merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
   let checkRoutingEntryCutover = RoutingUtils.useCheckRoutingEntryCutover()
-  let key = `${merchantId}:${profileId}`
-  let sessionReady =
-    merchantId->LogicUtils.isNonEmptyString && profileId->LogicUtils.isNonEmptyString
+  let key = DecisionEngineUtils.getCutoverKey(~merchantId, ~profileId)
 
   let fetchCutoverStatus = async (~isActive) => {
     let result = await checkRoutingEntryCutover()
@@ -20,7 +20,7 @@ let useSyncDecisionEngineCutover = () => {
 
   React.useEffect(() => {
     let isActive = ref(true)
-    if embedDecisionEngine && sessionReady {
+    if embedDecisionEngine {
       fetchCutoverStatus(~isActive)->ignore
     }
     Some(
@@ -33,12 +33,12 @@ let useSyncDecisionEngineCutover = () => {
 }
 
 let useDecisionEngineCutover = () => {
-  let {embedDecisionEngine} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let cutoverState = HyperswitchAtom.decisionEngineCutoverAtom->Recoil.useRecoilValueFromAtom
+  let {embedDecisionEngine} = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let cutoverState = decisionEngineCutoverAtom->Recoil.useRecoilValueFromAtom
   let {merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
-  let key = `${merchantId}:${profileId}`
+  let key = DecisionEngineUtils.getCutoverKey(~merchantId, ~profileId)
 
   if !embedDecisionEngine {
     Some(false)
@@ -55,10 +55,9 @@ let useDecisionEngineNewTab = () => {
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let showToast = ToastAdapter.useShowToast()
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+  let connectorList = connectorListAtom->Recoil.useRecoilValueFromAtom
 
   async (~target, ~ruleId="", ~route="") => {
-    open LogicUtils
     try {
       let entryUrl = getURL(~entityName=V1(ROUTING), ~methodType=Get, ~id=Some("entry"))
       let res = await updateDetails(`${entryUrl}?target=${target}`, JSON.Encode.null, Post)
