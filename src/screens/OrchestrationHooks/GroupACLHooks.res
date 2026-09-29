@@ -28,27 +28,6 @@ type userGroupACLType = {
   hasAllGroupsAccess: array<CommonAuthTypes.authorization> => CommonAuthTypes.authorization,
 }
 
-// Todo: Remove the fallback logic when Recon Engine permission groups are added in production backend
-let reconGroupFallback: array<UserManagementTypes.groupAccessType> = [
-  ReconSourcesView,
-  ReconSourcesManage,
-  ReconTransactionsView,
-  ReconTransactionsManage,
-  ReconRulesView,
-  ReconRulesManage,
-  ReconExceptionsView,
-  ReconExceptionsManage,
-]
-
-let reconResourceFallback: array<UserManagementTypes.resourceAccessType> = [
-  ReconIngestion,
-  ReconTransformation,
-  ReconException,
-  ReconStagingEntry,
-  ReconTransaction,
-  ReconRule,
-]
-
 let useUserGroupACLHook = () => {
   open APIUtils
   open LogicUtils
@@ -59,7 +38,6 @@ let useUserGroupACLHook = () => {
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let setuserPermissionJson = Recoil.useSetRecoilState(userPermissionAtom)
   let {isEmbeddableSession} = React.useContext(UserInfoProvider.defaultContext)
-  let {reconEnginePermissions} = featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let fetchUserGroupACL = async () => {
     try {
@@ -72,15 +50,8 @@ let useUserGroupACLHook = () => {
       let resourcesAccessValue =
         getStrArrayFromDict(dict, "resources", [])->Array.map(mapStringToResourceAccessType)
 
-      let effectiveGroups = reconEnginePermissions
-        ? groupsAccessValue
-        : groupsAccessValue->Array.concat(reconGroupFallback)
-      let effectiveResources = reconEnginePermissions
-        ? resourcesAccessValue
-        : resourcesAccessValue->Array.concat(reconResourceFallback)
-
-      let userGroupACLMap = effectiveGroups->convertValueToMapGroup
-      let resourceACLMap = effectiveResources->convertValueToMapResources
+      let userGroupACLMap = groupsAccessValue->convertValueToMapGroup
+      let resourceACLMap = resourcesAccessValue->convertValueToMapResources
 
       let accessMapping: accessMapping = {
         groups: userGroupACLMap,
@@ -88,7 +59,7 @@ let useUserGroupACLHook = () => {
       }
       setuserGroupACL(_ => Some(accessMapping))
 
-      let permissionJson = effectiveGroups->getGroupAccessJson
+      let permissionJson = groupsAccessValue->getGroupAccessJson
       setuserPermissionJson(_ => permissionJson)
       accessMapping
     } catch {
