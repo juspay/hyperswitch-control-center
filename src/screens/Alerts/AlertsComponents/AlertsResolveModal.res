@@ -56,7 +56,7 @@ let make = (~alert: alert, ~showModal, ~setShowModal, ~onSaved) => {
             ~options=binaryOptions->Array.map((v): string => (v :> string)),
           )}
           {selectField(
-            ~label="Mimir RCA Helpful",
+            ~label="Hypersage RCA Helpful",
             ~name="metadata.is_mimir_rca_helpful",
             ~options=binaryOptions->Array.map((v): string => (v :> string)),
           )}
