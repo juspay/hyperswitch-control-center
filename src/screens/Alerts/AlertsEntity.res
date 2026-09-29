@@ -13,6 +13,7 @@ let defaultColumns: array<colType> = [
   AlertPriority,
   AlertMerchantId,
   AlertProfileId,
+  AlertChannel,
 ]
 
 let allColumns: array<colType> =
@@ -29,12 +30,26 @@ let getHeading = (colType: colType) =>
   | AlertPriority => Table.makeHeaderInfo(~key="priority", ~title="Priority")
   | AlertMerchantId => Table.makeHeaderInfo(~key="merchant_id", ~title="Merchant ID")
   | AlertProfileId => Table.makeHeaderInfo(~key="profile_id", ~title="Profile ID")
+  | AlertChannel => Table.makeHeaderInfo(~key="thread_url", ~title="Communication Channel")
   | AlertConnector => Table.makeHeaderInfo(~key="connector", ~title="Connector")
   | AlertStatus => Table.makeHeaderInfo(~key="status", ~title="Status")
   | AlertAttribution => Table.makeHeaderInfo(~key="attribution", ~title="Attribution")
   }
 
 let placeholderIfEmpty = value => value->isNonEmptyString ? value : "-"
+
+let xyneChannelCell = (alert: alert): Table.cell =>
+  alert.threadUrl->isNonEmptyString
+    ? CustomCell(
+        <Link
+          to_=alert.threadUrl
+          openInNewTab=true
+          className="text-nd_primary_blue-600 underline hover:text-nd_primary_blue-700 w-fit whitespace-nowrap">
+          {"Xyne message"->React.string}
+        </Link>,
+        "Xyne message",
+      )
+    : CustomCell(<div> {"-"->React.string} </div>, "-")
 
 let getCell = (alert: alert, colType: colType): Table.cell =>
   switch colType {
@@ -104,6 +119,7 @@ let getCell = (alert: alert, colType: colType): Table.cell =>
         "",
       )
     }
+  | AlertChannel => alert->xyneChannelCell
   | AlertConnector => Text(alert.connector->placeholderIfEmpty)
   | AlertStatus => {
       let isActive = alert.endTime->isEmptyString
