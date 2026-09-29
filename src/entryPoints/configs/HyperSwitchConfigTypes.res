@@ -94,3 +94,5 @@ type customStylesTheme = {
   settings: themeSettings,
   urls: urlThemeConfig,
 }
+
+type resolvedTheme = {config: customStylesTheme, revision: int}

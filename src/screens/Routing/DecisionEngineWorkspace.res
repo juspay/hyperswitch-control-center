@@ -14,6 +14,8 @@ let make = () => {
   let openDecisionEngineNewTab = DecisionEngineHooks.useDecisionEngineNewTab()
 
   let (iframeSrc, setIframeSrc) = React.useState(_ => "")
+  let iframeRef = React.useRef(Nullable.null)
+  DecisionEngineHooks.useDecisionEngineTheme(~iframeRef, ~iframeSrc)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let mintState = React.useRef(({seq: 0, at: 0.}: DecisionEngineTypes.mintState))
   let skipNextMint = React.useRef(false)
@@ -77,7 +79,7 @@ let make = () => {
 
   let handleMessage = ev => {
     let event = ev->DOMUtils.toMessageEvent
-    if event.origin === Window.Location.origin {
+    if DecisionEngineThemeUtils.isFrameMessage(~iframeRef, event) {
       let dict = event.data->JSON.Decode.object->Option.getOr(Dict.make())
       switch dict->getString("type", "")->DecisionEngineTypes.messageTypeFromString {
       | SessionExpired =>
@@ -130,7 +132,12 @@ let make = () => {
       <PageLoaderWrapper screenState sectionHeight="h-full">
         <RenderIf condition={iframeSrc->isNonEmptyString}>
           <iframe
-            src=iframeSrc title="Decision Engine" className="w-full h-full border-0 bg-white"
+            key=iframeSrc
+            ref={iframeRef->ReactDOM.Ref.domRef}
+            src=iframeSrc
+            title="Decision Engine"
+            className="w-full h-full border-0 bg-background"
+            onLoad={_ => DecisionEngineThemeUtils.requestTheme(~iframeRef)}
           />
         </RenderIf>
       </PageLoaderWrapper>

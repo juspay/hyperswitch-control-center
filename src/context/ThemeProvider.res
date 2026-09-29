@@ -15,6 +15,7 @@ type customUIConfig = {
   configCustomDomainTheme: JSON.t => unit,
   getThemesJson: (~themesID: option<string>, ~domain: option<string>=?) => promise<JSON.t>,
   logoURL: option<string>,
+  resolvedTheme: option<HyperSwitchConfigTypes.resolvedTheme>,
 }
 open HyperSwitchConfigTypes
 
@@ -85,6 +86,7 @@ let themeContext = {
     }
   },
   logoURL: Some(""),
+  resolvedTheme: None,
 }
 
 let themeContext = React.createContext(themeContext)
@@ -103,6 +105,8 @@ let make = (~children) => {
   let fetchApi = AuthHooks.useApiFetcher()
   let isCurrentlyDark = MatchMedia.useMatchMedia("(prefers-color-scheme: dark)")
   let (contextLogoUrl, setContextLogoUrl) = React.useState(() => Some(""))
+  let (resolvedTheme, setResolvedTheme) = React.useState(() => None)
+  let themeRevision = React.useRef(0)
 
   let initialTheme = Light
 
@@ -135,7 +139,10 @@ let make = (~children) => {
 
   let configCustomDomainTheme = React.useCallback((uiConfig: JSON.t) => {
     let value = ThemeUtils.parseThemeJson(~uiConfig, ~fallbackThemeConfig)
+    themeRevision.current = themeRevision.current + 1
+    let revision = themeRevision.current
     Window.appendStyle(value)
+    setResolvedTheme(_ => Some({config: value, revision}))
   }, [])
 
   let configureFavIcon = (faviconUrl: option<string>) => {
@@ -237,6 +244,9 @@ let make = (~children) => {
   }
 
   let getThemesJson = async (~themesID, ~domain=None) => {
+    themeRevision.current = themeRevision.current + 1
+    let requestRevision = themeRevision.current
+    setResolvedTheme(_ => None)
     try {
       let themeJson = {
         if themesID->Option.isSome && themesID->Option.getOr("")->isNonEmptyString {
@@ -246,7 +256,9 @@ let make = (~children) => {
             versionApiResponse
             ->getDictFromJsonObject
             ->getString("theme_config_version", "")
-          HyperSwitchEntryUtils.setThemeConfigVersiontoStore(themeConfigVersion)
+          if requestRevision === themeRevision.current {
+            HyperSwitchEntryUtils.setThemeConfigVersiontoStore(themeConfigVersion)
+          }
           let url = ThemeFeatureUtils.appendVersionParam(
             `${GlobalVars.getHostUrl}/themes/${id}/theme.json`,
             ~version=Some(themeConfigVersion),
@@ -283,14 +295,18 @@ let make = (~children) => {
         }
       }
       let themeConfigVersion = HyperSwitchEntryUtils.getThemeConfigVersionfromStore()
-      updateThemeURLs(~themesData={themeJson}, ~themeConfigVersion)->ignore
-      configCustomDomainTheme(themeJson)->ignore
+      if requestRevision === themeRevision.current {
+        updateThemeURLs(~themesData={themeJson}, ~themeConfigVersion)->ignore
+        configCustomDomainTheme(themeJson)->ignore
+      }
       themeJson
     } catch {
     | _ => {
         let defaultStyle = getDefaultStyle()
-        updateThemeURLs(~themesData=defaultStyle)->ignore
-        configCustomDomainTheme(defaultStyle)->ignore
+        if requestRevision === themeRevision.current {
+          updateThemeURLs(~themesData=defaultStyle)->ignore
+          configCustomDomainTheme(defaultStyle)->ignore
+        }
         defaultStyle
       }
     }
@@ -322,8 +338,9 @@ let make = (~children) => {
       configCustomDomainTheme,
       getThemesJson,
       logoURL: contextLogoUrl,
+      resolvedTheme,
     }
-  }, (theme, setTheme, contextLogoUrl))
+  }, (theme, setTheme, contextLogoUrl, resolvedTheme))
 
   React.useEffect(() => {
     Window.addEventListener("message", handleInitConfigMessage)

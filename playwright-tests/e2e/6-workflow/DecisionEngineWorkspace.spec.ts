@@ -76,6 +76,88 @@ test.describe("Decision Engine routing workspace", () => {
     ).toHaveCount(0);
   });
 
+  test("forwards live themes and resets to defaults without reloading DE", async ({
+    page,
+  }) => {
+    await page.route("**/decision-engine/routing/rules?**", (route) =>
+      route.fulfill({
+        contentType: "text/html",
+        body: `<!doctype html><input aria-label="Unsaved rule"><pre id="theme"></pre>
+          <script>
+            const frameId = crypto.randomUUID();
+            const ready = () => parent.postMessage({type: 'de:theme-ready', version: 1, frameId}, location.origin);
+            addEventListener('message', event => {
+              if (event.source !== parent || event.origin !== location.origin) return;
+              if (event.data.type === 'de:theme-request') ready();
+              if (event.data.type === 'de:theme-update' && event.data.frameId === frameId) {
+                document.getElementById('theme').textContent = JSON.stringify(event.data.tokens);
+              }
+            });
+            ready();
+          </script>`,
+      }),
+    );
+    await page.goto("/dashboard/routing-workspace/rule");
+    const frame = page.frameLocator('iframe[title="Decision Engine"]');
+    await expect(frame.locator("#theme")).toContainText('"primary":');
+    await frame
+      .getByRole("textbox", { name: "Unsaved rule" })
+      .fill("draft rule");
+    const initialCalls = counter.calls;
+    await frame
+      .locator("#theme")
+      .evaluate(() =>
+        parent.postMessage(
+          { type: "de:theme-ready", version: 1.5, frameId: "invalid-version" },
+          location.origin,
+        ),
+      );
+    await page.evaluate(() =>
+      window.postMessage(
+        { type: "de:theme-ready", version: 1, frameId: "wrong-source" },
+        location.origin,
+      ),
+    );
+    await page.evaluate(() =>
+      window.postMessage(
+        {
+          type: "init_config",
+          init_config: {
+            settings: {
+              colors: { primary: "#7138a8", background: "#f2f0f7" },
+              buttons: {
+                primary: {
+                  backgroundColor: "#24639a",
+                  textColor: "#ffffff",
+                  hoverBackgroundColor: "#194b76",
+                },
+              },
+            },
+          },
+        },
+        location.origin,
+      ),
+    );
+    await expect(frame.locator("#theme")).toContainText('"primary":"#7138a8"');
+    await expect(frame.locator("#theme")).toContainText(
+      '"primaryButtonBackground":"#24639a"',
+    );
+    await expect(
+      frame.getByRole("textbox", { name: "Unsaved rule" }),
+    ).toHaveValue("draft rule");
+    expect(counter.calls).toBe(initialCalls);
+    await page.evaluate(() =>
+      window.postMessage(
+        { type: "init_config", init_config: null },
+        location.origin,
+      ),
+    );
+    await expect(frame.locator("#theme")).toContainText('"primary":"#006DF9"');
+    await expect(
+      frame.getByRole("textbox", { name: "Unsaved rule" }),
+    ).toHaveValue("draft rule");
+  });
+
   for (const section of ["volume", "rule"]) {
     test(`preserves ${section} and clears the old rule on profile switch`, async ({
       page,

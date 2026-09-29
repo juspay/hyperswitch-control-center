@@ -2,6 +2,37 @@ open APIUtils
 open HyperswitchAtom
 open LogicUtils
 
+let useDecisionEngineTheme = (~iframeRef, ~iframeSrc) => {
+  open DecisionEngineThemeUtils
+  let {resolvedTheme} = React.useContext(ThemeProvider.themeContext)
+  let (themeFrame, setThemeFrame) = React.useState(() => None)
+
+  let handleThemeMessage = ev => {
+    let event = ev->DOMUtils.toMessageEvent
+    if isFrameMessage(~iframeRef, event) {
+      event
+      ->getReadyFrame
+      ->Option.forEach(id => {
+        setThemeFrame(_ => Some(({src: iframeSrc, id}: DecisionEngineTypes.themeFrame)))
+      })
+    }
+  }
+
+  React.useEffect(() => {
+    Window.addEventListener("message", handleThemeMessage)
+    Some(() => Window.removeEventListener("message", handleThemeMessage))
+  }, [iframeSrc])
+
+  React.useEffect(() => {
+    switch (themeFrame, resolvedTheme) {
+    | (Some(frame), Some(snapshot)) if frame.src === iframeSrc =>
+      sendTheme(~iframeRef, ~frameId=frame.id, snapshot)
+    | _ => ()
+    }
+    None
+  }, (themeFrame, resolvedTheme, iframeSrc))
+}
+
 let useSyncDecisionEngineCutover = () => {
   let {embedDecisionEngine} = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let setCutoverState = Recoil.useSetRecoilState(decisionEngineCutoverAtom)
