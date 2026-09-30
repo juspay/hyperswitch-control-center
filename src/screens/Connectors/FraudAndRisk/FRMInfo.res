@@ -9,7 +9,7 @@ let flowTypeList = [PreAuth]
 
 let getFRMAuthType = (connector: ConnectorTypes.connectorTypes) => {
   switch connector {
-  | FRM(Signifyd) => "HeaderKey"
+  | FRM(Signifyd) | FRM(SanlamPayshield) => "HeaderKey"
   | FRM(Riskifyed) => "BodyKey"
   | FRM(CybersourceDecisionManager) => "SignatureKey"
   | _ => ""

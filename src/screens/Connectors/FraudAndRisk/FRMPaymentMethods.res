@@ -173,7 +173,7 @@ module CheckBoxRenderer = {
 module PaymentMethodsRenderer = {
   open FRMUtils
   @react.component
-  let make = (~isUpdateFlow) => {
+  let make = (~isUpdateFlow, ~selectedFRMName) => {
     let (pageState, setPageState) = React.useState(_ => PageLoaderWrapper.Loading)
     let frmConfigInput = ReactFinalForm.useField("frm_configs").input
     let frmConfigs = parseFRMConfig(frmConfigInput.value)
@@ -183,9 +183,14 @@ module PaymentMethodsRenderer = {
       ~retainInList=PaymentProcessor,
     )
 
+    let payoutConnectorsList = ConnectorListInterface.useFilteredConnectorList(
+      ~retainInList=PayoutProcessor,
+    )
+
     let getConfiguredConnectorDetails = async () => {
       try {
-        let connectorsConfig = connectorsList->getConnectorConfig
+        let connectorsConfig =
+          connectorsList->Array.concat(payoutConnectorsList)->getConnectorConfig(~selectedFRMName)
         let updateFRMConfig =
           connectorsConfig
           ->createAllOptions
@@ -229,7 +234,13 @@ module PaymentMethodsRenderer = {
 }
 
 @react.component
-let make = (~setCurrentStep, ~retrievedValues=None, ~setInitialValues, ~isUpdateFlow: bool) => {
+let make = (
+  ~setCurrentStep,
+  ~retrievedValues=None,
+  ~setInitialValues,
+  ~isUpdateFlow: bool,
+  ~selectedFRMName,
+) => {
   open FRMInfo
   open FRMUtils
   open LogicUtils
@@ -272,7 +283,7 @@ let make = (~setCurrentStep, ~retrievedValues=None, ~setInitialValues, ~isUpdate
           <FormRenderer.SubmitButton text="Proceed" />
         </div>
         <div className="flex flex-col gap-2 col-span-3">
-          <PaymentMethodsRenderer isUpdateFlow />
+          <PaymentMethodsRenderer isUpdateFlow selectedFRMName />
         </div>
       </div>
     </div>
