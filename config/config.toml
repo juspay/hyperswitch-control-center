@@ -116,6 +116,7 @@ pmAuthProcessors = []
 billingProcessors = []
 surchargeProcessors = []
 taxProcessors = []
+frmProcessors = []
 
 [default.connector_clone]
 paymentProcessors = ["peachpayments"]
