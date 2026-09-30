@@ -1,9 +1,5 @@
 @react.component
-let make = (
-  ~connectorInfo: ConnectorTypes.connectorPayload,
-  ~updateBusinessProfileDetails,
-  ~setShowEditForm,
-) => {
+let make = (~connectorInfo: ConnectorTypes.connectorPayload, ~setShowEditForm) => {
   open ConnectorUtils
   open APIUtils
   open LogicUtils
@@ -42,7 +38,6 @@ let make = (
         ~id=Some(connectorInfo.merchant_connector_id),
       )
       let _ = await updateAPIHook(url, values, Post)
-      let _ = await updateBusinessProfileDetails()
       setShowEditForm(_ => false)
       showToast(~message="Details Updated!", ~toastType=ToastSuccess)
     } catch {

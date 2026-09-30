@@ -60,13 +60,7 @@ module ConfigInfo = {
 }
 
 @react.component
-let make = (
-  ~initialValues,
-  ~currentStep,
-  ~setInitialValues,
-  ~updateBusinessProfileDetails,
-  ~isUpdateFlow,
-) => {
+let make = (~initialValues, ~currentStep, ~setInitialValues, ~isUpdateFlow) => {
   open LogicUtils
   open FRMUtils
   open APIUtils
@@ -198,9 +192,7 @@ let make = (
                 </div>
               </RenderIf>
               <RenderIf condition={isUpdateFlow && showEditForm}>
-                <FRMUpdateAuthCreds
-                  connectorInfo=frmInfo updateBusinessProfileDetails setShowEditForm
-                />
+                <FRMUpdateAuthCreds connectorInfo=frmInfo setShowEditForm />
               </RenderIf>
             </div>
           </div>

@@ -124,9 +124,7 @@ let make = () => {
           />
         | SummaryAndTest
         | Preview =>
-          <FRMSummary
-            initialValues setInitialValues currentStep updateBusinessProfileDetails isUpdateFlow
-          />
+          <FRMSummary initialValues setInitialValues currentStep isUpdateFlow />
         | _ => React.null
         }}
       </div>
