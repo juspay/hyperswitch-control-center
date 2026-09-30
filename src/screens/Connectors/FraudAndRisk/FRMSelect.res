@@ -104,7 +104,7 @@ let make = () => {
 
   let customUI =
     <BlurredTableComponent
-      infoText="No eligible connectors configured yet. Enable Card for existing FRM providers, or Bank Debit payments or Bank Transfer payouts for Sanlam Payshield."
+      infoText="No eligible connectors configured yet. Configure a payment or payout connector with a supported payment method to get started."
       buttonText="Take me to connectors"
       onClickElement={React.null}
       onClickUrl="connectors"

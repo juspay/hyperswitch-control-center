@@ -16,6 +16,16 @@ let getFRMAuthType = (connector: ConnectorTypes.connectorTypes) => {
   }
 }
 
+let getFRMConfigurationNote = (connector: ConnectorTypes.connectorTypes): option<string> => {
+  switch connector {
+  | FRM(SanlamPayshield) =>
+    Some(
+      "Sanlam Payshield screens bank debit payments and bank transfer payouts. It is only compatible with the Absa payment connector and the GoTyme payout connector.",
+    )
+  | _ => None
+  }
+}
+
 let stepsArr: array<ConnectorTypes.steps> = [PaymentMethods, IntegFields, SummaryAndTest]
 
 let getNextStep: ConnectorTypes.steps => ConnectorTypes.steps = currentStep => {

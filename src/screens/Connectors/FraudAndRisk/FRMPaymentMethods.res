@@ -179,6 +179,7 @@ module PaymentMethodsRenderer = {
     let frmConfigs = parseFRMConfig(frmConfigInput.value)
     let (connectorConfig, setConnectorConfig) = React.useState(_ => Dict.make())
     let setConfigJson = frmConfigInput.onChange
+    let configurationNote = selectedFRMName->FRMInfo.getFRMConfigurationNote
     let connectorsList = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=PaymentProcessor,
     )
@@ -216,6 +217,15 @@ module PaymentMethodsRenderer = {
 
     <PageLoaderWrapper screenState={pageState}>
       <div className="flex flex-col gap-4">
+        <RenderIf condition={configurationNote->Option.isSome}>
+          <div
+            className="flex gap-2 items-start p-4 rounded border border-nd_primary_blue-200 bg-nd_primary_blue-50">
+            <Icon name="nd-info-circle" size=16 className="mt-0.5 text-nd_primary_blue-500" />
+            <p className={`${Typography.body.md.medium} text-nd_gray-600`}>
+              {configurationNote->Option.getOr("")->React.string}
+            </p>
+          </div>
+        </RenderIf>
         {frmConfigs
         ->Array.mapWithIndex((configInfo, i) => {
           <CheckBoxRenderer
