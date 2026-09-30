@@ -316,3 +316,24 @@ let useGetTransformationConfig = () => {
     }
   }
 }
+
+let useFetchBusinessProfile = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod(~showErrorToast=false)
+  let setBusinessProfile = ReconEngineAtoms.businessProfileAtom->Recoil.useSetRecoilState
+
+  async () => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#RECON_ENGINE_BUSINESS_PROFILE,
+      )
+      let res = await fetchDetails(url)
+      let businessProfile = res->getDictFromJsonObject->reconBusinessProfileItemToObjMapper
+      setBusinessProfile(_ => Some(businessProfile))
+    } catch {
+    | _ => setBusinessProfile(_ => None)
+    }
+  }
+}
