@@ -4,10 +4,12 @@ const { merge } = require("webpack-merge");
 const common = require("./webpack.common.js");
 const config = import("./src/server/config.mjs");
 const themeConfig = import("./src/server/theme.mjs");
+const { getMonitoringProxy } = require("./webpack.monitoring");
 
 let port = 9000;
 // proxy is setup to make frontend and backend url same for local testing
 let proxy = [
+  ...getMonitoringProxy(),
   {
     context: ["/api/hyperswitch-recon-engine"],
     pathRewrite: { "^/api/hyperswitch-recon-engine": "" },
@@ -100,6 +102,9 @@ let devServer = {
   compress: true,
   hot: true,
   port: port,
+  ...(process.env.SANDBOX_MONITORING_ORIGIN
+    ? { host: "localhost", server: "https" }
+    : {}),
   historyApiFallback: {
     rewrites: [{ from: /^\/dashboard/, to: "/index.html" }],
   },
