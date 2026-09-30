@@ -361,9 +361,14 @@ let buildLinkableStagingEntriesV2Body = (
   ~direction: cursorDirection,
   ~searchType: ReconEnginePipelinesTypes.stagingEntrySearchType,
   ~searchText: string,
+  ~accountIds: array<string>,
   ~limit=10,
 ) => {
   let filtersDict = Dict.make()
+  filtersDict->setOptionArray(
+    "account_ids",
+    accountIds->Array.map(JSON.Encode.string)->getNonEmptyArray,
+  )
   if searchText->isNonEmptyString {
     filtersDict->Dict.set((searchType :> string), searchText->String.trim->JSON.Encode.string)
   }
@@ -394,6 +399,9 @@ let getInnerVariant = (
   | ConfirmResolution(resolvingEx) => resolvingEx
   | _ => NoResolutionActionNeeded
   }
+
+let getRuleAccounts = (accounts: array<accountType>, ~ruleAccountIds) =>
+  accounts->Array.filter(account => ruleAccountIds->Array.includes(account.account_id))
 
 let getUniqueAccountOptionsFromEntries = (entries: array<entryType>): array<
   SelectBox.dropdownOption,
@@ -612,7 +620,7 @@ let getNewEntry = (
 let getEntryOverrides = (formData): ReconEngineExceptionTransactionTypes.entryOverrides => {
   entry_type: formData->getString("entry_type", "")->getEntryTypeVariantFromString,
   amount: formData->getFloat("amount", 0.0),
-  effective_at: formData->getString("effective_at", ""),
+  effective_at: formData->getString("effective_at", "")->toReconTimeString,
   metadata: formData->getJsonObjectFromDict("metadata"),
   order_id: formData->getString("order_id", ""),
   transformation_id: ?formData->getOptionString("transformation_id"),
@@ -621,7 +629,7 @@ let getEntryOverrides = (formData): ReconEngineExceptionTransactionTypes.entryOv
 let getStagingEntryOverrides = (
   formData
 ): ReconEngineExceptionTransactionTypes.stagingEntryOverrides => {
-  effective_at: formData->getString("effective_at", ""),
+  effective_at: formData->getString("effective_at", "")->toReconTimeString,
   metadata: formData->getJsonObjectFromDict("metadata"),
   order_id: formData->getString("order_id", ""),
 }
@@ -631,7 +639,7 @@ let getCreateEntryOp = (formData): ReconEngineExceptionTransactionTypes.entryOp 
     account_id: formData->getString("account", ""),
     entry_type: formData->getString("entry_type", "")->getEntryTypeVariantFromString,
     amount: formData->getFloat("amount", 0.0),
-    effective_at: formData->getString("effective_at", ""),
+    effective_at: formData->getString("effective_at", "")->toReconTimeString,
     metadata: formData->getJsonObjectFromDict("metadata"),
     order_id: formData->getString("order_id", ""),
     transformation_id: ?formData->getOptionString("transformation_id"),

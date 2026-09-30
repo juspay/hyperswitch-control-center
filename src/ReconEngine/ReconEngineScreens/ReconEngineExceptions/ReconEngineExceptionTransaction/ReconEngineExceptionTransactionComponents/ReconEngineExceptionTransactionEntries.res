@@ -108,6 +108,7 @@ let make = (
       setChanges
       currentExceptionDetails
       accountsData
+      ruleAccountIds=accountIds
     />
     <div className="flex flex-col gap-6">
       {accountIds

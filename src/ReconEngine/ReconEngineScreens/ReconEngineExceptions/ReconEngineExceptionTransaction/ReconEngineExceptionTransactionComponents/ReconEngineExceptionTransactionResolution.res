@@ -65,6 +65,7 @@ module EditEntryModalContent = {
     ~entryDetails: ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType,
     ~isNewlyCreatedEntry,
     ~transactionCurrency,
+    ~ruleAccountIds,
     ~onSubmit,
   ) => {
     open ReconEngineExceptionTransactionUtils
@@ -92,7 +93,7 @@ module EditEntryModalContent = {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let accountData = await getAccounts()
-        setAccountsList(_ => accountData)
+        setAccountsList(_ => accountData->getRuleAccounts(~ruleAccountIds))
         if entryDetails.account_id->isNonEmptyString {
           let url = getURL(
             ~entityName=V1(HYPERSWITCH_RECON),
@@ -199,6 +200,7 @@ module MarkAsReceivedModalContent = {
     ~entryDetails: ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType,
     ~isNewlyCreatedEntry,
     ~transactionCurrency,
+    ~ruleAccountIds,
     ~onSubmit,
   ) => {
     open ReconEngineExceptionTransactionUtils
@@ -226,7 +228,7 @@ module MarkAsReceivedModalContent = {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let accountData = await getAccounts()
-        setAccountsList(_ => accountData)
+        setAccountsList(_ => accountData->getRuleAccounts(~ruleAccountIds))
         if entryDetails.account_id->isNonEmptyString {
           let url = getURL(
             ~entityName=V1(HYPERSWITCH_RECON),
@@ -322,7 +324,7 @@ module MarkAsReceivedModalContent = {
 
 module CreateEntryModalContent = {
   @react.component
-  let make = (~transactionCurrency, ~onSubmit, ~entryDetails) => {
+  let make = (~transactionCurrency, ~ruleAccountIds, ~onSubmit, ~entryDetails) => {
     open ReconEngineExceptionTransactionUtils
     open ReconEngineExceptionsHelper
     open ReconEngineExceptionTransactionHelper
@@ -342,7 +344,7 @@ module CreateEntryModalContent = {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let accountData = await getAccounts()
-        setAccountsList(_ => accountData)
+        setAccountsList(_ => accountData->getRuleAccounts(~ruleAccountIds))
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
       | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to load data"))
@@ -417,6 +419,7 @@ module ReplaceStagingEntryModalContent = {
     ~setActiveModal,
     ~onSubmit,
     ~linkedStagingEntryIds: Set.t<string>,
+    ~ruleAccountIds,
   ) => {
     open LogicUtils
     open ReconEngineExceptionTransactionHelper
@@ -469,6 +472,7 @@ module ReplaceStagingEntryModalContent = {
           ~direction,
           ~searchType=searchTypeRef.current,
           ~searchText,
+          ~accountIds=ruleAccountIds,
         ),
         ~id=Some(currentExceptionDetails.id),
       )
@@ -640,6 +644,7 @@ module LinkStagingEntryModalContent = {
     ~setExceptionStage,
     ~onSubmit,
     ~linkedStagingEntryIds: Set.t<string>,
+    ~ruleAccountIds,
   ) => {
     open LogicUtils
     open ReconEngineExceptionTransactionHelper
@@ -680,6 +685,7 @@ module LinkStagingEntryModalContent = {
             ~direction,
             ~searchType=searchTypeRef.current,
             ~searchText,
+            ~accountIds=ruleAccountIds,
           ),
           ~id=Some(currentExceptionDetails.id),
         )
@@ -832,6 +838,7 @@ let make = (
   ~setChanges,
   ~currentExceptionDetails: ReconEngineTypes.transactionType,
   ~accountsData: array<ReconEngineTypes.accountType>,
+  ~ruleAccountIds: array<string>,
 ) => {
   open ReconEngineExceptionTransactionUtils
   open ReconEngineExceptionTransactionHelper
@@ -1161,14 +1168,24 @@ let make = (
           />
         | ResolvingException(EditEntry) =>
           <EditEntryModalContent
-            entryDetails isNewlyCreatedEntry transactionCurrency onSubmit=onEditEntrySubmit
+            entryDetails
+            isNewlyCreatedEntry
+            transactionCurrency
+            ruleAccountIds
+            onSubmit=onEditEntrySubmit
           />
         | ResolvingException(MarkAsReceived) =>
           <MarkAsReceivedModalContent
-            entryDetails isNewlyCreatedEntry transactionCurrency onSubmit=onMarkAsReceivedSubmit
+            entryDetails
+            isNewlyCreatedEntry
+            transactionCurrency
+            ruleAccountIds
+            onSubmit=onMarkAsReceivedSubmit
           />
         | ResolvingException(CreateNewEntry) =>
-          <CreateEntryModalContent transactionCurrency onSubmit=onCreateEntrySubmit entryDetails />
+          <CreateEntryModalContent
+            transactionCurrency ruleAccountIds onSubmit=onCreateEntrySubmit entryDetails
+          />
         | ResolvingException(ReplaceStagingEntryToTransaction) =>
           <ReplaceStagingEntryModalContent
             entryDetails={entryDetails}
@@ -1178,6 +1195,7 @@ let make = (
             setActiveModal
             onSubmit={onReplaceEntrySubmit}
             linkedStagingEntryIds
+            ruleAccountIds
           />
         | ResolvingException(LinkStagingEntryToTransaction) =>
           <LinkStagingEntryModalContent
@@ -1187,6 +1205,7 @@ let make = (
             setExceptionStage
             onSubmit={onLinkEntrySubmit}
             linkedStagingEntryIds
+            ruleAccountIds
           />
         | _ => React.null
         }}
