@@ -89,7 +89,6 @@ dev_debit_routing=true
 dev_webhooks=true
 dev_blocklist=false
 dev_recon_engine_v1=false
-dev_offers=false
 dev_alerts=false
 dev_ai_chat_bot=false
 dev_launch_sage=false
