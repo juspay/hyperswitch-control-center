@@ -64,7 +64,7 @@ let make = (
   ~initialValues,
   ~currentStep,
   ~setInitialValues,
-  ~updateMerchantDetails,
+  ~updateBusinessProfileDetails,
   ~isUpdateFlow,
 ) => {
   open LogicUtils
@@ -198,7 +198,9 @@ let make = (
                 </div>
               </RenderIf>
               <RenderIf condition={isUpdateFlow && showEditForm}>
-                <FRMUpdateAuthCreds connectorInfo=frmInfo updateMerchantDetails setShowEditForm />
+                <FRMUpdateAuthCreds
+                  connectorInfo=frmInfo updateBusinessProfileDetails setShowEditForm
+                />
               </RenderIf>
             </div>
           </div>

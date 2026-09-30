@@ -14,10 +14,8 @@ let make = () => {
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
   let frmName = UrlUtils.useGetFilterDictFromUrl("")->getString("name", "")
   let frmID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
-  let {profileId, merchantId} = React.useContext(
-    UserInfoProvider.defaultContext,
-  ).getCommonSessionDetails()
-  let updateDetails = useUpdateMethod()
+  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfileV1()
 
   let initStep = PaymentMethods
 
@@ -53,7 +51,7 @@ let make = () => {
     }
   }
 
-  let updateMerchantDetails = async () => {
+  let updateBusinessProfileDetails = async () => {
     let frmName =
       frmName
       ->getConnectorNameTypeFromString(~connectorType=FRMPlayer)
@@ -63,16 +61,11 @@ let make = () => {
         ("data", frmName->JSON.Encode.string),
         ("type", "single"->JSON.Encode.string),
       ]->getJsonFromArrayOfJson
-    let body =
-      [
-        ("frm_routing_algorithm", info),
-        ("merchant_id", merchantId->JSON.Encode.string),
-      ]->getJsonFromArrayOfJson
-    let url = getURL(~entityName=V1(MERCHANT_ACCOUNT), ~methodType=Post)
+    let body = [("frm_routing_algorithm", info)]->getJsonFromArrayOfJson
     try {
-      let _ = await updateDetails(url, body, Post)
+      let _ = await updateBusinessProfile(~body)
     } catch {
-    | _ => Exn.raiseError("Failed to update merchant details")
+    | _ => Exn.raiseError("Failed to update business profile FRM settings")
     }
     Nullable.null
   }
@@ -123,7 +116,7 @@ let make = () => {
             setInitialValues
             retrievedValues=Some(initialValues)
             isUpdateFlow
-            updateMerchantDetails
+            updateBusinessProfileDetails
           />
         | PaymentMethods =>
           <FRMPaymentMethods
@@ -132,7 +125,7 @@ let make = () => {
         | SummaryAndTest
         | Preview =>
           <FRMSummary
-            initialValues setInitialValues currentStep updateMerchantDetails isUpdateFlow
+            initialValues setInitialValues currentStep updateBusinessProfileDetails isUpdateFlow
           />
         | _ => React.null
         }}
