@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.09.30.0
+
+### Features
+
+- **alerts:** Add organization filter and Xyne message links ([#5601](https://github.com/juspay/hyperswitch-control-center/pull/5601)) ([`6ba6199`](https://github.com/juspay/hyperswitch-control-center/commit/6ba619986c745410e670909097007db1061033d9))
+
+### Bug Fixes
+
+- **alerts:** Correct Alerts pagination and controls ([#5605](https://github.com/juspay/hyperswitch-control-center/pull/5605)) ([`fa2ee68`](https://github.com/juspay/hyperswitch-control-center/commit/fa2ee68fcc0d1bbe20b53cef5b9859be93e45ed6))
+
+### Miscellaneous Tasks
+
+- **recon:** Remove permission and pipelines feature flags ([#5602](https://github.com/juspay/hyperswitch-control-center/pull/5602)) ([`171855f`](https://github.com/juspay/hyperswitch-control-center/commit/171855fcda16c97dd82a9b925ff009d9a4924dda))
+
+**Full Changelog:** [`2026.09.29.1...2026.09.30.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.29.1...2026.09.30.0)
+
+- - -
+
 ## 2026.09.29.1
 
 ### Bug Fixes
