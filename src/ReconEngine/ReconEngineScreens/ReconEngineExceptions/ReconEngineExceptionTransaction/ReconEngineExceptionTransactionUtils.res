@@ -395,112 +395,6 @@ let getInnerVariant = (
   | _ => NoResolutionActionNeeded
   }
 
-let generateResolutionSummary = (initialEntry: entryType, updatedEntry: entryType): array<
-  string,
-> => {
-  let summary = []
-
-  if initialEntry.account_id != updatedEntry.account_id {
-    let message = `Account changed to ${updatedEntry.account_name}.`
-    summary->Array.push(message)
-  }
-
-  if initialEntry.transformation_id != updatedEntry.transformation_id {
-    let message = switch (initialEntry.transformation_id, updatedEntry.transformation_id) {
-    | (None, Some(_)) => `Transformation config added.`
-    | (Some(_), None) => `Transformation config removed.`
-    | (Some(_), Some(_)) => `Transformation config changed.`
-    | (None, None) => ""
-    }
-    if message->isNonEmptyString {
-      summary->Array.push(message)
-    }
-  }
-
-  if initialEntry.currency != updatedEntry.currency {
-    let message = `Currency changed to ${updatedEntry.currency} in ${updatedEntry.account_name} account.`
-    summary->Array.push(message)
-  }
-
-  if (initialEntry.entry_type :> string) != (updatedEntry.entry_type :> string) {
-    let message = `Direction changed to ${(updatedEntry.entry_type :> string)->capitalizeString} in ${updatedEntry.account_name} account.`
-    summary->Array.push(message)
-  }
-
-  if initialEntry.amount != updatedEntry.amount {
-    let message = `Amount edited from ${updatedEntry.currency} ${initialEntry.amount->Float.toString} to ${updatedEntry.currency} ${updatedEntry.amount->Float.toString} in ${updatedEntry.account_name} account.`
-    summary->Array.push(message)
-  }
-
-  if initialEntry.order_id != updatedEntry.order_id {
-    let message = `Order ID changed to ${updatedEntry.order_id} in ${updatedEntry.account_name} account.`
-    summary->Array.push(message)
-  }
-
-  if initialEntry.effective_at != updatedEntry.effective_at {
-    let message = `Effective at changed to ${updatedEntry.effective_at->dateFormat(
-        "DD MMMM YYYY, hh:mm A",
-      )} in ${updatedEntry.account_name} account.`
-    summary->Array.push(message)
-  }
-
-  let initialMetadata = initialEntry.metadata->getFilteredMetadataFromEntries->Dict.toArray
-  initialMetadata->Array.forEach(((key, initialValue)) => {
-    let updatedValueStr =
-      updatedEntry.metadata
-      ->getFilteredMetadataFromEntries
-      ->getString(key, "")
-
-    let initialValueStr = initialValue->getStringFromJson("")
-    if initialValueStr != updatedValueStr {
-      let message = `Metadata field '${key}' changed from '${initialValueStr}' to '${updatedValueStr}' in ${updatedEntry.account_name} account.`
-      summary->Array.push(message)
-    }
-  })
-  summary
-}
-
-let generateAllResolutionSummaries = (
-  originalEntries: array<entryType>,
-  updatedEntries: array<entryType>,
-): array<string> => {
-  let allSummaryItems = []
-
-  updatedEntries->Array.forEach(updatedEntry => {
-    let originalEntry =
-      originalEntries->Array.find(entry => entry.entry_id == updatedEntry.entry_id)
-
-    switch originalEntry {
-    | Some(original) => {
-        let summaryItems = generateResolutionSummary(original, updatedEntry)
-        summaryItems->Array.forEach(item => {
-          allSummaryItems->Array.push(item)
-        })
-      }
-    | None => {
-        let message = `New ${(updatedEntry.entry_type :> string)} entry created with ${updatedEntry.currency} ${updatedEntry.amount->Float.toString} in ${updatedEntry.account_name} account.`
-        allSummaryItems->Array.push(message)
-      }
-    }
-  })
-
-  allSummaryItems
-}
-
-let getUniqueCurrencyOptionsFromEntries = (entries: array<entryType>): array<
-  SelectBox.dropdownOption,
-> => {
-  let currencySet = Set.make()
-  entries->Array.forEach(entry => Set.add(currencySet, entry.currency))
-  currencySet
-  ->Set.values
-  ->Iterator.toArray
-  ->Array.map((currency): SelectBox.dropdownOption => {
-    label: currency,
-    value: currency,
-  })
-}
-
 let getUniqueAccountOptionsFromEntries = (entries: array<entryType>): array<
   SelectBox.dropdownOption,
 > => {
@@ -564,7 +458,7 @@ let getExceptionEntryTypeFromEntryType = (
     created_at: entry.created_at,
     effective_at: entry.effective_at,
     staging_entry_id: entry.staging_entry_id,
-    entry_key: randomString(~length=16),
+    entry_key: entry.entry_id,
     transformation_id: entry.transformation_id,
     transformation_name: entry.transformation_name,
   }
@@ -593,49 +487,6 @@ let getEntryTypeFromExceptionEntryType = (
     transformation_id: entry.transformation_id,
     transformation_name: entry.transformation_name,
   }
-}
-
-let constructManualReconciliationBody = (
-  ~updatedEntriesList: array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>,
-  ~values,
-): JSON.t => {
-  let valuesDict = values->getDictFromJsonObject
-  let reason = valuesDict->getString("reason", "")
-
-  let entriesJson = updatedEntriesList->Array.map(entry => {
-    let backendEntry = entry->getEntryTypeFromExceptionEntryType
-
-    [
-      ("account_id", backendEntry.account_id->JSON.Encode.string),
-      ("entry_type", (backendEntry.entry_type :> string)->JSON.Encode.string),
-      ("amount", backendEntry.amount->JSON.Encode.float),
-      ("currency", backendEntry.currency->JSON.Encode.string),
-      ("order_id", backendEntry.order_id->JSON.Encode.string),
-      ("effective_at", backendEntry.effective_at->toReconTimeString->JSON.Encode.string),
-      ("metadata", backendEntry.metadata),
-      (
-        "staging_entry_id",
-        switch backendEntry.staging_entry_id {
-        | Some(id) => id->JSON.Encode.string
-        | None => JSON.Encode.null
-        },
-      ),
-      ("data", backendEntry.data),
-      (
-        "transformation_id",
-        switch backendEntry.transformation_id {
-        | Some(id) => id->JSON.Encode.string
-        | None => JSON.Encode.null
-        },
-      ),
-    ]
-    ->Dict.fromArray
-    ->JSON.Encode.object
-  })
-
-  [("reason", reason->JSON.Encode.string), ("transaction_entries", entriesJson->JSON.Encode.array)]
-  ->Dict.fromArray
-  ->JSON.Encode.object
 }
 
 let getResolutionModalConfig = (
@@ -711,7 +562,7 @@ let getUpdatedEntry = (
     entry_id: entryDetails.entry_id,
     entry_type: formData->getString("entry_type", "")->getEntryTypeVariantFromString,
     account_id: formData->getString("account", ""),
-    account_name: formData->getString("account_name", ""),
+    account_name: formData->getString("account_name", entryDetails.account_name),
     transaction_id: entryDetails.transaction_id,
     amount: formData->getFloat("amount", entryDetails.amount),
     currency: formData->getString("currency", ""),
@@ -732,7 +583,6 @@ let getUpdatedEntry = (
 
 let getNewEntry = (
   ~formData,
-  ~updatedEntriesList: array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>,
 ): ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType => {
   let uniqueId = randomString(~length=16)
 
@@ -747,9 +597,7 @@ let getNewEntry = (
     order_id: formData->getString("order_id", ""),
     status: Pending,
     discarded_status: None,
-    version: updatedEntriesList->Array.reduce(0, (max, entry) =>
-      max > entry.version ? max : entry.version
-    ),
+    version: 0,
     metadata: formData->getJsonObjectFromDict("metadata"),
     data: Dict.fromArray([("status", "pending"->JSON.Encode.string)])->JSON.Encode.object,
     created_at: Date.make()->Date.toISOString,
@@ -760,6 +608,259 @@ let getNewEntry = (
     transformation_name: None,
   }
 }
+
+let getEntryOverrides = (formData): ReconEngineExceptionTransactionTypes.entryOverrides => {
+  entry_type: formData->getString("entry_type", "")->getEntryTypeVariantFromString,
+  amount: formData->getFloat("amount", 0.0),
+  effective_at: formData->getString("effective_at", ""),
+  metadata: formData->getJsonObjectFromDict("metadata"),
+  order_id: formData->getString("order_id", ""),
+  transformation_id: ?formData->getOptionString("transformation_id"),
+}
+
+let getStagingEntryOverrides = (
+  formData
+): ReconEngineExceptionTransactionTypes.stagingEntryOverrides => {
+  effective_at: formData->getString("effective_at", ""),
+  metadata: formData->getJsonObjectFromDict("metadata"),
+  order_id: formData->getString("order_id", ""),
+}
+
+let getCreateEntryOp = (formData): ReconEngineExceptionTransactionTypes.entryOp => CreateEntry({
+  entry: Direct({
+    account_id: formData->getString("account", ""),
+    entry_type: formData->getString("entry_type", "")->getEntryTypeVariantFromString,
+    amount: formData->getFloat("amount", 0.0),
+    effective_at: formData->getString("effective_at", ""),
+    metadata: formData->getJsonObjectFromDict("metadata"),
+    order_id: formData->getString("order_id", ""),
+    transformation_id: ?formData->getOptionString("transformation_id"),
+  }),
+})
+
+let getLinkStagingEntryOp = (
+  entry: ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType,
+): ReconEngineExceptionTransactionTypes.entryOp => CreateWithStagingEntry({
+  staging_entry_id: entry.staging_entry_id->Option.getOr(""),
+})
+
+let getEditEntryOp = (
+  ~change: option<ReconEngineExceptionTransactionTypes.entryChange>,
+  ~entryId,
+  ~formData,
+  ~isMarkReceived,
+): ReconEngineExceptionTransactionTypes.entryOp =>
+  switch change->Option.map(change => change.op) {
+  | Some(CreateEntry(_)) => formData->getCreateEntryOp
+  | Some(CreateWithStagingEntry({staging_entry_id})) =>
+    CreateWithStagingEntry({staging_entry_id, overrides: formData->getStagingEntryOverrides})
+  | Some(ReplaceWithStagingEntry({entry_id, staging_entry_id})) =>
+    ReplaceWithStagingEntry({
+      entry_id,
+      staging_entry_id,
+      overrides: formData->getStagingEntryOverrides,
+    })
+  | Some(MarkReceived(_)) =>
+    MarkReceived({entry_id: entryId, overrides: formData->getEntryOverrides})
+  | Some(UpdateEntry(_)) | None =>
+    isMarkReceived
+      ? MarkReceived({entry_id: entryId, overrides: formData->getEntryOverrides})
+      : UpdateEntry({entry_id: entryId, overrides: formData->getEntryOverrides})
+  }
+
+let addEntryChange = (
+  changes: Dict.t<ReconEngineExceptionTransactionTypes.entryChange>,
+  change: ReconEngineExceptionTransactionTypes.entryChange,
+) => {
+  let changes = changes->Dict.copy
+  changes->Dict.set(change.entry.entry_key, change)
+  changes
+}
+
+let removeEntryChange = (
+  changes: Dict.t<ReconEngineExceptionTransactionTypes.entryChange>,
+  ~entryKey,
+) => {
+  let changes = changes->Dict.copy
+  changes->deleteNestedKeys([entryKey])
+  changes
+}
+
+let recordEditedEntry = (
+  changes: Dict.t<ReconEngineExceptionTransactionTypes.entryChange>,
+  ~entry: ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType,
+  ~formData,
+  ~isMarkReceived=false,
+) =>
+  changes->addEntryChange({
+    op: getEditEntryOp(
+      ~change=changes->getOptionValFromDict(entry.entry_key),
+      ~entryId=entry.entry_id,
+      ~formData,
+      ~isMarkReceived,
+    ),
+    entry: getUpdatedEntry(~formData, ~markAsReceived=isMarkReceived, ~entryDetails=entry),
+  })
+
+let recordCreatedEntry = (
+  changes: Dict.t<ReconEngineExceptionTransactionTypes.entryChange>,
+  ~formData,
+) => changes->addEntryChange({op: formData->getCreateEntryOp, entry: getNewEntry(~formData)})
+
+let recordLinkedEntries = (
+  changes: Dict.t<ReconEngineExceptionTransactionTypes.entryChange>,
+  stagingEntries: array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>,
+) =>
+  stagingEntries->Array.reduce(changes, (changes, stagingEntry) =>
+    changes->addEntryChange({op: stagingEntry->getLinkStagingEntryOp, entry: stagingEntry})
+  )
+
+let recordReplacedEntry = (
+  changes: Dict.t<ReconEngineExceptionTransactionTypes.entryChange>,
+  ~entry: ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType,
+  ~stagingEntry: ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType,
+) => {
+  let replaceEntry = entryId =>
+    changes->addEntryChange({
+      op: ReplaceWithStagingEntry({
+        entry_id: entryId,
+        staging_entry_id: stagingEntry.staging_entry_id->Option.getOr(""),
+      }),
+      entry: {...stagingEntry, entry_key: entry.entry_key},
+    })
+
+  switch changes->getOptionValFromDict(entry.entry_key)->Option.map(change => change.op) {
+  | Some(CreateEntry(_)) | Some(CreateWithStagingEntry(_)) =>
+    changes->removeEntryChange(~entryKey=entry.entry_key)->recordLinkedEntries([stagingEntry])
+  | Some(ReplaceWithStagingEntry({entry_id})) => replaceEntry(entry_id)
+  | Some(UpdateEntry(_)) | Some(MarkReceived(_)) | None => replaceEntry(entry.entry_id)
+  }
+}
+
+let getAddedEntries = (
+  changes: Dict.t<ReconEngineExceptionTransactionTypes.entryChange>,
+  ~accountId,
+) =>
+  changes
+  ->Dict.valuesToArray
+  ->Array.filterMap(({op, entry}) =>
+    switch op {
+    | CreateEntry(_) | CreateWithStagingEntry(_) if entry.account_id == accountId => Some(entry)
+    | CreateEntry(_)
+    | CreateWithStagingEntry(_)
+    | UpdateEntry(_)
+    | MarkReceived(_)
+    | ReplaceWithStagingEntry(_) =>
+      None
+    }
+  )
+
+let applyEntryChanges = (
+  entries: array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>,
+  ~changes: Dict.t<ReconEngineExceptionTransactionTypes.entryChange>,
+  ~accountId,
+) =>
+  entries
+  ->Array.map(entry =>
+    changes
+    ->getOptionValFromDict(entry.entry_key)
+    ->mapOptionOrDefault(entry, change => change.entry)
+  )
+  ->Array.concat(changes->getAddedEntries(~accountId))
+
+let getLinkedStagingEntryIds = (
+  changes: Dict.t<ReconEngineExceptionTransactionTypes.entryChange>,
+) =>
+  changes
+  ->Dict.valuesToArray
+  ->Array.filterMap(({op}) =>
+    switch op {
+    | CreateWithStagingEntry({staging_entry_id})
+    | ReplaceWithStagingEntry({staging_entry_id}) =>
+      Some(staging_entry_id)
+    | UpdateEntry(_) | MarkReceived(_) | CreateEntry(_) => None
+    }
+  )
+  ->Set.fromArray
+
+let getEntryChangeSummary = ({op, entry}: ReconEngineExceptionTransactionTypes.entryChange) => {
+  let amount = `${entry.currency} ${entry.amount->Float.toString}`
+  switch op {
+  | UpdateEntry(_) =>
+    `Entry with order ID ${entry.order_id} updated in ${entry.account_name} account.`
+  | MarkReceived(_) =>
+    `Expected entry with order ID ${entry.order_id} marked as received in ${entry.account_name} account.`
+  | CreateEntry(_) =>
+    `New ${(entry.entry_type :> string)} entry of ${amount} with order ID ${entry.order_id} created in ${entry.account_name} account.`
+  | CreateWithStagingEntry(_) =>
+    `Transformed entry of ${amount} with order ID ${entry.order_id} linked in ${entry.account_name} account.`
+  | ReplaceWithStagingEntry(_) =>
+    `Entry replaced with transformed entry of ${amount} with order ID ${entry.order_id} in ${entry.account_name} account.`
+  }
+}
+
+let constructManualReconciliationBody = (
+  ~changes: Dict.t<ReconEngineExceptionTransactionTypes.entryChange>,
+  ~values,
+) => {
+  let request: ReconEngineExceptionTransactionTypes.manualReconciliationRequest = {
+    entry_ops: changes->Dict.valuesToArray->Array.map(({op}) => op),
+    reason: values->getDictFromJsonObject->getString("reason", ""),
+  }
+  request->Identity.genericTypeToJson
+}
+
+let isMismatchedTransaction = (status: domainTransactionStatus) =>
+  switch status {
+  | DataMismatch
+  | CurrencyMismatch
+  | SplitMismatch
+  | OverAmount(Mismatch)
+  | UnderAmount(Mismatch) => true
+  | Posted(Manual)
+  | Matched(Force)
+  | Matched(Manual)
+  | Matched(Auto)
+  | Matched(WithTolerance)
+  | OverAmount(Expected)
+  | UnderAmount(Expected)
+  | Archived
+  | Void
+  | Missing
+  | Expected
+  | PartiallyReconciled
+  | Posted(UnknownDomainTransactionPostedStatus)
+  | Matched(UnknownDomainTransactionMatchedStatus)
+  | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
+  | UnderAmount(UnknownDomainTransactionAmountMismatchStatus)
+  | UnknownDomainTransactionStatus => false
+  }
+
+let isMarkAsReceivedAvailable = (status: domainTransactionStatus) =>
+  switch status {
+  | Expected
+  | Missing
+  | OverAmount(Expected)
+  | UnderAmount(Expected) => true
+  | PartiallyReconciled
+  | DataMismatch
+  | CurrencyMismatch
+  | SplitMismatch
+  | OverAmount(Mismatch)
+  | UnderAmount(Mismatch)
+  | Posted(Manual)
+  | Matched(Force)
+  | Matched(Manual)
+  | Matched(Auto)
+  | Matched(WithTolerance)
+  | Archived
+  | Void
+  | Posted(UnknownDomainTransactionPostedStatus)
+  | Matched(UnknownDomainTransactionMatchedStatus)
+  | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
+  | UnderAmount(UnknownDomainTransactionAmountMismatchStatus)
+  | UnknownDomainTransactionStatus => false
+  }
 
 let addUniqueIdsToEntries = (entries: array<entryType>): array<
   ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType,

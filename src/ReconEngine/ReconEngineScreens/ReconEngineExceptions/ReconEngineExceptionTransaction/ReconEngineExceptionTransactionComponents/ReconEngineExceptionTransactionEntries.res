@@ -2,11 +2,10 @@ open Typography
 
 @react.component
 let make = (
-  ~entriesList: array<ReconEngineTypes.entryType>,
+  ~accountIds: array<string>,
   ~currentExceptionDetails: ReconEngineTypes.transactionType,
   ~accountsData: array<ReconEngineTypes.accountType>,
 ) => {
-  open EntriesTableEntity
   open ReconEngineUtils
   open ReconEngineExceptionTransactionTypes
   open ReconEngineExceptionTransactionUtils
@@ -20,9 +19,7 @@ let make = (
   ))
   let showToast = ToastAdapter.useShowToast()
   let (selectedRows, setSelectedRows) = React.useState(_ => [])
-  let (updatedEntriesList, setUpdatedEntriesList) = React.useState(_ =>
-    entriesList->addUniqueIdsToEntries
-  )
+  let (changes, setChanges) = React.useState((_): Dict.t<entryChange> => Dict.make())
   let (showConfirmationModal, setShowConfirmationModal) = React.useState(_ => false)
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod()
@@ -37,34 +34,9 @@ let make = (
     })
   }
 
-  let (groupedEntries, accountInfoMap) = React.useMemo(() => {
-    getGroupedEntriesAndAccountMaps(~accountsData, ~updatedEntriesList)
-  }, (updatedEntriesList, accountsData))
-
-  let sectionDetails = (sectionIndex: int, rowIndex: int) => {
-    getSectionRowDetails(
-      ~sectionIndex,
-      ~rowIndex,
-      ~groupedEntries=groupedEntries->convertGroupedEntriesToEntryType,
-    )
-  }
-
-  let tableSections = React.useMemo(() => {
-    let sections = getEntriesSections(
-      ~groupedEntries,
-      ~accountInfoMap,
-      ~detailsFields=getDetailFieldsForTableSections,
-    )
-    let accountIds = groupedEntries->Dict.keysToArray
-    sections->Array.mapWithIndex((section, index) => {
-      let accountId = accountIds->getValueFromArray(index, "")
-      let entriesWithUniqueId = groupedEntries->getValueFromDict(accountId, [])
-      {
-        ...section,
-        rowData: entriesWithUniqueId->Array.map(entry => entry->Identity.genericTypeToJson),
-      }
-    })
-  }, (groupedEntries, accountInfoMap, currentExceptionDetails.transaction_status))
+  let currencyOptions = React.useMemo(() => {
+    ReconEngineTransactionsUtils.getCurrencyOptionsFromAccounts(accountsData, ~accountIds)
+  }, (accountsData, accountIds))
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
@@ -74,7 +46,7 @@ let make = (
         ~methodType=Post,
         ~id=Some(currentExceptionDetails.id),
       )
-      let body = constructManualReconciliationBody(~updatedEntriesList, ~values)
+      let body = constructManualReconciliationBody(~changes, ~values)
       let res = await updateDetails(url, body, Post)
       let transaction = res->getDictFromJsonObject->transactionItemToObjMapper
       setShowConfirmationModal(_ => false)
@@ -104,11 +76,8 @@ let make = (
   }
 
   let summaryItems = React.useMemo(() => {
-    generateAllResolutionSummaries(
-      entriesList,
-      updatedEntriesList->Array.map(getEntryTypeFromExceptionEntryType),
-    )
-  }, (entriesList, updatedEntriesList))
+    changes->Dict.valuesToArray->Array.map(getEntryChangeSummary)
+  }, [changes])
 
   let onCloseClickCustomFun = () => {
     setExceptionStage(_ => ConfirmResolution(exceptionStage->getInnerVariant))
@@ -135,25 +104,34 @@ let make = (
       setExceptionStage
       selectedRows
       setSelectedRows
-      updatedEntriesList
-      setUpdatedEntriesList
+      changes
+      setChanges
       currentExceptionDetails
       accountsData
-      oldEntriesList={entriesList->addUniqueIdsToEntries}
     />
-    <ReconEngineCustomExpandableSelectionTable
-      title=""
-      heading={getDetailFieldsForTableSections->Array.map(getHeading)}
-      getSectionRowDetails=sectionDetails
-      showScrollBar=true
-      showOptions={exceptionStage == ResolvingException(EditEntry) ||
-      exceptionStage == ResolvingException(MarkAsReceived) ||
-      exceptionStage == ResolvingException(ReplaceStagingEntryToTransaction)}
-      selectedRows
-      onRowSelect=handleRowSelect
-      sections=tableSections
-      ?isRowSelectable
-    />
+    <div className="flex flex-col gap-6">
+      {accountIds
+      ->Array.map(accountId =>
+        <FilterContext
+          key=accountId
+          index={`recon-engine-exception-entries-${currentExceptionDetails.id}-${accountId}`}>
+          <ReconEngineExceptionTransactionAccountEntries
+            primaryTransactionId=currentExceptionDetails.id
+            accountId
+            accountsData
+            currencyOptions
+            changes
+            showOptions={exceptionStage == ResolvingException(EditEntry) ||
+            exceptionStage == ResolvingException(MarkAsReceived) ||
+            exceptionStage == ResolvingException(ReplaceStagingEntryToTransaction)}
+            selectedRows
+            onRowSelect=handleRowSelect
+            ?isRowSelectable
+          />
+        </FilterContext>
+      )
+      ->React.array}
+    </div>
     <RenderIf
       condition={exceptionStage == ConfirmResolution(EditEntry) ||
       exceptionStage == ConfirmResolution(CreateNewEntry) ||
@@ -169,7 +147,7 @@ let make = (
             customButtonStyle="!w-full"
             onClick={_ => {
               setExceptionStage(_ => ShowResolutionOptions(NoResolutionOptionNeeded))
-              setUpdatedEntriesList(_ => entriesList->addUniqueIdsToEntries)
+              setChanges(_ => Dict.make())
               setSelectedRows(_ => [])
             }}
           />
