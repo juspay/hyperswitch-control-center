@@ -102,9 +102,11 @@ type alert = {
   dimensions: JSON.t,
   metadata: JSON.t,
   snooze: JSON.t,
+  threadUrl: string,
 }
 
 type alertsDictionary = {
+  orgIds: array<string>,
   merchantIds: array<string>,
   profileIds: array<string>,
   connectors: array<string>,
@@ -121,6 +123,7 @@ type colType =
   | AlertPriority
   | AlertMerchantId
   | AlertProfileId
+  | AlertChannel
   | AlertConnector
   | AlertStatus
   | AlertAttribution

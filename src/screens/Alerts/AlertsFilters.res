@@ -3,6 +3,7 @@ open FilterSelectBox
 open AlertsTypes
 
 let priorityFilterKey = "priority"
+let orgIdFilterKey = "org_id"
 let merchantIdFilterKey = "merchant_id"
 let profileIdFilterKey = "profile_id"
 let connectorFilterKey = "connector"
@@ -52,6 +53,11 @@ let initialFilters = (~dictionary: alertsDictionary): array<EntityType.initialFi
       ),
     ),
   },
+  multiSelectField(
+    ~name=orgIdFilterKey,
+    ~label="Organization ID",
+    ~options=dictionary.orgIds->makeOptions,
+  ),
   multiSelectField(
     ~name=merchantIdFilterKey,
     ~label="Merchant ID",

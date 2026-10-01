@@ -3,6 +3,42 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.10.01.0
+
+### Features
+
+- Add timezones context in recon ([#5522](https://github.com/juspay/hyperswitch-control-center/pull/5522)) ([`95324a1`](https://github.com/juspay/hyperswitch-control-center/commit/95324a10bc7ed08b67d8ed4fcfdc37b51931dfaf))
+
+### Bug Fixes
+
+- **routing:** Skip entry outside V1 orchestration ([#5607](https://github.com/juspay/hyperswitch-control-center/pull/5607)) ([`35ec00c`](https://github.com/juspay/hyperswitch-control-center/commit/35ec00ca8b647f496dd6b3ee2dac75f38c6ee2bc))
+
+### Miscellaneous Tasks
+
+- Update frm connector details in business profile ([#5615](https://github.com/juspay/hyperswitch-control-center/pull/5615)) ([`54804ba`](https://github.com/juspay/hyperswitch-control-center/commit/54804bae4c7f45693e1ea2c4b43ed48b056d0737))
+
+**Full Changelog:** [`2026.09.30.0...2026.10.01.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.30.0...2026.10.01.0)
+
+- - -
+
+## 2026.09.30.0
+
+### Features
+
+- **alerts:** Add organization filter and Xyne message links ([#5601](https://github.com/juspay/hyperswitch-control-center/pull/5601)) ([`6ba6199`](https://github.com/juspay/hyperswitch-control-center/commit/6ba619986c745410e670909097007db1061033d9))
+
+### Bug Fixes
+
+- **alerts:** Correct Alerts pagination and controls ([#5605](https://github.com/juspay/hyperswitch-control-center/pull/5605)) ([`fa2ee68`](https://github.com/juspay/hyperswitch-control-center/commit/fa2ee68fcc0d1bbe20b53cef5b9859be93e45ed6))
+
+### Miscellaneous Tasks
+
+- **recon:** Remove permission and pipelines feature flags ([#5602](https://github.com/juspay/hyperswitch-control-center/pull/5602)) ([`171855f`](https://github.com/juspay/hyperswitch-control-center/commit/171855fcda16c97dd82a9b925ff009d9a4924dda))
+
+**Full Changelog:** [`2026.09.29.1...2026.09.30.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.09.29.1...2026.09.30.0)
+
+- - -
+
 ## 2026.09.29.1
 
 ### Bug Fixes
