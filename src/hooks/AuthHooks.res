@@ -117,7 +117,6 @@ let useApiFetcher = () => {
       uri,
       ~bodyStr: string="",
       ~bodyFormData=None,
-      ~omitBody=false,
       ~headers=Dict.make(),
       ~method_: Fetch.requestMethod,
       ~betaEndpointConfig=?,
@@ -152,7 +151,6 @@ let useApiFetcher = () => {
       }
 
       let body = switch method_ {
-      | _ if omitBody => resolve(None)
       | Get => resolve(None)
       | _ =>
         switch bodyFormData {

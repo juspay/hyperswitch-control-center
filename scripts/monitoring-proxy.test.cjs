@@ -2,17 +2,32 @@ const assert = require("node:assert/strict");
 const { test } = require("node:test");
 const { Readable } = require("node:stream");
 const { gzipSync } = require("node:zlib");
-const {
-  getMonitoringProxy,
-  rewriteEmbedUrl,
-  validateOrigins,
-} = require("../webpack.monitoring");
+const fs = require("node:fs");
+const vm = require("node:vm");
+const source = fs.readFileSync(require.resolve("../webpack.dev.js"), "utf8");
+const sandbox = {
+  require: (name) => (name === "http-proxy-middleware" ? require(name) : {}),
+  URL,
+  process: { env: {} },
+  module: { exports: {} },
+};
+vm.runInNewContext(
+  'const { responseInterceptor } = require("http-proxy-middleware");\n' +
+    source.slice(
+      source.indexOf("const GRAFANA_PATH"),
+      source.indexOf("let port ="),
+    ) +
+    "module.exports = { getMonitoringProxy, rewriteEmbedUrl, validateOrigins };",
+  sandbox,
+);
+const { getMonitoringProxy, rewriteEmbedUrl, validateOrigins } =
+  sandbox.module.exports;
 
 const target = "https://app.hyperswitch.io";
 const local = "https://localhost:9000";
 
 test("proxy is opt-in and leaves default local development unchanged", () => {
-  assert.deepEqual(getMonitoringProxy({}), []);
+  assert.equal(getMonitoringProxy({}).length, 0);
 });
 
 test("rewrites only approved gateway URLs and preserves Explore state", () => {
@@ -35,10 +50,13 @@ test("rewrites only approved gateway URLs and preserves Explore state", () => {
 });
 
 test("requires HTTPS origins and a loopback local server", () => {
-  assert.deepEqual(validateOrigins(target, local), {
-    target,
-    localOrigin: local,
-  });
+  assert.deepEqual(
+    { ...validateOrigins(target, local) },
+    {
+      target,
+      localOrigin: local,
+    },
+  );
   for (const [remote, origin] of [
     ["http://example.test", local],
     [target, "http://localhost:9000"],
@@ -49,23 +67,9 @@ test("requires HTTPS origins and a loopback local server", () => {
   }
 });
 
-test("keeps session and Grafana paths, and makes aliases explicit and dev-only", () => {
-  const proxies = getMonitoringProxy({
-    SANDBOX_MONITORING_ORIGIN: target,
-    MONITORING_API_HEALTH_ID: "api_inbound",
-  });
-  assert.equal(
-    proxies[0].pathRewrite(
-      "/api/observability-plane/monitoring/grafana/session/api_health",
-    ),
-    "/api/observability-plane/monitoring/grafana/session/api_inbound",
-  );
-  assert.equal(
-    proxies[0].pathRewrite(
-      "/api/observability-plane/monitoring/grafana/session/explore",
-    ),
-    "/api/observability-plane/monitoring/grafana/session/explore",
-  );
+test("keeps session and Grafana paths unchanged", () => {
+  const proxies = getMonitoringProxy({ SANDBOX_MONITORING_ORIGIN: target });
+  assert.equal(proxies[0].pathRewrite, undefined);
   assert.equal(proxies[1].ws, true);
   assert.equal(proxies[1].secure, true);
   assert.equal(proxies[1].cookieDomainRewrite, undefined);
@@ -158,35 +162,19 @@ for (const body of [
   });
 }
 
-test("Grafana interceptor rewrites framing/redirect/HTML origins but preserves binary responses", async () => {
-  const response = await intercept(
-    proxies[1].onProxyRes,
-    `<html>${target}/api/observability-plane/grafana/</html>`,
-    {
-      "content-type": "text/html",
-      "content-security-policy": `default-src 'self'; frame-ancestors ${target}`,
-      location: `${target}/api/observability-plane/grafana/login`,
-      "set-cookie": [cookie],
-    },
-  );
+test("Grafana proxy adjusts only framing headers and streams the original body", () => {
+  const headers = {
+    "content-security-policy": `default-src 'self'; frame-ancestors ${target}`,
+    "content-type": "text/html",
+    "set-cookie": [cookie],
+  };
+  proxies[1].onProxyRes({ headers });
   assert.equal(
-    response.headers["content-security-policy"],
+    headers["content-security-policy"],
     `default-src 'self'; frame-ancestors ${local}`,
   );
-  assert.equal(
-    response.headers.location,
-    `${local}/api/observability-plane/grafana/login`,
-  );
-  assert.equal(
-    response.body.toString(),
-    `<html>${local}/api/observability-plane/grafana/</html>`,
-  );
-  assert.deepEqual(response.headers["set-cookie"], [cookie]);
-  const binary = Buffer.from([0, 255, 1, 128]);
-  const asset = await intercept(proxies[1].onProxyRes, binary, {
-    "content-type": "image/png",
-  });
-  assert.deepEqual(asset.body, binary);
+  assert.deepEqual(headers["set-cookie"], [cookie]);
+  assert.equal(proxies[1].selfHandleResponse, undefined);
 });
 
 test("HTTP and WebSocket origin rewriting leaves cookies and authorization unchanged", () => {

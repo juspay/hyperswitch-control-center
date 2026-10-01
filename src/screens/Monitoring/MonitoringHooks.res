@@ -14,7 +14,6 @@ let useGrafanaSession = () => {
     let response = await fetchApi(
       url,
       ~method_=Post,
-      ~omitBody=true,
       ~forceCookies=true,
       ~xFeatureRoute=false,
       ~signal,

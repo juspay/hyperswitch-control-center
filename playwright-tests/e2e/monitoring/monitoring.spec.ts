@@ -61,7 +61,7 @@ async function session(page: Page, status = 200, embedUrl?: string) {
     "**/api/observability-plane/monitoring/grafana/session/*",
     async (route) => {
       expect(route.request().method()).toBe("POST");
-      expect(route.request().postData()).toBeNull();
+      expect(route.request().postData() ?? "").toBe("");
       expect(route.request().headers().authorization).toBe(
         "Bearer monitoring-test-token",
       );
