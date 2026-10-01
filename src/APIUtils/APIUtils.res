@@ -1754,7 +1754,7 @@ let useGetURL = () => {
           }
         | #NONE => Default("")
         }
-      | MONITORING =>
+      | MONITORING_SESSION =>
         switch (methodType, id) {
         | (Post, Some(destination)) =>
           Default(`observability-plane/monitoring/grafana/session/${destination}`)

@@ -74,7 +74,7 @@ async function session(page: Page, status = 200, embedUrl?: string) {
                 embed_url:
                   embedUrl ??
                   new URL(
-                    `/api/observability-plane/grafana/d/${id}/view?from=now-24h&to=now`,
+                    `/api/observability-plane/grafana/d/${id}/view?kiosk&from=now-24h&to=now`,
                     route.request().url(),
                   ).href,
               }
@@ -163,7 +163,7 @@ test.describe("Monitoring", () => {
   for (const [status, message] of [
     [403, "You do not have access to Monitoring."],
     [404, "This monitoring view has not been configured yet."],
-    [503, "Monitoring is temporarily unavailable. Please try again."],
+    [503, "Monitoring is temporarily unavailable."],
   ] as const) {
     test(`handles bootstrap ${status}`, async ({ page }) => {
       await setup(page);
@@ -171,11 +171,9 @@ test.describe("Monitoring", () => {
       await page.goto("/dashboard/monitoring/api-health");
       await expect(page.getByRole("alert")).toHaveText(new RegExp(message));
       await expect(page.locator("#monitoring-screen iframe")).toHaveCount(0);
-      if (status !== 403) {
-        await session(page);
-        await page.getByRole("button", { name: "Retry", exact: true }).click();
-        await expect(page.locator('iframe[title="API Health"]')).toBeVisible();
-      }
+      await expect(
+        page.getByRole("button", { name: "Retry", exact: true }),
+      ).toHaveCount(0);
     });
   }
 
@@ -206,104 +204,52 @@ test.describe("Monitoring", () => {
     });
   }
 
-  test("retains cookie-only gateway authorization and notices idle session expiry", async ({
+  test("uses cookie-only gateway authorization without polling an idle view", async ({
     page,
   }) => {
     await setup(page);
     await session(page);
     await page.clock.install();
-    await page.goto("/dashboard/monitoring/api-health");
-    await expect(page.locator('iframe[title="API Health"]')).toBeVisible();
+    let requests = 0;
     await page.route("**/api/observability-plane/grafana/**", async (route) => {
+      requests++;
       expect(route.request().headers().authorization).toBeUndefined();
-      await route.fulfill({ status: 401, json: { error: "expired" } });
+      await route.fulfill({
+        contentType: "text/html",
+        body: "<h1>Monitoring fixture</h1>",
+      });
     });
-    await page.clock.fastForward(60000);
-    await expect(page).toHaveURL(/\/dashboard\/login/);
-    await expect(page.locator("iframe")).toHaveCount(0);
+    await page.goto("/dashboard/monitoring/api-health");
+    await expect(
+      page
+        .frameLocator('iframe[title="API Health"]')
+        .getByText("Monitoring fixture"),
+    ).toBeVisible();
+    const initialRequests = requests;
+    expect(initialRequests).toBe(1);
+    await page.clock.fastForward(180000);
+    expect(requests).toBe(initialRequests);
+    await expect(page.locator('iframe[title="API Health"]')).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Retry", exact: true }),
+    ).toHaveCount(0);
   });
 
-  test("handles a gateway document failure after successful bootstrap", async ({
+  test("shows a static error when bootstrap cannot connect", async ({
     page,
   }) => {
     await setup(page);
-    await session(page);
-    await page.route("**/api/observability-plane/grafana/**", (route) =>
-      route.fulfill({ status: 503, json: {} }),
+    await page.route("**/monitoring/grafana/session/*", (route) =>
+      route.abort(),
     );
     await page.goto("/dashboard/monitoring/api-health");
     await expect(page.getByRole("alert")).toContainText(
-      "temporarily unavailable",
+      "Unable to connect to Monitoring.",
     );
+    await expect(
+      page.getByRole("button", { name: "Retry", exact: true }),
+    ).toHaveCount(0);
     await expect(page.locator("#monitoring-screen iframe")).toHaveCount(0);
-  });
-
-  for (const status of [403, 503]) {
-    test(`removes an already-loaded view after gateway ${status}`, async ({
-      page,
-    }) => {
-      await setup(page);
-      await session(page);
-      await page.clock.install();
-      await page.goto("/dashboard/monitoring/api-health");
-      await expect(page.locator('iframe[title="API Health"]')).toBeVisible();
-      await page.route("**/api/observability-plane/grafana/**", (route) =>
-        route.fulfill({ status, json: {} }),
-      );
-      await page.clock.fastForward(60000);
-      await expect(page.getByRole("alert")).toContainText(
-        status === 403 ? "do not have access" : "temporarily unavailable",
-      );
-      await expect(page.locator("#monitoring-screen iframe")).toHaveCount(0);
-    });
-  }
-
-  test("times out a stalled iframe document after successful preflight", async ({
-    page,
-  }) => {
-    await setup(page);
-    await session(page);
-    await page.clock.install();
-    let requested = false;
-    await page.route("**/api/observability-plane/grafana/**", async (route) => {
-      if (route.request().resourceType() !== "document") {
-        await route.fulfill({
-          contentType: "text/html",
-          body: "<title>Preflight</title>",
-        });
-      } else {
-        requested = true;
-        await new Promise<void>((resolve) =>
-          page.once("close", () => resolve()),
-        );
-        await route.abort().catch(() => {});
-      }
-    });
-    await page.goto("/dashboard/monitoring/api-health");
-    await expect.poll(() => requested).toBe(true);
-    await page.clock.fastForward(30000);
-    await expect(page.getByRole("alert")).toContainText("view took too long");
-    await expect(page.locator("#monitoring-screen iframe")).toHaveCount(0);
-  });
-
-  test("times out a stalled bootstrap and permits a scoped retry", async ({
-    page,
-  }) => {
-    await setup(page);
-    await page.clock.install();
-    let requested = false;
-    await page.route("**/monitoring/grafana/session/*", async (route) => {
-      requested = true;
-      await new Promise<void>((resolve) => page.once("close", () => resolve()));
-      await route.abort().catch(() => {});
-    });
-    await page.goto("/dashboard/monitoring/api-health");
-    await expect.poll(() => requested).toBe(true);
-    await page.clock.fastForward(30000);
-    await expect(page.getByRole("alert")).toContainText("took too long");
-    await session(page);
-    await page.getByRole("button", { name: "Retry", exact: true }).click();
-    await expect(page.locator('iframe[title="API Health"]')).toBeVisible();
   });
 
   test("discards an old bootstrap response when switching views", async ({
@@ -377,13 +323,13 @@ test.describe("Monitoring", () => {
     expect(frame?.width).toBeLessThanOrEqual(390);
   });
 
-  test("preserves URL fragments while serializing the bare kiosk query flag", async ({
+  test("preserves backend kiosk configuration and URL fragments", async ({
     page,
   }, testInfo) => {
     await setup(page);
     const fragment = "#?kiosk=tv&kiosk=tv";
     const url = new URL(
-      `/api/observability-plane/grafana/d/demo/view?from=now${fragment}`,
+      `/api/observability-plane/grafana/d/demo/view?kiosk=tv&theme=light&from=now${fragment}`,
       testInfo.project.use.baseURL,
     ).href;
     await session(page, 200, url);
@@ -392,8 +338,28 @@ test.describe("Monitoring", () => {
     await expect(iframe).toBeVisible();
     const src = new URL((await iframe.getAttribute("src"))!);
     expect(src.hash).toBe(fragment);
-    expect(src.search).not.toMatch(/[?&]kiosk=/);
-    expect(src.searchParams.has("kiosk")).toBe(true);
+    expect(src.searchParams.get("kiosk")).toBe("tv");
+    expect(src.searchParams.getAll("theme")).toEqual(["light"]);
+  });
+
+  test("does not add kiosk when the backend omits it", async ({
+    page,
+  }, testInfo) => {
+    await setup(page);
+    await session(
+      page,
+      200,
+      new URL(
+        "/api/observability-plane/grafana/d/demo/view?from=now",
+        testInfo.project.use.baseURL,
+      ).href,
+    );
+    await page.goto("/dashboard/monitoring/api-health");
+    const iframe = page.locator('iframe[title="API Health"]');
+    await expect(iframe).toBeVisible();
+    const url = new URL((await iframe.getAttribute("src"))!);
+    expect(url.searchParams.has("kiosk")).toBe(false);
+    expect(url.searchParams.get("theme")).toBe("light");
   });
 
   test("unknown routes do not bootstrap an arbitrary destination", async ({

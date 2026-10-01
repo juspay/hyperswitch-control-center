@@ -9,9 +9,6 @@ type url
 @get external href: url => string = "href"
 @get external search: url => string = "search"
 @set external setSearch: (url, string) => unit = "search"
-type searchParams
-@get external searchParams: url => searchParams = "searchParams"
-@send external setParam: (searchParams, string, string) => unit = "set"
 
 let destinations = [Explore, ApiHealth, ConnectorPerformance, BusinessMetrics, SystemHealth]
 
@@ -50,12 +47,16 @@ let getEmbedUrl = (~embedUrl, ~theme) => {
     ) {
       None
     } else {
-      url->searchParams->setParam("kiosk", "")
-      url->searchParams->setParam("theme", theme)
-      // Grafana distinguishes the bare kiosk flag from an empty kiosk= value.
-      url->setSearch(
-        url->search->String.replace("?kiosk=", "?kiosk")->String.replace("&kiosk=", "&kiosk"),
-      )
+      // Preserve backend-owned parameters, including Grafana's bare kiosk flag.
+      let params =
+        url
+        ->search
+        ->String.sliceToEnd(~start=1)
+        ->String.split("&")
+        ->Array.filter(param =>
+          param !== "" && param !== "theme" && !(param->String.startsWith("theme="))
+        )
+      url->setSearch(`?${params->Array.concat([`theme=${theme}`])->Array.joinWith("&")}`)
       Some(url->href)
     }
   } catch {
