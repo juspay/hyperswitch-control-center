@@ -108,10 +108,9 @@ let make = (
     ->addUniqueIdsToEntries
   }, (entriesList, transformationConfigs, accountName))
 
-  let shownEntries = React.useMemo(
-    () => pageEntries->applyEntryChanges(~changes, ~accountId),
-    (pageEntries, changes, accountId),
-  )
+  let shownEntries = React.useMemo(() => {
+    pageEntries->applyEntryChanges(~changes, ~accountId, ~isFirstPage=cursors.prev->Option.isNone)
+  }, (pageEntries, changes, accountId, cursors.prev))
 
   let (groupedEntries, accountInfoMap) = React.useMemo(() => {
     getGroupedEntriesAndAccountMaps(~accountsData, ~updatedEntriesList=shownEntries)

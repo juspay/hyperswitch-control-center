@@ -767,6 +767,7 @@ let applyEntryChanges = (
   entries: array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>,
   ~changes: Dict.t<ReconEngineExceptionTransactionTypes.entryChange>,
   ~accountId,
+  ~isFirstPage,
 ) =>
   entries
   ->Array.map(entry =>
@@ -774,7 +775,7 @@ let applyEntryChanges = (
     ->getOptionValFromDict(entry.entry_key)
     ->mapOptionOrDefault(entry, change => change.entry)
   )
-  ->Array.concat(changes->getAddedEntries(~accountId))
+  ->Array.concat(isFirstPage ? changes->getAddedEntries(~accountId) : [])
 
 let getLinkedStagingEntryIds = (
   changes: Dict.t<ReconEngineExceptionTransactionTypes.entryChange>,
