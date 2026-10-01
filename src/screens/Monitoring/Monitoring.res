@@ -1,39 +1,38 @@
-open MonitoringTypes
-
 @react.component
 let make = (~destination) => {
   let bootstrap = MonitoringHooks.useGrafanaSession()
-  let {authStatus} = React.useContext(AuthInfoProvider.authStatusContext)
-  let theme = switch ThemeProvider.useTheme() {
-  | Light => "light"
-  | Dark => "dark"
-  }
-  let (screenState, setScreenState) = React.useState(_ => Loading)
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let (embedUrl, setEmbedUrl) = React.useState(_ => "")
+  let (errorMessage, setErrorMessage) = React.useState(_ => "")
 
-  let loadSession = async isActive => {
+  let showError = message => {
+    setErrorMessage(_ => message)
+    setScreenState(_ => PageLoaderWrapper.Custom)
+  }
+
+  let loadSession = async () => {
     try {
-      let result = await bootstrap(~destination)
-      if isActive.contents {
-        setScreenState(_ => result)
+      switch await bootstrap(~destination) {
+      | Result.Ok(url) =>
+        setEmbedUrl(_ => url)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      | Result.Error(message) => showError(message)
       }
     } catch {
-    | _ =>
-      if isActive.contents {
-        setScreenState(_ => Failed("Unable to connect to Monitoring."))
-      }
+    | _ => showError("Unable to connect to Monitoring.")
     }
   }
 
-  React.useEffect(() => {
-    let isActive = ref(true)
-    setScreenState(_ => Loading)
-    loadSession(isActive)->ignore
-    Some(() => isActive.contents = false)
-  }, [authStatus])
+  React.useEffect0(() => {
+    loadSession()->ignore
+    None
+  })
 
-  let renderError = message =>
+  let errorUI =
     <div className="flex items-center justify-center min-h-96" role="alert">
-      <p className="text-sm text-nd_gray-600 dark:text-white"> {message->React.string} </p>
+      <p className={`${Typography.body.sm.regular} text-nd_gray-600 dark:text-white`}>
+        {errorMessage->React.string}
+      </p>
     </div>
 
   <div className="w-full min-w-0" id="monitoring-screen">
@@ -42,21 +41,13 @@ let make = (~destination) => {
       customHeadingStyle="mb-4"
       customTitleStyle="dark:text-white"
     />
-    {switch screenState {
-    | Loading => <PageLoaderWrapper screenState=PageLoaderWrapper.Loading />
-    | Failed(message) => renderError(message)
-    | Ready(url) =>
-      switch MonitoringUtils.getEmbedUrl(~embedUrl=url, ~theme) {
-      | None => renderError("Monitoring returned a URL outside the approved gateway.")
-      | Some(src) =>
-        <iframe
-          key=src
-          title={destination->MonitoringUtils.getTitle}
-          src
-          className="w-full border-0 rounded-lg"
-          style={ReactDOM.Style.make(~height="calc(100vh - 180px)", ~minHeight="480px", ())}
-        />
-      }
-    }}
+    <PageLoaderWrapper screenState customUI=errorUI>
+      <iframe
+        title={destination->MonitoringUtils.getTitle}
+        src=embedUrl
+        className="w-full border-0 rounded-lg"
+        style={ReactDOM.Style.make(~height="calc(100vh - 180px)", ~minHeight="480px", ())}
+      />
+    </PageLoaderWrapper>
   </div>
 }
