@@ -168,10 +168,13 @@ module SearchBarFilter = {
         customWidth="w-full"
       />
       <RenderIf condition={inputValidationError->LogicUtils.isNonEmptyString}>
-        <div className="flex gap-1 mt-1">
-          <Icon name="exclamation-circle" size=12 className="text-red-600" />
-          <p className="text-red-600 text-xs"> {inputValidationError->React.string} </p>
-        </div>
+        <AddDataAttributes attributes=[("data-form-error", inputValidationError)]>
+          <div
+            className={`flex flex-row items-center ${FormRenderer.FieldError.errorTextStyle} pt-2 leading-4 text-start`}>
+            <FormErrorIcon />
+            {React.string(inputValidationError)}
+          </div>
+        </AddDataAttributes>
       </RenderIf>
     </div>
   }
