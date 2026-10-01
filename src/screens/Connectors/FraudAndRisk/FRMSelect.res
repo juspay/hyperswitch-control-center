@@ -6,6 +6,8 @@ module NewProcessorCards = {
   ) => {
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let mixpanelEvent = MixpanelHook.useSendEvent()
+    let {frmProcessorsList} =
+      HyperswitchAtom.connectorDisplayListAtom->Recoil.useRecoilValueFromAtom
 
     let handleClick = frmName => {
       mixpanelEvent(~eventName=`connect_frm_${frmName}`)
@@ -65,9 +67,7 @@ module NewProcessorCards = {
     let headerText = "Connect a new fraud & risk management player"
 
     <RenderIf condition={configuredFRMCount == 0}>
-      <div className="flex flex-col gap-4">
-        {frmAvailableForIntegration->descriptedFRMs(headerText)}
-      </div>
+      <div className="flex flex-col gap-4"> {frmProcessorsList->descriptedFRMs(headerText)} </div>
     </RenderIf>
   }
 }
