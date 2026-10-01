@@ -1,9 +1,6 @@
 module NewProcessorCards = {
   @react.component
-  let make = (
-    ~configuredFRMs: array<ConnectorTypes.connectorTypes>,
-    ~frmAvailableForIntegration: array<ConnectorTypes.connectorTypes>,
-  ) => {
+  let make = (~configuredFRMs: array<ConnectorTypes.connectorTypes>) => {
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let {frmProcessorsList} =
@@ -184,7 +181,6 @@ let make = () => {
         />
       </RenderIf>
       <NewProcessorCards
-        frmAvailableForIntegration
         configuredFRMs={ConnectorListInterface.mapConnectorPayloadToConnectorType(
           ConnectorListInterface.connectorInterfaceV1,
           ConnectorTypes.FRMPlayer,
