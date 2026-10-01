@@ -25,7 +25,7 @@ let make = () => {
     {switch path {
     | list{"monitoring"} => React.null
     | list{"monitoring", slug} =>
-      switch slug->MonitoringUtils.fromSlug {
+      switch slug->MonitoringUtils.getDestinationFromRouteSlug {
       | Some(destination) =>
         <Monitoring key={`${slug}:${merchantId}:${profileId}:${roleId}`} destination />
       | None => <NotFoundPage />

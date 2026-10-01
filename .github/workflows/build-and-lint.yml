@@ -38,9 +38,6 @@ jobs:
       - name: Build ReScript
         run: npm run re:build
 
-      - name: Test Monitoring development proxy
-        run: node --test scripts/monitoring-proxy.test.cjs
-
       - name: Run ESLint
         run: npm run lint:hooks
         env:

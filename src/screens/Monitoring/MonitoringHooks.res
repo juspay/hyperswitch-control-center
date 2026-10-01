@@ -5,19 +5,13 @@ let useGrafanaSession = () => {
   let getURL = APIUtils.useGetURL()
   let fetchApi = AuthHooks.useApiFetcher()
 
-  async (~destination, ~signal) => {
+  async (~destination) => {
     let url = getURL(
       ~entityName=V1(MONITORING_SESSION),
       ~methodType=Post,
       ~id=Some(destination->MonitoringUtils.getId),
     )
-    let response = await fetchApi(
-      url,
-      ~method_=Post,
-      ~forceCookies=true,
-      ~xFeatureRoute=false,
-      ~signal,
-    )
+    let response = await fetchApi(url, ~method_=Post, ~forceCookies=true, ~xFeatureRoute=false)
     switch response->Fetch.Response.status {
     | 200 =>
       let json = await response->Fetch.Response.json

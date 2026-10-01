@@ -10,25 +10,25 @@ let make = (~destination) => {
   }
   let (screenState, setScreenState) = React.useState(_ => Loading)
 
-  React.useEffect(() => {
-    let controller = Fetch.AbortController.make()
-    let signal = controller->Fetch.AbortController.signal
-    setScreenState(_ => Loading)
-    let loadSession = async () => {
-      try {
-        let result = await bootstrap(~destination, ~signal)
-        if !(signal->AbortControllerHook.isAborted) {
-          setScreenState(_ => result)
-        }
-      } catch {
-      | _ =>
-        if !(signal->AbortControllerHook.isAborted) {
-          setScreenState(_ => Failed("Unable to connect to Monitoring."))
-        }
+  let loadSession = async isActive => {
+    try {
+      let result = await bootstrap(~destination)
+      if isActive.contents {
+        setScreenState(_ => result)
+      }
+    } catch {
+    | _ =>
+      if isActive.contents {
+        setScreenState(_ => Failed("Unable to connect to Monitoring."))
       }
     }
-    loadSession()->ignore
-    Some(() => controller->Fetch.AbortController.abort)
+  }
+
+  React.useEffect(() => {
+    let isActive = ref(true)
+    setScreenState(_ => Loading)
+    loadSession(isActive)->ignore
+    Some(() => isActive.contents = false)
   }, [authStatus])
 
   let renderError = message =>
@@ -43,7 +43,7 @@ let make = (~destination) => {
       customTitleStyle="dark:text-white"
     />
     {switch screenState {
-    | Loading => <PageLoaderWrapper.ScreenLoader />
+    | Loading => <Loader />
     | Failed(message) => renderError(message)
     | Ready(url) =>
       switch MonitoringUtils.getEmbedUrl(~embedUrl=url, ~theme) {

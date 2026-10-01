@@ -1,14 +1,6 @@
 open MonitoringTypes
 
-type url
-@new external makeUrl: string => url = "URL"
-@get external origin: url => string = "origin"
-@get external pathname: url => string = "pathname"
-@get external username: url => string = "username"
-@get external password: url => string = "password"
-@get external href: url => string = "href"
-@get external search: url => string = "search"
-@set external setSearch: (url, string) => unit = "search"
+module Url = Webapi.Url
 
 let destinations = [Explore, ApiHealth, ConnectorPerformance, BusinessMetrics, SystemHealth]
 
@@ -21,7 +13,7 @@ let getId = destination =>
   | SystemHealth => "system_health"
   }
 
-let getSlug = destination => getId(destination)->String.split("_")->Array.joinWith("-")
+let getRouteSlug = destination => getId(destination)->String.split("_")->Array.joinWith("-")
 
 let getTitle = destination =>
   switch destination {
@@ -32,32 +24,34 @@ let getTitle = destination =>
   | SystemHealth => "System Health"
   }
 
-let fromSlug = slug => destinations->Array.find(destination => getSlug(destination) === slug)
+let getDestinationFromRouteSlug = slug =>
+  destinations->Array.find(destination => getRouteSlug(destination) === slug)
 
 // Only the configured same-origin gateway can receive the browser's Grafana cookie.
 let getEmbedUrl = (~embedUrl, ~theme) => {
   try {
-    let url = makeUrl(embedUrl)
-    let currentUrl = makeUrl(Window.Location.href)
+    let url = Url.make(embedUrl)
+    let currentUrl = Url.make(Window.Location.href)
     if (
-      url->origin !== currentUrl->origin ||
-      !(url->pathname->String.startsWith("/api/observability-plane/grafana/")) ||
-      url->username !== "" ||
-      url->password !== ""
+      embedUrl->String.trim->String.startsWith("//") ||
+      url->Url.origin !== currentUrl->Url.origin ||
+      !(url->Url.pathname->String.startsWith("/api/observability-plane/grafana/")) ||
+      url->Url.username !== "" ||
+      url->Url.password !== ""
     ) {
       None
     } else {
       // Preserve backend-owned parameters, including Grafana's bare kiosk flag.
       let params =
         url
-        ->search
+        ->Url.search
         ->String.sliceToEnd(~start=1)
         ->String.split("&")
         ->Array.filter(param =>
           param !== "" && param !== "theme" && !(param->String.startsWith("theme="))
         )
-      url->setSearch(`?${params->Array.concat([`theme=${theme}`])->Array.joinWith("&")}`)
-      Some(url->href)
+      url->Url.setSearch(`?${params->Array.concat([`theme=${theme}`])->Array.joinWith("&")}`)
+      Some(url->Url.href)
     }
   } catch {
   | _ => None

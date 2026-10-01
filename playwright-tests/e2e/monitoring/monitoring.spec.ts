@@ -362,6 +362,25 @@ test.describe("Monitoring", () => {
     expect(url.searchParams.get("theme")).toBe("light");
   });
 
+  for (const path of [
+    "/api/observability-plane/grafana/d/demo/view",
+    "//unapproved.example/api/observability-plane/grafana/d/demo",
+    "/api/user",
+    "/api/observability-plane/grafana/../../user",
+  ]) {
+    test(`requires a full approved backend URL instead of: ${path}`, async ({
+      page,
+    }) => {
+      await setup(page);
+      await session(page, 200, path);
+      await page.goto("/dashboard/monitoring/api-health");
+      await expect(page.getByRole("alert")).toContainText(
+        "outside the approved gateway",
+      );
+      await expect(page.locator("#monitoring-screen iframe")).toHaveCount(0);
+    });
+  }
+
   test("unknown routes do not bootstrap an arbitrary destination", async ({
     page,
   }) => {
