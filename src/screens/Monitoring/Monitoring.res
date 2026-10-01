@@ -43,7 +43,7 @@ let make = (~destination) => {
       customTitleStyle="dark:text-white"
     />
     {switch screenState {
-    | Loading => <Loader />
+    | Loading => <PageLoaderWrapper screenState=PageLoaderWrapper.Loading />
     | Failed(message) => renderError(message)
     | Ready(url) =>
       switch MonitoringUtils.getEmbedUrl(~embedUrl=url, ~theme) {
