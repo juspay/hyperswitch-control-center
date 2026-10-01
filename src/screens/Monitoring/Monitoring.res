@@ -1,3 +1,5 @@
+open MonitoringUtils
+
 @react.component
 let make = (~destination) => {
   let bootstrap = MonitoringHooks.useGrafanaSession()
@@ -37,13 +39,11 @@ let make = (~destination) => {
 
   <div className="w-full min-w-0" id="monitoring-screen">
     <PageUtils.PageHeading
-      title={destination->MonitoringUtils.getTitle}
-      customHeadingStyle="mb-4"
-      customTitleStyle="dark:text-white"
+      title={destination->getTitle} customHeadingStyle="mb-4" customTitleStyle="dark:text-white"
     />
     <PageLoaderWrapper screenState customUI=errorUI>
       <iframe
-        title={destination->MonitoringUtils.getTitle}
+        title={destination->getTitle}
         src=embedUrl
         className="w-full border-0 rounded-lg"
         style={ReactDOM.Style.make(~height="calc(100vh - 180px)", ~minHeight="480px", ())}
