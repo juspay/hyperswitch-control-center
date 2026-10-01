@@ -2,18 +2,10 @@ module NewProcessorCards = {
   @react.component
   let make = (
     ~configuredFRMs: array<ConnectorTypes.connectorTypes>,
-    ~connectorList,
-    ~frmProcessorsList,
+    ~frmAvailableForIntegration: array<ConnectorTypes.connectorTypes>,
   ) => {
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let frmAvailableForIntegration =
-      frmProcessorsList->Array.filter(selectedFRMName =>
-        FRMUtils.filterConnectorArrayByPaymentMethod(
-          ~connectorList,
-          ~selectedFRMName,
-        )->LogicUtils.isNonEmptyArray
-      )
 
     let handleClick = frmName => {
       mixpanelEvent(~eventName=`connect_frm_${frmName}`)
@@ -100,6 +92,13 @@ let make = () => {
     ~retainInList=PayoutProcessor,
   )
   let eligibleConnectorList = connectorList->Array.concat(payoutConnectorList)
+  let frmAvailableForIntegration =
+    frmProcessorsList->Array.filter(selectedFRMName =>
+      FRMUtils.filterConnectorArrayByPaymentMethod(
+        ~connectorList=eligibleConnectorList,
+        ~selectedFRMName,
+      )->LogicUtils.isNonEmptyArray
+    )
   let frmConnectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=PaymentVas)
 
   let customUI =
@@ -114,14 +113,7 @@ let make = () => {
 
   let getConnectorList = async _ => {
     try {
-      let hasEligibleConnector =
-        frmProcessorsList->Array.some(selectedFRMName =>
-          FRMUtils.filterConnectorArrayByPaymentMethod(
-            ~connectorList=eligibleConnectorList,
-            ~selectedFRMName,
-          )->LogicUtils.isNonEmptyArray
-        )
-      if hasEligibleConnector {
+      if frmAvailableForIntegration->LogicUtils.isNonEmptyArray {
         setConfiguredFRMs(_ => frmConnectorList)
         setFilteredFRMData(_ => frmConnectorList->Array.map(Nullable.make))
         setScreenState(_ => Success)
@@ -192,8 +184,7 @@ let make = () => {
         />
       </RenderIf>
       <NewProcessorCards
-        frmProcessorsList
-        connectorList=eligibleConnectorList
+        frmAvailableForIntegration
         configuredFRMs={ConnectorListInterface.mapConnectorPayloadToConnectorType(
           ConnectorListInterface.connectorInterfaceV1,
           ConnectorTypes.FRMPlayer,
