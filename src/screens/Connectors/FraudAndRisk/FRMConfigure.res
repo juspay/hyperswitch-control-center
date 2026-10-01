@@ -120,7 +120,11 @@ let make = () => {
           />
         | PaymentMethods =>
           <FRMPaymentMethods
-            setCurrentStep retrievedValues=Some(initialValues) setInitialValues isUpdateFlow
+            setCurrentStep
+            retrievedValues=Some(initialValues)
+            setInitialValues
+            isUpdateFlow
+            selectedFRMName
           />
         | SummaryAndTest
         | Preview =>

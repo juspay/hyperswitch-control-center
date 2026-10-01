@@ -3,6 +3,7 @@ let frmList: array<ConnectorTypes.connectorTypes> = [
   FRM(CybersourceDecisionManager),
   FRM(Signifyd),
   FRM(Riskifyed),
+  FRM(SanlamPayshield),
 ]
 
 let flowTypeList = [PreAuth]
@@ -12,7 +13,41 @@ let getFRMAuthType = (connector: ConnectorTypes.connectorTypes) => {
   | FRM(Signifyd) => "HeaderKey"
   | FRM(Riskifyed) => "BodyKey"
   | FRM(CybersourceDecisionManager) => "SignatureKey"
+  | FRM(SanlamPayshield) => "HeaderKey"
   | _ => ""
+  }
+}
+
+// Which already-configured connectors an FRM player can screen. Each entry of
+// `screenableMethodsByCategory` pairs a connector category with the payment methods the
+// player screens *on that category*, so a method allowed for payments is never offered
+// on payouts and vice versa. `note` carries any restriction we only surface as a
+// message - the backend owns the actual enforcement.
+type frmCompatibility = {
+  screenableMethodsByCategory: array<(
+    ConnectorTypes.connectorTypeVariants,
+    array<ConnectorTypes.paymentMethod>,
+  )>,
+  note: option<string>,
+}
+
+let defaultFRMCompatibility: frmCompatibility = {
+  screenableMethodsByCategory: [(PaymentProcessor, [Card])],
+  note: None,
+}
+
+let getFRMCompatibility = (connector: ConnectorTypes.connectorTypes): frmCompatibility => {
+  switch connector {
+  | FRM(SanlamPayshield) => {
+      screenableMethodsByCategory: [
+        (PaymentProcessor, [BankDebit]),
+        (PayoutProcessor, [BankTransfer]),
+      ],
+      note: Some(
+        "Sanlam Payshield screens bank debit payments and bank transfer payouts. It is only compatible with the Absa payment connector and the GoTyme payout connector.",
+      ),
+    }
+  | _ => defaultFRMCompatibility
   }
 }
 
