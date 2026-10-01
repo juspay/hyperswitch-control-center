@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.10.01.1
+
+### Features
+
+- **monitoring:** Embed Grafana views for internal users ([#5620](https://github.com/juspay/hyperswitch-control-center/pull/5620)) ([`24ebd48`](https://github.com/juspay/hyperswitch-control-center/commit/24ebd484a202f5af196f87e14b26547d64c3bcdf))
+- Add sanlam payshield frm connector ([#5619](https://github.com/juspay/hyperswitch-control-center/pull/5619)) ([`0e9aa8e`](https://github.com/juspay/hyperswitch-control-center/commit/0e9aa8e0d48f8d3c2cc2e3b29bfea745b19c7d79))
+
+### Miscellaneous Tasks
+
+- Extract frm connector list from config ([#5617](https://github.com/juspay/hyperswitch-control-center/pull/5617)) ([`3554079`](https://github.com/juspay/hyperswitch-control-center/commit/3554079f70b865fc741ce93cf82b7829e93fe231))
+
+**Full Changelog:** [`2026.10.01.0...2026.10.01.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.01.0...2026.10.01.1)
+
+- - -
+
 ## 2026.10.01.0
 
 ### Features
