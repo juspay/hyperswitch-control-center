@@ -50,7 +50,7 @@ let make = (~previewOnly=false) => {
   let hasOmpViewPortal = portalNodes->getOptionValFromDict(ompViewPortalName)->Option.isSome
 
   let fetchOrdersWithSource = (~payload, ~version, ~signal) => {
-    isOpenSearchEnabled
+    isAdvancedView
       ? fetchAnalyticsOrdersHook(~payload, ~version, ~signal)
       : fetchNormalOrdersHook(~payload, ~version, ~signal)
   }
@@ -165,7 +165,7 @@ let make = (~previewOnly=false) => {
         filterParams->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
         filterParams->Dict.set("limit", resultsPerPage->Int.toFloat->JSON.Encode.float)
         let trimmedSearchText = searchText->String.trim
-        if trimmedSearchText->isNonEmptyString && !isOpenSearchEnabled {
+        if trimmedSearchText->isNonEmptyString && !isAdvancedView {
           filterParams->Dict.set("payment_id", trimmedSearchText->JSON.Encode.string)
         }
 
@@ -189,11 +189,11 @@ let make = (~previewOnly=false) => {
         })
         //to delete unused keys
         filterParams->deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
-        if !isOpenSearchEnabled {
+        if !isAdvancedView {
           advancedPaymentFilterCleanupKeys->Array.forEach(key => filterParams->Dict.delete(key))
         }
 
-        let requestPayload = isOpenSearchEnabled
+        let requestPayload = isAdvancedView
           ? buildAdvancedPaymentListPayload(
               ~filterParams,
               ~searchText,
