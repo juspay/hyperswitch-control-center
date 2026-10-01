@@ -108,6 +108,22 @@ let alertsSection = (~isAlertsEnabled) =>
       })
     : emptyComponent
 
+let monitoringSection = (~isMonitoringEnabled) =>
+  isMonitoringEnabled
+    ? Section({
+        name: "Monitoring",
+        icon: "nd-analytics",
+        selectedIcon: "nd-analytics",
+        showSection: true,
+        links: MonitoringUtils.destinations->Array.map(destination => SubLevelLink({
+          name: destination->MonitoringUtils.getTitle,
+          link: `/monitoring/${destination->MonitoringUtils.getRouteSlug}`,
+          access: Access,
+          searchOptions: [(destination->MonitoringUtils.getTitle, "")],
+        })),
+      })
+    : emptyComponent
+
 let alternatePaymentMethods = isApmEnabled =>
   isApmEnabled
     ? Link({

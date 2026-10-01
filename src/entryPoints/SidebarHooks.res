@@ -94,6 +94,7 @@ let useGetHsSidebarValues = () => {
       ~userHasResourceAccess,
     ),
     alertsSection(~isAlertsEnabled={devAlerts && isInternalUser}),
+    monitoringSection(~isMonitoringEnabled={devAlerts && isInternalUser}),
     ...standardModules,
     default->developers(
       ~isWebhooksEnabled=devWebhooks,
