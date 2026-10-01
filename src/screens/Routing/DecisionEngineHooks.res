@@ -2,8 +2,19 @@ open APIUtils
 open HyperswitchAtom
 open LogicUtils
 
+let useRoutingEntryAllowed = () => {
+  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
+
+  switch (version, activeProduct) {
+  | (V1, Orchestration(V1)) => true
+  | _ => false
+  }
+}
+
 let useSyncDecisionEngineCutover = () => {
   let {embedDecisionEngine} = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let isRoutingEntryAllowed = useRoutingEntryAllowed()
   let setCutoverState = Recoil.useSetRecoilState(decisionEngineCutoverAtom)
   let {merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
@@ -20,7 +31,7 @@ let useSyncDecisionEngineCutover = () => {
 
   React.useEffect(() => {
     let isActive = ref(true)
-    if embedDecisionEngine {
+    if embedDecisionEngine && isRoutingEntryAllowed {
       fetchCutoverStatus(~isActive)->ignore
     }
     Some(
@@ -29,7 +40,7 @@ let useSyncDecisionEngineCutover = () => {
         setCutoverState(_ => None)
       },
     )
-  }, (key, embedDecisionEngine))
+  }, (key, embedDecisionEngine, isRoutingEntryAllowed))
 }
 
 let useDecisionEngineCutover = () => {
