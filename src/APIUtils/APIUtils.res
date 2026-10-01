@@ -1759,6 +1759,12 @@ let useGetURL = () => {
           }
         | #NONE => Default("")
         }
+      | MONITORING_SESSION =>
+        switch (methodType, id) {
+        | (Post, Some(destination)) =>
+          Default(`observability-plane/monitoring/grafana/session/${destination}`)
+        | _ => Default("")
+        }
       /* TO BE CHECKED */
       | INTEGRATION_DETAILS => Default(`user/get_sandbox_integration_details`)
       | SDK_PAYMENT => Default("payments")
