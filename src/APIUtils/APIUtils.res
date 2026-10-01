@@ -1335,7 +1335,7 @@ let useGetURL = () => {
             switch id {
             | Some(transactionId) =>
               Default(
-                `${reconBaseURL}/exception_management/transactions/${transactionId}/manual_reconciliation`,
+                `${reconBaseURL}/exception_management/transactions/${transactionId}/manual_reconciliation/v2`,
               )
             | None => Default(``)
             }
