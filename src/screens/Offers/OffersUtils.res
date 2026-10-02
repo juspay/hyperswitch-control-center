@@ -287,3 +287,9 @@ let maxDiscountAmountLabel = (detail: offerDetail) =>
   detail->optionalAmountLabel(detail.offer.benefit->Option.flatMap(benefit => benefit.maxAmount))
 
 let binListModeToDisplayName = (binListMode: OffersTypes.binListMode) => (binListMode :> string)
+
+let isOfferEngineEnabled = (source: UserInfoTypes.offerEngineCredentialSource) =>
+  switch source {
+  | #Merchant | #Application => true
+  | #None => false
+  }
