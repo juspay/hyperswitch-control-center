@@ -306,3 +306,17 @@ let useOMPType = (): ompTypeState => {
     isCurrentMerchantConnected,
   }
 }
+
+let useProviderMerchantId = () => {
+  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let {isCurrentOrganizationPlatform} = useOMPType()
+  let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+
+  if isCurrentOrganizationPlatform {
+    merchantList
+    ->Array.find(merchant => merchant.type_ == Some(#platform))
+    ->Option.mapOr(merchantId, merchant => merchant.id)
+  } else {
+    merchantId
+  }
+}
