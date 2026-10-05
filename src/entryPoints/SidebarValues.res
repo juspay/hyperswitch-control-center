@@ -117,7 +117,7 @@ let monitoringSection = (~isMonitoringEnabled) =>
         showSection: true,
         links: MonitoringUtils.destinations->Array.map(destination => SubLevelLink({
           name: destination->MonitoringUtils.getTitle,
-          link: `/monitoring/${destination->MonitoringUtils.getRouteSlug}`,
+          link: `/monitoring/${destination->MonitoringUtils.getId(~separator="-")}`,
           access: Access,
           searchOptions: [(destination->MonitoringUtils.getTitle, "")],
         })),

@@ -1,3 +1,15 @@
+module DefaultView = {
+  @react.component
+  let make = () => {
+    React.useEffect0(() => {
+      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/monitoring/explore"))
+      None
+    })
+
+    React.null
+  }
+}
+
 @react.component
 let make = () => {
   let url = RescriptReactRouter.useUrl()
@@ -9,25 +21,13 @@ let make = () => {
   let {merchantId, profileId} = getCommonSessionDetails()
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let path = url.path->HSwitchUtils.urlPath
-  let isMonitoringRoot = switch path {
-  | list{"monitoring"} => true
-  | _ => false
-  }
-
-  React.useEffect(() => {
-    if isMonitoringRoot && devAlerts && isInternalUser {
-      RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/monitoring/explore"))
-    }
-    None
-  }, (isMonitoringRoot, devAlerts, isInternalUser))
-
   <AccessControl isEnabled={devAlerts && isInternalUser} authorization=Access>
     {switch path {
-    | list{"monitoring"} => React.null
-    | list{"monitoring", slug} =>
-      switch slug->MonitoringUtils.getDestinationFromRouteSlug {
+    | list{"monitoring"} => <DefaultView />
+    | list{"monitoring", viewId} =>
+      switch viewId->MonitoringUtils.getDestinationFromRouteId {
       | Some(destination) =>
-        <Monitoring key={`${slug}:${merchantId}:${profileId}:${roleId}`} destination />
+        <Monitoring key={`${viewId}:${merchantId}:${profileId}:${roleId}`} destination />
       | None => <NotFoundPage />
       }
     | _ => <NotFoundPage />
