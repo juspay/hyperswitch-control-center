@@ -93,6 +93,7 @@ let make = (~id: string) => {
             <Card title="Summary">
               <div className="flex flex-col max-h-96 overflow-y-auto">
                 <AlertDetailRow label="Attribution" cell={Text(alert.attribution)} />
+                <AlertDetailRow label="Communication Channel" cell={alert->xyneChannelCell} />
                 <RenderIf condition={alert.total > 0.0}>
                   <AlertDetailRow
                     label="Success Rate" cell={Text(alert->formatSuccessRateSummary)}
@@ -104,7 +105,9 @@ let make = (~id: string) => {
                 ->Array.filterMap(((key, value)) =>
                   value->JSON.Decode.string->Option.map(text => (key, text))
                 )
-                ->Array.filter(((_, text)) => text->isNonEmptyString && text !== "Unknown")
+                ->Array.filter(((key, text)) =>
+                  key !== "communication_channel" && text->isNonEmptyString && text !== "Unknown"
+                )
                 ->Array.map(((key, text)) =>
                   <AlertDetailRow key label={key->snakeToTitle} cell={Text(text)} />
                 )

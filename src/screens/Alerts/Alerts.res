@@ -7,7 +7,7 @@ let make = () => {
   open AlertsFilters
 
   let fetchDictionary = AlertsHooks.useAlertsDictionary()
-  let {filterValueJson, filterValue, updateExistingKeys, reset} = React.useContext(
+  let {filterValueJson, filterValue, updateExistingKeys, reset, setfilterKeys} = React.useContext(
     FilterContext.filterContext,
   )
   let showToast = ToastAdapter.useShowToast()
@@ -26,6 +26,7 @@ let make = () => {
     try {
       let result = await fetchDictionary()
       setAlertsDictionary(_ => result)
+      setfilterKeys(keys => keys->Array.map(key => key))
     } catch {
     | Exn.Error(_) => showToast(~message="Failed to fetch alerts dictionary", ~toastType=ToastError)
     }
@@ -72,6 +73,7 @@ let make = () => {
         endTimeFilterKey,
         priorityFilterKey,
         stateFilterKey,
+        orgIdFilterKey,
         merchantIdFilterKey,
         profileIdFilterKey,
         connectorFilterKey,

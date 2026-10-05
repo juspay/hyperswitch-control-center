@@ -7,4 +7,5 @@ type connectorDisplayList = {
   billingProcessorsList: array<ConnectorTypes.connectorTypes>,
   surchargeProcessorsList: array<ConnectorTypes.connectorTypes>,
   taxProcessorsList: array<ConnectorTypes.connectorTypes>,
+  frmProcessorsList: array<ConnectorTypes.connectorTypes>,
 }

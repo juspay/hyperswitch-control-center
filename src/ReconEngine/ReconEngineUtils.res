@@ -1222,3 +1222,12 @@ let reconEngineStatusItemToObjMapper = (dict): reconEngineStatusType => {
     pending_staging_entries: dict->getInt("pending_staging_entries", 0),
   }
 }
+
+let reconBusinessProfileItemToObjMapper = (dict): reconBusinessProfileType => {
+  {
+    profile_id: dict->getString("profile_id", ""),
+    merchant_id: dict->getString("merchant_id", ""),
+    profile_name: dict->getString("profile_name", ""),
+    timezone: dict->getString("timezone", ""),
+  }
+}

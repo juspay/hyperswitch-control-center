@@ -19,6 +19,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let isRoutingEntryAllowed = DecisionEngineHooks.useRoutingEntryAllowed()
   let isCutover = cutoverStatus->Option.getOr(false)
 
   let (widthClass, marginClass) = React.useMemo(() => {
@@ -175,7 +176,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
   let checkRoutingEntryCutover = RoutingUtils.useCheckRoutingEntryCutover()
 
   React.useEffect(() => {
-    if !previewOnly {
+    if !previewOnly && isRoutingEntryAllowed {
       setCutoverStatus(_ => None)
 
       (
@@ -186,7 +187,7 @@ let make = (~remainingPath, ~previewOnly=false) => {
       )()->ignore
     }
     None
-  }, [profileId])
+  }, (profileId, isRoutingEntryAllowed))
 
   let getTabName = index => index == 0 ? "active" : "history"
 

@@ -791,6 +791,19 @@ let signifydInfo = {
   ],
 }
 
+let sanlamPayshieldInfo = {
+  description: "Fraud and risk management with Sanlam Payshield",
+  validate: [
+    {
+      placeholder: "Enter API Key",
+      label: "API Key",
+      name: "connector_account_details.api_key",
+      isRequired: true,
+      encodeToBase64: false,
+    },
+  ],
+}
+
 let riskifyedInfo = {
   description: "Frictionless fraud management for eCommerce",
   validate: [
@@ -1114,6 +1127,7 @@ let getFRMNameString = (frm: frmTypes) => {
   | Signifyd => "signifyd"
   | Riskifyed => "riskified"
   | CybersourceDecisionManager => "cybersourcedecisionmanager"
+  | SanlamPayshield => "sanlam_payshield"
   }
 }
 
@@ -1333,6 +1347,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     switch connector {
     | "riskified" => FRM(Riskifyed)
     | "signifyd" => FRM(Signifyd)
+    | "sanlam_payshield" => FRM(SanlamPayshield)
     | "cybersourcedecisionmanager" => FRM(CybersourceDecisionManager)
     | _ => UnknownConnector("Not known")
     }
@@ -1529,6 +1544,7 @@ let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
 let getFrmInfo = frm =>
   switch frm {
   | Signifyd => signifydInfo
+  | SanlamPayshield => sanlamPayshieldInfo
   | Riskifyed => riskifyedInfo
   | CybersourceDecisionManager => cyberSourceDecisionManagerInfo
   }
@@ -2542,6 +2558,7 @@ let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
 let getDisplayNameForFRMConnector = frmConnector =>
   switch frmConnector {
   | Signifyd => "Signifyd"
+  | SanlamPayshield => "Sanlam Payshield"
   | Riskifyed => "Riskified"
   | CybersourceDecisionManager => "Cybersource Decision Manager"
   }

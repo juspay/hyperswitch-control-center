@@ -42,6 +42,7 @@ let make = () => {
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let {logoURL} = React.useContext(ThemeProvider.themeContext)
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
+  DecisionEngineHooks.useSyncDecisionEngineCutover()
   let hyperSwitchAppSidebars = SidebarHooks.useGetSidebarValuesForCurrentActive()
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
 

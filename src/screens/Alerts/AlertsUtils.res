@@ -60,6 +60,7 @@ let itemToObjMapper = (dict: Dict.t<JSON.t>): alert => {
     dimensions,
     metadata,
     snooze,
+    threadUrl: dict->getString("thread_url", ""),
   }
 }
 
@@ -84,6 +85,7 @@ let dictionaryResponseToOptions = (json: JSON.t, key: string): array<string> =>
   ->getStrArrayFromJson
 
 let alertsDictionaryResponseMapper = (json: JSON.t): alertsDictionary => {
+  orgIds: json->dictionaryResponseToOptions("org_id"),
   merchantIds: json->dictionaryResponseToOptions("merchant_id"),
   profileIds: json->dictionaryResponseToOptions("profile_id"),
   connectors: json->dictionaryResponseToOptions("connector"),
