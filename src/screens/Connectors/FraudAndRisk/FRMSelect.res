@@ -71,6 +71,7 @@ module NewProcessorCards = {
 
 @react.component
 let make = () => {
+  let {frmProcessorsList} = HyperswitchAtom.connectorDisplayListAtom->Recoil.useRecoilValueFromAtom
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let isMobileView = MatchMedia.useMatchMedia("(max-width: 844px)")
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -84,11 +85,22 @@ let make = () => {
   let connectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=PaymentProcessor,
   )
+  let payoutConnectorList = ConnectorListInterface.useFilteredConnectorList(
+    ~retainInList=PayoutProcessor,
+  )
+  let eligibleConnectorList = connectorList->Array.concat(payoutConnectorList)
+  let frmAvailableForIntegration =
+    frmProcessorsList->Array.filter(selectedFRMName =>
+      FRMUtils.filterConnectorArrayByPaymentMethod(
+        ~connectorList=eligibleConnectorList,
+        ~selectedFRMName,
+      )->LogicUtils.isNonEmptyArray
+    )
   let frmConnectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=PaymentVas)
 
   let customUI =
     <BlurredTableComponent
-      infoText="No connectors configured yet. Try connecting a connector with card enabled as a payment method."
+      infoText="No eligible connectors configured yet. Configure a payment or payout connector with a supported payment method to get started."
       buttonText="Take me to connectors"
       onClickElement={React.null}
       onClickUrl="connectors"
@@ -98,9 +110,7 @@ let make = () => {
 
   let getConnectorList = async _ => {
     try {
-      let filteredArrayLength =
-        FRMUtils.filterConnectorArrayByPaymentMethod(~connectorList)->Array.length
-      if filteredArrayLength > 0 {
+      if frmAvailableForIntegration->LogicUtils.isNonEmptyArray {
         setConfiguredFRMs(_ => frmConnectorList)
         setFilteredFRMData(_ => frmConnectorList->Array.map(Nullable.make))
         setScreenState(_ => Success)
