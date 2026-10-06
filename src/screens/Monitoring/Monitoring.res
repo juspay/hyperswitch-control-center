@@ -1,6 +1,8 @@
+open MonitoringUtils
+
 @react.component
 let make = (~destination) => {
-  let bootstrap = MonitoringHooks.useGrafanaSession()
+  let grafanaSession = MonitoringHooks.useGrafanaSession()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (embedUrl, setEmbedUrl) = React.useState(_ => "")
   let (errorMessage, setErrorMessage) = React.useState(_ => "")
@@ -12,7 +14,7 @@ let make = (~destination) => {
 
   let loadSession = async () => {
     try {
-      switch await bootstrap(~destination) {
+      switch await grafanaSession(~destination) {
       | Result.Ok(url) =>
         setEmbedUrl(_ => url)
         setScreenState(_ => PageLoaderWrapper.Success)
@@ -23,27 +25,23 @@ let make = (~destination) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     loadSession()->ignore
     None
-  })
+  }, [])
 
   let errorUI =
     <div className="flex items-center justify-center min-h-96" role="alert">
-      <p className={`${Typography.body.sm.regular} text-nd_gray-600 dark:text-white`}>
+      <p className={`${Typography.body.sm.regular} text-nd_gray-600`}>
         {errorMessage->React.string}
       </p>
     </div>
 
   <div className="w-full min-w-0" id="monitoring-screen">
-    <PageUtils.PageHeading
-      title={destination->MonitoringUtils.getTitle}
-      customHeadingStyle="mb-4"
-      customTitleStyle="dark:text-white"
-    />
+    <PageUtils.PageHeading title={destination->getTitle} customHeadingStyle="mb-4" />
     <PageLoaderWrapper screenState customUI=errorUI>
       <iframe
-        title={destination->MonitoringUtils.getTitle}
+        title={destination->getTitle}
         src=embedUrl
         className="w-full border-0 rounded-lg"
         style={ReactDOM.Style.make(~height="calc(100vh - 180px)", ~minHeight="480px", ())}

@@ -68,7 +68,11 @@ let make = (~setScreenState) => {
         isEnabled={featureFlagDetails.devAlerts && isInternalUser} authorization=Access>
         <AlertsContainer />
       </AccessControl>
-    | list{"monitoring", ..._} => <MonitoringContainer />
+    | list{"monitoring", ..._} =>
+      <AccessControl
+        isEnabled={featureFlagDetails.devAlerts && isInternalUser} authorization=Access>
+        <MonitoringContainer />
+      </AccessControl>
     | list{"analytics-payments"}
     | list{"analytics-refunds"}
     | list{"analytics-disputes"}
