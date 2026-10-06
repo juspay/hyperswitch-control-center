@@ -1,10 +1,10 @@
 module DefaultView = {
   @react.component
   let make = () => {
-    React.useEffect0(() => {
+    React.useEffect(() => {
       RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/monitoring/explore"))
       None
-    })
+    }, [])
 
     React.null
   }

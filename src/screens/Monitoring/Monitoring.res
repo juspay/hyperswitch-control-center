@@ -25,10 +25,10 @@ let make = (~destination) => {
     }
   }
 
-  React.useEffect0(() => {
+  React.useEffect(() => {
     loadSession()->ignore
     None
-  })
+  }, [])
 
   let errorUI =
     <div className="flex items-center justify-center min-h-96" role="alert">
