@@ -67,14 +67,6 @@ let displayTitleField = textField(
   ~placeholder="Eg. Get 5% cashback, 10x rewards",
 )
 
-let logoField = selectField(
-  ~name="sponsored_by",
-  ~label="Logo for Offer",
-  ~options=OffersSponsors.sponsorOptions,
-  ~buttonText="Choose Logo. Eg: Merchant",
-  ~isRequired=true,
-)
-
 let languageField = selectField(
   ~name="language",
   ~label="Language",
@@ -90,6 +82,7 @@ let validityField = FormRenderer.makeMultiInputFieldInfo(
     ~endKey="end_time",
     ~format="YYYY-MM-DDTHH:mm:ss[Z]",
     ~disablePastDates=true,
+    ~predefinedDays=[Hour(24.0), Tomorrow, NextMonth],
     ~numMonths=2,
     ~isTooltipVisible=false,
   ),
