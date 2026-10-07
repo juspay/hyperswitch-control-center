@@ -14,6 +14,7 @@ let defaultValueOfUserInfo = {
   transactionEntity: #Merchant,
   analyticsEntity: #Merchant,
   themeId: "",
+  offerEngineCredentialSource: #None,
   version: V1,
 }
 
@@ -60,6 +61,13 @@ let analyticsEntityMapper = entity => {
   }
 }
 
+let offerEngineCredentialSourceMapper = source =>
+  switch source->String.toLowerCase {
+  | "application" => #Application
+  | "merchant" => #Merchant
+  | _ => #None
+  }
+
 let versionMapper = version =>
   switch version->String.toLowerCase {
   | "v2" => V2
@@ -96,6 +104,9 @@ let itemMapperToDashboardUserType = dict => {
   analyticsEntity: dict->getString("entity_type", "")->analyticsEntityMapper,
   transactionEntity: dict->getString("entity_type", "")->transactionEntityMapper,
   themeId: dict->getString("theme_id", ""),
+  offerEngineCredentialSource: dict
+  ->getString("offer_engine_credential_source", "")
+  ->offerEngineCredentialSourceMapper,
   version: dict->getString("version", "v1")->versionMapper,
 }
 

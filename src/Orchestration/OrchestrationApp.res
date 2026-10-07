@@ -12,7 +12,7 @@ let make = (~setScreenState) => {
   let userContext = React.useContext(UserInfoProvider.defaultContext)
   let {checkUserEntity} = userContext
   let {isCurrentMerchantPlatform, isCurrentMerchantConnected} = OMPSwitchHooks.useOMPType()
-  let {roleId} = userContext.getResolvedUserInfo()
+  let {roleId, offerEngineCredentialSource} = userContext.getResolvedUserInfo()
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
 
   {
@@ -68,6 +68,11 @@ let make = (~setScreenState) => {
         isEnabled={featureFlagDetails.devAlerts && isInternalUser} authorization=Access>
         <AlertsContainer />
       </AccessControl>
+    | list{"monitoring", ..._} =>
+      <AccessControl
+        isEnabled={featureFlagDetails.devAlerts && isInternalUser} authorization=Access>
+        <MonitoringContainer />
+      </AccessControl>
     | list{"analytics-payments"}
     | list{"analytics-refunds"}
     | list{"analytics-disputes"}
@@ -109,10 +114,14 @@ let make = (~setScreenState) => {
             remainingPath
             access=Access
             renderList={() =>
-              featureFlagDetails.devOffers ? <OffersList /> : <OffersHelpers.DemoLanding />}
+              offerEngineCredentialSource->OffersUtils.isOfferEngineEnabled
+                ? <OffersList />
+                : <OffersHelpers.DemoLanding />}
             renderNewForm={() => <CreateOffer />}
             renderShow={(id, _) =>
-              featureFlagDetails.devOffers ? <ShowOffer id /> : <OffersHelpers.DemoLanding />}
+              offerEngineCredentialSource->OffersUtils.isOfferEngineEnabled
+                ? <ShowOffer id />
+                : <OffersHelpers.DemoLanding />}
           />
         </FilterContext>
       </AccessControl>

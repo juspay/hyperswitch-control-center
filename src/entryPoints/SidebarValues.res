@@ -108,6 +108,22 @@ let alertsSection = (~isAlertsEnabled) =>
       })
     : emptyComponent
 
+let monitoringSection = (~isMonitoringEnabled) =>
+  isMonitoringEnabled
+    ? Section({
+        name: "Monitoring",
+        icon: "nd-analytics",
+        selectedIcon: "nd-analytics",
+        showSection: true,
+        links: MonitoringUtils.destinations->Array.map(destination => SubLevelLink({
+          name: destination->MonitoringUtils.getTitle,
+          link: `/monitoring/${destination->MonitoringUtils.getId(~separator="-")}`,
+          access: Access,
+          searchOptions: [(destination->MonitoringUtils.getTitle, "")],
+        })),
+      })
+    : emptyComponent
+
 let alternatePaymentMethods = isApmEnabled =>
   isApmEnabled
     ? Link({
@@ -540,7 +556,15 @@ let decisionEngineRouting = (showDecisionEngine, ~userHasResourceAccess) => {
         showSection: true,
         links: DecisionEngineUtils.sections
         ->Array.filter(section => section.inSidebar)
-        ->Array.map(decisionEngineLink),
+        ->Array.map(decisionEngineLink)
+        ->Array.concat([
+          SubLevelLink({
+            name: "Default Fallback",
+            link: `/routing/default`,
+            access: userHasResourceAccess(~resourceAccess=Routing),
+            searchOptions: [("Manage default routing configuration", "")],
+          }),
+        ]),
       })
     : emptyComponent
 }

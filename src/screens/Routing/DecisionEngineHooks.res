@@ -1,26 +1,64 @@
 open APIUtils
+open HyperswitchAtom
+open LogicUtils
 
-let useDecisionEngineCutover = (~embedDecisionEngine) => {
-  let (cutover, setCutover) = React.useState(_ => None)
-  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+let useRoutingEntryAllowed = () => {
+  let {version} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let {activeProduct} = React.useContext(ProductSelectionProvider.defaultContext)
+
+  switch (version, activeProduct) {
+  | (V1, Orchestration(V1)) => true
+  | _ => false
+  }
+}
+
+let useSyncDecisionEngineCutover = () => {
+  let {embedDecisionEngine} = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let isRoutingEntryAllowed = useRoutingEntryAllowed()
+  let setCutoverState = Recoil.useSetRecoilState(decisionEngineCutoverAtom)
+  let {merchantId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
   let checkRoutingEntryCutover = RoutingUtils.useCheckRoutingEntryCutover()
+  let key = DecisionEngineUtils.getCutoverKey(~merchantId, ~profileId)
 
-  let syncCutover = async () => {
-    setCutover(_ => None)
+  let fetchCutoverStatus = async (~isActive) => {
     let result = await checkRoutingEntryCutover()
-    setCutover(_ => result)
+    if isActive.contents {
+      setCutoverState(_ => Some((key, result)))
+    }
   }
 
   React.useEffect(() => {
-    if embedDecisionEngine {
-      syncCutover()->ignore
-    } else {
-      setCutover(_ => Some(false))
+    let isActive = ref(true)
+    if embedDecisionEngine && isRoutingEntryAllowed {
+      fetchCutoverStatus(~isActive)->ignore
     }
-    None
-  }, (profileId, embedDecisionEngine))
+    Some(
+      () => {
+        isActive := false
+        setCutoverState(_ => None)
+      },
+    )
+  }, (key, embedDecisionEngine, isRoutingEntryAllowed))
+}
 
-  cutover
+let useDecisionEngineCutover = () => {
+  let {embedDecisionEngine} = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let cutoverState = decisionEngineCutoverAtom->Recoil.useRecoilValueFromAtom
+  let {merchantId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
+  let key = DecisionEngineUtils.getCutoverKey(~merchantId, ~profileId)
+
+  if !embedDecisionEngine {
+    Some(false)
+  } else {
+    switch cutoverState {
+    | Some((storedKey, value)) if storedKey === key => value
+    | _ => None
+    }
+  }
 }
 
 let useDecisionEngineNewTab = () => {
@@ -28,10 +66,9 @@ let useDecisionEngineNewTab = () => {
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let showToast = ToastAdapter.useShowToast()
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+  let connectorList = connectorListAtom->Recoil.useRecoilValueFromAtom
 
   async (~target, ~ruleId="", ~route="") => {
-    open LogicUtils
     try {
       let entryUrl = getURL(~entityName=V1(ROUTING), ~methodType=Get, ~id=Some("entry"))
       let res = await updateDetails(`${entryUrl}?target=${target}`, JSON.Encode.null, Post)
