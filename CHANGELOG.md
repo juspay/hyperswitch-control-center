@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.10.07.0
+
+### Bug Fixes
+
+- Added provider merchant id context for superposition ([#5627](https://github.com/juspay/hyperswitch-control-center/pull/5627)) ([`2f2e50e`](https://github.com/juspay/hyperswitch-control-center/commit/2f2e50ec907d2e5862d89e4c235e7f24a7860294))
+
+### Refactors
+
+- **monitoring:** Simplify routing and destination ID helpers ([#5622](https://github.com/juspay/hyperswitch-control-center/pull/5622)) ([`387725e`](https://github.com/juspay/hyperswitch-control-center/commit/387725e72ac0711c4f4121c941ece80284503f0d))
+
+**Full Changelog:** [`2026.10.01.1...2026.10.07.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.01.1...2026.10.07.0)
+
+- - -
+
 ## 2026.10.01.1
 
 ### Features
