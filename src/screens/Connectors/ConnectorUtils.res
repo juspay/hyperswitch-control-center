@@ -202,6 +202,13 @@ let connectorList: array<connectorTypes> = [
   Processors(WORLDPAYRAFT),
   Processors(ETISALAT),
   Processors(MERCHANTE),
+  Processors(SAFERPAY),
+  Processors(JPMORGAN_ORBITAL),
+  Processors(D24),
+  Processors(PAYNEARME),
+  Processors(PAYDOTCOM),
+  Processors(ELAVON_PG),
+  Processors(GLOBALPAYMENTS_HEARTLAND),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -778,6 +785,34 @@ let merchanteInfo = {
   description: "MerchantE Payment Gateway is a REST API for credit card processing — authorization, capture, settlement, refunds, voids, and AVS/CVV verification — with tokenized Card-on-File (CIT/MIT) recurring payments and Apple Pay/Google Pay support.",
 }
 
+let saferpayInfo = {
+  description: "Saferpay is a secure e-commerce payment gateway supporting domestic and international online payments.",
+}
+
+let jpmorganOrbitalInfo = {
+  description: "J.P. Morgan Orbital is a payment gateway for securely processing online card payments.",
+}
+
+let d24Info = {
+  description: "D24 is a payment platform for accepting deposits and issuing cashouts through local payment methods.",
+}
+
+let paynearmeInfo = {
+  description: "PayNearMe is a US payments platform for bill pay and iGaming, offering card, ACH and cash payments.",
+}
+
+let paydotcomInfo = {
+  description: "Pay.com is a REST-based payment gateway supporting card charges, holds, refunds and 3DS authentication.",
+}
+
+let elavonPgInfo = {
+  description: "Elavon Payment Gateway provides REST APIs for online, in-app and in-person payments and transaction management.",
+}
+
+let globalpaymentsHeartlandInfo = {
+  description: "Global Payments Heartland uses the Portico gateway API to process card and other payment transactions.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
   validate: [
@@ -1086,6 +1121,13 @@ let getConnectorNameString = (connector: processorTypes) =>
   | WORLDPAYRAFT => "worldpayraft"
   | ETISALAT => "etisalat"
   | MERCHANTE => "merchante"
+  | SAFERPAY => "saferpay"
+  | JPMORGAN_ORBITAL => "jpmorgan_orbital"
+  | D24 => "d24"
+  | PAYNEARME => "paynearme"
+  | PAYDOTCOM => "paydotcom"
+  | ELAVON_PG => "elavon_pg"
+  | GLOBALPAYMENTS_HEARTLAND => "globalpayments_heartland"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1307,6 +1349,13 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "worldpayraft" => Processors(WORLDPAYRAFT)
     | "etisalat" => Processors(ETISALAT)
     | "merchante" => Processors(MERCHANTE)
+    | "saferpay" => Processors(SAFERPAY)
+    | "jpmorgan_orbital" => Processors(JPMORGAN_ORBITAL)
+    | "d24" => Processors(D24)
+    | "paynearme" => Processors(PAYNEARME)
+    | "paydotcom" => Processors(PAYDOTCOM)
+    | "elavon_pg" => Processors(ELAVON_PG)
+    | "globalpayments_heartland" => Processors(GLOBALPAYMENTS_HEARTLAND)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1504,6 +1553,13 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | WORLDPAYRAFT => worldpayraftInfo
   | ETISALAT => etisalatInfo
   | MERCHANTE => merchanteInfo
+  | SAFERPAY => saferpayInfo
+  | JPMORGAN_ORBITAL => jpmorganOrbitalInfo
+  | D24 => d24Info
+  | PAYNEARME => paynearmeInfo
+  | PAYDOTCOM => paydotcomInfo
+  | ELAVON_PG => elavonPgInfo
+  | GLOBALPAYMENTS_HEARTLAND => globalpaymentsHeartlandInfo
   }
 }
 
@@ -2519,6 +2575,13 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | WORLDPAYRAFT => "Worldpay Raft"
   | ETISALAT => "Etisalat"
   | MERCHANTE => "MerchantE"
+  | SAFERPAY => "Saferpay"
+  | JPMORGAN_ORBITAL => "JP Morgan Orbital"
+  | D24 => "D24"
+  | PAYNEARME => "PayNearMe"
+  | PAYDOTCOM => "Pay.com"
+  | ELAVON_PG => "Elavon Payment Gateway (EPG)"
+  | GLOBALPAYMENTS_HEARTLAND => "Global Payments (Heartland)"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
