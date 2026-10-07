@@ -649,15 +649,9 @@ let make = (
             connectorData->Array.some(ele =>
               ele->AdvancedRoutingUtils.getSplitFromConnectorSelectionData === 0
             )
-          let isDistributeChecked = !(
-            connectorData->Array.some(ele => {
-              ele->AdvancedRoutingUtils.getSplitFromConnectorSelectionData === 100
-            })
-          )
 
-          let isNotValid =
-            isDistributeChecked &&
-            (distributionPercentageSum > 100 || hasZero || distributionPercentageSum !== 100)
+          // The router samples splits as relative weights, so they must total exactly 100
+          let isNotValid = hasZero || distributionPercentageSum !== 100
 
           if isNotValid {
             Some("Distribution Percent not correct")
