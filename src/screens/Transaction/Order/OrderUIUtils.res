@@ -12,15 +12,7 @@ let manualUpdateStatuses = [
 ]
 
 let manualUpdateStatusFromString = (value: string): option<manualUpdateStatus> =>
-  switch value {
-  | "succeeded" => Some(Succeeded)
-  | "failed" => Some(Failed)
-  | "partially_captured" => Some(PartiallyCaptured)
-  | "requires_capture" => Some(RequiresCapture)
-  | "partially_authorized_and_requires_capture" => Some(PartiallyAuthorizedAndRequiresCapture)
-  | "partially_captured_and_capturable" => Some(PartiallyCapturedAndCapturable)
-  | _ => None
-  }
+  manualUpdateStatuses->Array.find(status => (status :> string) === value)
 
 let manualUpdateEligibleStatusesFromResponse = (response: JSON.t): array<manualUpdateStatus> => {
   let returnedStatuses =

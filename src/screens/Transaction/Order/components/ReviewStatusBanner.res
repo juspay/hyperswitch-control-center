@@ -17,9 +17,7 @@ let make = (~order: order, ~refetch) => {
   let (showModal, setShowModal) = React.useState(_ => false)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
   let (eligibleStatuses, setEligibleStatuses) = React.useState((_): array<manualUpdateStatus> => [])
-  let (selectedStatus, setSelectedStatus) = React.useState((_): option<manualUpdateStatus> => Some(
-    Succeeded,
-  ))
+  let (selectedStatus, setSelectedStatus) = React.useState((_): option<manualUpdateStatus> => None)
   let isConflicted = order.status->HSwitchOrderUtils.statusVariantMapper === Conflicted
 
   let getEligibleStatuses = async () => {
@@ -38,13 +36,6 @@ let make = (~order: order, ~refetch) => {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
     }
   }
-
-  React.useEffect(() => {
-    if isConflicted && showModal {
-      getEligibleStatuses()->ignore
-    }
-    None
-  }, (showModal, order.payment_id, order.status))
 
   let updatePaymentStatus = async (intentStatus: manualUpdateStatus) => {
     try {
@@ -108,10 +99,12 @@ let make = (~order: order, ~refetch) => {
           text: "Update Payment Status",
           onClick: _ => {
             setSelectedStatus(_ => isConflicted ? None : Some(Succeeded))
-            setScreenState(_ =>
-              isConflicted ? PageLoaderWrapper.Loading : PageLoaderWrapper.Success
-            )
             setShowModal(_ => true)
+            if isConflicted {
+              getEligibleStatuses()->ignore
+            } else {
+              setScreenState(_ => PageLoaderWrapper.Success)
+            }
           },
         },
       })

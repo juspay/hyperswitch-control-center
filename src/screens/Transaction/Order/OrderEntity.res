@@ -928,7 +928,7 @@ let getCell = (order: order, colType: colType, merchantId, orgId): Table.cell =>
       | RequiresPaymentMethod
       | RequiresCapture =>
         LabelBlue
-      | Review => LabelOrange
+      | Review | Conflicted => LabelOrange
       | _ => LabelLightGray
       },
     })
