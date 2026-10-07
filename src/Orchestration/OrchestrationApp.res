@@ -74,6 +74,7 @@ let make = (~setScreenState) => {
         <MonitoringContainer />
       </AccessControl>
     | list{"analytics-payments"}
+    | list{"analytics-explorer"}
     | list{"analytics-refunds"}
     | list{"analytics-disputes"}
     | list{"analytics-authentication"}

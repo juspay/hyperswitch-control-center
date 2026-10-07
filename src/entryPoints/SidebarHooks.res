@@ -41,6 +41,7 @@ let useGetHsSidebarValues = () => {
     paymentLinkOperations,
     embedDecisionEngine,
     devAlerts,
+    devAnalyticsExplorer,
   } = featureFlagDetails
   let {
     isFeatureEnabledForDenyListMerchant,
@@ -97,6 +98,7 @@ let useGetHsSidebarValues = () => {
       isNewAnalyticsEnable,
       routingAnalytics,
       ~authenticationAnalyticsFlag=authenticationAnalytics,
+      ~analyticsExplorerFlag=devAnalyticsExplorer,
       ~userHasResourceAccess,
       ~isEmbedDecisionEngineEnabled=showDecisionEngine,
     ),
