@@ -34,14 +34,8 @@ let make = (~id) => {
         ~id=Some(currentExceptionDetails.rule.rule_id),
       )
       let rule = (await fetchDetails(ruleUrl))->getDictFromJsonObject->ruleItemToObjMapper
-      let (sourceAccountId, targetAccounts) = getSourceAndTargetAccountDetails(rule.strategy)
       let accountData = await getAccounts()
-      setRuleAccountIds(_ =>
-        [sourceAccountId]
-        ->Array.concat(targetAccounts->Array.map(target => target.account_id))
-        ->Array.filter(isNonEmptyString)
-        ->getUniqueArray
-      )
+      setRuleAccountIds(_ => rule.strategy->getRuleAccountIds)
       setCurrentExceptionDetails(_ => currentExceptionDetails)
       setAllExceptionDetails(_ => exceptions)
       setAccountsData(_ => accountData)

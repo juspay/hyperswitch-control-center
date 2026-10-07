@@ -708,19 +708,29 @@ let recordEditedEntry = (
       ~isMarkReceived,
     ),
     entry: getUpdatedEntry(~formData, ~markAsReceived=isMarkReceived, ~entryDetails=entry),
+    original: changes
+    ->getOptionValFromDict(entry.entry_key)
+    ->mapOptionOrDefault(entry, change => change.original),
   })
 
 let recordCreatedEntry = (
   changes: Dict.t<ReconEngineExceptionTransactionTypes.entryChange>,
   ~formData,
-) => changes->addEntryChange({op: formData->getCreateEntryOp, entry: getNewEntry(~formData)})
+) => {
+  let entry = getNewEntry(~formData)
+  changes->addEntryChange({op: formData->getCreateEntryOp, entry, original: entry})
+}
 
 let recordLinkedEntries = (
   changes: Dict.t<ReconEngineExceptionTransactionTypes.entryChange>,
   stagingEntries: array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>,
 ) =>
   stagingEntries->Array.reduce(changes, (changes, stagingEntry) =>
-    changes->addEntryChange({op: stagingEntry->getLinkStagingEntryOp, entry: stagingEntry})
+    changes->addEntryChange({
+      op: stagingEntry->getLinkStagingEntryOp,
+      entry: stagingEntry,
+      original: stagingEntry,
+    })
   )
 
 let recordReplacedEntry = (
@@ -735,6 +745,9 @@ let recordReplacedEntry = (
         staging_entry_id: stagingEntry.staging_entry_id->Option.getOr(""),
       }),
       entry: {...stagingEntry, entry_key: entry.entry_key},
+      original: changes
+      ->getOptionValFromDict(entry.entry_key)
+      ->mapOptionOrDefault(entry, change => change.original),
     })
 
   switch changes->getOptionValFromDict(entry.entry_key)->Option.map(change => change.op) {
@@ -792,21 +805,99 @@ let getLinkedStagingEntryIds = (
   )
   ->Set.fromArray
 
-let getEntryChangeSummary = ({op, entry}: ReconEngineExceptionTransactionTypes.entryChange) => {
+let generateResolutionSummary = (initialEntry: entryType, updatedEntry: entryType): array<
+  string,
+> => {
+  let summary = []
+
+  if initialEntry.account_id != updatedEntry.account_id {
+    let message = `Account changed to ${updatedEntry.account_name}.`
+    summary->Array.push(message)
+  }
+
+  if initialEntry.transformation_id != updatedEntry.transformation_id {
+    let message = switch (initialEntry.transformation_id, updatedEntry.transformation_id) {
+    | (None, Some(_)) => `Transformation config added.`
+    | (Some(_), None) => `Transformation config removed.`
+    | (Some(_), Some(_)) => `Transformation config changed.`
+    | (None, None) => ""
+    }
+    if message->isNonEmptyString {
+      summary->Array.push(message)
+    }
+  }
+
+  if initialEntry.currency != updatedEntry.currency {
+    let message = `Currency changed to ${updatedEntry.currency} in ${updatedEntry.account_name} account.`
+    summary->Array.push(message)
+  }
+
+  if (initialEntry.entry_type :> string) != (updatedEntry.entry_type :> string) {
+    let message = `Direction changed to ${(updatedEntry.entry_type :> string)->capitalizeString} in ${updatedEntry.account_name} account.`
+    summary->Array.push(message)
+  }
+
+  if initialEntry.amount != updatedEntry.amount {
+    let message = `Amount edited from ${updatedEntry.currency} ${initialEntry.amount->Float.toString} to ${updatedEntry.currency} ${updatedEntry.amount->Float.toString} in ${updatedEntry.account_name} account.`
+    summary->Array.push(message)
+  }
+
+  if initialEntry.order_id != updatedEntry.order_id {
+    let message = `Order ID changed to ${updatedEntry.order_id} in ${updatedEntry.account_name} account.`
+    summary->Array.push(message)
+  }
+
+  if initialEntry.effective_at != updatedEntry.effective_at {
+    let message = `Effective at changed to ${updatedEntry.effective_at->dateFormat(
+        "DD MMMM YYYY, hh:mm A",
+      )} in ${updatedEntry.account_name} account.`
+    summary->Array.push(message)
+  }
+
+  let initialMetadata = initialEntry.metadata->getFilteredMetadataFromEntries->Dict.toArray
+  initialMetadata->Array.forEach(((key, initialValue)) => {
+    let updatedValueStr =
+      updatedEntry.metadata
+      ->getFilteredMetadataFromEntries
+      ->getString(key, "")
+
+    let initialValueStr = initialValue->getStringFromJson("")
+    if initialValueStr != updatedValueStr {
+      let message = `Metadata field '${key}' changed from '${initialValueStr}' to '${updatedValueStr}' in ${updatedEntry.account_name} account.`
+      summary->Array.push(message)
+    }
+  })
+  summary
+}
+
+let getEntryChangeSummary = (
+  {op, entry, original}: ReconEngineExceptionTransactionTypes.entryChange,
+) => {
   let amount = `${entry.currency} ${entry.amount->Float.toString}`
+  let fieldChanges = generateResolutionSummary(
+    original->getEntryTypeFromExceptionEntryType,
+    entry->getEntryTypeFromExceptionEntryType,
+  )
   switch op {
-  | UpdateEntry(_) =>
-    `Entry with order ID ${entry.order_id} updated in ${entry.account_name} account.`
+  | UpdateEntry(_) => fieldChanges
   | MarkReceived(_) =>
-    `Expected entry with order ID ${entry.order_id} marked as received in ${entry.account_name} account.`
-  | CreateEntry(_) =>
-    `New ${(entry.entry_type :> string)} entry of ${amount} with order ID ${entry.order_id} created in ${entry.account_name} account.`
-  | CreateWithStagingEntry(_) =>
-    `Transformed entry of ${amount} with order ID ${entry.order_id} linked in ${entry.account_name} account.`
-  | ReplaceWithStagingEntry(_) =>
-    `Entry replaced with transformed entry of ${amount} with order ID ${entry.order_id} in ${entry.account_name} account.`
+    [
+      `Expected entry with order ID ${original.order_id} marked as received in ${entry.account_name} account.`,
+    ]->Array.concat(fieldChanges)
+  | CreateEntry(_) => [
+      `New ${(entry.entry_type :> string)} entry of ${amount} with order ID ${entry.order_id} created in ${entry.account_name} account.`,
+    ]
+  | CreateWithStagingEntry(_) => [
+      `Transformed entry of ${amount} with order ID ${entry.order_id} linked in ${entry.account_name} account.`,
+    ]
+  | ReplaceWithStagingEntry(_) => [
+      `Entry with order ID ${original.order_id} replaced with transformed entry of ${amount} with order ID ${entry.order_id} in ${entry.account_name} account.`,
+    ]
   }
 }
+
+let getLastSelectedRow = (rows: array<JSON.t>) =>
+  rows->isEmptyArray ? [] : [rows->getValueFromArray(rows->Array.length - 1, JSON.Encode.null)]
 
 let constructManualReconciliationBody = (
   ~changes: Dict.t<ReconEngineExceptionTransactionTypes.entryChange>,

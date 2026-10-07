@@ -512,12 +512,7 @@ module ReplaceStagingEntryModalContent = {
     }
 
     let handleRowSelect = (updateFn: array<JSON.t> => array<JSON.t>) => {
-      setSelectedRows(prev => {
-        let updated = updateFn(prev)
-        updated->isEmptyArray
-          ? []
-          : [updated->getValueFromArray(updated->Array.length - 1, JSON.Encode.null)]
-      })
+      setSelectedRows(prev => updateFn(prev)->getLastSelectedRow)
     }
 
     let entriesTableSections = React.useMemo(() => {
@@ -715,14 +710,7 @@ module LinkStagingEntryModalContent = {
     }, (currentExceptionDetails.id, linkedStagingEntryIds))
 
     let handleRowSelect = (updateFn: array<JSON.t> => array<JSON.t>) => {
-      setSelectedRows(prev => {
-        let updated = updateFn(prev)
-        updated->Array.length > 1
-          ? updated
-            ->Array.get(updated->Array.length - 1)
-            ->Option.mapOr([], row => [row])
-          : updated
-      })
+      setSelectedRows(prev => updateFn(prev)->getLastSelectedRow)
     }
 
     let stagingEntriesTableSections = React.useMemo(() => {

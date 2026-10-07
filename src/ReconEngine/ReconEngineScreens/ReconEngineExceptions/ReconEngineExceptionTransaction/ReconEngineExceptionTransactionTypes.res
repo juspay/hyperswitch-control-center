@@ -102,6 +102,7 @@ type entryOp =
 type entryChange = {
   op: entryOp,
   entry: exceptionResolutionEntryType,
+  original: exceptionResolutionEntryType,
 }
 
 type manualReconciliationRequest = {

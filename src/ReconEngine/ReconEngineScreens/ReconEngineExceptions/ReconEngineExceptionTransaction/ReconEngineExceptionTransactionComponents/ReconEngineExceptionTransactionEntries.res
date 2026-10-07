@@ -25,13 +25,7 @@ let make = (
   let updateDetails = useUpdateMethod()
 
   let handleRowSelect = (updateFn: array<JSON.t> => array<JSON.t>) => {
-    setSelectedRows(prev => {
-      let updated = updateFn(prev)
-      switch updated->Array.length {
-      | 0 => []
-      | _ => [updated->getValueFromArray(updated->Array.length - 1, JSON.Encode.null)]
-      }
-    })
+    setSelectedRows(prev => updateFn(prev)->getLastSelectedRow)
   }
 
   let currencyOptions = React.useMemo(() => {
@@ -76,7 +70,7 @@ let make = (
   }
 
   let summaryItems = React.useMemo(() => {
-    changes->Dict.valuesToArray->Array.map(getEntryChangeSummary)
+    changes->Dict.valuesToArray->Array.flatMap(getEntryChangeSummary)
   }, [changes])
 
   let onCloseClickCustomFun = () => {
@@ -111,6 +105,9 @@ let make = (
       ruleAccountIds=accountIds
     />
     <div className="flex flex-col gap-6">
+      <RenderIf condition={accountIds->isEmptyArray}>
+        <NoDataFound customCssClass="my-6" message="No Data Available" renderType=Painting />
+      </RenderIf>
       {accountIds
       ->Array.map(accountId =>
         <FilterContext
