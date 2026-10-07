@@ -2,6 +2,8 @@ open APIUtils
 open LogicUtils
 open PaymentInterfaceTypes
 open OrderTypes
+open OrderUIUtils
+open Typography
 
 @react.component
 let make = (~order: order, ~refetch) => {
@@ -22,6 +24,7 @@ let make = (~order: order, ~refetch) => {
 
   let getEligibleStatuses = async () => {
     try {
+      setEligibleStatuses(_ => [])
       setScreenState(_ => PageLoaderWrapper.Loading)
       let url = getURL(
         ~entityName=V1(MANUAL_STATUS_UPDATE),
@@ -29,7 +32,7 @@ let make = (~order: order, ~refetch) => {
         ~id=Some(order.payment_id),
       )
       let response = await getDetails(url)
-      setEligibleStatuses(_ => response->OrderUIUtils.manualUpdateEligibleStatusesFromResponse)
+      setEligibleStatuses(_ => response->manualUpdateEligibleStatusesFromResponse)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Custom)
@@ -38,7 +41,6 @@ let make = (~order: order, ~refetch) => {
 
   React.useEffect(() => {
     if isConflicted && showModal {
-      setEligibleStatuses(_ => [])
       getEligibleStatuses()->ignore
     }
     None
@@ -51,7 +53,7 @@ let make = (~order: order, ~refetch) => {
         ~methodType=Post,
         ~id=Some(order.payment_id),
       )
-      let intentLabel = intentStatus->OrderUIUtils.manualUpdateStatusLabel
+      let intentLabel = (intentStatus :> string)->snakeToTitle
       let body =
         [("intent_status", (intentStatus :> string)->JSON.Encode.string)]->getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post)
@@ -66,7 +68,7 @@ let make = (~order: order, ~refetch) => {
     showPopUp({
       popUpType: (Warning, WithIcon),
       heading: "Confirm Status Update?",
-      description: `You are about to mark this payment as ${intentStatus->OrderUIUtils.manualUpdateStatusLabel}. This action is final and cannot be undone. Please confirm to proceed.`->React.string,
+      description: `You are about to mark this payment as ${(intentStatus :> string)->snakeToTitle}. This action is final and cannot be undone. Please confirm to proceed.`->React.string,
       handleConfirm: {
         text: "Confirm",
         onClick: _ => updatePaymentStatus(intentStatus)->ignore,
@@ -76,13 +78,19 @@ let make = (~order: order, ~refetch) => {
   }
 
   let statuses: array<manualUpdateStatus> = isConflicted ? eligibleStatuses : [Succeeded, Failed]
-  let statusOptions: array<
-    MultiSelectBindings.selectMenuGroupType,
-  > = statuses->Array.map(status => {
-    MultiSelectBindings.items: [
-      {label: status->OrderUIUtils.manualUpdateStatusLabel, value: (status :> string)},
-    ],
+  let statusOptions: array<SelectBox.dropdownOption> = statuses->Array.map(status => {
+    SelectBox.label: (status :> string)->snakeToTitle,
+    value: (status :> string),
   })
+  let statusInput: ReactFinalForm.fieldRenderPropsInput = {
+    name: "intent_status",
+    onBlur: _ => (),
+    onFocus: _ => (),
+    onChange: event =>
+      setSelectedStatus(_ => event->Identity.formReactEventToString->manualUpdateStatusFromString),
+    value: selectedStatus->mapOptionOrDefault("", status => (status :> string))->JSON.Encode.string,
+    checked: false,
+  }
 
   let onUpdateClick = _ => {
     switch selectedStatus {
@@ -132,26 +140,26 @@ let make = (~order: order, ~refetch) => {
           <Icon name="spinner" size=20 className="animate-spin" />
         </div>}
         customUI={<div className="flex flex-col items-center gap-4 p-6">
-          <p className={`${Typography.body.md.medium} text-nd_gray-600`}>
+          <p className={`${body.md.medium} text-nd_gray-600`}>
             {"Unable to load available statuses."->React.string}
           </p>
           <Button text="Retry" buttonType=Secondary onClick={_ => getEligibleStatuses()->ignore} />
         </div>}>
         <div className="flex flex-col gap-6 p-2 m-2">
           <RenderIf condition={statuses->isEmptyArray}>
-            <p className={`${Typography.body.md.medium} text-nd_gray-600`}>
+            <p className={`${body.md.medium} text-nd_gray-600`}>
               {"No status updates are available for this payment."->React.string}
             </p>
           </RenderIf>
           <RenderIf condition={statuses->isNonEmptyArray}>
-            <SingleSelectBinding
-              selected={selectedStatus->mapOptionOrDefault("", status => (status :> string))}
-              onSelect={value =>
-                setSelectedStatus(_ => value->OrderUIUtils.manualUpdateStatusFromString)}
-              items=statusOptions
-              label="New Status"
-              placeholder="Select status"
-            />
+            <div className="flex flex-col gap-2">
+              <p className={`${body.md.medium} text-nd_gray-600`}> {"New Status"->React.string} </p>
+              {InputFields.selectInput(
+                ~options=statusOptions,
+                ~buttonText="Select status",
+                ~searchable=false,
+              )(~input=statusInput, ~placeholder="Select status")}
+            </div>
           </RenderIf>
           <div className="flex justify-end gap-3 mt-2">
             <Button

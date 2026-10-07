@@ -22,16 +22,6 @@ let manualUpdateStatusFromString = (value: string): option<manualUpdateStatus> =
   | _ => None
   }
 
-let manualUpdateStatusLabel = (status: manualUpdateStatus) =>
-  switch status {
-  | Succeeded => "Succeeded"
-  | Failed => "Failed"
-  | PartiallyCaptured => "Partially Captured"
-  | RequiresCapture => "Requires Capture"
-  | PartiallyAuthorizedAndRequiresCapture => "Partially Authorized and Requires Capture"
-  | PartiallyCapturedAndCapturable => "Partially Captured and Capturable"
-  }
-
 let manualUpdateEligibleStatusesFromResponse = (response: JSON.t): array<manualUpdateStatus> => {
   let returnedStatuses =
     response
