@@ -9,9 +9,11 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
-  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let userContext = React.useContext(UserInfoProvider.defaultContext)
+  let {merchantId} = userContext.getCommonSessionDetails()
   let showToast = ToastState.useShowToast()
-  let {devOffers} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let isOfferEngineEnabled =
+    userContext.getResolvedUserInfo().offerEngineCredentialSource->OffersUtils.isOfferEngineEnabled
 
   let onSubmit = async (values, _) => {
     try {
@@ -44,7 +46,7 @@ let make = () => {
           path=[{title: "Offers", link: "/offers"}] currentPageTitle="Create a New Offer"
         />
       </div>
-      <RenderIf condition={!devOffers}>
+      <RenderIf condition={!isOfferEngineEnabled}>
         <DemoModeBanner />
       </RenderIf>
       <Form onSubmit validate=validateOfferForm initialValues>
@@ -70,7 +72,7 @@ let make = () => {
             text="Create Offer"
             buttonType=Primary
             customSubmitButtonStyle="!w-fit"
-            disabledParameter={!devOffers}
+            disabledParameter={!isOfferEngineEnabled}
           />
         </div>
       </Form>
