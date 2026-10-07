@@ -845,32 +845,6 @@ let isMismatchedTransaction = (status: domainTransactionStatus) =>
   | UnknownDomainTransactionStatus => false
   }
 
-let isMarkAsReceivedAvailable = (status: domainTransactionStatus) =>
-  switch status {
-  | Expected
-  | Missing
-  | OverAmount(Expected)
-  | UnderAmount(Expected) => true
-  | PartiallyReconciled
-  | DataMismatch
-  | CurrencyMismatch
-  | SplitMismatch
-  | OverAmount(Mismatch)
-  | UnderAmount(Mismatch)
-  | Posted(Manual)
-  | Matched(Force)
-  | Matched(Manual)
-  | Matched(Auto)
-  | Matched(WithTolerance)
-  | Archived
-  | Void
-  | Posted(UnknownDomainTransactionPostedStatus)
-  | Matched(UnknownDomainTransactionMatchedStatus)
-  | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
-  | UnderAmount(UnknownDomainTransactionAmountMismatchStatus)
-  | UnknownDomainTransactionStatus => false
-  }
-
 let addUniqueIdsToEntries = (entries: array<entryType>): array<
   ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType,
 > => {

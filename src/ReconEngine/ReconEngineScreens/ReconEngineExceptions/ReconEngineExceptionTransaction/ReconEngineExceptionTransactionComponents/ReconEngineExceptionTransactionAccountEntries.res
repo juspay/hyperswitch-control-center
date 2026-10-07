@@ -70,6 +70,7 @@ let make = (
   }, [accountId])
 
   React.useEffect(() => {
+    onRowSelect(_ => [])
     goToFirstPage()
     None
   }, [filterValue])
@@ -84,6 +85,7 @@ let make = (
   let handleSearchSubmit = (selectedType: option<string>) => {
     searchTypeRef.current =
       selectedType->mapOptionOrDefault(SearchEntryOrderId, entrySearchTypeFromString)
+    onRowSelect(_ => [])
     goToFirstPage()
   }
 
@@ -194,8 +196,14 @@ let make = (
             cursors
             isLoading={screenState === PageLoaderWrapper.Loading}
             hasData={entriesList->isNonEmptyArray}
-            onPrev=goToPrevPage
-            onNext=goToNextPage
+            onPrev={() => {
+              onRowSelect(_ => [])
+              goToPrevPage()
+            }}
+            onNext={() => {
+              onRowSelect(_ => [])
+              goToNextPage()
+            }}
           />
         </div>
       </RenderIf>

@@ -419,7 +419,6 @@ module ReplaceStagingEntryModalContent = {
     ~setActiveModal,
     ~onSubmit,
     ~linkedStagingEntryIds: Set.t<string>,
-    ~ruleAccountIds,
   ) => {
     open LogicUtils
     open ReconEngineExceptionTransactionHelper
@@ -472,7 +471,7 @@ module ReplaceStagingEntryModalContent = {
           ~direction,
           ~searchType=searchTypeRef.current,
           ~searchText,
-          ~accountIds=ruleAccountIds,
+          ~accountIds=[entryDetails.account_id],
         ),
         ~id=Some(currentExceptionDetails.id),
       )
@@ -855,6 +854,8 @@ let make = (
   let updateDetails = useUpdateMethod()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let getTransactionEntryWithStatus = ReconEngineHooks.useGetTransactionEntryWithStatus()
+  let (showMarkAsReceivedButton, setShowMarkAsReceivedButton) = React.useState(_ => false)
 
   let fetchTransactionResolutions = async () => {
     try {
@@ -878,8 +879,21 @@ let make = (
     }
   }
 
+  let fetchExpectedEntry = async () => {
+    try {
+      let entry = await getTransactionEntryWithStatus(
+        ~primaryTransactionId=currentExceptionDetails.id,
+        ~status=Expected,
+      )
+      setShowMarkAsReceivedButton(_ => entry->Option.isSome)
+    } catch {
+    | _ => setShowMarkAsReceivedButton(_ => false)
+    }
+  }
+
   React.useEffect(() => {
     fetchTransactionResolutions()->ignore
+    fetchExpectedEntry()->ignore
     None
   }, [currentExceptionDetails.id])
 
@@ -1036,8 +1050,6 @@ let make = (
     selectedEntry->getDictFromJsonObject->exceptionTransactionEntryItemToItemMapper
   }, [selectedRows])
 
-  let showMarkAsReceivedButton =
-    currentExceptionDetails.transaction_status->isMarkAsReceivedAvailable
   let transactionCurrency = currentExceptionDetails.credit_amount.currency
   let linkedStagingEntryIds = React.useMemo(() => changes->getLinkedStagingEntryIds, [changes])
 
@@ -1195,7 +1207,6 @@ let make = (
             setActiveModal
             onSubmit={onReplaceEntrySubmit}
             linkedStagingEntryIds
-            ruleAccountIds
           />
         | ResolvingException(LinkStagingEntryToTransaction) =>
           <LinkStagingEntryModalContent
