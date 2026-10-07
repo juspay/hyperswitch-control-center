@@ -680,6 +680,12 @@ let stringTransformationRuleMapper = (dict): stringTransformationRule => {
   | "json_extract" => StrJsonExtract(dict->getString("pointer", ""))
   | "regex" =>
     StrRegex({pattern: dict->getString("pattern", ""), group: dict->getOptionInt("group")})
+  | "replace_char" =>
+    StrReplaceChar({
+      fromChar: dict->getString("from", ""),
+      toChar: dict->getOptionString("to"),
+      mode: dict->getDictfromDict("mode")->replaceModeMapper,
+    })
   | _ => UnknownStringTransformationRule
   }
 }
@@ -1214,5 +1220,14 @@ let reconEngineStatusItemToObjMapper = (dict): reconEngineStatusType => {
     ->getString("processor_status", "")
     ->getReconProcessorStatusVariantFromString,
     pending_staging_entries: dict->getInt("pending_staging_entries", 0),
+  }
+}
+
+let reconBusinessProfileItemToObjMapper = (dict): reconBusinessProfileType => {
+  {
+    profile_id: dict->getString("profile_id", ""),
+    merchant_id: dict->getString("merchant_id", ""),
+    profile_name: dict->getString("profile_name", ""),
+    timezone: dict->getString("timezone", ""),
   }
 }

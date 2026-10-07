@@ -4,13 +4,15 @@ open AdditionalDetailsSidebarHelper
 module DirectFlowLandingCard = {
   @react.component
   let make = (~setGooglePayIntegrationType, ~googlePayIntegrationType) => {
-    let shadowClass =
-      googlePayIntegrationType === #direct ? "shadow-cardSelectedShadow" : "shadow-md"
+    let isSelected = googlePayIntegrationType->GPayFlowUtils.isDirectFlow
+    let shadowClass = isSelected ? "shadow-cardSelectedShadow" : "shadow-md"
 
-    <div className="cursor-pointer" onClick={_ => setGooglePayIntegrationType(_ => #direct)}>
+    <div
+      className="cursor-pointer"
+      onClick={_ => !isSelected ? setGooglePayIntegrationType(_ => #direct) : ()}>
       <Card
         heading="Direct"
-        isSelected={googlePayIntegrationType === #direct}
+        isSelected
         customCardHeaderStyle={`border rounded-md !bg-white ${shadowClass}`}>
         <div className={`${body.md.medium}  text-nd_gray-400 mt-2`}>
           {"Google Pay Decryption at Hyperswitch: Unlock from PSP dependency."->React.string}
@@ -119,7 +121,8 @@ module Landing = {
           <PaymentGatewayFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
           <PaymentGatewayPreDecryptFlow setGooglePayIntegrationType googlePayIntegrationType />
         </>
-      | Processors(IMERCHANTSOLUTIONS) =>
+      | Processors(IMERCHANTSOLUTIONS)
+      | Processors(REVOLV3) =>
         <>
           <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
           <PaymentGatewayPreDecryptFlow setGooglePayIntegrationType googlePayIntegrationType />

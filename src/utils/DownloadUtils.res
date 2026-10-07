@@ -15,6 +15,18 @@ let download = (~fileName, ~content, ~fileType) => {
   a->clickElement
 }
 
+let downloadFromUrl = url => {
+  open DOMUtils
+  querySelectorAll(DOMUtils.document, "iframe#download-frame")->Array.forEach(frame =>
+    frame->remove()
+  )
+  let frame = DOMUtils.document->createElement("iframe")
+  frame->setAttribute("id", "download-frame")
+  frame->setAttribute("style", "display:none")
+  frame->setAttribute("src", url)
+  appendChild(frame)
+}
+
 let downloadOld = (~fileName, ~content) => {
   download(~fileName, ~content, ~fileType="text/plain")
 }

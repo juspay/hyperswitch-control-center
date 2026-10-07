@@ -44,9 +44,27 @@ let allColumns: array<hierarchicalColType> = [
   CreditAmount,
 ]
 
+let mandatoryColumns: array<hierarchicalColType> = [Flow, Date, TransactionId, Status]
+
+let isEntryLevelColumn = (colType: hierarchicalColType) =>
+  switch colType {
+  | EntryId | OrderId | Account | EntryStatus | Currency | DebitAmount | CreditAmount => true
+  | Flow | Date | TransactionId | Status => false
+  }
+
+let getCustomSeparation = (visibleColumns: array<hierarchicalColType>) =>
+  visibleColumns
+  ->Array.mapWithIndex((colType, index) =>
+    !isEntryLevelColumn(colType) &&
+    visibleColumns->Array.get(index + 1)->Option.mapOr(false, isEntryLevelColumn)
+      ? Some((index, index + 1))
+      : None
+  )
+  ->Array.keepSome
+
 let getHeading = (colType: hierarchicalColType) => {
   switch colType {
-  | Flow => makeHeaderInfo(~key="flow", ~title="", ~customWidth="!w-28")
+  | Flow => makeHeaderInfo(~key="flow", ~title="Flow", ~customWidth="!w-28")
   | Date => makeHeaderInfo(~key="date", ~title="Date", ~customWidth="!w-24", ~showSort=true)
   | TransactionId => makeHeaderInfo(~key="transaction_id", ~title="Transaction ID")
   | Status => makeHeaderInfo(~key="status", ~title="Status")

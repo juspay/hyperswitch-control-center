@@ -10,6 +10,7 @@ let make = (
 ) => {
   open APIUtils
   open LogicUtils
+  open ReconEngineFilterUtils
 
   let getURL = useGetURL()
   let showToast = ToastAdapter.useShowToast()
@@ -39,6 +40,14 @@ let make = (
     mixpanelEvent(~eventName="recon_engine_generate_report_submit", ~metadata)
     let bodyDict = metadata->getDictFromJsonObject
     bodyDict->Dict.set("rule_id", rule.rule_id->JSON.Encode.string)
+    bodyDict->Dict.set(
+      "start_time",
+      bodyDict->getString("start_time", "")->toReconTimeString->JSON.Encode.string,
+    )
+    bodyDict->Dict.set(
+      "end_time",
+      bodyDict->getString("end_time", "")->toReconTimeString->JSON.Encode.string,
+    )
     generateReport(bodyDict->JSON.Encode.object)
   }
 

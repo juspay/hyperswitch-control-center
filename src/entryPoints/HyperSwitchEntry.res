@@ -35,7 +35,8 @@ module HyperSwitchEntryComponent = {
           urlConfig->getDictFromJsonObject->getDictfromDict("superposition_configs")
         let value: baseConfig = {
           apiBaseUrl: dict->getString("api_url", ""),
-          olapPrefix: dict->getString("olap_prefix", ""),
+          olapUrl: dict->getString("olap_url", ""),
+          eulerUrl: dict->getString("euler_url", ""),
           mixpanelToken: dict->getString("mixpanel_token", ""),
           sdkBaseUrl: dict->getString("sdk_url", "")->getNonEmptyString,
           agreementUrl: dict->getString("agreement_url", "")->getNonEmptyString,

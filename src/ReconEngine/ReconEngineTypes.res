@@ -390,6 +390,7 @@ type stringTransformationRule =
   | StrTrim
   | StrJsonExtract(string)
   | StrRegex({pattern: string, group: option<int>})
+  | StrReplaceChar({fromChar: string, toChar: option<string>, mode: replaceMode})
   | UnknownStringTransformationRule
 
 type currencyTransformationRule =
@@ -646,4 +647,11 @@ type reconProcessorStatus =
 type reconEngineStatusType = {
   processor_status: reconProcessorStatus,
   pending_staging_entries: int,
+}
+
+type reconBusinessProfileType = {
+  profile_id: string,
+  merchant_id: string,
+  profile_name: string,
+  timezone: string,
 }

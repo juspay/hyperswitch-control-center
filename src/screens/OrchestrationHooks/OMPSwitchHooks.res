@@ -236,10 +236,7 @@ let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productType
       setApplicationState(_ => DashboardSession(userInfoFromProfile))
 
       if changePath {
-        // When the internal switch is triggered from the dropdown,
-        // and the current path is "/dashboard/payment/id",
-        // update the path to "/dashboard/payment" by removing the "id" part.
-        let currentUrl = GlobalVars.extractModulePath(~path=url.path, ~query="", ~end=2)
+        let currentUrl = url.path->OMPSwitchUtils.getPathAfterSwitch
         RescriptReactRouter.replace(currentUrl)
       }
     } catch {
@@ -307,5 +304,19 @@ let useOMPType = (): ompTypeState => {
     isCurrentMerchantPlatform,
     isCurrentOrganizationPlatform,
     isCurrentMerchantConnected,
+  }
+}
+
+let useProviderMerchantId = () => {
+  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let {isCurrentOrganizationPlatform} = useOMPType()
+  let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+
+  if isCurrentOrganizationPlatform {
+    merchantList
+    ->Array.find(merchant => merchant.type_ == Some(#platform))
+    ->Option.mapOr(merchantId, merchant => merchant.id)
+  } else {
+    merchantId
   }
 }

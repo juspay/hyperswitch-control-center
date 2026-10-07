@@ -7,6 +7,7 @@ let make = () => {
   open ReconEngineHooks
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let url = RescriptReactRouter.useUrl()
   let basePath = GlobalVars.appendDashboardPath(~url="v1/recon-engine/transactions")
   let (accountData, setAccountData) = React.useState(_ => [])
@@ -81,10 +82,11 @@ let make = () => {
       <div className="flex flex-row items-center gap-4">
         <PortalCapture name=ReconEngineFilterUtils.globalDateFilterPortalName customStyle="-mt-1" />
         <div className="flex-shrink-0">
-          <Button
+          <ACLButton
             text="Generate Report"
             buttonType=Primary
             buttonSize=Large
+            authorization={userHasAccess(~groupAccess=ReconTransactionsView)}
             buttonState={selectedRule->Option.isSome ? Normal : Disabled}
             onClick={_ => {
               setReportModal(_ => true)

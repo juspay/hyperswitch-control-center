@@ -233,7 +233,7 @@ let entriesDisplayFilters = (~currencyOptions, ~transformationConfigOptions) => 
     (
       {
         field: FormRenderer.makeFieldInfo(
-          ~label="transformation_config_ids",
+          ~label="Transformation",
           ~name="transformation_config_ids",
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=transformationConfigOptions,

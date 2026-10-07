@@ -68,13 +68,7 @@ let historyEntity = (
     ~getShowLink={
       value => {
         GroupAccessUtils.linkForGetShowLinkViaAccess(
-          ~url=GlobalVars.appendDashboardPath(
-            ~url=`/routing/${value.kind
-              ->routingTypeMapper
-              ->routingTypeName}?id=${value.id}${activeRoutingIds->Array.includes(value.id)
-                ? "&isActive=true"
-                : ""}`,
-          ),
+          ~url=historyRecordNativeUrl(~kind=value.kind, ~id=value.id, ~activeRoutingIds),
           ~authorization,
         )
       }

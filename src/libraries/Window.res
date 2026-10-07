@@ -143,6 +143,9 @@ external getFundingSourceValues: unit => array<string> = "getFundingSourceValues
 external getCardSegmentTypeValues: unit => array<string> = "getCardSegmentTypeValues"
 
 @val @scope("window")
+external getWebhookStatusConfig: unit => array<JSON.t> = "getWebhookStatusConfig"
+
+@val @scope("window")
 external requestAnimationFrame: (unit => unit) => unit = "requestAnimationFrame"
 
 module MatchMedia = {

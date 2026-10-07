@@ -187,21 +187,6 @@ module ClickToPaySection = {
   }
 }
 
-module WebHook = {
-  @react.component
-  let make = () => {
-    open FormRenderer
-
-    <div className="ml-1 mt-4">
-      <FieldRenderer
-        field={webhookUrl}
-        labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
-        fieldWrapperClass="max-w-xl  "
-      />
-    </div>
-  }
-}
-
 module ReturnUrl = {
   @react.component
   let make = () => {
@@ -282,6 +267,51 @@ module SplitTransactions = {
           ~customInput=customSplitTransactionInput,
         )}
       />
+    </DesktopRow>
+  }
+}
+
+module AccountUpdaterSection = {
+  @react.component
+  let make = () => {
+    open FormRenderer
+
+    <DesktopRow wrapperClass="!flex-col" itemWrapperClass="mx-1">
+      <div className="w-full flex justify-between items-center pt-8">
+        <p className={`${body.lg.semibold} text-nd_gray-700`}>
+          {"Account Updater"->React.string}
+        </p>
+        <SwitchAdapter
+          isSelected=false
+          setIsSelected={_ => ()}
+          isDisabled=true
+          boolCustomClass="rounded-lg"
+          toggleBorder="border-nd_primary_blue-450"
+          toggleEnableColor="bg-nd_primary_blue-450"
+        />
+      </div>
+      <div className={`${body.md.medium} ml-1 text-nd_gray-400 pb-8 flex flex-col gap-3`}>
+        <div>
+          {"Account Updater keeps stored cards current by fetching the latest card details from the network when a card is reissued, expired or replaced, so recurring payments do not fail. Supported on "->React.string}
+          <span className={`${body.md.semibold} text-nd_gray-600`}> {"Visa"->React.string} </span>
+          {" and "->React.string}
+          <span className={`${body.md.semibold} text-nd_gray-600`}>
+            {"Mastercard"->React.string}
+          </span>
+          {". To enable this feature for your merchant account, please reach out to us on "->React.string}
+          <a
+            href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
+            className="text-primary hover:cursor-pointer hover:underline"
+            target="_blank">
+            {"Slack"->React.string}
+          </a>
+          {"."->React.string}
+        </div>
+        <div className="flex items-center gap-1">
+          <GatewayIcon gateway="VISA" className="h-5" />
+          <GatewayIcon gateway="MASTERCARD" className="h-5" />
+        </div>
+      </div>
     </DesktopRow>
   }
 }
@@ -499,6 +529,8 @@ let make = () => {
         </div>
       </DesktopRow>
       <hr />
+      <AccountUpdaterSection />
+      <hr />
       <RenderIf condition={featureFlagDetails.debitRouting}>
         <MerchantCategoryCode />
         <hr />
@@ -506,7 +538,6 @@ let make = () => {
       <ClickToPaySection />
       <hr />
       <ReturnUrl />
-      <WebHook />
       <DesktopRow wrapperClass="mt-8">
         <div className="flex justify-end mt-4 w-full">
           <SubmitButton text="Update" buttonType=Button.Primary buttonSize=Button.Medium />

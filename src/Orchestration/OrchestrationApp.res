@@ -9,8 +9,11 @@ let make = (~setScreenState) => {
     merchantSpecificConfig,
   } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let userContext = React.useContext(UserInfoProvider.defaultContext)
+  let {checkUserEntity} = userContext
   let {isCurrentMerchantPlatform, isCurrentMerchantConnected} = OMPSwitchHooks.useOMPType()
+  let {roleId, offerEngineCredentialSource} = userContext.getResolvedUserInfo()
+  let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
 
   {
     switch url.path->HSwitchUtils.urlPath {
@@ -26,6 +29,7 @@ let make = (~setScreenState) => {
     | list{"configure-pmts", ..._}
     | list{"payment-link-theme", ..._}
     | list{"routing", ..._}
+    | list{"routing-workspace", ..._}
     | list{"payoutrouting", ..._}
     | list{"sdk"}
     | list{"vault-onboarding", ..._}
@@ -54,9 +58,20 @@ let make = (~setScreenState) => {
     | list{"payments", ..._}
     | list{"refunds", ..._}
     | list{"disputes", ..._}
-    | list{"payouts", ..._} =>
+    | list{"payouts", ..._}
+    | list{"payment-links", ..._} =>
       <AccessControl authorization={isCurrentMerchantPlatform ? NoAccess : Access}>
         <TransactionContainer />
+      </AccessControl>
+    | list{"alerts-business-insights", ..._} =>
+      <AccessControl
+        isEnabled={featureFlagDetails.devAlerts && isInternalUser} authorization=Access>
+        <AlertsContainer />
+      </AccessControl>
+    | list{"monitoring", ..._} =>
+      <AccessControl
+        isEnabled={featureFlagDetails.devAlerts && isInternalUser} authorization=Access>
+        <MonitoringContainer />
       </AccessControl>
     | list{"analytics-payments"}
     | list{"analytics-refunds"}
@@ -91,6 +106,25 @@ let make = (~setScreenState) => {
           />
         </FilterContext>
       </AccessControl>
+    | list{"offers", ...remainingPath} =>
+      <AccessControl authorization={userHasAccess(~groupAccess=OffersView)}>
+        <FilterContext key="Offers" index="Offers">
+          <EntityScaffold
+            entityName="Offers"
+            remainingPath
+            access=Access
+            renderList={() =>
+              offerEngineCredentialSource->OffersUtils.isOfferEngineEnabled
+                ? <OffersList />
+                : <OffersHelpers.DemoLanding />}
+            renderNewForm={() => <CreateOffer />}
+            renderShow={(id, _) =>
+              offerEngineCredentialSource->OffersUtils.isOfferEngineEnabled
+                ? <ShowOffer id />
+                : <OffersHelpers.DemoLanding />}
+          />
+        </FilterContext>
+      </AccessControl>
     | list{"users", ..._} =>
       <AccessControl authorization={userHasAccess(~groupAccess=UsersView)}>
         <UserManagementContainer />
@@ -108,6 +142,12 @@ let make = (~setScreenState) => {
     | list{"compliance"} =>
       <AccessControl isEnabled=featureFlagDetails.complianceCertificate authorization=Access>
         <Compliance />
+      </AccessControl>
+    | list{"hierarchical-configurations"} =>
+      <AccessControl
+        isEnabled=featureFlagDetails.hierarchicalConfigurations
+        authorization={userHasAccess(~groupAccess=ConnectorsManage)}>
+        <HierarchicalConfigurations />
       </AccessControl>
     | list{"3ds"} =>
       <AccessControl authorization={userHasAccess(~groupAccess=WorkflowsView)}>
@@ -189,11 +229,14 @@ let make = (~setScreenState) => {
         )}>
         <ChatBot />
       </AccessControl>
-    | list{"configuration-management", ...remainingPath} =>
+    | list{"configuration-management-default-config"}
+    | list{"configuration-management-overrides"}
+    | list{"configuration-management-dimensions"}
+    | list{"configuration-management-audit"} =>
       <AccessControl
         isEnabled={featureFlagDetails.devSuperposition}
         authorization={userHasAccess(~groupAccess=ConfigurationsView)}>
-        <SuperpositionApp remainingPath />
+        <SuperpositionContainer />
       </AccessControl>
     | _ => <EmptyPage path="/home" />
     }

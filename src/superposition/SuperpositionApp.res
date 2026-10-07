@@ -8,22 +8,15 @@ module ConfiguredSuperpositionApp = {
   @react.component
   let make = (
     ~superpositionConfigs: HyperSwitchConfigTypes.superpositionConfig,
-    ~remainingPath: list<string>,
+    ~content: React.element,
   ) => {
     let {getCommonSessionDetails} = React.useContext(UserInfoProvider.defaultContext)
     let {orgId, merchantId, profileId} = getCommonSessionDetails()
+    let providerMerchantId = OMPSwitchHooks.useProviderMerchantId()
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let canManageConfigurations = userHasAccess(~groupAccess=ConfigurationsManage) == Access
     let superpositionApiBaseUrl = `${Window.env.apiBaseUrl}/v1/superposition`
     let token = AuthUtils.getUserInfoDetailsFromLocalStorage().token->Option.getOr("")
-
-    let content = switch remainingPath {
-    | list{"default-config", ..._} => <ConfigManager showResolvedValues=true editable=false />
-    | list{"overrides", ..._} => <OverrideManager />
-    | list{"dimensions", ..._} => <DimensionManager editable=false />
-    | list{"audit", ..._} => <AuditTrail />
-    | _ => <ConfigManager showResolvedValues=true editable=false />
-    }
 
     let config: embeddableConfig = React.useMemo(() => {
       {
@@ -31,7 +24,12 @@ module ConfiguredSuperpositionApp = {
         orgId: superpositionConfigs.organization_id,
         workspace: superpositionConfigs.workspace,
         scope: {
-          context: getScopeContext(~orgId, ~merchantId, ~profileId),
+          context: getScopeContext(
+            ~orgId,
+            ~processorMerchantId=merchantId,
+            ~profileId,
+            ~providerMerchantId,
+          ),
         },
         auth: {
           mode: Bearer,
@@ -43,7 +41,7 @@ module ConfiguredSuperpositionApp = {
             update: canManageConfigurations,
           },
         },
-        filters: defaultFiltersConfig,
+        filters: getFiltersConfig(superpositionConfigs.display_configs),
         table: defaultTableConfig,
         theme: defaultThemeConfig,
         layout: defaultLayoutConfig,
@@ -53,6 +51,7 @@ module ConfiguredSuperpositionApp = {
       superpositionConfigs,
       orgId,
       merchantId,
+      providerMerchantId,
       profileId,
       token,
       canManageConfigurations,
@@ -65,11 +64,11 @@ module ConfiguredSuperpositionApp = {
 }
 
 @react.component
-let make = (~remainingPath: list<string>) =>
+let make = (~content: React.element) =>
   switch Window.env.superpositionConfigs {
   | Some(superpositionConfigs)
     if superpositionConfigs.organization_id->isNonEmptyString &&
       superpositionConfigs.workspace->isNonEmptyString =>
-    <ConfiguredSuperpositionApp superpositionConfigs remainingPath />
+    <ConfiguredSuperpositionApp superpositionConfigs content />
   | _ => <NoDataFound message="Superposition configuration is missing" renderType=NotFound />
   }

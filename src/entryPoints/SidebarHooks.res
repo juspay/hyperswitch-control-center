@@ -9,7 +9,8 @@ let useGetHsSidebarValues = () => {
   let connectorDisplayList = connectorDisplayListAtom->Recoil.useRecoilValueFromAtom
   let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
-  let {userEntity} = getResolvedUserInfo()
+  let {userEntity, roleId} = getResolvedUserInfo()
+  let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let {
     frm,
     payOut,
@@ -19,6 +20,7 @@ let useGetHsSidebarValues = () => {
     disputeAnalytics,
     configurePmts,
     complianceCertificate,
+    hierarchicalConfigurations,
     pmAuthenticationProcessor,
     taxProcessor,
     newAnalytics,
@@ -36,6 +38,9 @@ let useGetHsSidebarValues = () => {
     devVault,
     devUsers,
     devSuperposition,
+    paymentLinkOperations,
+    embedDecisionEngine,
+    devAlerts,
   } = featureFlagDetails
   let {
     isFeatureEnabledForDenyListMerchant,
@@ -45,14 +50,19 @@ let useGetHsSidebarValues = () => {
     newAnalytics && isFeatureEnabledForDenyListMerchant(merchantSpecificConfig.newAnalytics)
   let {isCurrentMerchantPlatform, isCurrentMerchantConnected} = OMPSwitchHooks.useOMPType()
 
+  let cutover = DecisionEngineHooks.useDecisionEngineCutover()
+  let showDecisionEngine = embedDecisionEngine && cutover->Option.getOr(false)
+
   let standardModules = !isCurrentMerchantPlatform
     ? [
+        showDecisionEngine->decisionEngineRouting(~userHasResourceAccess),
         default->workflow(
           isSurchargeEnabled,
           threedsExemptionRules,
           ~userHasResourceAccess,
           ~isPayoutEnabled=payOut,
           ~userEntity,
+          ~isEmbedDecisionEngineEnabled=showDecisionEngine,
         ),
         devVault->vault(~userHasResourceAccess),
         devAltPaymentMethods->alternatePaymentMethods,
@@ -64,6 +74,7 @@ let useGetHsSidebarValues = () => {
     default->operations(
       ~userHasResourceAccess,
       ~isPayoutsEnabled=payOut,
+      ~isPaymentLinkEnabled=paymentLinkOperations,
       ~userEntity,
       ~isCurrentMerchantPlatform,
     ),
@@ -87,7 +98,10 @@ let useGetHsSidebarValues = () => {
       routingAnalytics,
       ~authenticationAnalyticsFlag=authenticationAnalytics,
       ~userHasResourceAccess,
+      ~isEmbedDecisionEngineEnabled=showDecisionEngine,
     ),
+    alertsSection(~isAlertsEnabled={devAlerts && isInternalUser}),
+    monitoringSection(~isMonitoringEnabled={devAlerts && isInternalUser}),
     ...standardModules,
     default->developers(
       ~isWebhooksEnabled=devWebhooks,
@@ -102,6 +116,7 @@ let useGetHsSidebarValues = () => {
       ~userHasAccess,
       ~checkUserEntity,
       ~complianceCertificate,
+      ~hierarchicalConfigurations,
       ~devModularityV2Enabled=devModularityV2,
       ~devThemeEnabled=devTheme,
       ~devUsers,
@@ -167,11 +182,7 @@ let useGetAllProductSections = (~products: array<productTypes>) => {
   products->Array.map(productType => {
     let links = switch productType {
     | Recon(V1) =>
-      ReconEngineSidebarValues.reconEngineSidebars(
-        ~userHasResourceAccess,
-        ~userHasAccess,
-        ~isReconEnginePipelinesEnabled=featureFlagDetails.devReconEnginePipelines,
-      )
+      ReconEngineSidebarValues.reconEngineSidebars(~userHasResourceAccess, ~userHasAccess)
     | Recon(V2) => ReconSidebarValues.reconSidebars
     | Recovery => RevenueRecoverySidebarValues.recoverySidebars(isLiveMode)
     | Vault => VaultSidebarValues.vaultSidebars
@@ -281,11 +292,7 @@ let useGetSidebarValuesForCurrentActive = () => {
   | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
   | Orchestration(V2) => orchestratorV2Sidebars
   | Recon(V1) =>
-    ReconEngineSidebarValues.reconEngineSidebars(
-      ~userHasResourceAccess,
-      ~userHasAccess,
-      ~isReconEnginePipelinesEnabled=featureFlagDetails.devReconEnginePipelines,
-    )
+    ReconEngineSidebarValues.reconEngineSidebars(~userHasResourceAccess, ~userHasAccess)
   | OnBoarding(_)
   | UnknownProduct => []
   }

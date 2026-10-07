@@ -70,6 +70,7 @@ test.describe("Payment Settings", () => {
       await homePage.paymentSettings.click();
 
       await expect(paymentSettings.paymentBehaviourTab).toBeVisible();
+      await expect(paymentSettings.webhookConfigurationTab).toBeVisible();
       await expect(paymentSettings.threeDSTab).toBeVisible();
       await expect(paymentSettings.customHeadersTab).toBeVisible();
       await expect(paymentSettings.metadataHeadersTab).toBeVisible();
@@ -113,6 +114,9 @@ test.describe("Payment Settings", () => {
       await homePage.paymentSettings.click();
 
       await expect(paymentSettings.collectBillingDetailsToggle).toBeVisible();
+
+      await paymentSettings.webhookConfigurationTab.click();
+      await expect(paymentSettings.webhookConfigurationHeading).toBeVisible();
 
       await paymentSettings.threeDSTab.click();
       await expect(paymentSettings.force3DSChallengeToggle).toBeVisible();
@@ -232,7 +236,6 @@ test.describe("Payment Settings", () => {
       await expect(paymentSettings.merchantCategoryCodeDropdown).toBeVisible();
       await expect(paymentSettings.clickToPayToggle).toBeVisible();
       await expect(paymentSettings.returnUrlInput).toBeVisible();
-      await expect(paymentSettings.webhookUrlInput).toBeVisible();
       await expect(paymentSettings.updateButton).toBeVisible();
     });
 
@@ -240,13 +243,9 @@ test.describe("Payment Settings", () => {
       const paymentSettings = new PaymentSettings(page);
 
       await paymentSettings.fillReturnUrl("https://example.com/return");
-      await paymentSettings.fillWebhookUrl("https://example.com/webhook");
 
       await expect(paymentSettings.returnUrlInput).toHaveValue(
         "https://example.com/return",
-      );
-      await expect(paymentSettings.webhookUrlInput).toHaveValue(
-        "https://example.com/webhook",
       );
     });
 
@@ -327,11 +326,9 @@ test.describe("Payment Settings", () => {
       }
 
       const returnUrl = "https://example.com/return";
-      const webhookUrl = "https://example.com/webhook";
       const expectedCategory = "Wine producers";
 
       await paymentSettings.fillReturnUrl(returnUrl);
-      await paymentSettings.fillWebhookUrl(webhookUrl);
 
       await paymentSettings.selectFirstMerchantCategoryCode();
       await expect(
@@ -352,7 +349,6 @@ test.describe("Payment Settings", () => {
       await expect(paymentSettings.returnUrlInput).toHaveValue(returnUrl, {
         timeout: 10000,
       });
-      await expect(paymentSettings.webhookUrlInput).toHaveValue(webhookUrl);
       await expect(
         paymentSettings.buttonByName(expectedCategory),
       ).toBeVisible();
@@ -447,6 +443,76 @@ test.describe("Payment Settings", () => {
       ).toHaveAttribute("data-bool-value", "on");
       // Both "Always" options remain visible because their parent toggles are ON
       await expect(page.getByText("Always", { exact: true })).toHaveCount(2);
+    });
+  });
+
+  test.describe("Webhook Configuration Tab", () => {
+    test.beforeEach(async ({ page }) => {
+      const homePage = new HomePage(page);
+      const paymentSettings = new PaymentSettings(page);
+
+      await homePage.developer.click();
+      await homePage.paymentSettings.click();
+      await paymentSettings.webhookConfigurationTab.click();
+    });
+
+    test("should display the webhook endpoint and per-event status sections", async ({
+      page,
+    }) => {
+      const paymentSettings = new PaymentSettings(page);
+
+      await expect(paymentSettings.webhookUrlInput).toBeVisible();
+      await expect(paymentSettings.webhookConfigurationHeading).toBeVisible();
+      await expect(
+        paymentSettings.webhookEventClassAccordion("Payments"),
+      ).toBeVisible();
+      await expect(
+        paymentSettings.webhookEventClassAccordion("Refunds"),
+      ).toBeVisible();
+      await expect(
+        paymentSettings.webhookEventClassAccordion("Disputes"),
+      ).toBeVisible();
+    });
+
+    test("should save the webhook URL and the selected payment statuses", async ({
+      page,
+    }) => {
+      const paymentSettings = new PaymentSettings(page);
+      const webhookUrl = "https://example.com/webhook";
+
+      await paymentSettings.fillWebhookUrl(webhookUrl);
+
+      await paymentSettings.webhookEventClassAccordion("Payments").click();
+      await paymentSettings.webhookStatusesDropdown("Payment").click();
+      await paymentSettings.dropdownValueByText("Succeeded").click();
+      await page.keyboard.press("Escape");
+
+      const updateRequestPromise = page.waitForRequest(
+        (request) =>
+          request.method() === "POST" &&
+          request.url().includes("/business_profile/"),
+      );
+      await paymentSettings.clickUpdate();
+      const updateRequest = await updateRequestPromise;
+      const requestBody = updateRequest.postDataJSON();
+
+      expect(requestBody.webhook_details.webhook_url).toBe(webhookUrl);
+      expect(requestBody.webhook_details.payment_statuses_enabled).toEqual([
+        "succeeded",
+      ]);
+
+      await expect(paymentSettings.detailsUpdatedToast).toBeVisible({
+        timeout: 10000,
+      });
+      await page.waitForLoadState("networkidle");
+
+      await page.reload();
+      await page.waitForLoadState("networkidle");
+      await paymentSettings.webhookConfigurationTab.click();
+
+      await expect(paymentSettings.webhookUrlInput).toHaveValue(webhookUrl, {
+        timeout: 10000,
+      });
     });
   });
 
