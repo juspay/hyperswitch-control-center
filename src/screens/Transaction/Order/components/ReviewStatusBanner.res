@@ -73,14 +73,15 @@ let make = (~order: order, ~refetch) => {
     SelectBox.label: (status :> string)->snakeToTitle,
     value: (status :> string),
   })
-  let statusInput: ReactFinalForm.fieldRenderPropsInput = {
+  let statusInput = {
+    ...ReactFinalForm.makeInputRecord(
+      selectedStatus->mapOptionOrDefault("", status => (status :> string))->JSON.Encode.string,
+      event =>
+        setSelectedStatus(_ =>
+          event->Identity.formReactEventToString->manualUpdateStatusFromString
+        ),
+    ),
     name: "intent_status",
-    onBlur: _ => (),
-    onFocus: _ => (),
-    onChange: event =>
-      setSelectedStatus(_ => event->Identity.formReactEventToString->manualUpdateStatusFromString),
-    value: selectedStatus->mapOptionOrDefault("", status => (status :> string))->JSON.Encode.string,
-    checked: false,
   }
 
   let onUpdateClick = _ => {
@@ -155,14 +156,7 @@ let make = (~order: order, ~refetch) => {
             </div>
           </RenderIf>
           <div className="flex justify-end gap-3 mt-2">
-            <Button
-              text="Cancel"
-              buttonType=Secondary
-              onClick={_ => {
-                setShowModal(_ => false)
-                setSelectedStatus(_ => None)
-              }}
-            />
+            <Button text="Cancel" buttonType=Secondary onClick={_ => setShowModal(_ => false)} />
             <RenderIf condition={statuses->isNonEmptyArray}>
               <Button
                 text="Update Status"
