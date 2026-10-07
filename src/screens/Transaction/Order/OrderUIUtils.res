@@ -2,6 +2,45 @@ open LogicUtils
 open OrderTypes
 open CommonAuthUtils
 
+let manualUpdateStatuses = [
+  Succeeded,
+  Failed,
+  RequiresCapture,
+  PartiallyAuthorizedAndRequiresCapture,
+  PartiallyCaptured,
+  PartiallyCapturedAndCapturable,
+]
+
+let manualUpdateStatusFromString = (value: string): option<manualUpdateStatus> =>
+  switch value {
+  | "succeeded" => Some(Succeeded)
+  | "failed" => Some(Failed)
+  | "partially_captured" => Some(PartiallyCaptured)
+  | "requires_capture" => Some(RequiresCapture)
+  | "partially_authorized_and_requires_capture" => Some(PartiallyAuthorizedAndRequiresCapture)
+  | "partially_captured_and_capturable" => Some(PartiallyCapturedAndCapturable)
+  | _ => None
+  }
+
+let manualUpdateStatusLabel = (status: manualUpdateStatus) =>
+  switch status {
+  | Succeeded => "Succeeded"
+  | Failed => "Failed"
+  | PartiallyCaptured => "Partially Captured"
+  | RequiresCapture => "Requires Capture"
+  | PartiallyAuthorizedAndRequiresCapture => "Partially Authorized and Requires Capture"
+  | PartiallyCapturedAndCapturable => "Partially Captured and Capturable"
+  }
+
+let manualUpdateEligibleStatusesFromResponse = (response: JSON.t): array<manualUpdateStatus> => {
+  let returnedStatuses =
+    response
+    ->getDictFromJsonObject
+    ->getStrArray("eligible_statuses")
+    ->Array.filterMap(manualUpdateStatusFromString)
+  manualUpdateStatuses->Array.filter(status => returnedStatuses->Array.includes(status))
+}
+
 let getPaymentListSourceFromString = (~defaultSource, source) =>
   switch source {
   | "Normal" => Normal

@@ -1,30 +1,59 @@
 open APIUtils
+open LogicUtils
 open PaymentInterfaceTypes
-open HSwitchOrderUtils
+open OrderTypes
 
 @react.component
 let make = (~order: order, ~refetch) => {
-  open MultiSelectBindings
-
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let canUpdateStatus = userHasAccess(~groupAccess=OperationsManage) === CommonAuthTypes.Access
   let getURL = useGetURL()
+  let getDetails = useGetMethod(~showErrorToast=false)
   let updateDetails = useUpdateMethod()
   let showToast = ToastAdapter.useShowToast()
   let showPopUp = PopUpState.useShowPopUp()
   let (showModal, setShowModal) = React.useState(_ => false)
-  let (selectedStatus, setSelectedStatus) = React.useState(_ => Succeeded)
+  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
+  let (eligibleStatuses, setEligibleStatuses) = React.useState((_): array<manualUpdateStatus> => [])
+  let (selectedStatus, setSelectedStatus) = React.useState((_): option<manualUpdateStatus> => Some(
+    Succeeded,
+  ))
+  let isConflicted = order.status->HSwitchOrderUtils.statusVariantMapper === Conflicted
 
-  let updatePaymentStatus = async (intentStatus: status) => {
+  let getEligibleStatuses = async () => {
+    try {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+      let url = getURL(
+        ~entityName=V1(MANUAL_STATUS_UPDATE),
+        ~methodType=Get,
+        ~id=Some(order.payment_id),
+      )
+      let response = await getDetails(url)
+      setEligibleStatuses(_ => response->OrderUIUtils.manualUpdateEligibleStatusesFromResponse)
+      setScreenState(_ => PageLoaderWrapper.Success)
+    } catch {
+    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
+    }
+  }
+
+  React.useEffect(() => {
+    if isConflicted && showModal {
+      setEligibleStatuses(_ => [])
+      getEligibleStatuses()->ignore
+    }
+    None
+  }, (showModal, order.payment_id, order.status))
+
+  let updatePaymentStatus = async (intentStatus: manualUpdateStatus) => {
     try {
       let url = getURL(
         ~entityName=V1(MANUAL_STATUS_UPDATE),
         ~methodType=Post,
         ~id=Some(order.payment_id),
       )
-      let intentLabel = (intentStatus :> string)
+      let intentLabel = intentStatus->OrderUIUtils.manualUpdateStatusLabel
       let body =
-        [
-          ("intent_status", intentLabel->String.toLowerCase->JSON.Encode.string),
-        ]->LogicUtils.getJsonFromArrayOfJson
+        [("intent_status", (intentStatus :> string)->JSON.Encode.string)]->getJsonFromArrayOfJson
       let _ = await updateDetails(url, body, Post)
       showToast(~message=`Payment marked as ${intentLabel}`, ~toastType=ToastState.ToastSuccess)
       refetch()->ignore
@@ -33,11 +62,11 @@ let make = (~order: order, ~refetch) => {
     }
   }
 
-  let openConfirmationPopUp = (intentStatus: status) => {
+  let openConfirmationPopUp = (intentStatus: manualUpdateStatus) => {
     showPopUp({
       popUpType: (Warning, WithIcon),
       heading: "Confirm Status Update?",
-      description: `You are about to mark this payment as ${(intentStatus :> string)}. This action is final and cannot be undone. Please confirm to proceed.`->React.string,
+      description: `You are about to mark this payment as ${intentStatus->OrderUIUtils.manualUpdateStatusLabel}. This action is final and cannot be undone. Please confirm to proceed.`->React.string,
       handleConfirm: {
         text: "Confirm",
         onClick: _ => updatePaymentStatus(intentStatus)->ignore,
@@ -46,33 +75,48 @@ let make = (~order: order, ~refetch) => {
     })
   }
 
-  let statusOptions: array<selectMenuGroupType> = [Succeeded, Failed]->Array.map(item => {
-    let label = (item :> string)
-    {
-      items: [{label, value: label->String.toLowerCase}],
-    }
+  let statuses: array<manualUpdateStatus> = isConflicted ? eligibleStatuses : [Succeeded, Failed]
+  let statusOptions: array<
+    MultiSelectBindings.selectMenuGroupType,
+  > = statuses->Array.map(status => {
+    MultiSelectBindings.items: [
+      {label: status->OrderUIUtils.manualUpdateStatusLabel, value: (status :> string)},
+    ],
   })
 
   let onUpdateClick = _ => {
-    setShowModal(_ => false)
-    openConfirmationPopUp(selectedStatus)
+    switch selectedStatus {
+    | Some(status) =>
+      setShowModal(_ => false)
+      openConfirmationPopUp(status)
+    | None => ()
+    }
   }
+
+  let bannerActions: option<AlertV2Binding.alertV2Actions> = canUpdateStatus
+    ? Some({
+        position: Bottom,
+        primaryAction: {
+          text: "Update Payment Status",
+          onClick: _ => {
+            setSelectedStatus(_ => isConflicted ? None : Some(Succeeded))
+            setScreenState(_ =>
+              isConflicted ? PageLoaderWrapper.Loading : PageLoaderWrapper.Success
+            )
+            setShowModal(_ => true)
+          },
+        },
+      })
+    : None
 
   <>
     <AlertV2Binding
       alertType=Warning
       heading="This payment needs manual attention"
-      description="Hyperswitch received an anomalous response from the connector for this payment. Review it and update the status to Succeeded or Failed."
-      actions={{
-        position: Bottom,
-        primaryAction: {
-          text: "Update Payment Status",
-          onClick: _ => {
-            setSelectedStatus(_ => Succeeded)
-            setShowModal(_ => true)
-          },
-        },
-      }}
+      description={isConflicted
+        ? "Hyperswitch received a response from the connector that conflicts with this payment's expected details. Review it and update the payment status."
+        : "Hyperswitch received an anomalous response from the connector for this payment. Review it and update the status to Succeeded or Failed."}
+      actions=?bannerActions
     />
     <Modal
       showModal
@@ -82,26 +126,53 @@ let make = (~order: order, ~refetch) => {
       modalClass="w-full md:w-4/12 mx-auto mt-40"
       childClass="p-0"
       bgClass="bg-nd_gray-0">
-      <div className="flex flex-col gap-6 p-2 m-2">
-        <SingleSelectBinding
-          selected={(selectedStatus :> string)->String.toLowerCase}
-          onSelect={value => setSelectedStatus(_ => value->statusVariantMapper)}
-          items=statusOptions
-          label="New Status"
-          placeholder="Select status"
-        />
-        <div className="flex justify-end gap-3 mt-2">
-          <Button
-            text="Cancel"
-            buttonType=Secondary
-            onClick={_ => {
-              setShowModal(_ => false)
-              setSelectedStatus(_ => Succeeded)
-            }}
-          />
-          <Button text="Update Status" buttonType=Primary onClick=onUpdateClick />
+      <PageLoaderWrapper
+        screenState
+        customLoader={<div className="flex justify-center p-6">
+          <Icon name="spinner" size=20 className="animate-spin" />
+        </div>}
+        customUI={<div className="flex flex-col items-center gap-4 p-6">
+          <p className={`${Typography.body.md.medium} text-nd_gray-600`}>
+            {"Unable to load available statuses."->React.string}
+          </p>
+          <Button text="Retry" buttonType=Secondary onClick={_ => getEligibleStatuses()->ignore} />
+        </div>}>
+        <div className="flex flex-col gap-6 p-2 m-2">
+          <RenderIf condition={statuses->isEmptyArray}>
+            <p className={`${Typography.body.md.medium} text-nd_gray-600`}>
+              {"No status updates are available for this payment."->React.string}
+            </p>
+          </RenderIf>
+          <RenderIf condition={statuses->isNonEmptyArray}>
+            <SingleSelectBinding
+              selected={selectedStatus->mapOptionOrDefault("", status => (status :> string))}
+              onSelect={value =>
+                setSelectedStatus(_ => value->OrderUIUtils.manualUpdateStatusFromString)}
+              items=statusOptions
+              label="New Status"
+              placeholder="Select status"
+            />
+          </RenderIf>
+          <div className="flex justify-end gap-3 mt-2">
+            <Button
+              text="Cancel"
+              buttonType=Secondary
+              onClick={_ => {
+                setShowModal(_ => false)
+                setSelectedStatus(_ => None)
+              }}
+            />
+            <RenderIf condition={statuses->isNonEmptyArray}>
+              <Button
+                text="Update Status"
+                buttonType=Primary
+                buttonState={selectedStatus->Option.isSome ? Normal : Disabled}
+                onClick=onUpdateClick
+              />
+            </RenderIf>
+          </div>
         </div>
-      </div>
+      </PageLoaderWrapper>
     </Modal>
   </>
 }
