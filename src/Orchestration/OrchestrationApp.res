@@ -73,8 +73,13 @@ let make = (~setScreenState) => {
         isEnabled={featureFlagDetails.devAlerts && isInternalUser} authorization=Access>
         <MonitoringContainer />
       </AccessControl>
+    | list{"analytics-explorer"} =>
+      <AccessControl
+        isEnabled={featureFlagDetails.devAnalyticsExplorer}
+        authorization={userHasAccess(~groupAccess=AnalyticsView)}>
+        <AnalyticsContainer />
+      </AccessControl>
     | list{"analytics-payments"}
-    | list{"analytics-explorer"}
     | list{"analytics-refunds"}
     | list{"analytics-disputes"}
     | list{"analytics-authentication"}
