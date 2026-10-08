@@ -27,7 +27,7 @@ module PayoutAccountIds = {
           field={ConnectorMetaDataUtils.getField(
             ~inputType=fields.\"type",
             ~name=`metadata.account_id.pay_safe_card.${currency}.three_ds`,
-            ~connectorMetaDataFields=fields,
+            ~connectorMetaDataFields={...fields, required: false},
           )}
         />
       })
