@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.10.08.1
+
+### Features
+
+- **analytics:** Scaffold explorer section ([#5633](https://github.com/juspay/hyperswitch-control-center/pull/5633)) ([`f40f254`](https://github.com/juspay/hyperswitch-control-center/commit/f40f2541ccf97024798a6b42e9af590df30026bb))
+- **recon:** Use delta-based manual reconciliation v2 for exception resolution ([#5612](https://github.com/juspay/hyperswitch-control-center/pull/5612)) ([`5b56fa0`](https://github.com/juspay/hyperswitch-control-center/commit/5b56fa0cc5b4dc9882b9af0d79b3625c924e0a1d))
+- Add conflicted payment status update modal ([#5629](https://github.com/juspay/hyperswitch-control-center/pull/5629)) ([`9ba6427`](https://github.com/juspay/hyperswitch-control-center/commit/9ba64279e504737ea03667b436d10b342bd9018a))
+
+### Miscellaneous Tasks
+
+- Updated default configs type for superposition in config file ([#5636](https://github.com/juspay/hyperswitch-control-center/pull/5636)) ([`6cfcf2f`](https://github.com/juspay/hyperswitch-control-center/commit/6cfcf2f233425f8daee25e25002b6a64dd4923fe))
+
+**Full Changelog:** [`2026.10.08.0...2026.10.08.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.08.0...2026.10.08.1)
+
+- - -
+
 ## 2026.10.08.0
 
 ### Features
