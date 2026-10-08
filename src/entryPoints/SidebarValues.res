@@ -375,6 +375,13 @@ let paymentAnalytcis = (~userHasResourceAccess) => SubLevelLink({
   searchOptions: [("View analytics", "")],
 })
 
+let analyticsExplorer = (~userHasResourceAccess) => SubLevelLink({
+  name: "Explorer",
+  link: `/analytics-explorer`,
+  access: userHasResourceAccess(~resourceAccess=Analytics),
+  searchOptions: [("Explore payments, refunds and disputes", "")],
+})
+
 let newAnalytics = (~userHasResourceAccess) => SubLevelLink({
   name: "Insights",
   link: `/new-analytics`,
@@ -420,10 +427,14 @@ let analytics = (
   newAnalyticsflag,
   routingAnalyticsFlag,
   ~authenticationAnalyticsFlag,
+  ~analyticsExplorerFlag,
   ~userHasResourceAccess,
   ~isEmbedDecisionEngineEnabled=false,
 ) => {
-  let links = [paymentAnalytcis(~userHasResourceAccess), refundAnalytics(~userHasResourceAccess)]
+  let links =
+    [paymentAnalytcis(~userHasResourceAccess)]
+    ->Array.concat(analyticsExplorerFlag ? [analyticsExplorer(~userHasResourceAccess)] : [])
+    ->Array.concat([refundAnalytics(~userHasResourceAccess)])
   if authenticationAnalyticsFlag {
     links->Array.push(authenticationAnalytics(~userHasResourceAccess))
   }
