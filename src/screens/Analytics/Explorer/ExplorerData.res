@@ -290,7 +290,7 @@ let getCountsOn = (points, ~groupKey, ~day) =>
   ->Array.map(point => point.counts)
   ->sumCounts
 
-let pointValue = (question, counts, ~currency) =>
+let getPointValue = (question, counts, ~currency) =>
   measurable(question.source, question.measure, counts) && counts.total > 0.0
     ? Nullable.make(displayValue(question.source, question.measure, counts, ~currency))
     : Nullable.null

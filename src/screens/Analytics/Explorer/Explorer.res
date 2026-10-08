@@ -132,12 +132,7 @@ let make = () => {
       dataset.amountCurrency,
     ]->Array.joinWith("|"),
     labelFor,
-    groupLabel: group =>
-      group.values
-      ->Array.mapWithIndex((value, index) =>
-        question.split->Array.get(index)->Option.mapOr(value, key => labelFor(key, value))
-      )
-      ->Array.joinWith(" · "),
+    groupLabel: group => group.values->getValuesLabel(~split=question.split, ~labelFor),
   }
 
   <div className="flex flex-col gap-4">
@@ -166,7 +161,7 @@ let make = () => {
                     </div>
                   </div>
                   <ViewTabs
-                    view=question.view onView={view => setSelection([("view", (view :> string))])}
+                    view=question.view onViewChange={view => setSelection([("view", view)])}
                   />
                 </div>
                 <div className="px-3 py-4">
