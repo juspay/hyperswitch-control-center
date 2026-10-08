@@ -417,13 +417,19 @@ export class PaymentOperations {
   }
 
   get reviewStatusDropdown(): Locator {
-    return this.updatePaymentStatusModal.getByRole("button", {
-      name: "New Status",
-    });
+    return this.updatePaymentStatusModal
+      .locator('[data-dropdown-for="Select status"] button')
+      .or(
+        this.updatePaymentStatusModal.locator(
+          '[data-element="single-select-button"]',
+        ),
+      );
   }
 
   reviewStatusOption(status: "Succeeded" | "Failed"): Locator {
-    return this.page.getByRole("menuitem", { name: status, exact: true });
+    return this.page
+      .locator(`[data-dropdown-value="${status}"]`)
+      .or(this.page.getByRole("menuitem", { name: status, exact: true }));
   }
 
   get updateStatusButton(): Locator {
