@@ -108,12 +108,8 @@ module MetricCard = {
 
 module ViewTabs = {
   @react.component
-  let make = (~view: view, ~onView) =>
-    <TabsBinding
-      value={(view :> string)}
-      onValueChange={id => onView(id->viewFromString)}
-      variant=Floating
-      size=Md>
+  let make = (~view: view, ~onViewChange) =>
+    <TabsBinding value={(view :> string)} onValueChange=onViewChange variant=Floating size=Md>
       <TabsBinding.List variant=Floating size=Md fitContent=true>
         {views
         ->Array.map(view =>
@@ -134,13 +130,10 @@ module UnmeasuredNote = {
     let names =
       dataset.unmeasured
       ->Array.map(((values, counts)) =>
-        `${values
-          ->Array.mapWithIndex((value, index) =>
-            question.split
-            ->Array.get(index)
-            ->Option.mapOr(value, key => viewContext.labelFor(key, value))
-          )
-          ->Array.joinWith(" · ")} (${counts.total->formatNumberWithCommas} ${sourceNoun(
+        `${values->getValuesLabel(
+            ~split=question.split,
+            ~labelFor=viewContext.labelFor,
+          )} (${counts.total->formatNumberWithCommas} ${sourceNoun(
             question.source,
           )}, ${unmeasurableReason(question.source, question.measure)})`
       )
@@ -184,4 +177,24 @@ module FilterChips = {
       </button>
     )
     ->React.array
+}
+
+module SplitSuggestions = {
+  @react.component
+  let make = (~suggestions: array<dimension>, ~onSelect) =>
+    <div
+      className={`flex flex-wrap items-center gap-2 border-t border-nd_br_gray-150 px-5 py-3 ${body.md.regular}`}>
+      <span className="text-nd_gray-500"> {"Break down by"->React.string} </span>
+      {suggestions
+      ->Array.map(key =>
+        <Button
+          key={(key :> string)}
+          text={dimensionLabel(key)}
+          buttonType=Secondary
+          buttonSize=XSmall
+          onClick={_ => onSelect(key)}
+        />
+      )
+      ->React.array}
+    </div>
 }

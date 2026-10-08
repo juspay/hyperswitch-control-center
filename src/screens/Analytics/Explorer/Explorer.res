@@ -116,7 +116,8 @@ let make = () => {
   }, [question->requestKey])
 
   let setSelection = updates => updates->selectionUpdate->updateExistingKeys
-  let clearFilters = () => question.filters->Array.map(((key, _)) => filterKey(key))->removeKeys
+  let clearFilters = () =>
+    question.filters->Array.map(((key, _)) => getFilterUrlKey(key))->removeKeys
   let setSource = source =>
     if source != question.source {
       clearFilters()
@@ -141,12 +142,7 @@ let make = () => {
       dataset.amountCurrency,
     ]->Array.joinWith("|"),
     labelFor,
-    groupLabel: group =>
-      group.values
-      ->Array.mapWithIndex((value, index) =>
-        question.split->Array.get(index)->Option.mapOr(value, key => labelFor(key, value))
-      )
-      ->Array.joinWith(" · "),
+    groupLabel: group => group.values->getValuesLabel(~split=question.split, ~labelFor),
     onFocus: group => question->getFocusUpdate(group)->updateExistingKeys,
   }
   let drilledFrom =
@@ -186,7 +182,7 @@ let make = () => {
                     </div>
                   </div>
                   <ViewTabs
-                    view=question.view onView={view => setSelection([("view", (view :> string))])}
+                    view=question.view onViewChange={view => setSelection([("view", view)])}
                   />
                 </div>
                 <div className="px-3 py-4">
@@ -196,29 +192,18 @@ let make = () => {
                   <UnmeasuredNote viewContext />
                 </RenderIf>
                 <RenderIf condition={suggestions->isNonEmptyArray}>
-                  <div
-                    className={`flex flex-wrap items-center gap-2 border-t border-nd_br_gray-150 px-5 py-3 ${body.md.regular}`}>
-                    <span className="text-nd_gray-500"> {"Break down by"->React.string} </span>
-                    {suggestions
-                    ->Array.map(key =>
-                      <Button
-                        key={(key :> string)}
-                        text={ExplorerDescriptions.dimensionLabel(key)}
-                        buttonType=Secondary
-                        buttonSize=XSmall
-                        onClick={_ =>
-                          setSelection([
-                            (
-                              "split",
-                              question
-                              ->splitAt(Math.Int.min(question.split->Array.length, 1), Some(key))
-                              ->splitValue,
-                            ),
-                          ])}
-                      />
-                    )
-                    ->React.array}
-                  </div>
+                  <SplitSuggestions
+                    suggestions
+                    onSelect={key =>
+                      setSelection([
+                        (
+                          "split",
+                          question
+                          ->splitAt(Math.Int.min(question.split->Array.length, 1), Some(key))
+                          ->splitValue,
+                        ),
+                      ])}
+                  />
                 </RenderIf>
               </ExplorerCard>
             </div>}

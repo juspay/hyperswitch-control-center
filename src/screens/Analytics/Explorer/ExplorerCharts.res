@@ -14,7 +14,7 @@ let escapeHtml = text =>
   ->String.replaceRegExp(%re("/</g"), "&lt;")
   ->String.replaceRegExp(%re("/>/g"), "&gt;")
 
-let tooltipHtml = (~title, ~rows: array<(string, string, float)>, ~format) => {
+let getTooltipHtml = (~title, ~rows: array<(string, string, float)>, ~format) => {
   let items =
     rows
     ->Array.map(((color, name, value)) =>
@@ -33,23 +33,23 @@ let tooltipHtml = (~title, ~rows: array<(string, string, float)>, ~format) => {
   )
 }
 
-let lineTooltip = (~format) =>
+let lineTooltipFormatter = (~format) =>
   (
     @this
     (this: LineGraphTypes.pointFormatter) =>
-      tooltipHtml(
+      getTooltipHtml(
         ~title=this.points->Array.get(0)->Option.mapOr("", point => point.x),
         ~rows=this.points->Array.map(point => (point.color, point.series.name, point.y)),
         ~format,
       )
   )->LineGraphTypes.asTooltipPointFormatter
 
-let columnTooltip = (~format, ~reversed=false) =>
+let columnTooltipFormatter = (~format, ~reversed=false) =>
   (
     @this
     (this: ColumnGraphTypes.pointFormatter) => {
       let points = reversed ? this.points->Array.toReversed : this.points
-      tooltipHtml(
+      getTooltipHtml(
         ~title=this.points->Array.get(0)->Option.mapOr("", point => point.key),
         ~rows=points->Array.map(point => (
           point.color,
@@ -86,7 +86,7 @@ let getTrendOptions = (~categories, ~series, ~measure, ~currency) => {
     title: {text: ""},
     yAxisMaxValue: isRate(measure) ? Some(100) : None,
     yAxisMinValue: Some(0),
-    tooltipFormatter: lineTooltip(~format),
+    tooltipFormatter: lineTooltipFormatter(~format),
     yAxisFormatter: lineYAxisFormatter(~measure),
     legend: {
       useHTML: true,
@@ -105,7 +105,7 @@ let getBreakdownOptions = (~series, ~measure, ~currency, ~barCount) => {
   let base = ColumnGraphUtils.getColumnGraphOptions({
     data: series,
     title: {text: ""},
-    tooltipFormatter: columnTooltip(~format=(~total as _) => format),
+    tooltipFormatter: columnTooltipFormatter(~format=(~total as _) => format),
     yAxisFormatter: columnYAxisFormatter(~measure),
   })
   {
@@ -119,7 +119,7 @@ let getMixOptions = (~series) => {
   let base = ColumnGraphUtils.getColumnGraphOptions({
     data: series,
     title: {text: ""},
-    tooltipFormatter: columnTooltip(
+    tooltipFormatter: columnTooltipFormatter(
       ~format=(~total) => value =>
         `${value->formatNumberWithCommas} · ${calculatePercentage(
             value,
@@ -159,9 +159,12 @@ let getColumnSeries = (
   color,
 }
 
+let withPreviousSeries = (viewContext: viewContext, current, getPrevious) =>
+  viewContext.hasPrevious ? [current, getPrevious()] : [current]
+
 let getTrendPoints = (viewContext: viewContext, dailyPoints, ~days, ~groupKey) =>
   days->Array.map(day =>
-    viewContext.question->pointValue(
+    viewContext.question->getPointValue(
       dailyPoints->getCountsOn(~groupKey, ~day),
       ~currency=viewContext.singleCurrency,
     )
@@ -171,26 +174,22 @@ let getTrendSeries = (viewContext: viewContext, ~days) => {
   let {question, dataset} = viewContext
   if question.split->isEmptyArray {
     let (previousStart, previousEnd) = question->previousWindow
-    [
+    viewContext->withPreviousSeries(
       getLineSeries(
         ~name=viewContext.currentLabel,
         ~points=viewContext->getTrendPoints(dataset.currentDaily, ~days, ~groupKey=""),
         ~color=getGroupColor(0),
       ),
-    ]->Array.concat(
-      viewContext.hasPrevious
-        ? [
-            getLineSeries(
-              ~name=`Previous period (${viewContext.previousLabel})`,
-              ~points=viewContext->getTrendPoints(
-                dataset.previousDaily,
-                ~days=windowDays(previousStart, previousEnd),
-                ~groupKey="",
-              ),
-              ~color=previousColor,
-            ),
-          ]
-        : [],
+      () =>
+        getLineSeries(
+          ~name=`Previous period (${viewContext.previousLabel})`,
+          ~points=viewContext->getTrendPoints(
+            dataset.previousDaily,
+            ~days=getWindowDays(previousStart, previousEnd),
+            ~groupKey="",
+          ),
+          ~color=previousColor,
+        ),
     )
   } else {
     dataset.topByVolume->Array.mapWithIndex((group, index) =>
@@ -209,9 +208,9 @@ let getTrendSeries = (viewContext: viewContext, ~days) => {
 
 let getTrendChartOptions = (viewContext: viewContext) => {
   let {question} = viewContext
-  let days = windowDays(question.startTime, question.endTime)
+  let days = getWindowDays(question.startTime, question.endTime)
   getTrendOptions(
-    ~categories=days->Array.map(shortDate),
+    ~categories=days->Array.map(formatShortDate),
     ~series=viewContext->getTrendSeries(~days),
     ~measure=question.measure,
     ~currency=viewContext.singleCurrency,
@@ -222,27 +221,22 @@ let getBreakdownSeries = (viewContext: viewContext, ~groups: array<group>) => {
   let {question} = viewContext
   let valueFor = counts =>
     displayValue(question.source, question.measure, counts, ~currency=viewContext.singleCurrency)
-  [
+  viewContext->withPreviousSeries(
     getColumnSeries(
       ~name=viewContext.currentLabel,
       ~points=groups->Array.map(group => (viewContext.groupLabel(group), valueFor(group.current))),
       ~color=getGroupColor(0),
     ),
-  ]->Array.concat(
-    viewContext.hasPrevious
-      ? [
-          getColumnSeries(
-            ~name="Previous period",
-            ~points=groups->Array.filterMap(group =>
-              group.previous->Option.map(previousCounts => (
-                viewContext.groupLabel(group),
-                valueFor(previousCounts),
-              ))
-            ),
-            ~color=previousColor,
-          ),
-        ]
-      : [],
+    () =>
+      getColumnSeries(
+        ~name="Previous period",
+        ~points=groups->Array.filterMap(group =>
+          group.previous->Option.map(
+            previousCounts => (viewContext.groupLabel(group), valueFor(previousCounts)),
+          )
+        ),
+        ~color=previousColor,
+      ),
   )
 }
 
@@ -264,22 +258,18 @@ let getOutcomeSeries = (viewContext: viewContext) => {
       outcomeLabel(question.source, field),
       counts->getCount(field),
     ))
-  [
+  viewContext->withPreviousSeries(
     getColumnSeries(
       ~name=viewContext.currentLabel,
       ~points=dataset.overall->points,
       ~color=getGroupColor(0),
     ),
-  ]->Array.concat(
-    viewContext.hasPrevious
-      ? [
-          getColumnSeries(
-            ~name="Previous period",
-            ~points=dataset.overallPrevious->points,
-            ~color=previousColor,
-          ),
-        ]
-      : [],
+    () =>
+      getColumnSeries(
+        ~name="Previous period",
+        ~points=dataset.overallPrevious->points,
+        ~color=previousColor,
+      ),
   )
 }
 
@@ -293,7 +283,7 @@ let getOutcomeChartOptions = (viewContext: viewContext) =>
 
 let getMixSeries = (viewContext: viewContext, ~days) => {
   let {question, dataset} = viewContext
-  let perDay = pick => days->Array.map(day => (day->shortDate, pick(day)))
+  let perDay = pick => days->Array.map(day => (day->formatShortDate, pick(day)))
   if question.split->isEmptyArray {
     getSourceOutcomes(question.source)
     ->Array.map(field =>
@@ -337,6 +327,6 @@ let getMixSeries = (viewContext: viewContext, ~days) => {
 let getMixChartOptions = (viewContext: viewContext) => {
   let {question} = viewContext
   getMixOptions(
-    ~series=viewContext->getMixSeries(~days=windowDays(question.startTime, question.endTime)),
+    ~series=viewContext->getMixSeries(~days=getWindowDays(question.startTime, question.endTime)),
   )
 }

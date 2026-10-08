@@ -82,15 +82,15 @@ let timeRangeJson = (startTime, endTime) =>
     ("endTime", endTime->JSON.Encode.string),
   ]->getJsonFromArrayOfJson
 
-let filterField = (dimension: dimension) =>
+let getFilterFieldName = (dimension: dimension) =>
   switch dimension {
   | #authentication_type => "auth_type"
   | _ => (dimension :> string)
   }
 
-let filtersJson = question =>
+let getFiltersJson = question =>
   question.filters
-  ->Array.map(((key, values)) => (key->filterField, values->getJsonFromArrayOfString))
+  ->Array.map(((key, values)) => (key->getFilterFieldName, values->getJsonFromArrayOfString))
   ->getJsonFromArrayOfJson
 
 let requestBody = (
@@ -103,7 +103,7 @@ let requestBody = (
   let body = [
     ("timeRange", timeRangeJson(startTime, endTime)),
     ("groupByNames", groupBy->Array.map(item => (item :> string))->getJsonFromArrayOfString),
-    ("filters", question->filtersJson),
+    ("filters", question->getFiltersJson),
     ("metrics", metrics->Array.map(item => (item :> string))->getJsonFromArrayOfString),
   ]
   let body = daily
@@ -135,7 +135,7 @@ let requestKey = question =>
   [
     question.source->sourceToString,
     question->countGroupBy->Array.map(key => (key :> string))->Array.joinWith(","),
-    question->filtersJson->JSON.stringify,
+    question->getFiltersJson->JSON.stringify,
     question->countMetrics->Array.map(metric => (metric :> string))->Array.joinWith(","),
     question->getRateMetric->Option.mapOr("", metric => (metric :> string)),
     question.split->Array.map(key => (key :> string))->Array.joinWith(","),
@@ -156,25 +156,26 @@ let splitAt = (question, index, key: option<dimension>) =>
   ->Array.concat(key->Option.isSome ? question.split->Array.sliceToEnd(~start=index + 1) : [])
   ->uniqueItems
 
-let filtersBody = (question, ~dimension: dimension) =>
+let getFilterValuesBody = (question, ~dimension: dimension) =>
   [
     ("timeRange", timeRangeJson(question.startTime, question.endTime)),
     ("groupByNames", [(dimension :> string)]->getJsonFromArrayOfString),
     ("source", "BATCH"->JSON.Encode.string),
   ]->getJsonFromArrayOfJson
 
-let filterKey = (dimension: dimension) => `${filterPrefix}${(dimension :> string)}`
+let getFilterUrlKey = (dimension: dimension) => `${filterPrefix}${(dimension :> string)}`
 
-let filterValue = values => `[${values->Array.map(encodeFilterValue)->Array.joinWith(",")}]`
+let getFilterValueString = values =>
+  `[${values->Array.map(encodeFilterValue)->Array.joinWith(",")}]`
 
-let filterUpdate = (dimension, values) =>
-  [(filterKey(dimension), filterValue(values))]->Dict.fromArray
+let getFilterUpdate = (dimension, values) =>
+  [(getFilterUrlKey(dimension), getFilterValueString(values))]->Dict.fromArray
 
 let getFocusUpdate = (question, group: group) =>
   question.split
   ->Array.mapWithIndex((key, index) => (key, group.values->getValueFromArray(index, "")))
   ->Array.filter(((_, value)) => value->isNonEmptyString)
-  ->Array.map(((key, value)) => (filterKey(key), filterValue([value])))
+  ->Array.map(((key, value)) => (getFilterUrlKey(key), getFilterValueString([value])))
   ->Array.concat([
     (urlKey("split"), "[]"),
     (urlKey("from"), question.split->Array.get(0)->Option.mapOr("", key => (key :> string))),

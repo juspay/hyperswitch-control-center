@@ -33,7 +33,7 @@ let make = (
     setSelection([
       ("split", question->splitAt(index, splitOptions->findDimension(key))->splitValue),
     ])
-  let setFilter = (key, values) => filterUpdate(key, values)->onUpdate
+  let setFilter = (key, values) => getFilterUpdate(key, values)->onUpdate
   let toggleFilterValue = value =>
     editing->Option.forEach(key =>
       setFilter(
