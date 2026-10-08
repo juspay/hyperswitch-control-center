@@ -13,6 +13,7 @@ let make = (
   ~onClearFilters,
   ~editing: option<dimension>,
   ~setEditing,
+  ~children,
 ) => {
   let {question, dataset} = viewContext
   let source = question.source
@@ -172,5 +173,6 @@ let make = (
       </span>
       {measureDefinition(source, question.measure)->React.string}
     </div>
+    children
   </ExplorerCard>
 }

@@ -28,6 +28,8 @@ let make = () => {
     )
   let dataset = question->ExplorerData.buildDataset(responses)
   let isSplit = question.split->isNonEmptyArray
+  let hasData =
+    question->hasDates && screenState == PageLoaderWrapper.Success && dataset.overall.total > 0.0
 
   let getBackendDimensions = async () => {
     try {
@@ -160,8 +162,13 @@ let make = () => {
       onUpdate=updateExistingKeys
       onClearFilters=clearFilters
       editing
-      setEditing={key => setEditing(_ => key)}
-    />
+      setEditing={key => setEditing(_ => key)}>
+      <RenderIf condition=hasData>
+        <div className="border-t border-nd_br_gray-150 pt-4">
+          <ExplorerSummary viewContext />
+        </div>
+      </RenderIf>
+    </ExplorerQueryBar>
     {if question->hasDates {
       <PageLoaderWrapper
         screenState

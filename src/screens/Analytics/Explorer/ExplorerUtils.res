@@ -181,6 +181,20 @@ let formatChange = (measure, current, previous) =>
   | None => "new"
   }
 
+let getChangeInWords = (measure, current, previous) => {
+  let direction = current > previous ? "up" : "down"
+  let size = value => Math.abs(value)->Float.toFixedWithPrecision(~digits=1)
+  if isRate(measure) {
+    let points = size(current -. previous)
+    points == "0.0" ? "unchanged" : `${direction} ${points} percentage points`
+  } else {
+    switch getPercentageChange(current, previous) {
+    | Some(change) => size(change) == "0.0" ? "unchanged" : `${direction} ${size(change)}%`
+    | None => current == previous ? "unchanged" : `${direction} from nothing`
+    }
+  }
+}
+
 let getChangeImpact = (measure, current, previous) =>
   switch previous {
   | Some(previousValue) if current != previousValue =>

@@ -340,3 +340,11 @@ let getMixChartOptions = (viewContext: viewContext) => {
     ~series=viewContext->getMixSeries(~days=windowDays(question.startTime, question.endTime)),
   )
 }
+
+let outcomeLegend = (
+  @this
+  (this: StackedBarGraphTypes.labelFormatter) => {
+    let value = this.yData->getValueFromArray(0, 0)->Int.toFloat->formatNumberWithCommas
+    `<div style="color: #525866; font-weight: 500;">${this.name->escapeHtml}<span style="color: #99A0AE"> | ${value}</span></div>`
+  }
+)->StackedBarGraphTypes.asLabelFormatter
