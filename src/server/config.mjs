@@ -62,8 +62,8 @@ function updateSuperpositionConfigWithEnv(superpositionConfig, domain) {
   return {
     ...superpositionConfig,
     display_configs: checkEnvValues(envVar, superpositionConfig.display_configs)
-      .map(key => key.trim())
-      .filter(key => key.length > 0),
+      .map((key) => key.trim())
+      .filter((key) => key.length > 0),
   };
 }
 
