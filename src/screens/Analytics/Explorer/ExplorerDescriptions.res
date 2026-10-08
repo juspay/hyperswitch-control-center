@@ -1,3 +1,4 @@
+open LogicUtils
 open ExplorerTypes
 
 let sourceLabel = source =>
@@ -69,3 +70,73 @@ let unmeasurableNote = (source, measure) =>
   | (_, ThreeDsFailureRate) => "No 3DS attempts in this period"
   | _ => "No data in this period"
   }
+
+let unmeasurableReason = (source, measure) =>
+  switch (source, measure) {
+  | (Intent, SuccessRate | FailureRate) => "all awaiting customer or merchant action"
+  | (_, ThreeDsFailureRate) => "no 3DS attempts"
+  | _ => "no eligible records"
+  }
+
+let dimensionLabel = (key: dimension) =>
+  switch key {
+  | #connector => "Connector"
+  | #payment_method => "Payment method"
+  | #payment_method_type => "Payment method type"
+  | #card_network => "Card network"
+  | #authentication_type => "Authentication type"
+  | #status => "Status"
+  | #error_reason => "Error reason"
+  | #currency => "Currency"
+  | #profile_id => "Profile"
+  | #routing_approach => "Routing approach"
+  | #client_source => "Client source"
+  | #client_version => "Client version"
+  }
+
+let dimensionDescription = (source, key: dimension) =>
+  switch (source, key) {
+  | (_, #connector) => "Processor that handled it."
+  | (_, #payment_method) => "Broad method, such as card, wallet or bank transfer."
+  | (_, #payment_method_type) => "Specific method, such as credit, debit or Apple Pay."
+  | (_, #card_network) => "Card scheme, such as Visa or Mastercard."
+  | (_, #authentication_type) => "Whether 3DS was requested."
+  | (Intent, #status) => "Payment status, such as succeeded, failed or requires payment method."
+  | (Attempt, #status) => "Attempt status, such as charged, failure or authentication failed."
+  | (_, #error_reason) => "Error returned by the connector for a failed attempt."
+  | (_, #currency) => "Currency of the payment."
+  | (_, #profile_id) => "Business profile it belongs to."
+  | (
+      _,
+      #routing_approach,
+    ) => "How the connector was chosen, such as rule-based or success-rate based."
+  | (_, #client_source) => "Where the payment was confirmed from, such as the SDK or a server call."
+  | (_, #client_version) => "Version of the SDK or client that confirmed it."
+  }
+
+let outcomeLabel = (source, field) =>
+  switch (source, field) {
+  | (Attempt, Success) => "Charged"
+  | (Attempt, Other) => "Pending or other"
+  | (Intent, Awaiting) => "Waiting on customer or merchant"
+  | (Intent, Other) => "Other (cancelled, processing, expired…)"
+  | (_, Success) => "Succeeded"
+  | (_, Failed) => "Failed"
+  | (_, Awaiting) => "Waiting"
+  | (_, AuthFailed) => "Failed 3DS authentication"
+  | (_, Total) => "All"
+  }
+
+let viewNote = (question: question) =>
+  question.split->isNonEmptyArray
+    ? "Groups ranked by the measure; low-volume groups are ranked last."
+    : "Outcomes in these dates. Add a split to compare groups."
+
+let viewTitle = (question: question) => {
+  let {source, measure, split} = question
+  split->isNonEmptyArray
+    ? `${measureLabel(source, measure)} by ${split
+        ->Array.map(dimensionLabel)
+        ->Array.joinWith(" and ")}`
+    : `${measureLabel(source, Volume)} by outcome`
+}

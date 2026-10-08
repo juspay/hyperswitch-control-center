@@ -22,3 +22,22 @@ let useFetchExplorerMetrics = () => {
     }
   }
 }
+
+let useFetchBackendDimensions = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod(~showErrorToast=false)
+
+  async (~infoDomain) => {
+    try {
+      let url = getURL(~entityName=V1(ANALYTICS_PAYMENTS), ~methodType=Get, ~id=Some(infoDomain))
+      let response = await fetchDetails(url)
+      response
+      ->getDictFromJsonObject
+      ->getArrayFromDict("dimensions", [])
+      ->Array.map(item => item->getDictFromJsonObject->getString("name", ""))
+      ->Array.filter(isNonEmptyString)
+    } catch {
+    | Exn.Error(e) => Exn.raiseError(Exn.message(e)->Option.getOr("Failed to fetch dimensions"))
+    }
+  }
+}

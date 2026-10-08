@@ -1,12 +1,15 @@
 open LogicUtils
 open ExplorerTypes
 open ExplorerCatalog
+open ExplorerDescriptions
 
 let emptyResponses = {
   currentRows: [],
   previousRows: [],
   rateCurrent: [],
   ratePrevious: [],
+  rateOverallCurrent: [],
+  rateOverallPrevious: [],
 }
 
 let urlKey = name => `explore.${name}`
@@ -29,6 +32,23 @@ let isAmount = measure =>
   | Failed => false
   }
 
+let uniqueItems = arr =>
+  arr->Array.filterWithIndex((item, index) => arr->Array.indexOf(item) == index)
+
+let getOfferedDimensions = (source, ~backendDimensions: option<array<string>>) =>
+  sourceConfig(source).dimensions->Array.filter(key =>
+    backendDimensions->Option.mapOr(true, names => names->Array.includes((key :> string)))
+  )
+
+let getSplitDimensions = (measure, ~dimensions: array<dimension>) =>
+  dimensions->Array.filter(key =>
+    !((isRate(measure) || isAmount(measure)) && key == #status) &&
+    !(isAmount(measure) && key == #currency)
+  )
+
+let findDimension = (dimensions: array<dimension>, id) =>
+  dimensions->Array.find(key => (key :> string) == id)
+
 let getDimensionValue = (dict, dimension: dimension) => dict->getString((dimension :> string), "")
 
 let getOutcomesOfStatus = (source, status) =>
@@ -42,6 +62,8 @@ let getOutcomesOfStatus = (source, status) =>
     ->Array.find(item => (item :> string) == status)
     ->Option.mapOr([], attemptStatusOutcomes)
   }
+
+let getRowKey = values => values->Array.joinWith("|")
 
 let sourceToString = source =>
   switch source {
@@ -113,3 +135,53 @@ let getChangeImpact = (measure, current, previous) =>
     current > previousValue != isLowerBetter(measure) ? Favorable : Unfavorable
   | _ => Neutral
   }
+
+let periodLabel = (startTime, endTime) => {
+  let first = startTime->DayJs.getDayJsForString
+  let last = (endTime->DayJs.getDayJsForString).subtract(1, "millisecond")
+  if first.format("YYYY-MM-DD") == last.format("YYYY-MM-DD") {
+    first.format("MMM D")
+  } else if first.format("YYYY-MM") == last.format("YYYY-MM") {
+    `${first.format("MMM D")}–${last.format("D")}`
+  } else {
+    `${first.format("MMM D")} – ${last.format("MMM D")}`
+  }
+}
+
+let getDimensionValueLabel = (
+  key: dimension,
+  value,
+  ~profileList: array<OMPSwitchTypes.ompListTypes>,
+) =>
+  switch (key, value) {
+  | (_, "") => "Not recorded"
+  | (#profile_id, _) =>
+    profileList
+    ->Array.find(profile => profile.id == value)
+    ->Option.mapOr(value, profile => profile.name)
+  | (#status, _) => value->snakeToTitle
+  | _ => value
+  }
+
+let measureOptions = source =>
+  sourceConfig(source).measures->Array.map((measure): MultiSelectBindings.selectMenuItemType => {
+    label: measureLabel(source, measure),
+    value: measure->measureToString,
+    subLabel: measureDefinition(source, measure),
+  })
+
+let dimensionOptions = (source, dimensions: array<dimension>) =>
+  dimensions->Array.map((key): MultiSelectBindings.selectMenuItemType => {
+    label: dimensionLabel(key),
+    value: (key :> string),
+    subLabel: dimensionDescription(source, key),
+  })
+
+let metricCardMeasures = question => {
+  let offered = sourceConfig(question.source).measures
+  [question.measure]->Array.concat(
+    [SuccessRate, Volume, Successful, Failed]
+    ->Array.filter(measure => measure != question.measure && offered->Array.includes(measure))
+    ->Array.slice(~start=0, ~end=3),
+  )
+}
