@@ -257,175 +257,23 @@ test.describe("Homepage", () => {
   });
 });
 
-test.describe("DefaultHome product cards", () => {
-  const setProductFlags = async (
-    page: import("@playwright/test").Page,
-    flags: {
-      dev_vault_v2_product: boolean;
-      dev_recon_v2_product: boolean;
-      dev_recovery_v2_product: boolean;
-      dev_hypersense_v2_product: boolean;
-    },
-  ) => {
-    await page.route("**/dashboard/config/feature*", async (route) => {
-      const response = await route.fetch();
-      const json = await response.json();
-      if (json && json.features) {
-        Object.assign(json.features, flags);
-      }
-      await route.fulfill({ response, json });
-    });
-  };
-
-  test("should display Orchestrator and all gated product cards when product flags are ON", async ({
+test.describe("DefaultHome", () => {
+  test("should not display composable services product cards", async ({
     page,
     context,
   }) => {
     const adminEmail = generateUniqueEmail();
     await signupUser(adminEmail, PLAYWRIGHT_PASSWORD, context.request);
-
-    await setProductFlags(page, {
-      dev_vault_v2_product: true,
-      dev_recon_v2_product: true,
-      dev_recovery_v2_product: true,
-      dev_hypersense_v2_product: true,
-    });
-
     await loginUI(page, adminEmail, PLAYWRIGHT_PASSWORD);
 
     const homePage = new HomePage(page);
     await homePage.homeV2.click();
     await expect(page).toHaveURL(/.*dashboard\/v2\/home/);
 
-    await expect(homePage.exploreComposableServicesText).toBeVisible();
-
-    await expect(homePage.productCardName("Orchestrator")).toBeVisible();
-    await expect(homePage.orchestratorDescription).toBeVisible();
-    await expect(homePage.productCardName(/^Vault$/)).toBeVisible();
-    await expect(homePage.vaultDescription).toBeVisible();
-    await expect(homePage.productCardName(/^Recon$/)).toBeVisible();
-    await expect(homePage.reconDescription).toBeVisible();
-    await expect(homePage.productCardName("Revenue Recovery")).toBeVisible();
-    await expect(homePage.revenueRecoveryDescription).toBeVisible();
-    await expect(homePage.productCardName("Cost Observability")).toBeVisible();
-    await expect(homePage.costObservabilityDescription).toBeVisible();
-
-    await expect(homePage.learnMoreButtons).toHaveCount(5);
-  });
-
-  test("should hide gated product cards on default home when product flags are OFF", async ({
-    page,
-    context,
-  }) => {
-    const adminEmail = generateUniqueEmail();
-    await signupUser(adminEmail, PLAYWRIGHT_PASSWORD, context.request);
-
-    await setProductFlags(page, {
-      dev_vault_v2_product: false,
-      dev_recon_v2_product: false,
-      dev_recovery_v2_product: false,
-      dev_hypersense_v2_product: false,
-    });
-
-    await loginUI(page, adminEmail, PLAYWRIGHT_PASSWORD);
-
-    const homePage = new HomePage(page);
-    await homePage.homeV2.click();
-    await expect(page).toHaveURL(/.*dashboard\/v2\/home/);
-
-    await expect(homePage.exploreComposableServicesText).toBeVisible();
-
-    await expect(homePage.productCardName("Orchestrator")).toBeVisible();
-    await expect(homePage.orchestratorDescription).toBeVisible();
-
-    await expect(homePage.productCardName(/^Vault$/)).not.toBeAttached();
-    await expect(homePage.productCardName(/^Recon$/)).not.toBeAttached();
+    await expect(homePage.exploreComposableServicesText).not.toBeAttached();
     await expect(
-      homePage.productCardName("Revenue Recovery"),
+      page.getByRole("button", { name: "Learn More" }),
     ).not.toBeAttached();
-    await expect(
-      homePage.productCardName("Cost Observability"),
-    ).not.toBeAttached();
-
-    await expect(homePage.learnMoreButtons).toHaveCount(1);
-  });
-
-  test("should handle Learn More click on every product card when all product flags are ON", async ({
-    page,
-    context,
-  }) => {
-    const adminEmail = generateUniqueEmail();
-    await signupUser(adminEmail, PLAYWRIGHT_PASSWORD, context.request);
-
-    await setProductFlags(page, {
-      dev_vault_v2_product: true,
-      dev_recon_v2_product: true,
-      dev_recovery_v2_product: true,
-      dev_hypersense_v2_product: true,
-    });
-
-    await loginUI(page, adminEmail, PLAYWRIGHT_PASSWORD);
-
-    const homePage = new HomePage(page);
-
-    // Non-active products: Learn More opens the "Add a new merchant" modal.
-    // The merchant-name input is pre-filled with `${productPrefix}_${randomString}`.
-    const gatedProducts: { name: string; prefix: string }[] = [
-      { name: "Vault", prefix: "vault_" },
-      { name: "Recon", prefix: "recon_" },
-      { name: "Revenue Recovery", prefix: "revenue_recovery_" },
-      { name: "Cost Observability", prefix: "cost_observability_" },
-    ];
-    for (const { name: productName, prefix } of gatedProducts) {
-      await homePage.homeV2.click();
-      await expect(page).toHaveURL(/.*dashboard\/v2\/home/);
-
-      await homePage
-        .productCard(productName)
-        .getByRole("button", { name: "Learn More" })
-        .click();
-
-      await expect(homePage.addNewMerchantHeader.nth(1)).toBeVisible();
-      await expect(homePage.merchantNameInput).toBeVisible();
-      await expect(homePage.merchantNameInput).toHaveValue(
-        new RegExp(`^${prefix}`),
-      );
-      await expect(homePage.addMerchantButton).toBeVisible();
-      await homePage.addMerchantButton.click();
-    }
-
-    // Active product (Orchestrator): Learn More navigates to /dashboard/home
-    await homePage.homeV2.click();
-    await expect(page).toHaveURL(/.*dashboard\/v2\/home/);
-
-    await homePage
-      .productCard("Orchestrator")
-      .getByRole("button", { name: "Learn More" })
-      .click();
-
-    await expect(page).toHaveURL(/.*dashboard\/home/);
-
-    // Product Cost Observability: Learn More navigates to /dashboard/home
-    await homePage.homeV2.click();
-    await expect(page).toHaveURL(/.*dashboard\/v2\/home/);
-
-    await homePage
-      .productCard("Cost Observability")
-      .getByRole("button", { name: "Learn More" })
-      .click();
-
-    await expect(page).toHaveURL(/.*dashboard\/v2\/cost-observability\/home/);
-
-    // Product Orchestrator: Learn More navigates to /dashboard/home
-    await homePage.homeV2.click();
-    await expect(page).toHaveURL(/.*dashboard\/v2\/home/);
-
-    await homePage
-      .productCard("Orchestrator")
-      .getByRole("button", { name: "Learn More" })
-      .click();
-
-    await expect(page).toHaveURL(/.*dashboard\/home/);
   });
 });
 

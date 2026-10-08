@@ -73,7 +73,6 @@ module NewProcessorCards = {
 let make = () => {
   let {frmProcessorsList} = HyperswitchAtom.connectorDisplayListAtom->Recoil.useRecoilValueFromAtom
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let isMobileView = MatchMedia.useMatchMedia("(max-width: 844px)")
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (
     configuredFRMs: array<ConnectorTypes.connectorPayloadCommonType>,
@@ -187,9 +186,6 @@ let make = () => {
           configuredFRMs,
         )}
       />
-      <RenderIf condition={!isMobileView}>
-        <img alt="frm-banner" className="w-full max-w-[1400px] mb-10" src="/assets/frmBanner.svg" />
-      </RenderIf>
     </div>
   </PageLoaderWrapper>
 }

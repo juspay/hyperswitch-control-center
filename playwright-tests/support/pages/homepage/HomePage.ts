@@ -392,52 +392,6 @@ export class HomePage {
     return this.page.getByText("Explore composable services");
   }
 
-  get learnMoreButtons(): Locator {
-    return this.page.getByRole("button", { name: "Learn More" });
-  }
-
-  productCardName(name: string | RegExp): Locator {
-    return this.page.locator("span").filter({ hasText: name });
-  }
-
-  productCard(name: string): Locator {
-    return this.page
-      .locator("div")
-      .filter({ has: this.page.getByText(name, { exact: true }) })
-      .filter({ has: this.learnMoreButtons })
-      .last();
-  }
-
-  get orchestratorDescription(): Locator {
-    return this.page.getByText(
-      "Unifies diverse abstractions to connect with payment processors, payout processors, fraud management solutions, tax automation solutions, identity solutions, and reporting systems.",
-    );
-  }
-
-  get vaultDescription(): Locator {
-    return this.page.getByText(
-      "A standalone, PCI-compliant vault that securely tokenizes and stores your customers’ card data — without requiring the use of our payment solutions. Supports card tokenization at PSPs and networks as well.",
-    );
-  }
-
-  get reconDescription(): Locator {
-    return this.page.getByText(
-      "A robust tool for efficient reconciliation, providing real-time matching and error detection across transactions, ensuring data consistency and accuracy in financial operations.",
-    );
-  }
-
-  get revenueRecoveryDescription(): Locator {
-    return this.page.getByText(
-      "A resilient recovery system that ensures seamless restoration of critical data and transactions, safeguarding against unexpected disruptions and minimizing downtime.",
-    );
-  }
-
-  get costObservabilityDescription(): Locator {
-    return this.page.getByText(
-      "Unified view of payment processing costs across acquirers, payment methods, and regions. Track every cent, detect anomalies, audit against contracted rates, and forecast the impact of card network changes.",
-    );
-  }
-
   get liveModeBadge(): Locator {
     return this.page.locator("div").filter({ hasText: /^Live Mode$/ });
   }

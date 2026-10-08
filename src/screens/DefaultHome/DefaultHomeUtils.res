@@ -25,50 +25,6 @@ module DefaultActionItem = {
     </div>
   }
 }
-module DefaultHomeCard = {
-  @react.component
-  let make = (~product, ~heading, ~description, ~img, ~action) => {
-    let mixpanelEvent = MixpanelHook.useSendEvent()
-    let {activeProduct, onProductSelectClick} = React.useContext(
-      ProductSelectionProvider.defaultContext,
-    )
-
-    <div
-      className="w-full p-3 gap-4 rounded-xl flex flex-col shadow-cardShadow border border-nd_br_gray-500">
-      <img className="w-full h-auto aspect-video object-cover rounded-xl" src={img} />
-      <div className="flex flex-col p-2 gap-1">
-        <span className="text-fs-16 text-nd_gray-600 font-semibold leading-24">
-          {heading->React.string}
-        </span>
-        <span className="text-fs-14 text-nd_gray-400 font-medium">
-          {description->React.string}
-        </span>
-      </div>
-      <Button
-        text="Learn More"
-        buttonType={Secondary}
-        buttonSize={Medium}
-        customButtonStyle="w-full"
-        onClick={_ => {
-          switch action {
-          | InternalRoute =>
-            if product == activeProduct {
-              let productUrl = ProductUtils.getProductUrl(~productType=product)
-              RescriptReactRouter.replace(productUrl)
-            } else {
-              onProductSelectClick(heading)
-            }
-          | ExternalLink({url, trackingEvent}) => {
-              mixpanelEvent(~eventName=trackingEvent)
-              url->Window._open
-            }
-          }
-        }}
-      />
-    </div>
-  }
-}
-
 let defaultHomeActionArray = {
   [
     {
@@ -88,45 +44,6 @@ let defaultHomeActionArray = {
         url: "https://hyperswitch.io/docs",
         trackingEvent: "dev_docs",
       }),
-    },
-  ]
-}
-let defaultHomeCardsArray = {
-  [
-    {
-      product: Orchestration(V1),
-      heading: "Orchestrator",
-      description: "Unifies diverse abstractions to connect with payment processors, payout processors, fraud management solutions, tax automation solutions, identity solutions, and reporting systems.",
-      imgSrc: "/assets/DefaultHomeVaultCard.svg",
-      action: InternalRoute,
-    },
-    {
-      product: Vault,
-      heading: "Vault",
-      description: "A standalone, PCI-compliant vault that securely tokenizes and stores your customers’ card data — without requiring the use of our payment solutions. Supports card tokenization at PSPs and networks as well.",
-      imgSrc: "/assets/DefaultHomeVaultCard.svg",
-      action: InternalRoute,
-    },
-    {
-      product: Recon(V2),
-      heading: "Recon",
-      description: "A robust tool for efficient reconciliation, providing real-time matching and error detection across transactions, ensuring data consistency and accuracy in financial operations.",
-      imgSrc: "/assets/DefaultHomeReconCard.svg",
-      action: InternalRoute,
-    },
-    {
-      product: Recovery,
-      heading: "Revenue Recovery",
-      description: "A resilient recovery system that ensures seamless restoration of critical data and transactions, safeguarding against unexpected disruptions and minimizing downtime.",
-      imgSrc: "/assets/DefaultHomeRecoveryCard.svg",
-      action: InternalRoute,
-    },
-    {
-      product: CostObservability,
-      heading: "Cost Observability",
-      description: "Unified view of payment processing costs across acquirers, payment methods, and regions. Track every cent, detect anomalies, audit against contracted rates, and forecast the impact of card network changes.",
-      imgSrc: "/assets/DefaultHomeHypersenseCard.svg",
-      action: InternalRoute,
     },
   ]
 }
