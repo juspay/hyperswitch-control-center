@@ -8,7 +8,7 @@ open NewAnalyticsHelper
 
 module ViewTable = {
   @react.component
-  let make = (~title, ~rows, ~entity, ~visibleColumns) => {
+  let make = (~title, ~rows, ~entity, ~visibleColumns, ~onEntityClick=?) => {
     let (offset, setOffset) = React.useState(_ => 0)
     let defaultSort: Table.sortedObject = {key: "", order: Table.INC}
     <LoadedTable
@@ -29,6 +29,7 @@ module ViewTable = {
       ignoreHeaderBg=true
       tableDataBorderClass=tableBorderClass
       isAnalyticsModule=true
+      ?onEntityClick
     />
   }
 }
@@ -59,6 +60,7 @@ let make = (~viewContext: viewContext) => {
             rows={viewContext->getGroupRows}
             entity={question->getGroupTableEntity}
             visibleColumns={question->getGroupColumns}
+            onEntityClick={(row: groupRow) => viewContext.onFocus(row.group)}
           />
         : <ViewTable
             title

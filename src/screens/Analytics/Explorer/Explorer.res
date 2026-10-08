@@ -9,7 +9,9 @@ open NewAnalyticsHelper
 
 @react.component
 let make = () => {
-  let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
+  let {filterValueJson, updateExistingKeys, removeKeys} = React.useContext(
+    FilterContext.filterContext,
+  )
   let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
   let fetchMetrics = ExplorerHooks.useFetchExplorerMetrics()
   let fetchBackendDimensions = ExplorerHooks.useFetchBackendDimensions()
@@ -17,6 +19,7 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (responses, setResponses) = React.useState(_ => emptyResponses)
   let (dimensionsByDomain, setDimensionsByDomain) = React.useState(_ => Dict.make())
+  let (editing, setEditing) = React.useState(_ => None)
 
   let infoDomain = sourceConfig(filterValueJson->sourceFromFilters).infoDomain
   let question =
@@ -113,9 +116,12 @@ let make = () => {
   }, [question->requestKey])
 
   let setSelection = updates => updates->selectionUpdate->updateExistingKeys
+  let clearFilters = () => question.filters->Array.map(((key, _)) => filterKey(key))->removeKeys
   let setSource = source =>
     if source != question.source {
-      setSelection([("source", source->sourceToString), ("split", "[]")])
+      clearFilters()
+      setEditing(_ => None)
+      setSelection([("source", source->sourceToString), ("split", "[]"), ("from", "")])
     }
 
   let labelFor = (key, value) => getDimensionValueLabel(key, value, ~profileList)
@@ -126,6 +132,9 @@ let make = () => {
     hasPrevious: dataset.overallPrevious.total > 0.0,
     currentLabel: periodLabel(question.startTime, question.endTime),
     previousLabel: periodLabel(previousStart, previousEnd),
+    singleCurrency: question->needsCurrency
+      ? dataset.amountCurrency
+      : question->getSelectedFilterValues(#currency)->getValueFromArray(0, ""),
     chartKey: [
       question->requestKey,
       question.measure->measureToString,
@@ -138,11 +147,21 @@ let make = () => {
         question.split->Array.get(index)->Option.mapOr(value, key => labelFor(key, value))
       )
       ->Array.joinWith(" · "),
+    onFocus: group => question->getFocusUpdate(group)->updateExistingKeys,
   }
+  let drilledFrom =
+    question.dimensions->findDimension(filterValueJson->getString(urlKey("from"), ""))
+  let suggestions = question->getSplitSuggestions(~drilledFrom)
 
   <div className="flex flex-col gap-4">
     <SourceTabs question onSource=setSource />
-    <ExplorerQueryBar viewContext onUpdate=updateExistingKeys />
+    <ExplorerQueryBar
+      viewContext
+      onUpdate=updateExistingKeys
+      onClearFilters=clearFilters
+      editing
+      setEditing={key => setEditing(_ => key)}
+    />
     {if question->hasDates {
       <PageLoaderWrapper
         screenState
@@ -150,7 +169,8 @@ let make = () => {
         sectionHeight="h-80">
         {dataset.overall.total == 0.0
           ? <NoData
-              height="h-32" message="No data for the selected dates. Try a wider date range."
+              height="h-32"
+              message="No data for this selection. Widen the dates or remove a filter."
             />
           : <div className="flex flex-col gap-4">
               <ExplorerMetricCards viewContext />
@@ -174,6 +194,31 @@ let make = () => {
                 </div>
                 <RenderIf condition={isSplit && dataset.unmeasured->isNonEmptyArray}>
                   <UnmeasuredNote viewContext />
+                </RenderIf>
+                <RenderIf condition={suggestions->isNonEmptyArray}>
+                  <div
+                    className={`flex flex-wrap items-center gap-2 border-t border-nd_br_gray-150 px-5 py-3 ${body.md.regular}`}>
+                    <span className="text-nd_gray-500"> {"Break down by"->React.string} </span>
+                    {suggestions
+                    ->Array.map(key =>
+                      <Button
+                        key={(key :> string)}
+                        text={ExplorerDescriptions.dimensionLabel(key)}
+                        buttonType=Secondary
+                        buttonSize=XSmall
+                        onClick={_ =>
+                          setSelection([
+                            (
+                              "split",
+                              question
+                              ->splitAt(Math.Int.min(question.split->Array.length, 1), Some(key))
+                              ->splitValue,
+                            ),
+                          ])}
+                      />
+                    )
+                    ->React.array}
+                  </div>
                 </RenderIf>
               </ExplorerCard>
             </div>}
