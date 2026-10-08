@@ -1,6 +1,7 @@
 open ExplorerTypes
 
 let sources = [Intent, Attempt]
+let views = [Trend, Breakdown, Mix, Table]
 
 let sourceConfig = source =>
   switch source {

@@ -46,34 +46,50 @@ let make = () => {
       let source = question.source
       let current = (question.startTime, question.endTime)
       let previous = question->previousWindow
-      let fetchCounts = window =>
-        fetchMetrics(~source, ~body=question->getCountRequestBody(~window), ~signal)
-      let fetchRate = async (window, ~groupBy) =>
-        switch question->getRateRequestBody(~window, ~groupBy) {
+      let fetchRows = async body =>
+        switch body {
         | Some(body) => await fetchMetrics(~source, ~body, ~signal)
         | None => []
         }
-      let fetchOverallRate = async window => isSplit ? await fetchRate(window, ~groupBy=[]) : []
+      let fetchCounts = (~window, ~daily=false) =>
+        fetchRows(Some(question->getCountRequestBody(~window, ~daily)))
+      let fetchRate = (~window, ~groupBy=question.split, ~daily=false) =>
+        fetchRows(question->getRateRequestBody(~window, ~groupBy, ~daily))
       let (
-        currentRows,
-        previousRows,
-        rateCurrent,
-        ratePrevious,
-        rateOverallCurrent,
-        rateOverallPrevious,
-      ) = await Promise.all6((
-        fetchCounts(current),
-        fetchCounts(previous),
-        fetchRate(current, ~groupBy=question.split),
-        fetchRate(previous, ~groupBy=question.split),
-        fetchOverallRate(current),
-        fetchOverallRate(previous),
+        (currentRows, previousRows, currentDaily, previousDaily),
+        (
+          rateCurrent,
+          ratePrevious,
+          rateCurrentDaily,
+          ratePreviousDaily,
+          rateOverallCurrent,
+          rateOverallPrevious,
+        ),
+      ) = await Promise.all2((
+        Promise.all4((
+          fetchCounts(~window=current),
+          fetchCounts(~window=previous),
+          fetchCounts(~window=current, ~daily=true),
+          isSplit ? fetchRows(None) : fetchCounts(~window=previous, ~daily=true),
+        )),
+        Promise.all6((
+          fetchRate(~window=current),
+          fetchRate(~window=previous),
+          fetchRate(~window=current, ~daily=true),
+          isSplit ? fetchRows(None) : fetchRate(~window=previous, ~daily=true),
+          isSplit ? fetchRate(~window=current, ~groupBy=[]) : fetchRows(None),
+          isSplit ? fetchRate(~window=previous, ~groupBy=[]) : fetchRows(None),
+        )),
       ))
       setResponses(_ => {
         currentRows,
         previousRows,
+        currentDaily,
+        previousDaily,
         rateCurrent,
         ratePrevious,
+        rateCurrentDaily,
+        ratePreviousDaily,
         rateOverallCurrent,
         rateOverallPrevious,
       })
@@ -96,18 +112,28 @@ let make = () => {
     None
   }, [question->requestKey])
 
+  let setSelection = updates => updates->selectionUpdate->updateExistingKeys
   let setSource = source =>
     if source != question.source {
-      [("source", source->sourceToString), ("split", "[]")]->selectionUpdate->updateExistingKeys
+      setSelection([("source", source->sourceToString), ("split", "[]")])
     }
 
+  let labelFor = (key, value) => getDimensionValueLabel(key, value, ~profileList)
+  let (previousStart, previousEnd) = question->previousWindow
   let viewContext = {
     question,
     dataset,
     hasPrevious: dataset.overallPrevious.total > 0.0,
-    labelFor: (key, value) => getDimensionValueLabel(key, value, ~profileList),
+    currentLabel: periodLabel(question.startTime, question.endTime),
+    previousLabel: periodLabel(previousStart, previousEnd),
+    chartKey: [
+      question->requestKey,
+      question.measure->measureToString,
+      dataset.amountCurrency,
+    ]->Array.joinWith("|"),
+    labelFor,
+    groupLabel: group => group.values->getValuesLabel(~split=question.split, ~labelFor),
   }
-  let currentLabel = periodLabel(question.startTime, question.endTime)
 
   <div className="flex flex-col gap-4">
     <SourceTabs question onSource=setSource />
@@ -124,13 +150,19 @@ let make = () => {
           : <div className="flex flex-col gap-4">
               <ExplorerMetricCards viewContext />
               <ExplorerCard>
-                <div className="flex flex-col border-b border-nd_br_gray-150 px-5 py-3">
-                  <div className={`${body.lg.semibold} text-nd_gray-800`}>
-                    {question->ExplorerDescriptions.viewTitle->React.string}
+                <div
+                  className="flex flex-wrap items-center justify-between gap-3 border-b border-nd_br_gray-150 px-5 py-3">
+                  <div className="flex flex-col">
+                    <div className={`${body.lg.semibold} text-nd_gray-800`}>
+                      {question->ExplorerDescriptions.viewTitle->React.string}
+                    </div>
+                    <div className={`${body.sm.regular} text-nd_gray-500`}>
+                      {`${viewContext.currentLabel} · ${question->ExplorerDescriptions.viewNote}`->React.string}
+                    </div>
                   </div>
-                  <div className={`${body.sm.regular} text-nd_gray-500`}>
-                    {`${currentLabel} · ${question->ExplorerDescriptions.viewNote}`->React.string}
-                  </div>
+                  <ViewTabs
+                    view=question.view onViewChange={view => setSelection([("view", view)])}
+                  />
                 </div>
                 <div className="px-3 py-4">
                   <ExplorerViews viewContext />

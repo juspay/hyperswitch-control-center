@@ -6,13 +6,37 @@ open ExplorerDescriptions
 let emptyResponses = {
   currentRows: [],
   previousRows: [],
+  currentDaily: [],
+  previousDaily: [],
   rateCurrent: [],
   ratePrevious: [],
+  rateCurrentDaily: [],
+  ratePreviousDaily: [],
   rateOverallCurrent: [],
   rateOverallPrevious: [],
 }
 
 let urlKey = name => `explore.${name}`
+
+let topGroupCount = 5
+let maxBreakdownGroups = 12
+
+let palette = ["#1C6DEA", "#E07A1F", "#11927E", "#8B5CF6", "#D6336C"]
+let otherColor = "#99A0AE"
+let previousColor = "#CACFD8"
+let getGroupColor = index => palette->getValueFromArray(index, otherColor)
+
+let successColor = "#11927E"
+let failureColor = "#DD2B0E"
+let waitingColor = "#E07A1F"
+
+let getOutcomeColor = field =>
+  switch field {
+  | Success => successColor
+  | Failed | AuthFailed => failureColor
+  | Awaiting => waitingColor
+  | Other | Total => otherColor
+  }
 
 let isRate = measure =>
   switch measure {
@@ -63,6 +87,8 @@ let getOutcomesOfStatus = (source, status) =>
     ->Option.mapOr([], attemptStatusOutcomes)
   }
 
+let getRowDay = dict => dict->getString("time_bucket", "")->String.replace(" ", "T") ++ "Z"
+
 let getRowKey = values => values->Array.joinWith("|")
 
 let sourceToString = source =>
@@ -102,6 +128,8 @@ let measureFromString = id =>
   | "avg_ticket" => AvgTicket
   | _ => SuccessRate
   }
+
+let viewFromString = id => views->Array.find(view => (view :> string) == id)->Option.getOr(Trend)
 
 let formatPercentage = value => `${value->Float.toFixedWithPrecision(~digits=1)}%`
 
@@ -147,6 +175,28 @@ let periodLabel = (startTime, endTime) => {
     `${first.format("MMM D")} – ${last.format("MMM D")}`
   }
 }
+
+let toIso = ms =>
+  ms->Js.Date.fromFloat->Js.Date.toISOString->String.replaceRegExp(%re("/\.\d{3}Z$/"), "Z")
+
+let formatShortDate = iso =>
+  (iso->String.slice(~start=0, ~end=10)->DayJs.getDayJsForString).format("MMM D")
+
+let getWindowDays = (startTime, endTime) => {
+  let dayMs = 86400000.0
+  let startMs = startTime->Js.Date.fromString->Js.Date.getTime
+  let endMs = endTime->Js.Date.fromString->Js.Date.getTime
+  let first = Math.floor(startMs /. dayMs) *. dayMs
+  let count = Math.Int.max(1, Math.ceil((endMs -. first) /. dayMs)->Float.toInt)
+  Array.fromInitializer(~length=count, index => toIso(first +. index->Int.toFloat *. dayMs))
+}
+
+let getValuesLabel = (values, ~split: array<dimension>, ~labelFor) =>
+  values
+  ->Array.mapWithIndex((value, index) =>
+    split->Array.get(index)->Option.mapOr(value, key => labelFor(key, value))
+  )
+  ->Array.joinWith(" · ")
 
 let getDimensionValueLabel = (
   key: dimension,

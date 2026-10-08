@@ -23,6 +23,7 @@ let questionFromFilters = (filterValueJson, ~backendDimensions) => {
     source,
     measure,
     split,
+    view: filterValueJson->getString(urlKey("view"), "")->viewFromString,
     dimensions,
     currency: filterValueJson->getString(urlKey("currency"), ""),
     startTime: filterValueJson->getString(HSAnalyticsUtils.startTimeFilterKey, ""),
@@ -67,23 +68,31 @@ let requestBody = (
   ~window as (startTime, endTime),
   ~groupBy: array<dimension>,
   ~metrics: array<metric>,
-) =>
-  [
-    [
-      ("timeRange", timeRangeJson(startTime, endTime)),
-      ("groupByNames", groupBy->Array.map(item => (item :> string))->getJsonFromArrayOfString),
-      ("metrics", metrics->Array.map(item => (item :> string))->getJsonFromArrayOfString),
-    ]->getJsonFromArrayOfJson,
-  ]->JSON.Encode.array
+  ~daily,
+) => {
+  let body = [
+    ("timeRange", timeRangeJson(startTime, endTime)),
+    ("groupByNames", groupBy->Array.map(item => (item :> string))->getJsonFromArrayOfString),
+    ("metrics", metrics->Array.map(item => (item :> string))->getJsonFromArrayOfString),
+  ]
+  let body = daily
+    ? body->Array.concat([
+        ("timeSeries", [("granularity", "G_ONEDAY"->JSON.Encode.string)]->getJsonFromArrayOfJson),
+      ])
+    : body
+  [body->getJsonFromArrayOfJson]->JSON.Encode.array
+}
 
 let previousWindow = question =>
   DateRangeUtils.getComparisonTimePeriod(~startDate=question.startTime, ~endDate=question.endTime)
 
-let getCountRequestBody = (question, ~window) =>
-  requestBody(~window, ~groupBy=question->countGroupBy, ~metrics=question->countMetrics)
+let getCountRequestBody = (question, ~window, ~daily=false) =>
+  requestBody(~window, ~groupBy=question->countGroupBy, ~metrics=question->countMetrics, ~daily)
 
-let getRateRequestBody = (question, ~window, ~groupBy) =>
-  question->getRateMetric->Option.map(metric => requestBody(~window, ~groupBy, ~metrics=[metric]))
+let getRateRequestBody = (question, ~window, ~groupBy, ~daily=false) =>
+  question
+  ->getRateMetric
+  ->Option.map(metric => requestBody(~window, ~groupBy, ~metrics=[metric], ~daily))
 
 let requestKey = question =>
   [
