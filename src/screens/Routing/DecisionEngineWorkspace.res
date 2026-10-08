@@ -10,6 +10,7 @@ let make = () => {
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let url = RescriptReactRouter.useUrl()
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let isRoutingEntryAllowed = DecisionEngineHooks.useRoutingEntryAllowed()
   let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
   let openDecisionEngineNewTab = DecisionEngineHooks.useDecisionEngineNewTab()
 
@@ -47,7 +48,7 @@ let make = () => {
           RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url="/routing"))
         } else if redirectUrl->isNonEmptyString {
           let separator = redirectUrl->String.includes("?") ? "&" : "?"
-          mintState.current = {...mintState.current, at: Js.Date.now()}
+          mintState.current = {...mintState.current, at: Date.now()}
           setIframeSrc(_ => `${redirectUrl}${separator}embed=1${handoffFragment()}`)
           setScreenState(_ => PageLoaderWrapper.Success)
         } else {
@@ -65,11 +66,15 @@ let make = () => {
   React.useEffect(() => {
     if skipNextMint.current {
       skipNextMint.current = false
-    } else {
+    } else if isRoutingEntryAllowed {
       loadFrame()->ignore
     }
-    None
-  }, (sectionSlug, ruleId, profileId))
+    Some(
+      () => {
+        mintState.current = {...mintState.current, seq: mintState.current.seq + 1}
+      },
+    )
+  }, (sectionSlug, ruleId, profileId, isRoutingEntryAllowed))
 
   let handleMessage = ev => {
     let event = ev->DOMUtils.toMessageEvent
@@ -79,7 +84,7 @@ let make = () => {
       | SessionExpired =>
         // One-shot: skip if a mint happened within remintThrottleMs; the next section/rule/profile
         // change re-mints.
-        if Js.Date.now() -. mintState.current.at > remintThrottleMs {
+        if isRoutingEntryAllowed && Date.now() -. mintState.current.at > remintThrottleMs {
           loadFrame()->ignore
         }
       | RouteChanged => {
@@ -103,14 +108,16 @@ let make = () => {
   React.useEffect(() => {
     Window.addEventListener("message", handleMessage)
     Some(() => Window.removeEventListener("message", handleMessage))
-  }, (sectionSlug, ruleId, profileId, section.target))
+  }, (sectionSlug, ruleId, profileId, section.target, isRoutingEntryAllowed))
 
   <div className="flex flex-col w-full h-[calc(100vh-4.75rem)]">
     <div
       className="flex items-center justify-between px-5 h-12 flex-shrink-0 border-b border-nd_gray-200 bg-white">
-      <BreadCrumbNavigation
-        path=[{title: "Smart Routing Configurations", link: "/routing"}]
-        currentPageTitle={section.label}
+      <PageUtils.PageHeading
+        title={section.label}
+        customHeadingStyle="!mb-0"
+        customTitleStyle={`!${Typography.body.lg.semibold} text-nd_gray-700`}
+        showPermLink=false
       />
       <Button
         text="Open in new tab"

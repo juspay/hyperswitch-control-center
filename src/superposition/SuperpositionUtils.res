@@ -7,16 +7,18 @@ let getConfigKey = ({folder, name}: HyperSwitchConfigTypes.superpositionDisplayC
 
 let getDimensionsForFixedContext = dimensionEntity =>
   switch dimensionEntity {
-  | Org => "organization_id"
-  | Merchant => "processor_merchant_id"
-  | Profile => "profile_id"
+  | OrganizationId => "organization_id"
+  | ProcessorMerchantId => "processor_merchant_id"
+  | ProviderMerchantId => "provider_merchant_id"
+  | ProfileID => "profile_id"
   }
 
-let getScopeContext = (~orgId, ~merchantId, ~profileId) =>
+let getScopeContext = (~orgId, ~processorMerchantId, ~profileId, ~providerMerchantId) =>
   [
-    (getDimensionsForFixedContext(Org), JSON.Encode.string(orgId)),
-    (getDimensionsForFixedContext(Merchant), JSON.Encode.string(merchantId)),
-    (getDimensionsForFixedContext(Profile), JSON.Encode.string(profileId)),
+    (getDimensionsForFixedContext(OrganizationId), JSON.Encode.string(orgId)),
+    (getDimensionsForFixedContext(ProcessorMerchantId), JSON.Encode.string(processorMerchantId)),
+    (getDimensionsForFixedContext(ProviderMerchantId), JSON.Encode.string(providerMerchantId)),
+    (getDimensionsForFixedContext(ProfileID), JSON.Encode.string(profileId)),
   ]->Dict.fromArray
 
 let leftSearchTablePageConfig: tablePageConfig = {

@@ -48,8 +48,3 @@ let sponsorToDisplayName = sponsor =>
   | Paytm => "Paytm"
   | UnknownSponsor(other) => other->LogicUtils.snakeToTitle
   }
-
-let sponsorOptions = allSponsors->Array.map((sponsor): SelectBox.dropdownOption => {
-  label: sponsor->sponsorToDisplayName,
-  value: (sponsor :> string),
-})

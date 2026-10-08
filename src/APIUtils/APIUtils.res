@@ -1460,6 +1460,11 @@ let useGetURL = () => {
           | Get => Default(`${reconBaseURL}/business_profiles/${profileId}/recon_engine/status`)
           | _ => Default("")
           }
+        | #RECON_ENGINE_BUSINESS_PROFILE =>
+          switch methodType {
+          | Get => Default(`${reconBaseURL}/business_profiles/${profileId}`)
+          | _ => Default("")
+          }
         | #NONE => Default("")
         }
 
@@ -1753,6 +1758,12 @@ let useGetURL = () => {
           | _ => Default("")
           }
         | #NONE => Default("")
+        }
+      | MONITORING_SESSION =>
+        switch (methodType, id) {
+        | (Post, Some(destination)) =>
+          Default(`observability-plane/monitoring/grafana/session/${destination}`)
+        | _ => Default("")
         }
       /* TO BE CHECKED */
       | INTEGRATION_DETAILS => Default(`user/get_sandbox_integration_details`)

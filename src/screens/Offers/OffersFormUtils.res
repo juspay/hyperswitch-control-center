@@ -26,7 +26,6 @@ let offerFormValuesMapper = (dict): offerFormValues => {
   title: dict->getString("title", ""),
   displayTitle: dict->getString("display_title", ""),
   description: dict->getString("description", ""),
-  sponsoredBy: dict->getString("sponsored_by", "")->OffersSponsors.sponsorFromString,
   language: dict->getString("language", "")->languageFromString,
   startTime: dict->getString("start_time", ""),
   endTime: dict->getString("end_time", ""),
@@ -87,12 +86,6 @@ let optionalPositiveAmount = getAmount => formValues =>
 let optionalPositiveCount = getCount => formValues =>
   getCount(formValues)->Option.flatMap(count => count < 1 ? Some(positiveValueError) : None)
 
-let sponsorRule = (formValues: offerFormValues) =>
-  switch formValues.sponsoredBy {
-  | UnknownSponsor(_) => Some(requiredFieldError)
-  | _ => None
-  }
-
 let languageRule = (formValues: offerFormValues) =>
   switch formValues.language {
   | UnknownLanguage(_) => Some(requiredFieldError)
@@ -135,7 +128,6 @@ let maxOrderAmountRule = (formValues: offerFormValues) =>
 let offerDetailsRules: array<offerFormRule> = [
   ("offer_code", requiredString(values => values.offerCode)),
   ("title", requiredString(values => values.title)),
-  ("sponsored_by", sponsorRule),
   ("language", languageRule),
   ("start_time", requiredString(values => values.startTime)),
   ("end_time", endTimeRule),
@@ -261,11 +253,7 @@ let buildCreateBody = (~merchantId, formValues: offerFormValues) => {
     formValues.cardBins->getNonEmptyArray->Option.map(cardBinFilters),
   )
 
-  let description =
-    [
-      ("title", formValues.title->JSON.Encode.string),
-      ("sponsored_by", (formValues.sponsoredBy :> string)->JSON.Encode.string),
-    ]->Dict.fromArray
+  let description = [("title", formValues.title->JSON.Encode.string)]->Dict.fromArray
   description->setOptionString("display_title", formValues.displayTitle->getNonEmptyString)
   description->setOptionString("description", formValues.description->getNonEmptyString)
 

@@ -1,6 +1,8 @@
 open LogicUtils
 open DecisionEngineTypes
 
+let getCutoverKey = (~merchantId, ~profileId) => `${merchantId}:${profileId}`
+
 let sections = [
   {
     slug: "analytics",
