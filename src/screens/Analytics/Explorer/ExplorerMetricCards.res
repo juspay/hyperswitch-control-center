@@ -3,19 +3,10 @@ open ExplorerUtils
 open ExplorerData
 open ExplorerDescriptions
 
-let metricCardMeasures = question => {
-  let offered = ExplorerCatalog.sourceConfig(question.source).measures
-  [question.measure]->Array.concat(
-    [SuccessRate, Volume, Successful, Failed]
-    ->Array.filter(measure => measure != question.measure && offered->Array.includes(measure))
-    ->Array.slice(~start=0, ~end=3),
-  )
-}
-
 @react.component
-let make = (~question: question, ~dataset: dataset) => {
+let make = (~viewContext: viewContext) => {
+  let {question, dataset, hasPrevious} = viewContext
   let source = question.source
-  let hasPrevious = dataset.overallPrevious.total > 0.0
   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
     {question
     ->metricCardMeasures

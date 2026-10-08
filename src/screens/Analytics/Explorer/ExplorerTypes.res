@@ -28,8 +28,17 @@ type metric = [
 
 type dimension = [
   | #status
+  | #connector
+  | #payment_method
+  | #payment_method_type
+  | #card_network
   | #authentication_type
+  | #error_reason
   | #currency
+  | #profile_id
+  | #routing_approach
+  | #client_source
+  | #client_version
 ]
 
 type authenticationType = [#three_ds | #no_three_ds]
@@ -92,6 +101,7 @@ type countField =
   | Failed
   | Awaiting
   | AuthFailed
+  | Other
 
 type denominator =
   | AllRecords
@@ -108,6 +118,8 @@ type sourceConfig = {
   countMetric: metric,
   amountMetric: metric,
   successRateMetric: metric,
+  infoDomain: string,
+  dimensions: array<dimension>,
   measures: array<measure>,
 }
 
@@ -122,9 +134,17 @@ type counts = {
   backendRate: option<float>,
 }
 
+type group = {
+  values: array<string>,
+  current: counts,
+  previous: option<counts>,
+}
+
 type question = {
   source: source,
   measure: measure,
+  split: array<dimension>,
+  dimensions: array<dimension>,
   currency: string,
   startTime: string,
   endTime: string,
@@ -135,11 +155,53 @@ type responses = {
   previousRows: array<JSON.t>,
   rateCurrent: array<JSON.t>,
   ratePrevious: array<JSON.t>,
+  rateOverallCurrent: array<JSON.t>,
+  rateOverallPrevious: array<JSON.t>,
 }
 
 type dataset = {
+  sorted: array<group>,
+  unmeasured: array<(array<string>, counts)>,
   overall: counts,
   overallPrevious: counts,
+  minimumRateBase: float,
   amountCurrencies: array<string>,
   amountCurrency: string,
+}
+
+type outcomeRow = {
+  outcome: string,
+  count: float,
+  change: string,
+  share: float,
+}
+
+type outcomeColumn =
+  | OutcomeName
+  | OutcomeCount
+  | OutcomeChange
+  | OutcomeShare
+
+type groupRow = {
+  labels: array<(dimension, string)>,
+  value: string,
+  isLowVolume: bool,
+  change: string,
+  impact: changeImpact,
+  volume: float,
+  share: float,
+}
+
+type groupColumn =
+  | SplitColumn(dimension)
+  | MeasureColumn
+  | ChangeColumn
+  | VolumeColumn
+  | ShareColumn
+
+type viewContext = {
+  question: question,
+  dataset: dataset,
+  hasPrevious: bool,
+  labelFor: (dimension, string) => string,
 }

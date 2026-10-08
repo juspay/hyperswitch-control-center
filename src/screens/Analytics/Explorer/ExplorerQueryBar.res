@@ -1,26 +1,24 @@
 open Typography
 open LogicUtils
 open ExplorerTypes
-open ExplorerCatalog
 open ExplorerUtils
 open ExplorerDescriptions
 open ExplorerQuery
 open ExplorerHelper
 
-let measureOptions = source =>
-  sourceConfig(source).measures->Array.map((measure): MultiSelectBindings.selectMenuItemType => {
-    label: measureLabel(source, measure),
-    value: measure->measureToString,
-    subLabel: measureDefinition(source, measure),
-  })
-
 @react.component
-let make = (~question: question, ~dataset: dataset, ~onUpdate: Dict.t<string> => unit) => {
+let make = (~viewContext: viewContext, ~onUpdate: Dict.t<string> => unit) => {
+  let {question, dataset} = viewContext
   let source = question.source
+  let splitOptions = question->splitOptions
   let setSelection = updates => updates->selectionUpdate->onUpdate
+  let setSplitAt = (index, key) =>
+    setSelection([
+      ("split", question->splitAt(index, splitOptions->findDimension(key))->splitValue),
+    ])
 
   <ExplorerCard className="flex flex-col gap-4 px-6 py-5">
-    <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
+    <div className="flex flex-wrap items-center gap-2">
       <QueryText text="Show" />
       <QuerySelect
         value={question.measure->measureToString}
@@ -29,7 +27,29 @@ let make = (~question: question, ~dataset: dataset, ~onUpdate: Dict.t<string> =>
         placeholder="Measure"
       />
       <QueryText text="for" />
-      <QueryText text={`all ${sourceNoun(source)}`} strong=true />
+      <QueryText text={`all ${sourceNoun(source)},`} strong=true />
+      <QueryText text="split by" />
+      <QuerySelect
+        value={question.split->Array.get(0)->Option.mapOr("", key => (key :> string))}
+        onChange={key => setSplitAt(0, key)}
+        options={source->dimensionOptions(splitOptions)}
+        placeholder="Select"
+        allowDeselect=true
+        enableSearch=true
+      />
+      <RenderIf condition={question.split->isNonEmptyArray}>
+        <QueryText text="then by" />
+        <QuerySelect
+          value={question.split->Array.get(1)->Option.mapOr("", key => (key :> string))}
+          onChange={key => setSplitAt(1, key)}
+          options={source->dimensionOptions(
+            splitOptions->Array.filter(key => question.split->Array.get(0) != Some(key)),
+          )}
+          placeholder="Select"
+          allowDeselect=true
+          enableSearch=true
+        />
+      </RenderIf>
       <RenderIf condition={question->needsCurrency && dataset.amountCurrencies->isNonEmptyArray}>
         <QueryText text="in" />
         <QuerySelect

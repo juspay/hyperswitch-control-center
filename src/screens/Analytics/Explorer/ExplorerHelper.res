@@ -57,6 +57,8 @@ module QuerySelect = {
     ~onChange,
     ~options: array<MultiSelectBindings.selectMenuItemType>,
     ~placeholder,
+    ~allowDeselect=false,
+    ~enableSearch=false,
   ) =>
     <SingleSelectBinding
       selected=value
@@ -64,6 +66,8 @@ module QuerySelect = {
       items=[{items: options->Array.map(option => {...option, disableTruncation: true})}]
       placeholder
       size=Sm
+      allowDeselect
+      enableSearch
       minMenuWidth=300
       maxMenuWidth=380
     />
@@ -98,6 +102,33 @@ module MetricCard = {
           <span className="text-nd_gray-400"> {"vs previous period"->React.string} </span>
         </div>
       </RenderIf>
+    </div>
+  }
+}
+
+module UnmeasuredNote = {
+  @react.component
+  let make = (~viewContext: viewContext) => {
+    let {question, dataset} = viewContext
+    let names =
+      dataset.unmeasured
+      ->Array.map(((values, counts)) =>
+        `${values
+          ->Array.mapWithIndex((value, index) =>
+            question.split
+            ->Array.get(index)
+            ->Option.mapOr(value, key => viewContext.labelFor(key, value))
+          )
+          ->Array.joinWith(" · ")} (${counts.total->formatNumberWithCommas} ${sourceNoun(
+            question.source,
+          )}, ${unmeasurableReason(question.source, question.measure)})`
+      )
+      ->Array.joinWith("; ")
+    <div className={`px-5 pb-4 ${body.sm.regular} text-nd_gray-500`}>
+      {`Excluded from the ${measureLabel(
+          question.source,
+          question.measure,
+        )->String.toLowerCase}: ${names}.`->React.string}
     </div>
   }
 }

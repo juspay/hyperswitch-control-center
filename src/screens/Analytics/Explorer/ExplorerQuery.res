@@ -3,15 +3,27 @@ open ExplorerTypes
 open ExplorerCatalog
 open ExplorerUtils
 
-let questionFromFilters = filterValueJson => {
-  let source = filterValueJson->getString(urlKey("source"), "")->sourceFromString
+let sourceFromFilters = filterValueJson =>
+  filterValueJson->getString(urlKey("source"), "")->sourceFromString
+
+let questionFromFilters = (filterValueJson, ~backendDimensions) => {
+  let source = filterValueJson->sourceFromFilters
+  let dimensions = source->getOfferedDimensions(~backendDimensions)
   let measure = {
     let selected = filterValueJson->getString(urlKey("measure"), "")->measureFromString
     sourceConfig(source).measures->Array.includes(selected) ? selected : SuccessRate
   }
+  let splitOptions = getSplitDimensions(measure, ~dimensions)
+  let split =
+    filterValueJson
+    ->getStrArrayFromDict(urlKey("split"), [])
+    ->Array.filterMap(id => splitOptions->findDimension(id))
+    ->Array.slice(~start=0, ~end=2)
   {
     source,
     measure,
+    split,
+    dimensions,
     currency: filterValueJson->getString(urlKey("currency"), ""),
     startTime: filterValueJson->getString(HSAnalyticsUtils.startTimeFilterKey, ""),
     endTime: filterValueJson->getString(HSAnalyticsUtils.endTimeFilterKey, ""),
@@ -20,6 +32,8 @@ let questionFromFilters = filterValueJson => {
 
 let hasDates = question =>
   question.startTime->isNonEmptyString && question.endTime->isNonEmptyString
+
+let splitOptions = question => getSplitDimensions(question.measure, ~dimensions=question.dimensions)
 
 let needsCurrency = question => isAmount(question.measure)
 
@@ -31,7 +45,11 @@ let countGroupBy = (question): array<dimension> => {
   | Rate(_, ThreeDsAttempts) => [#authentication_type]
   | _ => []
   }
-  [#status]->Array.concat(threeDsColumn)->Array.concat(needsCurrency(question) ? [#currency] : [])
+  [#status]
+  ->Array.concat(threeDsColumn)
+  ->Array.concat(question.split)
+  ->Array.concat(needsCurrency(question) ? [#currency] : [])
+  ->uniqueItems
 }
 
 let countMetrics = question => {
@@ -61,15 +79,11 @@ let requestBody = (
 let previousWindow = question =>
   DateRangeUtils.getComparisonTimePeriod(~startDate=question.startTime, ~endDate=question.endTime)
 
-let currentWindow = question => (question.startTime, question.endTime)
-
 let getCountRequestBody = (question, ~window) =>
   requestBody(~window, ~groupBy=question->countGroupBy, ~metrics=question->countMetrics)
 
-let getRateRequestBody = (question, ~window) =>
-  question
-  ->getRateMetric
-  ->Option.map(metric => requestBody(~window, ~groupBy=[], ~metrics=[metric]))
+let getRateRequestBody = (question, ~window, ~groupBy) =>
+  question->getRateMetric->Option.map(metric => requestBody(~window, ~groupBy, ~metrics=[metric]))
 
 let requestKey = question =>
   [
@@ -77,9 +91,20 @@ let requestKey = question =>
     question->countGroupBy->Array.map(key => (key :> string))->Array.joinWith(","),
     question->countMetrics->Array.map(metric => (metric :> string))->Array.joinWith(","),
     question->getRateMetric->Option.mapOr("", metric => (metric :> string)),
+    question.split->Array.map(key => (key :> string))->Array.joinWith(","),
     question.startTime,
     question.endTime,
   ]->Array.joinWith("|")
 
 let selectionUpdate = (updates: array<(string, string)>) =>
   updates->Array.map(((key, value)) => (urlKey(key), value))->Dict.fromArray
+
+let splitValue = (split: array<dimension>) =>
+  `[${split->Array.map(item => (item :> string))->Array.joinWith(",")}]`
+
+let splitAt = (question, index, key: option<dimension>) =>
+  question.split
+  ->Array.slice(~start=0, ~end=index)
+  ->Array.concat(key->Option.mapOr([], key => [key]))
+  ->Array.concat(key->Option.isSome ? question.split->Array.sliceToEnd(~start=index + 1) : [])
+  ->uniqueItems

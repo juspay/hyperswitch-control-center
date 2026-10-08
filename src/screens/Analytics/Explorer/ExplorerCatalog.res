@@ -8,6 +8,8 @@ let sourceConfig = source =>
       countMetric: #payment_intent_count,
       amountMetric: #payment_processed_amount,
       successRateMetric: #payments_success_rate,
+      infoDomain: "payment_intents",
+      dimensions: [#status, #currency, #profile_id],
       measures: [
         SuccessRate,
         FailureRate,
@@ -23,6 +25,21 @@ let sourceConfig = source =>
       countMetric: #payment_count,
       amountMetric: #payment_processed_amount,
       successRateMetric: #payment_success_rate,
+      infoDomain: "payments",
+      dimensions: [
+        #connector,
+        #payment_method,
+        #payment_method_type,
+        #card_network,
+        #authentication_type,
+        #status,
+        #error_reason,
+        #currency,
+        #profile_id,
+        #routing_approach,
+        #client_source,
+        #client_version,
+      ],
       measures: [
         SuccessRate,
         FailureRate,
@@ -140,6 +157,12 @@ let attemptStatusOutcomes = (status: attemptStatus) =>
   | #device_data_collection_pending
   | #integrity_failure
   | #capture_review => []
+  }
+
+let getSourceOutcomes = source =>
+  switch source {
+  | Intent => [Success, Failed, Awaiting, Other]
+  | Attempt => [Success, Failed, Other]
   }
 
 let getMeasureFormula = (source, measure) =>
