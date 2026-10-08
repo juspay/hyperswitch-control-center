@@ -17,18 +17,25 @@ let emptyResponses = {
 }
 
 let urlKey = name => `explore.${name}`
+
 let filterPrefix = urlKey("f.")
 
 let topGroupCount = 5
+
 let maxBreakdownGroups = 12
 
 let palette = ["#1C6DEA", "#E07A1F", "#11927E", "#8B5CF6", "#D6336C"]
+
 let otherColor = "#99A0AE"
+
 let previousColor = "#CACFD8"
+
 let getGroupColor = index => palette->getValueFromArray(index, otherColor)
 
 let successColor = "#11927E"
+
 let failureColor = "#DD2B0E"
+
 let waitingColor = "#E07A1F"
 
 let getOutcomeColor = field =>
@@ -42,12 +49,12 @@ let getOutcomeColor = field =>
 let isRate = measure =>
   switch measure {
   | SuccessRate | FailureRate | ThreeDsFailureRate | NotCompletedRate => true
-  | Volume | Successful | Failed | ProcessedAmount | AvgTicket => false
+  | Volume | Successful | Failed | ProcessedAmount | AvgTicket | LostAmount => false
   }
 
 let isAmount = measure =>
   switch measure {
-  | ProcessedAmount | AvgTicket => true
+  | ProcessedAmount | AvgTicket | LostAmount => true
   | SuccessRate
   | FailureRate
   | ThreeDsFailureRate
@@ -60,6 +67,8 @@ let isAmount = measure =>
 let uniqueItems = arr =>
   arr->Array.filterWithIndex((item, index) => arr->Array.indexOf(item) == index)
 
+let getDefaultSource = domain => domain->getDomainSources->getValueFromArray(0, Intent)
+
 let getOfferedDimensions = (source, ~backendDimensions: option<array<string>>) =>
   sourceConfig(source).dimensions->Array.filter(key =>
     backendDimensions->Option.mapOr(true, names => names->Array.includes((key :> string)))
@@ -67,7 +76,7 @@ let getOfferedDimensions = (source, ~backendDimensions: option<array<string>>) =
 
 let getSplitDimensions = (measure, ~dimensions: array<dimension>) =>
   dimensions->Array.filter(key =>
-    !((isRate(measure) || isAmount(measure)) && key == #status) &&
+    !((isRate(measure) || isAmount(measure)) && statusDimensions->Array.includes(key)) &&
     !(isAmount(measure) && key == #currency)
   )
 
@@ -86,6 +95,11 @@ let getOutcomesOfStatus = (source, status) =>
     attemptStatuses
     ->Array.find(item => (item :> string) == status)
     ->Option.mapOr([], attemptStatusOutcomes)
+  | Refund =>
+    refundStatuses
+    ->Array.find(item => (item :> string) == status)
+    ->Option.mapOr([], refundStatusOutcomes)
+  | Dispute => []
   }
 
 let encodeFilterValue = value =>
@@ -119,11 +133,15 @@ let sourceToString = source =>
   switch source {
   | Intent => "intent"
   | Attempt => "attempt"
+  | Refund => "refund"
+  | Dispute => "dispute"
   }
 
 let sourceFromString = id =>
   switch id {
   | "attempt" => Attempt
+  | "refund" => Refund
+  | "dispute" => Dispute
   | _ => Intent
   }
 
@@ -138,6 +156,7 @@ let measureToString = measure =>
   | NotCompletedRate => "not_completed_rate"
   | ProcessedAmount => "processed_amount"
   | AvgTicket => "avg_ticket"
+  | LostAmount => "lost_amount"
   }
 
 let measureFromString = id =>
@@ -150,6 +169,7 @@ let measureFromString = id =>
   | "not_completed_rate" => NotCompletedRate
   | "processed_amount" => ProcessedAmount
   | "avg_ticket" => AvgTicket
+  | "lost_amount" => LostAmount
   | _ => SuccessRate
   }
 
@@ -247,7 +267,7 @@ let getDimensionValueLabel = (
     profileList
     ->Array.find(profile => profile.id == value)
     ->Option.mapOr(value, profile => profile.name)
-  | (#status, _) => value->snakeToTitle
+  | (#status | #refund_status | #refund_type | #dispute_stage, _) => value->snakeToTitle
   | _ => value
   }
 

@@ -13,30 +13,64 @@ module ExplorerCard = {
     </div>
 }
 
+module TabList = {
+  @react.component
+  let make = (
+    ~value,
+    ~items: array<(string, string)>,
+    ~onChange,
+    ~variant: TabsBinding.tabsVariant,
+    ~size: TabsBinding.tabsSize,
+    ~fitContent=true,
+  ) =>
+    <TabsBinding value onValueChange=onChange variant size>
+      <TabsBinding.List variant size fitContent>
+        {items
+        ->Array.map(((id, label)) =>
+          <TabsBinding.Trigger key=id value=id variant size>
+            {label->React.string}
+          </TabsBinding.Trigger>
+        )
+        ->React.array}
+      </TabsBinding.List>
+    </TabsBinding>
+}
+
 module SourceTabs = {
   @react.component
-  let make = (~question: question, ~onSource) =>
+  let make = (~question: question, ~onSource) => {
+    let siblings = sourceConfig(question.source).domain->getDomainSources
     <div className="flex items-center gap-3">
-      <TabsBinding
-        value={question.source->sourceToString}
-        onValueChange={id => onSource(id->sourceFromString)}
-        variant=Boxed
-        size=Md>
-        <TabsBinding.List variant=Boxed size=Md fitContent=true>
-          {sources
-          ->Array.map(source =>
-            <TabsBinding.Trigger
-              key={source->sourceToString} value={source->sourceToString} variant=Boxed size=Md>
-              {sourceLabel(source)->React.string}
-            </TabsBinding.Trigger>
-          )
-          ->React.array}
-        </TabsBinding.List>
-      </TabsBinding>
+      <RenderIf condition={siblings->Array.length > 1}>
+        <TabList
+          value={question.source->sourceToString}
+          items={siblings->Array.map(source => (source->sourceToString, sourceLabel(source)))}
+          onChange={id => onSource(id->sourceFromString)}
+          variant=Boxed
+          size=Md
+        />
+      </RenderIf>
       <span className={`${body.md.regular} text-nd_gray-500`}>
         {sourceDescription(question.source)->React.string}
       </span>
     </div>
+  }
+}
+
+module DomainTabs = {
+  @react.component
+  let make = (~question: question, ~onSource) =>
+    <TabList
+      value={(sourceConfig(question.source).domain :> string)}
+      items={domains->Array.map(domain => ((domain :> string), domainLabel(domain)))}
+      onChange={id =>
+        domains
+        ->Array.find(domain => (domain :> string) == id)
+        ->Option.forEach(domain => onSource(domain->getDefaultSource))}
+      variant=Underline
+      size=Lg
+      fitContent=false
+    />
 }
 
 module QueryText = {
@@ -109,18 +143,13 @@ module MetricCard = {
 module ViewTabs = {
   @react.component
   let make = (~view: view, ~onViewChange) =>
-    <TabsBinding value={(view :> string)} onValueChange=onViewChange variant=Floating size=Md>
-      <TabsBinding.List variant=Floating size=Md fitContent=true>
-        {views
-        ->Array.map(view =>
-          <TabsBinding.Trigger
-            key={(view :> string)} value={(view :> string)} variant=Floating size=Md>
-            {viewLabel(view)->React.string}
-          </TabsBinding.Trigger>
-        )
-        ->React.array}
-      </TabsBinding.List>
-    </TabsBinding>
+    <TabList
+      value={(view :> string)}
+      items={views->Array.map(view => ((view :> string), viewLabel(view)))}
+      onChange=onViewChange
+      variant=Floating
+      size=Md
+    />
 }
 
 module UnmeasuredNote = {

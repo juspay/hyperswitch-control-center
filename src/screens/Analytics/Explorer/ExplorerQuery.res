@@ -8,10 +8,11 @@ let sourceFromFilters = filterValueJson =>
 
 let questionFromFilters = (filterValueJson, ~backendDimensions) => {
   let source = filterValueJson->sourceFromFilters
+  let config = sourceConfig(source)
   let dimensions = source->getOfferedDimensions(~backendDimensions)
   let measure = {
     let selected = filterValueJson->getString(urlKey("measure"), "")->measureFromString
-    sourceConfig(source).measures->Array.includes(selected) ? selected : SuccessRate
+    config.measures->Array.includes(selected) ? selected : SuccessRate
   }
   let splitOptions = getSplitDimensions(measure, ~dimensions)
   let split =
@@ -57,14 +58,18 @@ let needsCurrency = question =>
   isAmount(question.measure) && question->getSelectedFilterValues(#currency)->Array.length != 1
 
 let getRateMetric = question =>
-  question.measure == SuccessRate ? Some(sourceConfig(question.source).successRateMetric) : None
+  sourceConfig(question.source).successRateMetric->Option.filter(_ =>
+    question.measure == SuccessRate
+  )
 
-let countGroupBy = (question): array<dimension> => {
+let countGroupBy = question => {
+  let config = sourceConfig(question.source)
   let threeDsColumn = switch getMeasureFormula(question.source, question.measure) {
   | Rate(_, ThreeDsAttempts) => [#authentication_type]
   | _ => []
   }
-  [#status]
+  config.statusDimension
+  ->Option.mapOr([], key => [key])
   ->Array.concat(threeDsColumn)
   ->Array.concat(question.split)
   ->Array.concat(needsCurrency(question) ? [#currency] : [])
@@ -73,7 +78,7 @@ let countGroupBy = (question): array<dimension> => {
 
 let countMetrics = question => {
   let config = sourceConfig(question.source)
-  [config.countMetric]->Array.concat(isAmount(question.measure) ? [config.amountMetric] : [])
+  config.countMetrics->Array.concat(isAmount(question.measure) ? config.amountMetrics : [])
 }
 
 let timeRangeJson = (startTime, endTime) =>

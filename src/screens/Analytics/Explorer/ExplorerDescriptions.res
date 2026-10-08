@@ -1,38 +1,63 @@
 open LogicUtils
 open ExplorerTypes
 
+let domainLabel = domain =>
+  switch domain {
+  | Payments => "Payments"
+  | Refunds => "Refunds"
+  | Disputes => "Disputes"
+  }
+
 let sourceLabel = source =>
   switch source {
   | Intent => "Intents"
   | Attempt => "Attempts"
+  | Refund => "Refunds"
+  | Dispute => "Disputes"
   }
 
 let sourceDescription = source =>
   switch source {
   | Intent => "One row per payment, regardless of retries. Use this view for the customer experience."
-  | Attempt => "One row per attempt; each retry is a separate attempt. Use this view to analyse how attempts perform."
+  | Attempt => "One row per attempt; each retry is a separate attempt. Use this view to analyse connectors, payment methods and errors."
+  | Refund => "One row per refund. Use this view to analyse refund failures by connector, reason and error."
+  | Dispute => "One row per dispute. Use this view to track win rate and amounts lost to disputes."
   }
 
 let sourceNoun = source =>
   switch source {
   | Intent => "payments"
   | Attempt => "attempts"
+  | Refund => "refunds"
+  | Dispute => "disputes"
   }
 
 let measureLabel = (source, measure) =>
   switch (source, measure) {
+  | (Dispute, SuccessRate) => "Win rate"
+  | (Dispute, FailureRate) => "Loss rate"
   | (_, SuccessRate) => "Success rate"
   | (_, FailureRate) => "Failure rate"
   | (Intent, Volume) => "Payments"
   | (Attempt, Volume) => "Attempts"
+  | (Refund, Volume) => "Refunds"
+  | (Dispute, Volume) => "Disputes"
   | (Intent, Successful) => "Succeeded payments"
   | (Attempt, Successful) => "Successful attempts"
+  | (Refund, Successful) => "Successful refunds"
+  | (Dispute, Successful) => "Disputes won"
   | (Intent, Failed) => "Failed payments"
   | (Attempt, Failed) => "Failed attempts"
+  | (Refund, Failed) => "Failed refunds"
+  | (Dispute, Failed) => "Disputes lost"
   | (_, ThreeDsFailureRate) => "3DS failure rate"
+  | (Refund, NotCompletedRate) => "Pending rate"
   | (_, NotCompletedRate) => "Not completed rate"
+  | (Refund, ProcessedAmount) => "Refunded amount"
+  | (Dispute, ProcessedAmount) => "Amount won"
   | (_, ProcessedAmount) => "Processed amount"
   | (_, AvgTicket) => "Average ticket"
+  | (_, LostAmount) => "Amount lost"
   }
 
 let measureDefinition = (source, measure) =>
@@ -42,30 +67,51 @@ let measureDefinition = (source, measure) =>
       SuccessRate,
     ) => "Share of payments that succeeded. Payments awaiting customer or merchant action are excluded."
   | (Attempt, SuccessRate) => "Share of attempts that were charged. Pending attempts are included."
+  | (Refund, SuccessRate) => "Share of refunds that succeeded."
+  | (Dispute, SuccessRate) => "Share of decided disputes (won or lost) that were won."
   | (
       Intent,
       FailureRate,
     ) => "Share of payments that failed. Payments awaiting customer or merchant action are excluded."
   | (Attempt, FailureRate) => "Share of attempts that failed."
+  | (Refund, FailureRate) => "Share of refunds that failed."
+  | (
+      Dispute,
+      FailureRate,
+    ) => "Share of decided disputes (won or lost) that were lost. Accepted disputes are not counted."
   | (Intent, Volume) => "Payments created, in any status."
   | (Attempt, Volume) => "Attempts made, in any status. Each retry counts as an attempt."
+  | (Refund, Volume) => "Refunds created, in any status."
+  | (Dispute, Volume) => "Disputes opened, in any status."
   | (Intent, Successful) => "Payments with status succeeded."
   | (Attempt, Successful) => "Attempts with status charged."
+  | (Refund, Successful) => "Refunds with status success."
+  | (Dispute, Successful) => "Disputes with status won."
   | (Intent, Failed) => "Payments with status failed."
   | (
       Attempt,
       Failed,
     ) => "Attempts that failed, as the backend counts terminal failures: declined, authentication or authorization failed, router declined, capture or void failed, or expired."
+  | (Refund, Failed) => "Refunds that failed at the connector or in the transaction."
+  | (Dispute, Failed) => "Disputes with status lost."
   | (_, ThreeDsFailureRate) => "Share of 3DS attempts that failed authentication."
+  | (Refund, NotCompletedRate) => "Share of refunds still pending or in manual review."
   | (_, NotCompletedRate) => "Share of payments awaiting customer or merchant action."
   | (Intent, ProcessedAmount) => "Amount of succeeded payments, in one currency."
   | (Attempt, ProcessedAmount) => "Amount of charged attempts, in one currency."
-  | (Intent, AvgTicket) => "Processed amount divided by succeeded payments, in one currency."
+  | (Refund, ProcessedAmount) => "Amount of successful refunds, in one currency."
+  | (Dispute, ProcessedAmount) => "Amount of disputes won, in one currency."
   | (Attempt, AvgTicket) => "Processed amount divided by charged attempts, in one currency."
+  | (_, AvgTicket) => "Processed amount divided by succeeded payments, in one currency."
+  | (
+      _,
+      LostAmount,
+    ) => "Amount of disputes lost, in one currency. Accepted disputes are not counted."
   }
 
 let unmeasurableNote = (source, measure) =>
   switch (source, measure) {
+  | (Dispute, SuccessRate | FailureRate) => "No decided disputes in this period"
   | (Intent, SuccessRate | FailureRate) => "No completed payments in this period"
   | (_, ThreeDsFailureRate) => "No 3DS attempts in this period"
   | _ => "No data in this period"
@@ -73,6 +119,7 @@ let unmeasurableNote = (source, measure) =>
 
 let unmeasurableReason = (source, measure) =>
   switch (source, measure) {
+  | (Dispute, SuccessRate | FailureRate) => "no decided disputes"
   | (Intent, SuccessRate | FailureRate) => "all awaiting customer or merchant action"
   | (_, ThreeDsFailureRate) => "no 3DS attempts"
   | _ => "no eligible records"
@@ -92,6 +139,11 @@ let dimensionLabel = (key: dimension) =>
   | #routing_approach => "Routing approach"
   | #client_source => "Client source"
   | #client_version => "Client version"
+  | #refund_status => "Refund status"
+  | #refund_type => "Refund type"
+  | #refund_reason => "Refund reason"
+  | #refund_error_message => "Refund error"
+  | #dispute_stage => "Dispute stage"
   }
 
 let dimensionDescription = (source, key: dimension) =>
@@ -102,7 +154,7 @@ let dimensionDescription = (source, key: dimension) =>
   | (_, #card_network) => "Card scheme, such as Visa or Mastercard."
   | (_, #authentication_type) => "Whether 3DS was requested."
   | (Intent, #status) => "Payment status, such as succeeded, failed or requires payment method."
-  | (Attempt, #status) => "Attempt status, such as charged, failure or authentication failed."
+  | (_, #status) => "Attempt status, such as charged, failure or authentication failed."
   | (_, #error_reason) => "Error returned by the connector for a failed attempt."
   | (_, #currency) => "Currency of the payment."
   | (_, #profile_id) => "Business profile it belongs to."
@@ -112,19 +164,30 @@ let dimensionDescription = (source, key: dimension) =>
     ) => "How the connector was chosen, such as rule-based or success-rate based."
   | (_, #client_source) => "Where the payment was confirmed from, such as the SDK or a server call."
   | (_, #client_version) => "Version of the SDK or client that confirmed it."
+  | (_, #refund_status) => "Refund status, such as success, failure or pending."
+  | (_, #refund_type) => "How the refund was issued, such as instant or regular."
+  | (_, #refund_reason) => "Reason given when the refund was created."
+  | (_, #refund_error_message) => "Error returned by the connector for a failed refund."
+  | (_, #dispute_stage) => "Stage of the dispute, such as pre-dispute, dispute or pre-arbitration."
   }
 
 let outcomeLabel = (source, field) =>
   switch (source, field) {
   | (Attempt, Success) => "Charged"
   | (Attempt, Other) => "Pending or other"
+  | (Dispute, Success) => "Won"
+  | (Dispute, Failed) => "Lost"
+  | (Dispute, Awaiting) => "Challenged"
+  | (Dispute, Other) => "Open, accepted, expired or cancelled"
   | (Intent, Awaiting) => "Waiting on customer or merchant"
   | (Intent, Other) => "Other (cancelled, processing, expired…)"
+  | (Refund, Awaiting) => "Pending or in review"
   | (_, Success) => "Succeeded"
   | (_, Failed) => "Failed"
   | (_, Awaiting) => "Waiting"
   | (_, AuthFailed) => "Failed 3DS authentication"
   | (_, Total) => "All"
+  | (_, Other) => "Other"
   }
 
 let viewLabel = view =>

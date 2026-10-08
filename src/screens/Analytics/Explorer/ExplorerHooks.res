@@ -13,6 +13,9 @@ let useFetchExplorerMetrics = () => {
         getURL(~entityName=V1(ANALYTICS_PAYMENTS_V2), ~methodType=Post, ~id=Some("payments"))
       | Attempt =>
         getURL(~entityName=V1(ANALYTICS_PAYMENTS), ~methodType=Post, ~id=Some("payments"))
+      | Refund => getURL(~entityName=V1(ANALYTICS_REFUNDS), ~methodType=Post, ~id=Some("refunds"))
+      | Dispute =>
+        getURL(~entityName=V1(ANALYTICS_DISPUTES), ~methodType=Post, ~id=Some("disputes"))
       }
       let response = await updateDetails(url, body, Post, ~signal)
       response->getDictFromJsonObject->getArrayFromDict("queryData", [])
@@ -48,7 +51,12 @@ let useFetchFilterValues = () => {
 
   async (~question, ~dimension) => {
     try {
-      let url = getURL(~entityName=V1(ANALYTICS_FILTERS), ~methodType=Post, ~id=Some("payments"))
+      let domain = ExplorerCatalog.sourceConfig(question.source).domain
+      let url = getURL(
+        ~entityName=V1(ANALYTICS_FILTERS),
+        ~methodType=Post,
+        ~id=Some((domain :> string)),
+      )
       let response = await updateDetails(
         url,
         question->ExplorerQuery.getFilterValuesBody(~dimension),
