@@ -263,10 +263,7 @@ let make = (
       paymentConnectorList->Array.find((item: ConnectorTypes.connectorPayloadCommonType) =>
         item.id === paymentConnectorId
       )
-    let connectorName = switch details {
-    | Some(item) => item.connector_name
-    | None => ""
-    }
+    let connectorName = details->mapOptionOrDefault("", item => item.connector_name)
     let reference = billingAccountReference->getString(paymentConnectorId, "")
 
     let isSelected = selectedProcessorId === paymentConnectorId
@@ -291,18 +288,18 @@ let make = (
         <h4 className="text-nd_gray-400"> {"Merchant Connector ID"->React.string} </h4>
         <HelperComponents.CopyTextCustomComp
           displayValue={Some(paymentConnectorId)}
-          customTextCss="!font-jetbrains-mono text-nd_gray-600"
+          customTextCss={`${code.lg.regular} text-nd_gray-600`}
         />
       </div>
       <div className="flex flex-col gap-1">
         <h4 className="text-nd_gray-400"> {"Processor Reference"->React.string} </h4>
-        <p className="!font-jetbrains-mono text-nd_gray-600"> {reference->React.string} </p>
+        <p className={`${code.lg.regular} text-nd_gray-600`}> {reference->React.string} </p>
       </div>
       <div className="flex flex-col gap-1">
         <h4 className="text-nd_gray-400"> {"Status"->React.string} </h4>
         <RenderIf condition={details->Option.isSome}>
           <p className="text-nd_gray-600">
-            {details->Option.mapOr("", item => item.status)->React.string}
+            {details->mapOptionOrDefault("", item => item.status)->React.string}
           </p>
         </RenderIf>
         <RenderIf condition={details->Option.isNone}>
@@ -382,7 +379,7 @@ let make = (
             <ConnectorWebhookDetails isInEditState=true connectorInfo={connectorInfoDict} />
             <RenderIf condition={!isCustomBilling}>
               <FormRenderer.FieldRenderer
-                labelClass="font-semibold !text-hyperswitch_black"
+                labelClass={`${body.md.semibold} !text-hyperswitch_black`}
                 field={FormRenderer.makeFieldInfo(
                   ~label="Processor Reference ID",
                   ~name="processor_reference_id",
