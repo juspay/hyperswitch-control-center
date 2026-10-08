@@ -158,6 +158,7 @@ type question = {
   split: array<dimension>,
   view: view,
   dimensions: array<dimension>,
+  filters: array<(dimension, array<string>)>,
   currency: string,
   startTime: string,
   endTime: string,
@@ -203,6 +204,7 @@ type outcomeColumn =
   | OutcomeShare
 
 type groupRow = {
+  group: group,
   labels: array<(dimension, string)>,
   value: string,
   isLowVolume: bool,
@@ -225,7 +227,9 @@ type viewContext = {
   hasPrevious: bool,
   currentLabel: string,
   previousLabel: string,
+  singleCurrency: string,
   chartKey: string,
   labelFor: (dimension, string) => string,
   groupLabel: group => string,
+  onFocus: group => unit,
 }

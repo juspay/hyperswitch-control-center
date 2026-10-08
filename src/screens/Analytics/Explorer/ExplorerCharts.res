@@ -166,7 +166,7 @@ let getTrendPoints = (viewContext: viewContext, dailyPoints, ~days, ~groupKey) =
   days->Array.map(day =>
     viewContext.question->getPointValue(
       dailyPoints->getCountsOn(~groupKey, ~day),
-      ~currency=viewContext.dataset.amountCurrency,
+      ~currency=viewContext.singleCurrency,
     )
   )
 
@@ -207,20 +207,20 @@ let getTrendSeries = (viewContext: viewContext, ~days) => {
 }
 
 let getTrendChartOptions = (viewContext: viewContext) => {
-  let {question, dataset} = viewContext
+  let {question} = viewContext
   let days = getWindowDays(question.startTime, question.endTime)
   getTrendOptions(
     ~categories=days->Array.map(formatShortDate),
     ~series=viewContext->getTrendSeries(~days),
     ~measure=question.measure,
-    ~currency=dataset.amountCurrency,
+    ~currency=viewContext.singleCurrency,
   )
 }
 
 let getBreakdownSeries = (viewContext: viewContext, ~groups: array<group>) => {
-  let {question, dataset} = viewContext
+  let {question} = viewContext
   let valueFor = counts =>
-    displayValue(question.source, question.measure, counts, ~currency=dataset.amountCurrency)
+    displayValue(question.source, question.measure, counts, ~currency=viewContext.singleCurrency)
   viewContext->withPreviousSeries(
     getColumnSeries(
       ~name=viewContext.currentLabel,
@@ -246,7 +246,7 @@ let getBreakdownChartOptions = (viewContext: viewContext) => {
   getBreakdownOptions(
     ~series=viewContext->getBreakdownSeries(~groups),
     ~measure=question.measure,
-    ~currency=dataset.amountCurrency,
+    ~currency=viewContext.singleCurrency,
     ~barCount=groups->Array.length,
   )
 }

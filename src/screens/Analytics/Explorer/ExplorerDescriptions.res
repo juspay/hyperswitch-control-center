@@ -152,7 +152,7 @@ let viewNote = (question: question) => {
       : "Share of each UTC day's volume by outcome."
   | Table =>
     isSplit
-      ? "Groups ranked by the measure; low-volume groups are ranked last."
+      ? "Click a row to focus on it."
       : "Outcomes in these dates. Add a split to compare groups."
   }
 }

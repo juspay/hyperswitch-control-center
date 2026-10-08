@@ -146,3 +146,55 @@ module UnmeasuredNote = {
     </div>
   }
 }
+
+module FilterChips = {
+  @react.component
+  let make = (~viewContext: viewContext, ~editing, ~onEdit, ~onRemove) =>
+    viewContext.question.filters
+    ->Array.map(((key, values)) =>
+      <button
+        key={(key :> string)}
+        className="inline-flex"
+        onClick={_ => onEdit(Some(key))}
+        title="Edit this filter">
+        <TagBinding
+          text={`${dimensionLabel(key)}: ${values
+            ->Array.map(value => viewContext.labelFor(key, value))
+            ->Array.joinWith(", ")}`}
+          variant=Subtle
+          color={editing == Some(key) ? Primary : Neutral}
+          size=Sm
+          shape=Rounded
+          rightSlot={<span
+            className="inline-flex"
+            onClick={ev => {
+              ev->ReactEvent.Mouse.stopPropagation
+              onRemove(key)
+            }}>
+            <Icon name="nd-cross" size=10 />
+          </span>}
+        />
+      </button>
+    )
+    ->React.array
+}
+
+module SplitSuggestions = {
+  @react.component
+  let make = (~suggestions: array<dimension>, ~onSelect) =>
+    <div
+      className={`flex flex-wrap items-center gap-2 border-t border-nd_br_gray-150 px-5 py-3 ${body.md.regular}`}>
+      <span className="text-nd_gray-500"> {"Break down by"->React.string} </span>
+      {suggestions
+      ->Array.map(key =>
+        <Button
+          key={(key :> string)}
+          text={dimensionLabel(key)}
+          buttonType=Secondary
+          buttonSize=XSmall
+          onClick={_ => onSelect(key)}
+        />
+      )
+      ->React.array}
+    </div>
+}

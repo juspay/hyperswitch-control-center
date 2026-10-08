@@ -41,3 +41,26 @@ let useFetchBackendDimensions = () => {
     }
   }
 }
+
+let useFetchFilterValues = () => {
+  let getURL = useGetURL()
+  let updateDetails = useUpdateMethod()
+
+  async (~question, ~dimension) => {
+    try {
+      let url = getURL(~entityName=V1(ANALYTICS_FILTERS), ~methodType=Post, ~id=Some("payments"))
+      let response = await updateDetails(
+        url,
+        question->ExplorerQuery.getFilterValuesBody(~dimension),
+        Post,
+      )
+      response
+      ->getDictFromJsonObject
+      ->getArrayFromDict("queryData", [])
+      ->Array.flatMap(item => item->getDictFromJsonObject->getStrArrayFromDict("values", []))
+      ->Array.filter(isNonEmptyString)
+    } catch {
+    | Exn.Error(e) => Exn.raiseError(Exn.message(e)->Option.getOr("Failed to fetch filter values"))
+    }
+  }
+}

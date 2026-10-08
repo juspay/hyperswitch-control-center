@@ -21,7 +21,7 @@ let make = (~viewContext: viewContext) => {
         key={measure->measureToString}
         label={measureLabel(source, measure)}
         definition={measureDefinition(source, measure)}
-        value={formatValue(source, measure, dataset.overall, ~currency=dataset.amountCurrency)}
+        value={formatValue(source, measure, dataset.overall, ~currency=viewContext.singleCurrency)}
         change={isMeasurable
           ? formatChange(measure, current, previous)
           : unmeasurableNote(source, measure)}

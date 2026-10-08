@@ -60,11 +60,12 @@ let getGroupRows = (viewContext: viewContext) => {
     let previous =
       group.previous->Option.map(previousCounts => getMeasureValue(source, measure, previousCounts))
     {
+      group,
       labels: question.split->Array.mapWithIndex((key, index) => (
         key,
         viewContext.labelFor(key, group.values->getValueFromArray(index, "")),
       )),
-      value: formatValue(source, measure, group.current, ~currency=dataset.amountCurrency),
+      value: formatValue(source, measure, group.current, ~currency=viewContext.singleCurrency),
       isLowVolume: question->isSmall(~minimumRateBase=dataset.minimumRateBase, group),
       change: hasPrevious ? formatChange(measure, current, previous) : "",
       impact: getChangeImpact(measure, current, previous),

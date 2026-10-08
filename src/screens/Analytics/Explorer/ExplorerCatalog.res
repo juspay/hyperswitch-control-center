@@ -186,3 +186,16 @@ let isLowerBetter = measure =>
   | FailureRate | Failed | ThreeDsFailureRate | NotCompletedRate => true
   | SuccessRate | Volume | Successful | ProcessedAmount | AvgTicket => false
   }
+
+let suggestedNext = (source, key: option<dimension>): array<dimension> =>
+  switch (source, key) {
+  | (Intent, Some(#status)) => [#currency, #profile_id]
+  | (Intent, _) => [#currency, #status]
+  | (Attempt, Some(#connector)) => [#payment_method_type, #error_reason]
+  | (Attempt, Some(#payment_method)) => [#payment_method_type, #connector]
+  | (Attempt, Some(#payment_method_type)) => [#connector, #card_network]
+  | (Attempt, Some(#card_network)) => [#connector, #authentication_type]
+  | (Attempt, Some(#error_reason)) => [#connector, #card_network]
+  | (Attempt, Some(#status)) => [#error_reason, #connector]
+  | (Attempt, _) => [#connector, #error_reason]
+  }

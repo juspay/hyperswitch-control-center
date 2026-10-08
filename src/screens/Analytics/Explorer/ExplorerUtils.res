@@ -17,6 +17,7 @@ let emptyResponses = {
 }
 
 let urlKey = name => `explore.${name}`
+let filterPrefix = urlKey("f.")
 
 let topGroupCount = 5
 let maxBreakdownGroups = 12
@@ -86,6 +87,29 @@ let getOutcomesOfStatus = (source, status) =>
     ->Array.find(item => (item :> string) == status)
     ->Option.mapOr([], attemptStatusOutcomes)
   }
+
+let encodeFilterValue = value =>
+  value
+  ->stringReplaceAll("%", "%25")
+  ->stringReplaceAll(",", "%2C")
+  ->stringReplaceAll("&", "%26")
+  ->stringReplaceAll("=", "%3D")
+  ->stringReplaceAll("#", "%23")
+
+let decodeFilterValue = value =>
+  value
+  ->stringReplaceAll("%2C", ",")
+  ->stringReplaceAll("%26", "&")
+  ->stringReplaceAll("%3D", "=")
+  ->stringReplaceAll("%23", "#")
+  ->stringReplaceAll("%25", "%")
+
+let filterValuesFromJson = json =>
+  json
+  ->getOptionStrArrayFromJson
+  ->Option.getOr([json->getStringFromJson("")])
+  ->Array.filter(isNonEmptyString)
+  ->Array.map(decodeFilterValue)
 
 let getRowDay = dict => dict->getString("time_bucket", "")->String.replace(" ", "T") ++ "Z"
 
