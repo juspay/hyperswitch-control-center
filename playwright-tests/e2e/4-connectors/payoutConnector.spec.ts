@@ -65,6 +65,14 @@ test.describe("Payout Connector", () => {
       await assertPaymentMethodTypes(page, connector.paymentSections);
 
       await payoutConnector.pmtProceedButton.click();
+      if (connector.metadataFields) {
+        for (const [placeholder, value] of Object.entries(
+          connector.metadataFields,
+        )) {
+          await page.getByPlaceholder(placeholder, { exact: true }).fill(value);
+        }
+        await payoutConnector.pmtProceedButton.click();
+      }
       await payoutConnector.connectorSetupDone.click();
 
       await expect(page).toHaveURL(/.*dashboard\/payoutconnectors/);

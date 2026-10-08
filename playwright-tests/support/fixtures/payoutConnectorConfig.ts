@@ -13,6 +13,7 @@ export interface ConnectorConfig {
   label: string;
   fields: ConnectorFieldConfig;
   paymentSections: Record<string, PaymentSection>;
+  metadataFields?: Record<string, string>;
 }
 
 export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
@@ -30,6 +31,9 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
         label: "Gift Card",
         methods: ["pay_safe_card"],
       },
+    },
+    metadataFields: {
+      "Enter CAD Account ID": "123456",
     },
   },
   adyen: {
