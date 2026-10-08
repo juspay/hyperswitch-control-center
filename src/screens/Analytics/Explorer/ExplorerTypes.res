@@ -13,6 +13,12 @@ type measure =
   | ProcessedAmount
   | AvgTicket
 
+type view =
+  | @as("trend") Trend
+  | @as("breakdown") Breakdown
+  | @as("mix") Mix
+  | @as("table") Table
+
 type changeImpact =
   | Favorable
   | Unfavorable
@@ -140,10 +146,17 @@ type group = {
   previous: option<counts>,
 }
 
+type dailyPoint = {
+  groupKey: string,
+  day: string,
+  counts: counts,
+}
+
 type question = {
   source: source,
   measure: measure,
   split: array<dimension>,
+  view: view,
   dimensions: array<dimension>,
   currency: string,
   startTime: string,
@@ -153,17 +166,24 @@ type question = {
 type responses = {
   currentRows: array<JSON.t>,
   previousRows: array<JSON.t>,
+  currentDaily: array<JSON.t>,
+  previousDaily: array<JSON.t>,
   rateCurrent: array<JSON.t>,
   ratePrevious: array<JSON.t>,
+  rateCurrentDaily: array<JSON.t>,
+  ratePreviousDaily: array<JSON.t>,
   rateOverallCurrent: array<JSON.t>,
   rateOverallPrevious: array<JSON.t>,
 }
 
 type dataset = {
   sorted: array<group>,
+  topByVolume: array<group>,
   unmeasured: array<(array<string>, counts)>,
   overall: counts,
   overallPrevious: counts,
+  currentDaily: array<dailyPoint>,
+  previousDaily: array<dailyPoint>,
   minimumRateBase: float,
   amountCurrencies: array<string>,
   amountCurrency: string,
@@ -203,5 +223,9 @@ type viewContext = {
   question: question,
   dataset: dataset,
   hasPrevious: bool,
+  currentLabel: string,
+  previousLabel: string,
+  chartKey: string,
   labelFor: (dimension, string) => string,
+  groupLabel: group => string,
 }

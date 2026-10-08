@@ -127,16 +127,43 @@ let outcomeLabel = (source, field) =>
   | (_, Total) => "All"
   }
 
-let viewNote = (question: question) =>
-  question.split->isNonEmptyArray
-    ? "Groups ranked by the measure; low-volume groups are ranked last."
-    : "Outcomes in these dates. Add a split to compare groups."
+let viewLabel = view =>
+  switch view {
+  | Trend => "Trend"
+  | Breakdown => "Breakdown"
+  | Mix => "Mix"
+  | Table => "Table"
+  }
+
+let viewNote = (question: question) => {
+  let isSplit = question.split->isNonEmptyArray
+  switch question.view {
+  | Trend =>
+    isSplit
+      ? "Daily in UTC, for the five largest groups."
+      : "Daily in UTC, against the same days of the previous period."
+  | Breakdown =>
+    isSplit
+      ? "Groups ranked by the measure; low-volume groups are ranked last. Grey is the previous period."
+      : "Outcomes in these dates. Grey is the previous period. Add a split to compare groups."
+  | Mix =>
+    isSplit
+      ? "Share of each UTC day's volume by group."
+      : "Share of each UTC day's volume by outcome."
+  | Table =>
+    isSplit
+      ? "Groups ranked by the measure; low-volume groups are ranked last."
+      : "Outcomes in these dates. Add a split to compare groups."
+  }
+}
 
 let viewTitle = (question: question) => {
-  let {source, measure, split} = question
-  split->isNonEmptyArray
-    ? `${measureLabel(source, measure)} by ${split
-        ->Array.map(dimensionLabel)
-        ->Array.joinWith(" and ")}`
-    : `${measureLabel(source, Volume)} by outcome`
+  let {source, measure, split, view} = question
+  let splitText = split->Array.map(dimensionLabel)->Array.joinWith(" and ")
+  switch (split->isNonEmptyArray, view) {
+  | (true, Mix) => `${measureLabel(source, Volume)} by ${splitText}`
+  | (true, Trend | Breakdown | Table) => `${measureLabel(source, measure)} by ${splitText}`
+  | (false, Breakdown | Table | Mix) => `${measureLabel(source, Volume)} by outcome`
+  | (false, Trend) => measureLabel(source, measure)
+  }
 }

@@ -106,6 +106,27 @@ module MetricCard = {
   }
 }
 
+module ViewTabs = {
+  @react.component
+  let make = (~view: view, ~onView) =>
+    <TabsBinding
+      value={(view :> string)}
+      onValueChange={id => onView(id->viewFromString)}
+      variant=Floating
+      size=Md>
+      <TabsBinding.List variant=Floating size=Md fitContent=true>
+        {views
+        ->Array.map(view =>
+          <TabsBinding.Trigger
+            key={(view :> string)} value={(view :> string)} variant=Floating size=Md>
+            {viewLabel(view)->React.string}
+          </TabsBinding.Trigger>
+        )
+        ->React.array}
+      </TabsBinding.List>
+    </TabsBinding>
+}
+
 module UnmeasuredNote = {
   @react.component
   let make = (~viewContext: viewContext) => {

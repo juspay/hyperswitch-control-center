@@ -23,7 +23,7 @@ let addCounts = (a, b) => {
   awaiting: a.awaiting +. b.awaiting,
   threeDsAttempts: a.threeDsAttempts +. b.threeDsAttempts,
   amount: a.amount +. b.amount,
-  backendRate: None,
+  backendRate: a.total == 0.0 ? b.backendRate : b.total == 0.0 ? a.backendRate : None,
 }
 
 let sumCounts = countsList => countsList->Array.reduce(emptyCounts, addCounts)
@@ -110,13 +110,14 @@ let overallRate = (rows, ~question) =>
     ->getOptionFloat((metric :> string))
   )
 
-let rateLookup = (rows, ~question) =>
+let rateLookup = (rows, ~question, ~byDay) =>
   switch question->getRateMetric {
   | None => Dict.make()
   | Some(metric) =>
     rows->Array.reduce(Dict.make(), (acc, json) => {
       let dict = json->getDictFromJsonObject
       let key = question.split->Array.map(key => dict->getDimensionValue(key))->getRowKey
+      let key = byDay ? `${key}#${dict->getRowDay}` : key
       dict->getOptionFloat((metric :> string))->Option.forEach(rate => acc->Dict.set(key, rate))
       acc
     })
@@ -189,11 +190,38 @@ let buildDataset = (question, responses) => {
     ->Dict.fromArray
   }
 
+  let dailyCounts = (rows, ~byGroup, ~rates) => {
+    let points = Dict.make()
+    rows->Array.forEach(json => {
+      let dict = json->getDictFromJsonObject
+      if keep(dict) {
+        let groupKey = byGroup ? valuesOf(dict)->getRowKey : ""
+        let day = dict->getRowDay
+        let key = `${groupKey}#${day}`
+        let point = points->Dict.get(key)->Option.getOr({groupKey, day, counts: emptyCounts})
+        points->Dict.set(
+          key,
+          {...point, counts: point.counts->addCounts(getRowCounts(source, dict))},
+        )
+      }
+    })
+    points
+    ->Dict.toArray
+    ->Array.map(((key, point)) => {
+      ...point,
+      counts: {...point.counts, backendRate: rates->Dict.get(key)},
+    })
+  }
+
   let currentGroups =
-    responses.currentRows->aggregate(~rates=responses.rateCurrent->rateLookup(~question))
+    responses.currentRows->aggregate(
+      ~rates=responses.rateCurrent->rateLookup(~question, ~byDay=false),
+    )
   let previousGroups =
-    responses.previousRows->aggregate(~rates=responses.ratePrevious->rateLookup(~question))
-  let groups =
+    responses.previousRows->aggregate(
+      ~rates=responses.ratePrevious->rateLookup(~question, ~byDay=false),
+    )
+  let allGroups =
     currentGroups
     ->Dict.toArray
     ->Array.map(((key, (values, current))) => {
@@ -201,6 +229,8 @@ let buildDataset = (question, responses) => {
       current,
       previous: previousGroups->Dict.get(key)->Option.map(((_, counts)) => counts),
     })
+  let groups =
+    allGroups
     ->Array.filter(group =>
       isRate(measure)
         ? measurable(source, measure, group.current)
@@ -229,6 +259,10 @@ let buildDataset = (question, responses) => {
 
   {
     sorted: question->rankGroups(groups, ~minimumRateBase),
+    topByVolume: allGroups
+    ->Array.filter(group => group.current.total > 0.0)
+    ->Array.toSorted((a, b) => b.current.total -. a.current.total)
+    ->Array.slice(~start=0, ~end=topGroupCount),
     unmeasured: isRate(measure)
       ? currentGroups
         ->Dict.valuesToArray
@@ -236,8 +270,27 @@ let buildDataset = (question, responses) => {
       : [],
     overall,
     overallPrevious,
+    currentDaily: responses.currentDaily->dailyCounts(
+      ~byGroup=true,
+      ~rates=responses.rateCurrentDaily->rateLookup(~question, ~byDay=true),
+    ),
+    previousDaily: responses.previousDaily->dailyCounts(
+      ~byGroup=false,
+      ~rates=responses.ratePreviousDaily->rateLookup(~question, ~byDay=true),
+    ),
     minimumRateBase,
     amountCurrencies,
     amountCurrency,
   }
 }
+
+let getCountsOn = (points, ~groupKey, ~day) =>
+  points
+  ->Array.filter(point => point.groupKey == groupKey && point.day == day)
+  ->Array.map(point => point.counts)
+  ->sumCounts
+
+let pointValue = (question, counts, ~currency) =>
+  measurable(question.source, question.measure, counts) && counts.total > 0.0
+    ? Nullable.make(displayValue(question.source, question.measure, counts, ~currency))
+    : Nullable.null

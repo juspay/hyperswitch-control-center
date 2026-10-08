@@ -1,8 +1,10 @@
 open LogicUtils
 open ExplorerTypes
 open ExplorerDescriptions
+open ExplorerCharts
 open ExplorerEntity
 open InsightsHelper
+open NewAnalyticsHelper
 
 module ViewTable = {
   @react.component
@@ -33,19 +35,37 @@ module ViewTable = {
 
 @react.component
 let make = (~viewContext: viewContext) => {
-  let {question} = viewContext
+  let {question, dataset, chartKey} = viewContext
+  let isSplit = question.split->isNonEmptyArray
   let title = question->viewTitle
-  question.split->isNonEmptyArray
-    ? <ViewTable
-        title
-        rows={viewContext->getGroupRows}
-        entity={question->getGroupTableEntity}
-        visibleColumns={question->getGroupColumns}
-      />
-    : <ViewTable
-        title
-        rows={viewContext->getOutcomeRows}
-        entity={question.source->getOutcomeTableEntity}
-        visibleColumns=outcomeColumns
-      />
+  if isSplit && dataset.sorted->isEmptyArray {
+    <NoData
+      height="h-32" message="No groups have a value for this measure in the selected dates."
+    />
+  } else {
+    switch question.view {
+    | Trend => <LineGraph key={`trend|${chartKey}`} options={viewContext->getTrendChartOptions} />
+    | Breakdown =>
+      isSplit
+        ? <ColumnGraph
+            key={`breakdown|${chartKey}`} options={viewContext->getBreakdownChartOptions}
+          />
+        : <ColumnGraph key={`outcomes|${chartKey}`} options={viewContext->getOutcomeChartOptions} />
+    | Mix => <ColumnGraph key={`mix|${chartKey}`} options={viewContext->getMixChartOptions} />
+    | Table =>
+      isSplit
+        ? <ViewTable
+            title
+            rows={viewContext->getGroupRows}
+            entity={question->getGroupTableEntity}
+            visibleColumns={question->getGroupColumns}
+          />
+        : <ViewTable
+            title
+            rows={viewContext->getOutcomeRows}
+            entity={question.source->getOutcomeTableEntity}
+            visibleColumns=outcomeColumns
+          />
+    }
+  }
 }
