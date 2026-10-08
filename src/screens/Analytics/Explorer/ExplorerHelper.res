@@ -179,6 +179,48 @@ module FilterChips = {
     ->React.array
 }
 
+module OutcomeBar = {
+  @react.component
+  let make = (~viewContext: viewContext) => {
+    let {question, dataset} = viewContext
+    <div className="flex flex-col gap-1 pt-2">
+      <div className={`${body.sm.medium} uppercase text-nd_gray-400`}>
+        {`${dataset.overall.total->formatNumberWithCommas} ${sourceNoun(
+            question.source,
+          )} by outcome`->React.string}
+      </div>
+      <StackedBarGraph
+        key={`summary|${viewContext.chartKey}`}
+        options={StackedBarGraphUtils.getStackedBarGraphOptions(
+          {
+            categories: [sourceNoun(question.source)],
+            data: viewContext
+            ->ExplorerSummaryUtils.getOutcomeParts
+            ->Array.toReversed
+            ->Array.map(((name, value, color)): StackedBarGraphTypes.dataObj => {
+              name,
+              data: [value],
+              color,
+            }),
+            labelFormatter: ExplorerCharts.outcomeLegend,
+          },
+          ~yMax=dataset.overall.total->Float.toInt,
+          ~labelItemDistance=32,
+          ~pointWidth=16,
+        )}
+      />
+      <RenderIf condition={viewContext->ExplorerSummaryUtils.isAwaitingExcluded}>
+        <div className={`${body.sm.regular} text-nd_gray-500`}>
+          {`Payments awaiting customer or merchant action are excluded from the ${measureLabel(
+              question.source,
+              question.measure,
+            )->String.toLowerCase}.`->React.string}
+        </div>
+      </RenderIf>
+    </div>
+  }
+}
+
 module SplitSuggestions = {
   @react.component
   let make = (~suggestions: array<dimension>, ~onSelect) =>
