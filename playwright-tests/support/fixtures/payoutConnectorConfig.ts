@@ -16,6 +16,22 @@ export interface ConnectorConfig {
 }
 
 export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
+  paysafe: {
+    label: "paysafe",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "paysafe_default",
+      },
+      fieldLabels: ["Username *", "Password *", "Source verification key"],
+    },
+    paymentSections: {
+      GiftCard: {
+        label: "Gift Card",
+        methods: ["pay_safe_card"],
+      },
+    },
+  },
   adyen: {
     label: "adyen",
     fields: {

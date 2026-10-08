@@ -171,6 +171,7 @@ type payoutProcessorTypes =
   | SANTANDER
   | DEUTSCHEBANK
   | GOTYME
+  | PAYSAFE
 
 type threeDsAuthenticatorTypes =
   | THREEDSECUREIO
