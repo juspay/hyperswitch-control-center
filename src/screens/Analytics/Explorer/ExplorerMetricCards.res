@@ -3,34 +3,25 @@ open ExplorerUtils
 open ExplorerData
 open ExplorerDescriptions
 
-let metricCardMeasures = question => {
-  let offered = ExplorerCatalog.sourceConfig(question.source).measures
-  [question.measure]->Array.concat(
-    [SuccessRate, Volume, Successful, Failed]
-    ->Array.filter(measure => measure != question.measure && offered->Array.includes(measure))
-    ->Array.slice(~start=0, ~end=3),
-  )
-}
-
 @react.component
 let make = (~question: question, ~dataset: dataset) => {
   let source = question.source
-  let hasPrevious = dataset.overallPrevious.total > 0.0
   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
     {question
     ->metricCardMeasures
     ->Array.mapWithIndex((measure, index) => {
-      let current = getMeasureValue(source, measure, dataset.overall)
+      let (counts, previousCounts) = dataset->getMeasureCounts(measure)
+      let current = getMeasureValue(source, measure, counts)
       let previous =
-        hasPrevious && measurable(source, measure, dataset.overallPrevious)
-          ? Some(getMeasureValue(source, measure, dataset.overallPrevious))
+        previousCounts.total > 0.0 && measurable(source, measure, previousCounts)
+          ? Some(getMeasureValue(source, measure, previousCounts))
           : None
-      let isMeasurable = measurable(source, measure, dataset.overall)
+      let isMeasurable = measurable(source, measure, counts)
       <ExplorerHelper.MetricCard
-        key={measure->measureToString}
+        key={(measure :> string)}
         label={measureLabel(source, measure)}
         definition={measureDefinition(source, measure)}
-        value={formatValue(source, measure, dataset.overall, ~currency=dataset.amountCurrency)}
+        value={formatValue(source, measure, counts, ~currency=dataset.amountCurrency)}
         change={isMeasurable
           ? formatChange(measure, current, previous)
           : unmeasurableNote(source, measure)}

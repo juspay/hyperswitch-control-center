@@ -1,17 +1,16 @@
-type source =
-  | Intent
-  | Attempt
+type source = [#intent | #attempt]
 
-type measure =
-  | SuccessRate
-  | FailureRate
-  | Volume
-  | Successful
-  | Failed
-  | ThreeDsFailureRate
-  | NotCompletedRate
-  | ProcessedAmount
-  | AvgTicket
+type measure = [
+  | #success_rate
+  | #failure_rate
+  | #volume
+  | #successful
+  | #failed
+  | #three_ds_failure_rate
+  | #not_completed_rate
+  | #processed_amount
+  | #avg_ticket
+]
 
 type changeImpact =
   | Favorable
@@ -22,8 +21,6 @@ type metric = [
   | #payment_intent_count
   | #payment_count
   | #payment_processed_amount
-  | #payment_success_rate
-  | #payments_success_rate
 ]
 
 type dimension = [
@@ -107,7 +104,6 @@ type formula =
 type sourceConfig = {
   countMetric: metric,
   amountMetric: metric,
-  successRateMetric: metric,
   measures: array<measure>,
 }
 
@@ -119,7 +115,6 @@ type counts = {
   awaiting: float,
   threeDsAttempts: float,
   amount: float,
-  backendRate: option<float>,
 }
 
 type question = {
@@ -133,13 +128,13 @@ type question = {
 type responses = {
   currentRows: array<JSON.t>,
   previousRows: array<JSON.t>,
-  rateCurrent: array<JSON.t>,
-  ratePrevious: array<JSON.t>,
 }
 
 type dataset = {
   overall: counts,
   overallPrevious: counts,
+  inCurrency: counts,
+  inCurrencyPrevious: counts,
   amountCurrencies: array<string>,
   amountCurrency: string,
 }

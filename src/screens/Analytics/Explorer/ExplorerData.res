@@ -12,7 +12,6 @@ let emptyCounts = {
   awaiting: 0.0,
   threeDsAttempts: 0.0,
   amount: 0.0,
-  backendRate: None,
 }
 
 let addCounts = (a, b) => {
@@ -23,7 +22,6 @@ let addCounts = (a, b) => {
   awaiting: a.awaiting +. b.awaiting,
   threeDsAttempts: a.threeDsAttempts +. b.threeDsAttempts,
   amount: a.amount +. b.amount,
-  backendRate: None,
 }
 
 let sumCounts = countsList => countsList->Array.reduce(emptyCounts, addCounts)
@@ -59,21 +57,15 @@ let getRowCounts = (source, dict) => {
     authFailed: isThreeDs ? countIf(AuthFailed) : 0.0,
     threeDsAttempts: isThreeDs ? records : 0.0,
     amount: dict->getFloat((config.amountMetric :> string), 0.0),
-    backendRate: None,
   }
 }
 
 let getMeasureValue = (source, measure, counts) =>
-  switch (measure, counts.backendRate) {
-  | (SuccessRate, Some(rate)) => rate
-  | _ =>
-    switch getMeasureFormula(source, measure) {
-    | Rate(field, base) =>
-      calculatePercentage(counts->getCount(field), counts->getDenominator(base))
-    | Count(field) => counts->getCount(field)
-    | TotalAmount => counts.amount
-    | AmountPerSuccess => counts.success > 0.0 ? counts.amount /. counts.success : 0.0
-    }
+  switch getMeasureFormula(source, measure) {
+  | Rate(field, base) => calculatePercentage(counts->getCount(field), counts->getDenominator(base))
+  | Count(field) => counts->getCount(field)
+  | TotalAmount => counts.amount
+  | AmountPerSuccess => counts.success > 0.0 ? counts.amount /. counts.success : 0.0
   }
 
 let getRateDenominator = (source, measure, counts) =>
@@ -83,9 +75,7 @@ let getRateDenominator = (source, measure, counts) =>
   }
 
 let measurable = (source, measure, counts) =>
-  !isRate(measure) ||
-  measure == SuccessRate && counts.backendRate->Option.isSome ||
-  getRateDenominator(source, measure, counts) > 0.0
+  !isRate(measure) || getRateDenominator(source, measure, counts) > 0.0
 
 let displayValue = (source, measure, counts, ~currency) => {
   let value = getMeasureValue(source, measure, counts)
@@ -99,15 +89,10 @@ let formatValue = (source, measure, counts, ~currency="") =>
     ? formatDisplay(measure, displayValue(source, measure, counts, ~currency), ~currency)
     : "–"
 
-let overallRate = (rows, ~question) =>
-  question
-  ->getRateMetric
-  ->Option.flatMap(metric =>
-    rows
-    ->getValueFromArray(0, JSON.Encode.null)
-    ->getDictFromJsonObject
-    ->getOptionFloat((metric :> string))
-  )
+let getMeasureCounts = (dataset, measure) =>
+  isAmount(measure)
+    ? (dataset.inCurrency, dataset.inCurrencyPrevious)
+    : (dataset.overall, dataset.overallPrevious)
 
 let buildDataset = (question, responses) => {
   let source = question.source
@@ -135,19 +120,19 @@ let buildDataset = (question, responses) => {
       ? question.currency
       : amountCurrencies->getValueFromArray(0, "")
 
-  let keep = dict => !needsCurrency || dict->getDimensionValue(#currency) == amountCurrency
-  let totalOf = (rows, ~rateRows) => {
-    ...rows
+  let isInCurrency = dict => !needsCurrency || dict->getDimensionValue(#currency) == amountCurrency
+  let totalOf = (rows, ~keep=_ => true) =>
+    rows
     ->Array.map(getDictFromJsonObject)
     ->Array.filter(keep)
     ->Array.map(dict => getRowCounts(source, dict))
-    ->sumCounts,
-    backendRate: rateRows->overallRate(~question),
-  }
+    ->sumCounts
 
   {
-    overall: responses.currentRows->totalOf(~rateRows=responses.rateCurrent),
-    overallPrevious: responses.previousRows->totalOf(~rateRows=responses.ratePrevious),
+    overall: responses.currentRows->totalOf,
+    overallPrevious: responses.previousRows->totalOf,
+    inCurrency: responses.currentRows->totalOf(~keep=isInCurrency),
+    inCurrencyPrevious: responses.previousRows->totalOf(~keep=isInCurrency),
     amountCurrencies,
     amountCurrency,
   }

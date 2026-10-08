@@ -1,85 +1,71 @@
 open LogicUtils
 open ExplorerTypes
 open ExplorerCatalog
+open ExplorerDescriptions
 
 let emptyResponses = {
   currentRows: [],
   previousRows: [],
-  rateCurrent: [],
-  ratePrevious: [],
 }
 
 let urlKey = name => `explore.${name}`
 
-let isRate = measure =>
+let isRate = (measure: measure) =>
   switch measure {
-  | SuccessRate | FailureRate | ThreeDsFailureRate | NotCompletedRate => true
-  | Volume | Successful | Failed | ProcessedAmount | AvgTicket => false
+  | #success_rate | #failure_rate | #three_ds_failure_rate | #not_completed_rate => true
+  | #volume | #successful | #failed | #processed_amount | #avg_ticket => false
   }
 
-let isAmount = measure =>
+let isAmount = (measure: measure) =>
   switch measure {
-  | ProcessedAmount | AvgTicket => true
-  | SuccessRate
-  | FailureRate
-  | ThreeDsFailureRate
-  | NotCompletedRate
-  | Volume
-  | Successful
-  | Failed => false
+  | #processed_amount | #avg_ticket => true
+  | #success_rate
+  | #failure_rate
+  | #three_ds_failure_rate
+  | #not_completed_rate
+  | #volume
+  | #successful
+  | #failed => false
   }
 
 let getDimensionValue = (dict, dimension: dimension) => dict->getString((dimension :> string), "")
 
-let getOutcomesOfStatus = (source, status) =>
+let getOutcomesOfStatus = (source: source, status) =>
   switch source {
-  | Intent =>
+  | #intent =>
     intentStatuses
     ->Array.find(item => (item :> string) == status)
     ->Option.mapOr([], intentStatusOutcomes)
-  | Attempt =>
+  | #attempt =>
     attemptStatuses
     ->Array.find(item => (item :> string) == status)
     ->Option.mapOr([], attemptStatusOutcomes)
   }
 
-let sourceToString = source =>
-  switch source {
-  | Intent => "intent"
-  | Attempt => "attempt"
-  }
-
 let sourceFromString = id =>
-  switch id {
-  | "attempt" => Attempt
-  | _ => Intent
-  }
+  sources->Array.find(source => (source :> string) == id)->Option.getOr(#intent)
 
-let measureToString = measure =>
-  switch measure {
-  | SuccessRate => "success_rate"
-  | FailureRate => "failure_rate"
-  | Volume => "volume"
-  | Successful => "successful"
-  | Failed => "failed"
-  | ThreeDsFailureRate => "three_ds_failure_rate"
-  | NotCompletedRate => "not_completed_rate"
-  | ProcessedAmount => "processed_amount"
-  | AvgTicket => "avg_ticket"
-  }
+let measureFromString = (source, id) =>
+  sourceConfig(source).measures
+  ->Array.find(measure => (measure :> string) == id)
+  ->Option.getOr(#success_rate)
 
-let measureFromString = id =>
-  switch id {
-  | "failure_rate" => FailureRate
-  | "volume" => Volume
-  | "successful" => Successful
-  | "failed" => Failed
-  | "three_ds_failure_rate" => ThreeDsFailureRate
-  | "not_completed_rate" => NotCompletedRate
-  | "processed_amount" => ProcessedAmount
-  | "avg_ticket" => AvgTicket
-  | _ => SuccessRate
-  }
+let measureOptions = source =>
+  sourceConfig(source).measures->Array.map((measure): MultiSelectBindings.selectMenuItemType => {
+    label: measureLabel(source, measure),
+    value: (measure :> string),
+    subLabel: measureDefinition(source, measure),
+  })
+
+let metricCardMeasures = question => {
+  let offered = sourceConfig(question.source).measures
+  let headlineMeasures: array<measure> = [#success_rate, #volume, #successful, #failed]
+  [question.measure]->Array.concat(
+    headlineMeasures
+    ->Array.filter(measure => measure != question.measure && offered->Array.includes(measure))
+    ->Array.slice(~start=0, ~end=3),
+  )
+}
 
 let formatPercentage = value => `${value->Float.toFixedWithPrecision(~digits=1)}%`
 
@@ -96,20 +82,24 @@ let formatDisplay = (measure, value, ~currency="") =>
     value->formatNumberWithCommas
   }
 
+let getDisplayedChange = (measure, current, previous) =>
+  previous
+  ->Option.flatMap(previousValue =>
+    isRate(measure) || current == previousValue
+      ? Some(current -. previousValue)
+      : getPercentageChange(current, previousValue)
+  )
+  ->Option.map(change => Math.round(change *. 10.0) /. 10.0)
+
 let formatChange = (measure, current, previous) =>
-  switch previous {
-  | Some(previousValue) if previousValue == current => "no change"
-  | Some(previousValue) if isRate(measure) => `${(current -. previousValue)->formatSigned} pp`
-  | Some(previousValue) =>
-    getPercentageChange(current, previousValue)->Option.mapOr("new", change =>
-      `${change->formatSigned}%`
-    )
+  switch getDisplayedChange(measure, current, previous) {
+  | Some(0.0) => "no change"
+  | Some(change) => `${change->formatSigned}${isRate(measure) ? " pp" : "%"}`
   | None => "new"
   }
 
 let getChangeImpact = (measure, current, previous) =>
-  switch previous {
-  | Some(previousValue) if current != previousValue =>
-    current > previousValue != isLowerBetter(measure) ? Favorable : Unfavorable
-  | _ => Neutral
+  switch getDisplayedChange(measure, current, previous) {
+  | Some(0.0) | None => Neutral
+  | Some(change) => change > 0.0 != isLowerBetter(measure) ? Favorable : Unfavorable
   }

@@ -29,7 +29,7 @@ let make = () => {
         defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
         tabNames=[]
         updateUrlWith=updateExistingKeys
-        filterFieldsPortalName={HSAnalyticsUtils.filterFieldsPortalName}
+        filterFieldsPortalName
         showCustomFilter=false
         filtersDisplayOption=false
         refreshFilters=false

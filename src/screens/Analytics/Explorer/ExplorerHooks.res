@@ -6,12 +6,12 @@ let useFetchExplorerMetrics = () => {
   let getURL = useGetURL()
   let updateDetails = useCancellableUpdateMethod(~showErrorToast=false)
 
-  async (~source, ~body, ~signal) => {
+  async (~source: source, ~body, ~signal) => {
     try {
       let url = switch source {
-      | Intent =>
+      | #intent =>
         getURL(~entityName=V1(ANALYTICS_PAYMENTS_V2), ~methodType=Post, ~id=Some("payments"))
-      | Attempt =>
+      | #attempt =>
         getURL(~entityName=V1(ANALYTICS_PAYMENTS), ~methodType=Post, ~id=Some("payments"))
       }
       let response = await updateDetails(url, body, Post, ~signal)

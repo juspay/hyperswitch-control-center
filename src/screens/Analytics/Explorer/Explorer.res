@@ -23,18 +23,11 @@ let make = () => {
       let previous = question->previousWindow
       let fetchCounts = window =>
         fetchMetrics(~source, ~body=question->getCountRequestBody(~window), ~signal)
-      let fetchRate = async window =>
-        switch question->getRateRequestBody(~window) {
-        | Some(body) => await fetchMetrics(~source, ~body, ~signal)
-        | None => []
-        }
-      let (currentRows, previousRows, rateCurrent, ratePrevious) = await Promise.all4((
+      let (currentRows, previousRows) = await Promise.all2((
         fetchCounts(current),
         fetchCounts(previous),
-        fetchRate(current),
-        fetchRate(previous),
       ))
-      setResponses(_ => {currentRows, previousRows, rateCurrent, ratePrevious})
+      setResponses(_ => {currentRows, previousRows})
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | AbortControllerHook.AbortError => ()
@@ -51,7 +44,7 @@ let make = () => {
 
   let setSource = source =>
     if source != question.source {
-      [("source", source->sourceToString)]->selectionUpdate->updateExistingKeys
+      [("source", (source :> string))]->selectionUpdate->updateExistingKeys
     }
 
   <div className="flex flex-col gap-4">

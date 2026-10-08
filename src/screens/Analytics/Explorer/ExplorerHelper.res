@@ -18,7 +18,7 @@ module SourceTabs = {
   let make = (~question: question, ~onSource) =>
     <div className="flex items-center gap-3">
       <TabsBinding
-        value={question.source->sourceToString}
+        value={(question.source :> string)}
         onValueChange={id => onSource(id->sourceFromString)}
         variant=Boxed
         size=Md>
@@ -26,7 +26,7 @@ module SourceTabs = {
           {sources
           ->Array.map(source =>
             <TabsBinding.Trigger
-              key={source->sourceToString} value={source->sourceToString} variant=Boxed size=Md>
+              key={(source :> string)} value={(source :> string)} variant=Boxed size=Md>
               {sourceLabel(source)->React.string}
             </TabsBinding.Trigger>
           )

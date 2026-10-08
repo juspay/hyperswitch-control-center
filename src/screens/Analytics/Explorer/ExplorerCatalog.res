@@ -1,37 +1,35 @@
 open ExplorerTypes
 
-let sources = [Intent, Attempt]
+let sources: array<source> = [#intent, #attempt]
 
-let sourceConfig = source =>
+let sourceConfig = (source: source) =>
   switch source {
-  | Intent => {
+  | #intent => {
       countMetric: #payment_intent_count,
       amountMetric: #payment_processed_amount,
-      successRateMetric: #payments_success_rate,
       measures: [
-        SuccessRate,
-        FailureRate,
-        NotCompletedRate,
-        Volume,
-        Successful,
-        Failed,
-        ProcessedAmount,
-        AvgTicket,
+        #success_rate,
+        #failure_rate,
+        #not_completed_rate,
+        #volume,
+        #successful,
+        #failed,
+        #processed_amount,
+        #avg_ticket,
       ],
     }
-  | Attempt => {
+  | #attempt => {
       countMetric: #payment_count,
       amountMetric: #payment_processed_amount,
-      successRateMetric: #payment_success_rate,
       measures: [
-        SuccessRate,
-        FailureRate,
-        ThreeDsFailureRate,
-        Volume,
-        Successful,
-        Failed,
-        ProcessedAmount,
-        AvgTicket,
+        #success_rate,
+        #failure_rate,
+        #three_ds_failure_rate,
+        #volume,
+        #successful,
+        #failed,
+        #processed_amount,
+        #avg_ticket,
       ],
     }
   }
@@ -142,23 +140,23 @@ let attemptStatusOutcomes = (status: attemptStatus) =>
   | #capture_review => []
   }
 
-let getMeasureFormula = (source, measure) =>
+let getMeasureFormula = (source: source, measure: measure) =>
   switch (measure, source) {
-  | (SuccessRate, Intent) => Rate(Success, CompletedRecords)
-  | (SuccessRate, Attempt) => Rate(Success, AllRecords)
-  | (FailureRate, Intent) => Rate(Failed, CompletedRecords)
-  | (FailureRate, Attempt) => Rate(Failed, AllRecords)
-  | (ThreeDsFailureRate, _) => Rate(AuthFailed, ThreeDsAttempts)
-  | (NotCompletedRate, _) => Rate(Awaiting, AllRecords)
-  | (Volume, _) => Count(Total)
-  | (Successful, _) => Count(Success)
-  | (Failed, _) => Count(Failed)
-  | (ProcessedAmount, _) => TotalAmount
-  | (AvgTicket, _) => AmountPerSuccess
+  | (#success_rate, #intent) => Rate(Success, CompletedRecords)
+  | (#success_rate, #attempt) => Rate(Success, AllRecords)
+  | (#failure_rate, #intent) => Rate(Failed, CompletedRecords)
+  | (#failure_rate, #attempt) => Rate(Failed, AllRecords)
+  | (#three_ds_failure_rate, _) => Rate(AuthFailed, ThreeDsAttempts)
+  | (#not_completed_rate, _) => Rate(Awaiting, AllRecords)
+  | (#volume, _) => Count(Total)
+  | (#successful, _) => Count(Success)
+  | (#failed, _) => Count(Failed)
+  | (#processed_amount, _) => TotalAmount
+  | (#avg_ticket, _) => AmountPerSuccess
   }
 
-let isLowerBetter = measure =>
+let isLowerBetter = (measure: measure) =>
   switch measure {
-  | FailureRate | Failed | ThreeDsFailureRate | NotCompletedRate => true
-  | SuccessRate | Volume | Successful | ProcessedAmount | AvgTicket => false
+  | #failure_rate | #failed | #three_ds_failure_rate | #not_completed_rate => true
+  | #success_rate | #volume | #successful | #processed_amount | #avg_ticket => false
   }

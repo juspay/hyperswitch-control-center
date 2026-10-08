@@ -1,18 +1,10 @@
 open Typography
 open LogicUtils
 open ExplorerTypes
-open ExplorerCatalog
 open ExplorerUtils
 open ExplorerDescriptions
 open ExplorerQuery
 open ExplorerHelper
-
-let measureOptions = source =>
-  sourceConfig(source).measures->Array.map((measure): MultiSelectBindings.selectMenuItemType => {
-    label: measureLabel(source, measure),
-    value: measure->measureToString,
-    subLabel: measureDefinition(source, measure),
-  })
 
 @react.component
 let make = (~question: question, ~dataset: dataset, ~onUpdate: Dict.t<string> => unit) => {
@@ -23,7 +15,7 @@ let make = (~question: question, ~dataset: dataset, ~onUpdate: Dict.t<string> =>
     <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
       <QueryText text="Show" />
       <QuerySelect
-        value={question.measure->measureToString}
+        value={(question.measure :> string)}
         onChange={id => setSelection([("measure", id)])}
         options={source->measureOptions}
         placeholder="Measure"
