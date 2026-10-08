@@ -24,7 +24,7 @@ let make = () => {
   let infoDomain = sourceConfig(filterValueJson->sourceFromFilters).infoDomain
   let question =
     filterValueJson->questionFromFilters(
-      ~backendDimensions=dimensionsByDomain->Dict.get(infoDomain),
+      ~backendDimensions=infoDomain->Option.flatMap(domain => dimensionsByDomain->Dict.get(domain)),
     )
   let dataset = question->ExplorerData.buildDataset(responses)
   let isSplit = question.split->isNonEmptyArray
@@ -33,12 +33,16 @@ let make = () => {
 
   let getBackendDimensions = async () => {
     try {
-      let names = await fetchBackendDimensions(~infoDomain)
-      setDimensionsByDomain(prev => {
-        let dimensions = prev->Dict.copy
-        dimensions->Dict.set(infoDomain, names)
-        dimensions
-      })
+      switch infoDomain {
+      | Some(infoDomain) =>
+        let names = await fetchBackendDimensions(~infoDomain)
+        setDimensionsByDomain(prev => {
+          let dimensions = prev->Dict.copy
+          dimensions->Dict.set(infoDomain, names)
+          dimensions
+        })
+      | None => ()
+      }
     } catch {
     | _ => ()
     }
@@ -108,7 +112,7 @@ let make = () => {
   React.useEffect(() => {
     getBackendDimensions()->ignore
     None
-  }, [infoDomain])
+  }, [infoDomain->Option.getOr("")])
 
   React.useEffect(() => {
     if question->hasDates {
@@ -152,6 +156,7 @@ let make = () => {
   let suggestions = question->getSplitSuggestions(~drilledFrom)
 
   <div className="flex flex-col gap-4">
+    <DomainTabs question onSource=setSource />
     <SourceTabs question onSource=setSource />
     <ExplorerQueryBar
       viewContext

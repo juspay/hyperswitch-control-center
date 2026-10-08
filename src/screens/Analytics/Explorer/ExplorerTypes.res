@@ -1,6 +1,13 @@
+type domain =
+  | @as("payments") Payments
+  | @as("refunds") Refunds
+  | @as("disputes") Disputes
+
 type source =
   | Intent
   | Attempt
+  | Refund
+  | Dispute
 
 type measure =
   | SuccessRate
@@ -12,6 +19,7 @@ type measure =
   | NotCompletedRate
   | ProcessedAmount
   | AvgTicket
+  | LostAmount
 
 type view =
   | @as("trend") Trend
@@ -27,13 +35,20 @@ type changeImpact =
 type metric = [
   | #payment_intent_count
   | #payment_count
+  | #refund_count
   | #payment_processed_amount
+  | #refund_processed_amount
+  | #dispute_status_metric
+  | #total_amount_disputed
+  | #total_dispute_lost_amount
   | #payment_success_rate
   | #payments_success_rate
+  | #refund_success_rate
 ]
 
 type dimension = [
   | #status
+  | #refund_status
   | #connector
   | #payment_method
   | #payment_method_type
@@ -45,6 +60,10 @@ type dimension = [
   | #routing_approach
   | #client_source
   | #client_version
+  | #refund_type
+  | #refund_reason
+  | #refund_error_message
+  | #dispute_stage
 ]
 
 type authenticationType = [#three_ds | #no_three_ds]
@@ -101,6 +120,8 @@ type attemptStatus = [
   | #capture_review
 ]
 
+type refundStatus = [#success | #failure | #transaction_failure | #pending | #manual_review]
+
 type countField =
   | Total
   | Success
@@ -109,22 +130,29 @@ type countField =
   | AuthFailed
   | Other
 
+type amountField =
+  | Processed
+  | Lost
+
 type denominator =
   | AllRecords
   | CompletedRecords
+  | Decided
   | ThreeDsAttempts
 
 type formula =
   | Rate(countField, denominator)
   | Count(countField)
-  | TotalAmount
+  | TotalAmount(amountField)
   | AmountPerSuccess
 
 type sourceConfig = {
-  countMetric: metric,
-  amountMetric: metric,
-  successRateMetric: metric,
-  infoDomain: string,
+  domain: domain,
+  statusDimension: option<dimension>,
+  countMetrics: array<metric>,
+  amountMetrics: array<metric>,
+  successRateMetric: option<metric>,
+  infoDomain: option<string>,
   dimensions: array<dimension>,
   measures: array<measure>,
 }
@@ -137,6 +165,7 @@ type counts = {
   awaiting: float,
   threeDsAttempts: float,
   amount: float,
+  lostAmount: float,
   backendRate: option<float>,
 }
 

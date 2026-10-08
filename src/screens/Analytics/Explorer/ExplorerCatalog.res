@@ -1,15 +1,18 @@
 open ExplorerTypes
 
-let sources = [Intent, Attempt]
+let domains = [Payments, Refunds, Disputes]
+
 let views = [Trend, Breakdown, Mix, Table]
 
 let sourceConfig = source =>
   switch source {
   | Intent => {
-      countMetric: #payment_intent_count,
-      amountMetric: #payment_processed_amount,
-      successRateMetric: #payments_success_rate,
-      infoDomain: "payment_intents",
+      domain: Payments,
+      statusDimension: Some(#status),
+      countMetrics: [#payment_intent_count],
+      amountMetrics: [#payment_processed_amount],
+      successRateMetric: Some(#payments_success_rate),
+      infoDomain: Some("payment_intents"),
       dimensions: [#status, #currency, #profile_id],
       measures: [
         SuccessRate,
@@ -23,10 +26,12 @@ let sourceConfig = source =>
       ],
     }
   | Attempt => {
-      countMetric: #payment_count,
-      amountMetric: #payment_processed_amount,
-      successRateMetric: #payment_success_rate,
-      infoDomain: "payments",
+      domain: Payments,
+      statusDimension: Some(#status),
+      countMetrics: [#payment_count],
+      amountMetrics: [#payment_processed_amount],
+      successRateMetric: Some(#payment_success_rate),
+      infoDomain: Some("payments"),
       dimensions: [
         #connector,
         #payment_method,
@@ -52,6 +57,49 @@ let sourceConfig = source =>
         AvgTicket,
       ],
     }
+  | Refund => {
+      domain: Refunds,
+      statusDimension: Some(#refund_status),
+      countMetrics: [#refund_count],
+      amountMetrics: [#refund_processed_amount],
+      successRateMetric: Some(#refund_success_rate),
+      infoDomain: Some("refunds"),
+      dimensions: [
+        #connector,
+        #refund_status,
+        #refund_type,
+        #refund_reason,
+        #refund_error_message,
+        #currency,
+        #profile_id,
+      ],
+      measures: [
+        SuccessRate,
+        FailureRate,
+        NotCompletedRate,
+        Volume,
+        Successful,
+        Failed,
+        ProcessedAmount,
+      ],
+    }
+  | Dispute => {
+      domain: Disputes,
+      statusDimension: None,
+      countMetrics: [#dispute_status_metric, #total_amount_disputed, #total_dispute_lost_amount],
+      amountMetrics: [],
+      successRateMetric: None,
+      infoDomain: None,
+      dimensions: [#connector, #dispute_stage, #currency],
+      measures: [SuccessRate, FailureRate, Volume, Successful, Failed, ProcessedAmount, LostAmount],
+    }
+  }
+
+let getDomainSources = domain =>
+  switch domain {
+  | Payments => [Intent, Attempt]
+  | Refunds => [Refund]
+  | Disputes => [Dispute]
   }
 
 let intentStatuses: array<intentStatus> = [
@@ -104,6 +152,14 @@ let attemptStatuses: array<attemptStatus> = [
   #integrity_failure,
   #expired,
   #capture_review,
+]
+
+let refundStatuses: array<refundStatus> = [
+  #success,
+  #failure,
+  #transaction_failure,
+  #pending,
+  #manual_review,
 ]
 
 let intentStatusOutcomes = (status: intentStatus) =>
@@ -160,32 +216,44 @@ let attemptStatusOutcomes = (status: attemptStatus) =>
   | #capture_review => []
   }
 
+let refundStatusOutcomes = (status: refundStatus) =>
+  switch status {
+  | #success => [Success]
+  | #failure | #transaction_failure => [Failed]
+  | #pending | #manual_review => [Awaiting]
+  }
+
 let getSourceOutcomes = source =>
   switch source {
-  | Intent => [Success, Failed, Awaiting, Other]
   | Attempt => [Success, Failed, Other]
+  | Intent | Refund | Dispute => [Success, Failed, Awaiting, Other]
   }
 
 let getMeasureFormula = (source, measure) =>
   switch (measure, source) {
   | (SuccessRate, Intent) => Rate(Success, CompletedRecords)
-  | (SuccessRate, Attempt) => Rate(Success, AllRecords)
+  | (SuccessRate, Dispute) => Rate(Success, Decided)
+  | (SuccessRate, _) => Rate(Success, AllRecords)
   | (FailureRate, Intent) => Rate(Failed, CompletedRecords)
-  | (FailureRate, Attempt) => Rate(Failed, AllRecords)
+  | (FailureRate, Dispute) => Rate(Failed, Decided)
+  | (FailureRate, _) => Rate(Failed, AllRecords)
   | (ThreeDsFailureRate, _) => Rate(AuthFailed, ThreeDsAttempts)
   | (NotCompletedRate, _) => Rate(Awaiting, AllRecords)
   | (Volume, _) => Count(Total)
   | (Successful, _) => Count(Success)
   | (Failed, _) => Count(Failed)
-  | (ProcessedAmount, _) => TotalAmount
+  | (ProcessedAmount, _) => TotalAmount(Processed)
+  | (LostAmount, _) => TotalAmount(Lost)
   | (AvgTicket, _) => AmountPerSuccess
   }
 
 let isLowerBetter = measure =>
   switch measure {
-  | FailureRate | Failed | ThreeDsFailureRate | NotCompletedRate => true
+  | FailureRate | Failed | ThreeDsFailureRate | NotCompletedRate | LostAmount => true
   | SuccessRate | Volume | Successful | ProcessedAmount | AvgTicket => false
   }
+
+let statusDimensions: array<dimension> = [#status, #refund_status]
 
 let suggestedNext = (source, key: option<dimension>): array<dimension> =>
   switch (source, key) {
@@ -198,4 +266,9 @@ let suggestedNext = (source, key: option<dimension>): array<dimension> =>
   | (Attempt, Some(#error_reason)) => [#connector, #card_network]
   | (Attempt, Some(#status)) => [#error_reason, #connector]
   | (Attempt, _) => [#connector, #error_reason]
+  | (Refund, Some(#connector)) => [#refund_error_message, #refund_type]
+  | (Refund, Some(#refund_error_message)) => [#connector, #refund_type]
+  | (Refund, _) => [#connector, #refund_error_message]
+  | (Dispute, Some(#connector)) => [#dispute_stage, #currency]
+  | (Dispute, _) => [#connector, #currency]
   }

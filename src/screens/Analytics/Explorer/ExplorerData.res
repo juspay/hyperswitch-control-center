@@ -12,6 +12,7 @@ let emptyCounts = {
   awaiting: 0.0,
   threeDsAttempts: 0.0,
   amount: 0.0,
+  lostAmount: 0.0,
   backendRate: None,
 }
 
@@ -23,6 +24,7 @@ let addCounts = (a, b) => {
   awaiting: a.awaiting +. b.awaiting,
   threeDsAttempts: a.threeDsAttempts +. b.threeDsAttempts,
   amount: a.amount +. b.amount,
+  lostAmount: a.lostAmount +. b.lostAmount,
   backendRate: a.total == 0.0 ? b.backendRate : b.total == 0.0 ? a.backendRate : None,
 }
 
@@ -42,25 +44,41 @@ let getDenominator = (counts, base) =>
   switch base {
   | AllRecords => counts.total
   | CompletedRecords => counts.total -. counts.awaiting
+  | Decided => counts.success +. counts.failed
   | ThreeDsAttempts => counts.threeDsAttempts
   }
 
 let getRowCounts = (source, dict) => {
   let config = sourceConfig(source)
-  let records = dict->getFloat((config.countMetric :> string), 0.0)
-  let outcomes = getOutcomesOfStatus(source, dict->getDimensionValue(#status))
-  let countIf = field => outcomes->Array.includes(field) ? records : 0.0
-  let isThreeDs =
-    dict->getDimensionValue(#authentication_type) == (#three_ds: authenticationType :> string)
-  {
-    total: records,
-    success: countIf(Success),
-    failed: countIf(Failed),
-    awaiting: countIf(Awaiting),
-    authFailed: isThreeDs ? countIf(AuthFailed) : 0.0,
-    threeDsAttempts: isThreeDs ? records : 0.0,
-    amount: dict->getFloat((config.amountMetric :> string), 0.0),
-    backendRate: None,
+  let metricValue = (metric: metric) => dict->getFloat((metric :> string), 0.0)
+  switch source {
+  | Dispute => {
+      ...emptyCounts,
+      total: dict->getFloat("total_dispute", 0.0),
+      success: dict->getFloat("disputes_won", 0.0),
+      failed: dict->getFloat("disputes_lost", 0.0),
+      awaiting: dict->getFloat("disputes_challenged", 0.0),
+      amount: dict->getFloat("disputed_amount", 0.0),
+      lostAmount: dict->getFloat("dispute_lost_amount", 0.0),
+    }
+  | Intent | Attempt | Refund =>
+    let records =
+      config.countMetrics->Array.reduce(0.0, (acc, metric) => acc +. metricValue(metric))
+    let status = config.statusDimension->Option.mapOr("", key => dict->getDimensionValue(key))
+    let outcomes = getOutcomesOfStatus(source, status)
+    let countIf = field => outcomes->Array.includes(field) ? records : 0.0
+    let isThreeDs =
+      dict->getDimensionValue(#authentication_type) == (#three_ds: authenticationType :> string)
+    {
+      ...emptyCounts,
+      total: records,
+      success: countIf(Success),
+      failed: countIf(Failed),
+      awaiting: countIf(Awaiting),
+      authFailed: isThreeDs ? countIf(AuthFailed) : 0.0,
+      threeDsAttempts: isThreeDs ? records : 0.0,
+      amount: config.amountMetrics->Array.reduce(0.0, (acc, metric) => acc +. metricValue(metric)),
+    }
   }
 }
 
@@ -72,7 +90,8 @@ let getMeasureValue = (source, measure, counts) =>
     | Rate(field, base) =>
       calculatePercentage(counts->getCount(field), counts->getDenominator(base))
     | Count(field) => counts->getCount(field)
-    | TotalAmount => counts.amount
+    | TotalAmount(Processed) => counts.amount
+    | TotalAmount(Lost) => counts.lostAmount
     | AmountPerSuccess => counts.success > 0.0 ? counts.amount /. counts.success : 0.0
     }
   }
@@ -80,7 +99,7 @@ let getMeasureValue = (source, measure, counts) =>
 let getRateDenominator = (source, measure, counts) =>
   switch getMeasureFormula(source, measure) {
   | Rate(_, base) => counts->getDenominator(base)
-  | Count(_) | TotalAmount | AmountPerSuccess => counts.total
+  | Count(_) | TotalAmount(_) | AmountPerSuccess => counts.total
   }
 
 let measurable = (source, measure, counts) =>
@@ -145,6 +164,11 @@ let buildDataset = (question, responses) => {
   let {source, measure} = question
   let needsCurrency = question->needsCurrency
 
+  let currencyWeight = counts =>
+    switch getMeasureFormula(source, measure) {
+    | TotalAmount(Lost) => counts.failed
+    | _ => counts.success
+    }
   let amountCurrencies = needsCurrency
     ? responses.currentRows
       ->Array.map(getDictFromJsonObject)
@@ -153,7 +177,8 @@ let buildDataset = (question, responses) => {
         if currency->isNonEmptyString {
           acc->Dict.set(
             currency,
-            acc->Dict.get(currency)->Option.getOr(0.0) +. getRowCounts(source, dict).success,
+            acc->Dict.get(currency)->Option.getOr(0.0) +.
+              getRowCounts(source, dict)->currencyWeight,
           )
         }
         acc
