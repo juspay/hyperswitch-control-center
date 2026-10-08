@@ -16,7 +16,7 @@ let make = (~question: question, ~dataset: dataset, ~onUpdate: Dict.t<string> =>
       <QueryText text="Show" />
       <QuerySelect
         value={(question.measure :> string)}
-        onChange={id => setSelection([("measure", id)])}
+        onChange={id => setSelection([(#measure, id)])}
         options={source->measureOptions}
         placeholder="Measure"
       />
@@ -26,7 +26,7 @@ let make = (~question: question, ~dataset: dataset, ~onUpdate: Dict.t<string> =>
         <QueryText text="in" />
         <QuerySelect
           value=dataset.amountCurrency
-          onChange={currency => setSelection([("currency", currency)])}
+          onChange={currency => setSelection([(#currency, currency)])}
           options={dataset.amountCurrencies->Array.map((
             currency
           ): MultiSelectBindings.selectMenuItemType => {label: currency, value: currency})}

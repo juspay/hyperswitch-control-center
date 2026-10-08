@@ -8,7 +8,7 @@ let emptyResponses = {
   previousRows: [],
 }
 
-let urlKey = name => `explore.${name}`
+let urlKey = (key: selectionKey) => `explore.${(key :> string)}`
 
 let isRate = (measure: measure) =>
   switch measure {
@@ -72,7 +72,7 @@ let formatPercentage = value => `${value->Float.toFixedWithPrecision(~digits=1)}
 let formatSigned = value =>
   `${value > 0.0 ? "+" : ""}${value->Float.toFixedWithPrecision(~digits=1)}`
 
-let formatDisplay = (measure, value, ~currency="") =>
+let formatDisplay = (measure, value, ~currency) =>
   if isRate(measure) {
     value->formatPercentage
   } else if isAmount(measure) {

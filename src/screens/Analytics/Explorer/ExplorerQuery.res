@@ -4,11 +4,11 @@ open ExplorerCatalog
 open ExplorerUtils
 
 let questionFromFilters = filterValueJson => {
-  let source = filterValueJson->getString(urlKey("source"), "")->sourceFromString
+  let source = filterValueJson->getString(urlKey(#source), "")->sourceFromString
   {
     source,
-    measure: source->measureFromString(filterValueJson->getString(urlKey("measure"), "")),
-    currency: filterValueJson->getString(urlKey("currency"), ""),
+    measure: source->measureFromString(filterValueJson->getString(urlKey(#measure), "")),
+    currency: filterValueJson->getString(urlKey(#currency), ""),
     startTime: filterValueJson->getString(HSAnalyticsUtils.startTimeFilterKey, ""),
     endTime: filterValueJson->getString(HSAnalyticsUtils.endTimeFilterKey, ""),
   }
@@ -68,5 +68,5 @@ let requestKey = question =>
     question.endTime,
   ]->Array.joinWith("|")
 
-let selectionUpdate = (updates: array<(string, string)>) =>
+let selectionUpdate = (updates: array<(selectionKey, string)>) =>
   updates->Array.map(((key, value)) => (urlKey(key), value))->Dict.fromArray

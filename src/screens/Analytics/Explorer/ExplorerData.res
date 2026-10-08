@@ -84,7 +84,7 @@ let displayValue = (source, measure, counts, ~currency) => {
     : value
 }
 
-let formatValue = (source, measure, counts, ~currency="") =>
+let formatValue = (source, measure, counts, ~currency) =>
   measurable(source, measure, counts)
     ? formatDisplay(measure, displayValue(source, measure, counts, ~currency), ~currency)
     : "–"

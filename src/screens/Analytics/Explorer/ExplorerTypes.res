@@ -12,6 +12,8 @@ type measure = [
   | #avg_ticket
 ]
 
+type selectionKey = [#source | #measure | #currency]
+
 type changeImpact =
   | Favorable
   | Unfavorable
