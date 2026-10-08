@@ -18,10 +18,34 @@ let sourceLabel = source =>
 
 let sourceDescription = source =>
   switch source {
-  | Intent => "One row per payment, regardless of retries. Use this view for the customer experience."
+  | Intent => "One row per payment, regardless of retries. Use this view for the customer experience and to compare CIT and MIT."
   | Attempt => "One row per attempt; each retry is a separate attempt. Use this view to analyse connectors, payment methods and errors."
   | Refund => "One row per refund. Use this view to analyse refund failures by connector, reason and error."
   | Dispute => "One row per dispute. Use this view to track win rate and amounts lost to disputes."
+  }
+
+let flowLabel = flow =>
+  switch flow {
+  | AllFlows => "all payments"
+  | Cit => "CIT payments"
+  | CitSaving => "CIT payments with card saving"
+  | Mit => "MIT payments"
+  }
+
+let flowDescription = flow =>
+  switch flow {
+  | AllFlows => "Every payment"
+  | Cit => "Customer present, card not saved"
+  | CitSaving => "Customer present, card set to be saved"
+  | Mit => "Merchant charged a saved card"
+  }
+
+let flowShortLabel = flow =>
+  switch flow {
+  | AllFlows => "All"
+  | Cit => "CIT"
+  | CitSaving => "CIT saving card"
+  | Mit => "MIT"
   }
 
 let sourceNoun = source =>
@@ -127,6 +151,7 @@ let unmeasurableReason = (source, measure) =>
 
 let dimensionLabel = (key: dimension) =>
   switch key {
+  | #flow => "Flow"
   | #connector => "Connector"
   | #payment_method => "Payment method"
   | #payment_method_type => "Payment method type"
@@ -144,10 +169,16 @@ let dimensionLabel = (key: dimension) =>
   | #refund_reason => "Refund reason"
   | #refund_error_message => "Refund error"
   | #dispute_stage => "Dispute stage"
+  | #off_session => "Off session"
+  | #setup_future_usage => "Setup future usage"
   }
 
 let dimensionDescription = (source, key: dimension) =>
   switch (source, key) {
+  | (
+      _,
+      #flow,
+    ) => "Who started the payment: the customer (CIT), the customer saving the card, or the merchant (MIT)."
   | (_, #connector) => "Processor that handled it."
   | (_, #payment_method) => "Broad method, such as card, wallet or bank transfer."
   | (_, #payment_method_type) => "Specific method, such as credit, debit or Apple Pay."
@@ -169,6 +200,8 @@ let dimensionDescription = (source, key: dimension) =>
   | (_, #refund_reason) => "Reason given when the refund was created."
   | (_, #refund_error_message) => "Error returned by the connector for a failed refund."
   | (_, #dispute_stage) => "Stage of the dispute, such as pre-dispute, dispute or pre-arbitration."
+  | (_, #off_session) => "Whether the merchant charged without the customer present."
+  | (_, #setup_future_usage) => "Whether the card was saved for later payments."
   }
 
 let outcomeLabel = (source, field) =>

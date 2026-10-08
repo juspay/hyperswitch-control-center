@@ -119,6 +119,15 @@ let formatValue = (source, measure, counts, ~currency="") =>
     ? formatDisplay(measure, displayValue(source, measure, counts, ~currency), ~currency)
     : "–"
 
+let rowFlow = dict =>
+  if dict->getDimensionValue(#off_session) == "true" {
+    Mit
+  } else if dict->getDimensionValue(#setup_future_usage)->isNonEmptyString {
+    CitSaving
+  } else {
+    Cit
+  }
+
 let overallRate = (rows, ~question) =>
   question
   ->getRateMetric
@@ -164,6 +173,11 @@ let buildDataset = (question, responses) => {
   let {source, measure} = question
   let needsCurrency = question->needsCurrency
 
+  let keepFlow = dict =>
+    switch question.flow {
+    | Cit | CitSaving | Mit => rowFlow(dict) == question.flow
+    | AllFlows => true
+    }
   let currencyWeight = counts =>
     switch getMeasureFormula(source, measure) {
     | TotalAmount(Lost) => counts.failed
@@ -172,6 +186,7 @@ let buildDataset = (question, responses) => {
   let amountCurrencies = needsCurrency
     ? responses.currentRows
       ->Array.map(getDictFromJsonObject)
+      ->Array.filter(keepFlow)
       ->Array.reduce(Dict.make(), (acc, dict) => {
         let currency = dict->getDimensionValue(#currency)
         if currency->isNonEmptyString {
@@ -192,8 +207,12 @@ let buildDataset = (question, responses) => {
       ? question.currency
       : amountCurrencies->getValueFromArray(0, "")
 
-  let keep = dict => !needsCurrency || dict->getDimensionValue(#currency) == amountCurrency
-  let valuesOf = dict => question.split->Array.map(key => dict->getDimensionValue(key))
+  let keep = dict =>
+    (!needsCurrency || dict->getDimensionValue(#currency) == amountCurrency) && keepFlow(dict)
+  let valuesOf = dict =>
+    question.split->Array.map(key =>
+      isSegment(source, key) ? (rowFlow(dict) :> string) : dict->getDimensionValue(key)
+    )
 
   let aggregate = (rows, ~rates) => {
     let groups = Dict.make()
@@ -306,6 +325,17 @@ let buildDataset = (question, responses) => {
     minimumRateBase,
     amountCurrencies,
     amountCurrency,
+    flowCounts: source->getSegment->Option.isSome
+      ? responses.currentRows->Array.reduce(Dict.make(), (acc, json) => {
+          let dict = json->getDictFromJsonObject
+          let key = (rowFlow(dict) :> string)
+          acc->Dict.set(
+            key,
+            acc->Dict.get(key)->Option.getOr(0.0) +. getRowCounts(source, dict).total,
+          )
+          acc
+        })
+      : Dict.make(),
   }
 }
 

@@ -9,6 +9,12 @@ type source =
   | Refund
   | Dispute
 
+type flow =
+  | @as("all") AllFlows
+  | @as("cit") Cit
+  | @as("cit_saving") CitSaving
+  | @as("mit") Mit
+
 type measure =
   | SuccessRate
   | FailureRate
@@ -64,6 +70,9 @@ type dimension = [
   | #refund_reason
   | #refund_error_message
   | #dispute_stage
+  | #off_session
+  | #setup_future_usage
+  | #flow
 ]
 
 type authenticationType = [#three_ds | #no_three_ds]
@@ -146,6 +155,12 @@ type formula =
   | TotalAmount(amountField)
   | AmountPerSuccess
 
+type segmentConfig = {
+  dimension: dimension,
+  columns: array<dimension>,
+  values: array<flow>,
+}
+
 type sourceConfig = {
   domain: domain,
   statusDimension: option<dimension>,
@@ -155,6 +170,7 @@ type sourceConfig = {
   infoDomain: option<string>,
   dimensions: array<dimension>,
   measures: array<measure>,
+  segment: option<segmentConfig>,
 }
 
 type counts = {
@@ -183,6 +199,7 @@ type dailyPoint = {
 
 type question = {
   source: source,
+  flow: flow,
   measure: measure,
   split: array<dimension>,
   view: view,
@@ -191,6 +208,15 @@ type question = {
   currency: string,
   startTime: string,
   endTime: string,
+}
+
+type preset = {
+  title: string,
+  presetSource: source,
+  presetFlow: flow,
+  presetMeasure: measure,
+  presetSplit: array<dimension>,
+  presetView: view,
 }
 
 type responses = {
@@ -217,6 +243,7 @@ type dataset = {
   minimumRateBase: float,
   amountCurrencies: array<string>,
   amountCurrency: string,
+  flowCounts: Dict.t<float>,
 }
 
 type outcomeRow = {

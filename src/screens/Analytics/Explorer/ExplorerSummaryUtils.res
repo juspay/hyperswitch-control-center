@@ -22,9 +22,9 @@ let getHeadline = (viewContext: viewContext) => {
     unmeasurableNote(source, measure)
   } else {
     let filterText = viewContext->getFilterText
-    let scope = `all ${sourceNoun(source)}${filterText->isNonEmptyString
-        ? ` where ${filterText}`
-        : ""}`
+    let subject =
+      source->getSegment->Option.isSome ? flowLabel(question.flow) : `all ${sourceNoun(source)}`
+    let scope = `${subject}${filterText->isNonEmptyString ? ` where ${filterText}` : ""}`
     let comparison =
       viewContext.hasPrevious && measurable(source, measure, dataset.overallPrevious)
         ? `, ${getChangeInWords(

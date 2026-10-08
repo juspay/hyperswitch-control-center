@@ -10,11 +10,18 @@ let questionFromFilters = (filterValueJson, ~backendDimensions) => {
   let source = filterValueJson->sourceFromFilters
   let config = sourceConfig(source)
   let dimensions = source->getOfferedDimensions(~backendDimensions)
+  let flow =
+    source->getSegment->Option.isSome
+      ? filterValueJson->getString(urlKey("flow"), "")->flowFromString
+      : AllFlows
   let measure = {
     let selected = filterValueJson->getString(urlKey("measure"), "")->measureFromString
     config.measures->Array.includes(selected) ? selected : SuccessRate
   }
-  let splitOptions = getSplitDimensions(measure, ~dimensions)
+  let splitOptions =
+    getSplitDimensions(source, measure, ~dimensions)->Array.filter(key =>
+      !isSegment(source, key) || flow == AllFlows
+    )
   let split =
     filterValueJson
     ->getStrArrayFromDict(urlKey("split"), [])
@@ -33,6 +40,7 @@ let questionFromFilters = (filterValueJson, ~backendDimensions) => {
     )
   {
     source,
+    flow,
     measure,
     split,
     view: filterValueJson->getString(urlKey("view"), "")->viewFromString,
@@ -47,7 +55,12 @@ let questionFromFilters = (filterValueJson, ~backendDimensions) => {
 let hasDates = question =>
   question.startTime->isNonEmptyString && question.endTime->isNonEmptyString
 
-let splitOptions = question => getSplitDimensions(question.measure, ~dimensions=question.dimensions)
+let splitOptions = question =>
+  getSplitDimensions(
+    question.source,
+    question.measure,
+    ~dimensions=question.dimensions,
+  )->Array.filter(key => !isSegment(question.source, key) || question.flow == AllFlows)
 
 let getSelectedFilterValues = (question, dimension) =>
   question.filters
@@ -59,7 +72,12 @@ let needsCurrency = question =>
 
 let getRateMetric = question =>
   sourceConfig(question.source).successRateMetric->Option.filter(_ =>
-    question.measure == SuccessRate
+    question.measure == SuccessRate &&
+      switch question.source->getSegment {
+      | None => true
+      | Some(segment) =>
+        question.flow == AllFlows && !(question.split->Array.includes(segment.dimension))
+      }
   )
 
 let countGroupBy = question => {
@@ -71,7 +89,8 @@ let countGroupBy = question => {
   config.statusDimension
   ->Option.mapOr([], key => [key])
   ->Array.concat(threeDsColumn)
-  ->Array.concat(question.split)
+  ->Array.concat(config.segment->Option.mapOr([], segment => segment.columns))
+  ->Array.concat(question.split->Array.filter(key => !isSegment(question.source, key)))
   ->Array.concat(needsCurrency(question) ? [#currency] : [])
   ->uniqueItems
 }
@@ -161,6 +180,25 @@ let splitAt = (question, index, key: option<dimension>) =>
   ->Array.concat(key->Option.isSome ? question.split->Array.sliceToEnd(~start=index + 1) : [])
   ->uniqueItems
 
+let activePreset = question =>
+  presets->Array.find(preset =>
+    preset.presetSource == question.source &&
+    preset.presetFlow == question.flow &&
+    preset.presetMeasure == question.measure &&
+    preset.presetSplit == question.split &&
+    preset.presetView == question.view
+  )
+
+let presetUpdate = preset =>
+  selectionUpdate([
+    ("source", preset.presetSource->sourceToString),
+    ("flow", (preset.presetFlow :> string)),
+    ("measure", preset.presetMeasure->measureToString),
+    ("split", preset.presetSplit->splitValue),
+    ("view", (preset.presetView :> string)),
+    ("from", ""),
+  ])
+
 let getFilterValuesBody = (question, ~dimension: dimension) =>
   [
     ("timeRange", timeRangeJson(question.startTime, question.endTime)),
@@ -176,16 +214,28 @@ let getFilterValueString = values =>
 let getFilterUpdate = (dimension, values) =>
   [(getFilterUrlKey(dimension), getFilterValueString(values))]->Dict.fromArray
 
-let getFocusUpdate = (question, group: group) =>
-  question.split
-  ->Array.mapWithIndex((key, index) => (key, group.values->getValueFromArray(index, "")))
-  ->Array.filter(((_, value)) => value->isNonEmptyString)
-  ->Array.map(((key, value)) => (getFilterUrlKey(key), getFilterValueString([value])))
+let getFocusUpdate = (question, group: group) => {
+  let values =
+    question.split->Array.mapWithIndex((key, index) => (
+      key,
+      group.values->getValueFromArray(index, ""),
+    ))
+  let filterUpdates =
+    values
+    ->Array.filter(((key, value)) => value->isNonEmptyString && !isSegment(question.source, key))
+    ->Array.map(((key, value)) => (getFilterUrlKey(key), getFilterValueString([value])))
+  let flowUpdates =
+    values
+    ->Array.filter(((key, _)) => isSegment(question.source, key))
+    ->Array.map(((_, flow)) => (urlKey("flow"), flow))
+  filterUpdates
+  ->Array.concat(flowUpdates)
   ->Array.concat([
     (urlKey("split"), "[]"),
     (urlKey("from"), question.split->Array.get(0)->Option.mapOr("", key => (key :> string))),
   ])
   ->Dict.fromArray
+}
 
 let getSplitSuggestions = (question, ~drilledFrom) => {
   let options = question->splitOptions

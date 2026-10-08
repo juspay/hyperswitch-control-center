@@ -4,6 +4,12 @@ let domains = [Payments, Refunds, Disputes]
 
 let views = [Trend, Breakdown, Mix, Table]
 
+let flowSegment = {
+  dimension: #flow,
+  columns: [#off_session, #setup_future_usage],
+  values: [AllFlows, Cit, CitSaving, Mit],
+}
+
 let sourceConfig = source =>
   switch source {
   | Intent => {
@@ -24,6 +30,7 @@ let sourceConfig = source =>
         ProcessedAmount,
         AvgTicket,
       ],
+      segment: Some(flowSegment),
     }
   | Attempt => {
       domain: Payments,
@@ -56,6 +63,7 @@ let sourceConfig = source =>
         ProcessedAmount,
         AvgTicket,
       ],
+      segment: None,
     }
   | Refund => {
       domain: Refunds,
@@ -82,6 +90,7 @@ let sourceConfig = source =>
         Failed,
         ProcessedAmount,
       ],
+      segment: None,
     }
   | Dispute => {
       domain: Disputes,
@@ -92,6 +101,7 @@ let sourceConfig = source =>
       infoDomain: None,
       dimensions: [#connector, #dispute_stage, #currency],
       measures: [SuccessRate, FailureRate, Volume, Successful, Failed, ProcessedAmount, LostAmount],
+      segment: None,
     }
   }
 
@@ -257,8 +267,9 @@ let statusDimensions: array<dimension> = [#status, #refund_status]
 
 let suggestedNext = (source, key: option<dimension>): array<dimension> =>
   switch (source, key) {
-  | (Intent, Some(#status)) => [#currency, #profile_id]
-  | (Intent, _) => [#currency, #status]
+  | (Intent, Some(#flow)) => [#currency, #profile_id]
+  | (Intent, Some(#status)) => [#flow, #currency]
+  | (Intent, _) => [#flow, #currency, #status]
   | (Attempt, Some(#connector)) => [#payment_method_type, #error_reason]
   | (Attempt, Some(#payment_method)) => [#payment_method_type, #connector]
   | (Attempt, Some(#payment_method_type)) => [#connector, #card_network]
@@ -272,3 +283,70 @@ let suggestedNext = (source, key: option<dimension>): array<dimension> =>
   | (Dispute, Some(#connector)) => [#dispute_stage, #currency]
   | (Dispute, _) => [#connector, #currency]
   }
+
+let presets = [
+  {
+    title: "How do CIT and MIT payments compare?",
+    presetSource: Intent,
+    presetFlow: AllFlows,
+    presetMeasure: SuccessRate,
+    presetSplit: [#flow],
+    presetView: Trend,
+  },
+  {
+    title: "Are payments left unfinished?",
+    presetSource: Intent,
+    presetFlow: AllFlows,
+    presetMeasure: NotCompletedRate,
+    presetSplit: [#flow],
+    presetView: Breakdown,
+  },
+  {
+    title: "Which connector underperforms?",
+    presetSource: Attempt,
+    presetFlow: AllFlows,
+    presetMeasure: SuccessRate,
+    presetSplit: [#connector],
+    presetView: Breakdown,
+  },
+  {
+    title: "Which errors are attempts failing with?",
+    presetSource: Attempt,
+    presetFlow: AllFlows,
+    presetMeasure: Failed,
+    presetSplit: [#error_reason, #connector],
+    presetView: Table,
+  },
+  {
+    title: "When did failures start?",
+    presetSource: Attempt,
+    presetFlow: AllFlows,
+    presetMeasure: FailureRate,
+    presetSplit: [#connector],
+    presetView: Trend,
+  },
+  {
+    title: "Where does 3DS fail?",
+    presetSource: Attempt,
+    presetFlow: AllFlows,
+    presetMeasure: ThreeDsFailureRate,
+    presetSplit: [#card_network],
+    presetView: Breakdown,
+  },
+  {
+    title: "Why do refunds fail?",
+    presetSource: Refund,
+    presetFlow: AllFlows,
+    presetMeasure: Failed,
+    presetSplit: [#refund_error_message, #connector],
+    presetView: Table,
+  },
+  {
+    title: "Where are we losing disputes?",
+    presetSource: Dispute,
+    presetFlow: AllFlows,
+    presetMeasure: FailureRate,
+    presetSplit: [#connector],
+    presetView: Breakdown,
+  },
+]
