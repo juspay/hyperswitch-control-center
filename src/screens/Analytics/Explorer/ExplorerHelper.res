@@ -4,6 +4,7 @@ open ExplorerTypes
 open ExplorerCatalog
 open ExplorerUtils
 open ExplorerDescriptions
+open ExplorerQuery
 
 module ExplorerCard = {
   @react.component
@@ -267,5 +268,38 @@ module SplitSuggestions = {
         />
       )
       ->React.array}
+    </div>
+}
+
+module PresetPicker = {
+  @react.component
+  let make = (~question: question, ~onPreset) =>
+    <div className="flex items-center gap-2 pb-1">
+      <span className={`${body.md.regular} text-nd_gray-500`}>
+        {"Start with a question"->React.string}
+      </span>
+      <SingleSelectBinding
+        selected={question->activePreset->Option.mapOr("", preset => preset.title)}
+        onSelect={title =>
+          presets->Array.find(preset => preset.title == title)->Option.forEach(onPreset)}
+        items=[
+          {
+            items: presets->Array.map((preset): MultiSelectBindings.selectMenuItemType => {
+              label: preset.title,
+              value: preset.title,
+              subLabel: `${domainLabel(sourceConfig(preset.presetSource).domain)} · ${measureLabel(
+                  preset.presetSource,
+                  preset.presetMeasure,
+                )}`,
+              disableTruncation: true,
+            }),
+          },
+        ]
+        placeholder="Choose a question"
+        size=Sm
+        minMenuWidth=320
+        maxMenuWidth=380
+        alignment=End
+      />
     </div>
 }

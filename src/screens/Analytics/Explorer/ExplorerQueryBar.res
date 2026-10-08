@@ -76,7 +76,28 @@ let make = (
         placeholder="Measure"
       />
       <QueryText text="for" />
-      <QueryText text={`all ${sourceNoun(source)},`} strong=true />
+      {switch source->getSegment {
+      | Some(segment) =>
+        <>
+          <QuerySelect
+            value={(question.flow :> string)}
+            onChange={id =>
+              setSelection([
+                ("flow", id),
+                (
+                  "split",
+                  question.split
+                  ->Array.filter(key => !isSegment(source, key) || id == (AllFlows :> string))
+                  ->splitValue,
+                ),
+              ])}
+            options={segment->flowOptions(dataset)}
+            placeholder="Flow"
+          />
+          <QueryText text={`${sourceNoun(source)},`} />
+        </>
+      | None => <QueryText text={`all ${sourceNoun(source)},`} strong=true />
+      }}
       <QueryText text="split by" />
       <QuerySelect
         value={question.split->Array.get(0)->Option.mapOr("", key => (key :> string))}

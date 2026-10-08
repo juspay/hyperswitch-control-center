@@ -128,8 +128,18 @@ let make = () => {
     if source != question.source {
       clearFilters()
       setEditing(_ => None)
-      setSelection([("source", source->sourceToString), ("split", "[]"), ("from", "")])
+      setSelection([
+        ("source", source->sourceToString),
+        ("split", "[]"),
+        ("flow", (AllFlows :> string)),
+        ("from", ""),
+      ])
     }
+  let applyPreset = preset => {
+    clearFilters()
+    setEditing(_ => None)
+    preset->presetUpdate->updateExistingKeys
+  }
 
   let labelFor = (key, value) => getDimensionValueLabel(key, value, ~profileList)
   let (previousStart, previousEnd) = question->previousWindow
@@ -145,6 +155,7 @@ let make = () => {
     chartKey: [
       question->requestKey,
       question.measure->measureToString,
+      (question.flow :> string),
       dataset.amountCurrency,
     ]->Array.joinWith("|"),
     labelFor,
@@ -152,11 +163,16 @@ let make = () => {
     onFocus: group => question->getFocusUpdate(group)->updateExistingKeys,
   }
   let drilledFrom =
-    question.dimensions->findDimension(filterValueJson->getString(urlKey("from"), ""))
+    question.source
+    ->getSourceDimensions
+    ->findDimension(filterValueJson->getString(urlKey("from"), ""))
   let suggestions = question->getSplitSuggestions(~drilledFrom)
 
   <div className="flex flex-col gap-4">
-    <DomainTabs question onSource=setSource />
+    <div className="flex flex-wrap items-end justify-between gap-3">
+      <DomainTabs question onSource=setSource />
+      <PresetPicker question onPreset=applyPreset />
+    </div>
     <SourceTabs question onSource=setSource />
     <ExplorerQueryBar
       viewContext

@@ -64,6 +64,11 @@ let isAmount = measure =>
   | Failed => false
   }
 
+let getSegment = source => sourceConfig(source).segment
+
+let isSegment = (source, key) =>
+  source->getSegment->Option.mapOr(false, segment => segment.dimension == key)
+
 let uniqueItems = arr =>
   arr->Array.filterWithIndex((item, index) => arr->Array.indexOf(item) == index)
 
@@ -74,8 +79,12 @@ let getOfferedDimensions = (source, ~backendDimensions: option<array<string>>) =
     backendDimensions->Option.mapOr(true, names => names->Array.includes((key :> string)))
   )
 
-let getSplitDimensions = (measure, ~dimensions: array<dimension>) =>
-  dimensions->Array.filter(key =>
+let getSplitDimensions = (source, measure, ~dimensions) =>
+  source
+  ->getSegment
+  ->Option.mapOr([], segment => [segment.dimension])
+  ->Array.concat(dimensions)
+  ->Array.filter(key =>
     !((isRate(measure) || isAmount(measure)) && statusDimensions->Array.includes(key)) &&
     !(isAmount(measure) && key == #currency)
   )
@@ -83,7 +92,20 @@ let getSplitDimensions = (measure, ~dimensions: array<dimension>) =>
 let findDimension = (dimensions: array<dimension>, id) =>
   dimensions->Array.find(key => (key :> string) == id)
 
-let getDimensionValue = (dict, dimension: dimension) => dict->getString((dimension :> string), "")
+let getSourceDimensions = source =>
+  source
+  ->getSegment
+  ->Option.mapOr([], segment => [segment.dimension])
+  ->Array.concat(sourceConfig(source).dimensions)
+
+let getDimensionValue = (dict, dimension: dimension) => {
+  let key = (dimension :> string)
+  dict
+  ->getOptionString(key)
+  ->Option.orElse(dict->getOptionBool(key)->Option.map(getStringFromBool))
+  ->Option.orElse(dict->getOptionFloat(key)->Option.map(Float.toString))
+  ->Option.getOr("")
+}
 
 let getOutcomesOfStatus = (source, status) =>
   switch source {
@@ -144,6 +166,9 @@ let sourceFromString = id =>
   | "dispute" => Dispute
   | _ => Intent
   }
+
+let flowFromString = id =>
+  flowSegment.values->Array.find(flow => (flow :> string) == id)->Option.getOr(AllFlows)
 
 let measureToString = measure =>
   switch measure {
@@ -263,6 +288,7 @@ let getDimensionValueLabel = (
 ) =>
   switch (key, value) {
   | (_, "") => "Not recorded"
+  | (#flow, _) => value->flowFromString->flowShortLabel
   | (#profile_id, _) =>
     profileList
     ->Array.find(profile => profile.id == value)
@@ -276,6 +302,20 @@ let measureOptions = source =>
     label: measureLabel(source, measure),
     value: measure->measureToString,
     subLabel: measureDefinition(source, measure),
+  })
+
+let flowOptions = (segment: segmentConfig, dataset: dataset) =>
+  segment.values->Array.map((flow): MultiSelectBindings.selectMenuItemType => {
+    label: flowShortLabel(flow),
+    value: (flow :> string),
+    subLabel: switch flow {
+    | Cit | CitSaving | Mit =>
+      `${flowDescription(flow)} · ${dataset.flowCounts
+        ->Dict.get((flow :> string))
+        ->Option.getOr(0.0)
+        ->formatNumberWithCommas}`
+    | AllFlows => flowDescription(flow)
+    },
   })
 
 let dimensionOptions = (source, dimensions: array<dimension>) =>
