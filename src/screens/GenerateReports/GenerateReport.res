@@ -3,13 +3,14 @@ let make = (~entityName, ~disableReport=false) => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let (reportModal, setReportModal) = React.useState(_ => false)
   let {userHasAccess, hasAnyGroupAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {isEmbeddableSession} = React.useContext(UserInfoProvider.defaultContext)
 
   let accessForGenerateReports = hasAnyGroupAccess(
     userHasAccess(~groupAccess=OperationsView),
     userHasAccess(~groupAccess=AnalyticsView),
   )
 
-  <>
+  <RenderIf condition={!isEmbeddableSession()}>
     <ACLButton
       text="Generate Reports"
       buttonType={Primary}
@@ -25,5 +26,5 @@ let make = (~entityName, ~disableReport=false) => {
     <RenderIf condition={reportModal}>
       <DownloadReportModal reportModal setReportModal entityName />
     </RenderIf>
-  </>
+  </RenderIf>
 }

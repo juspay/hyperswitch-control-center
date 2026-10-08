@@ -14,6 +14,16 @@ let sendComponentDimensionToParent = (finalHeight, finalWidth, urlPath) => {
   ])
 }
 
+let sendModalStateToParent = isOpen => {
+  IframeUtils.handlePostMessage([
+    ("type", JSON.Encode.string(isOpen ? "EMBEDDED_MODAL_OPEN" : "EMBEDDED_MODAL_CLOSE")),
+  ])
+}
+
+let sendModalVisibleToParent = () => {
+  IframeUtils.handlePostMessage([("type", JSON.Encode.string("EMBEDDED_MODAL_VISIBLE"))])
+}
+
 let sendIframeReadyMessageToParent = () => {
   IframeUtils.handlePostMessage([("type", JSON.Encode.string("EMBEDDED_IFRAME_READY"))])
 }

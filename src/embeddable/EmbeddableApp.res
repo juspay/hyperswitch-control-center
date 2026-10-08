@@ -34,12 +34,19 @@ let make = () => {
       Js.Math.max_int(clientW, offsetW) // Fallback
     }
 
+    let isFullPageModalOpen =
+      EmbeddableComponentContext.getModalRoot()->Option.mapOr(false, modalRoot =>
+        !(modalRoot->EmbeddableComponentContext.isModalRootEmpty)
+      )
+
     // Send dimensions message to parent iframe
-    sendComponentDimensionToParent(
-      finalHeight,
-      finalWidth,
-      url.path->urlPath->LogicUtils.getListHead,
-    )
+    if !isFullPageModalOpen {
+      sendComponentDimensionToParent(
+        finalHeight,
+        finalWidth,
+        url.path->urlPath->LogicUtils.getListHead,
+      )
+    }
   }
 
   React.useEffect(() => {
@@ -94,11 +101,18 @@ let make = () => {
   }, [])
 
   <div id="embeddable-app" className={backgroundColor} ref={ReactDOM.Ref.domRef(contentRef)}>
-    <ErrorBoundary>
-      {switch url.path->urlPath {
-      | list{"connectors", ..._} => <ConnectorEmbeddedContainer />
-      | _ => <NotFoundPage />
-      }}
-    </ErrorBoundary>
+    <div id=EmbeddableComponentContext.modalRootId />
+    <div id="embeddable-content">
+      <ErrorBoundary>
+        {switch url.path->urlPath {
+        | list{name, ...remainingPath} =>
+          switch EmbeddableRegistry.getComponent(name) {
+          | Some(component) => <EmbeddableHost key=name component remainingPath />
+          | None => <NotFoundPage />
+          }
+        | _ => <NotFoundPage />
+        }}
+      </ErrorBoundary>
+    </div>
   </div>
 }

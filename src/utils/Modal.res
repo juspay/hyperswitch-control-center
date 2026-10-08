@@ -230,6 +230,66 @@ let make = (
 ) => {
   let showBorderBottom = borderBottom
   let _ = revealFrom
+  let {fullPageModals} = EmbeddableComponentContext.useDisplayOptions()
+  let fullPageModalRoot = fullPageModals ? EmbeddableComponentContext.getModalRoot() : None
+  let isFullPageModal = fullPageModalRoot->Option.isSome
+
+  let (isFrameExpanded, setIsFrameExpanded) = React.useState(_ => false)
+  let isFrameExpandedRef = React.useRef(false)
+  let hasMounted = React.useRef(false)
+
+  React.useEffect(() => {
+    switch fullPageModalRoot {
+    | Some(modalRoot) => {
+        open EmbeddableComponentContext
+        let handleFrameMessage = (ev: Dom.event) => {
+          let messageType =
+            (ev->HandlingEvents.convertToCustomEvent).data
+            ->getDictFromJsonObject
+            ->getString("type", "")
+          switch messageType {
+          | "EMBEDDED_MODAL_OPENED" if showModal => setIsFrameExpanded(_ => true)
+          | "EMBEDDED_MODAL_CLOSED" if !showModal => setIsFrameExpanded(_ => false)
+          | _ => ()
+          }
+        }
+        Window.addEventListener("message", handleFrameMessage)
+
+        switch (showModal, isFrameExpanded) {
+        | (true, false) =>
+          modalRoot->isModalRootEmpty
+            ? EmbeddedIframeUtils.sendModalStateToParent(true)
+            : setIsFrameExpanded(_ => true)
+        | (false, true) =>
+          modalRoot->hasOtherModals
+            ? setIsFrameExpanded(_ => false)
+            : EmbeddedIframeUtils.sendModalStateToParent(false)
+        | _ => ()
+        }
+
+        Some(() => Window.removeEventListener("message", handleFrameMessage))
+      }
+    | None => None
+    }
+  }, (isFullPageModal, showModal, isFrameExpanded))
+
+  React.useEffect(() => {
+    isFrameExpandedRef.current = isFrameExpanded
+    if hasMounted.current && isFullPageModal {
+      EmbeddedIframeUtils.sendModalVisibleToParent()
+    }
+    hasMounted.current = true
+    None
+  }, [isFrameExpanded])
+
+  React.useEffect(() => {
+    Some(
+      () =>
+        if isFrameExpandedRef.current {
+          EmbeddedIframeUtils.sendModalStateToParent(false)
+        },
+    )
+  }, [])
 
   let headerTextClass = headerTextClass->getHeaderTextClass
 
@@ -283,18 +343,7 @@ let make = (
 
   let animationClass = showModal->getAnimationClass
 
-  <ModalOverlay
-    showModal
-    handleOverlayClick
-    paddingClass
-    modalHeading
-    modalPosition
-    noBackDrop
-    isBackdropBlurReq
-    alignModal
-    addAttributeId
-    zIndexClass>
-    // <Reveal showReveal=showModal revealFrom>
+  let modalContent =
     <ModalContent
       handleContainerClick
       bgClass
@@ -342,6 +391,24 @@ let make = (
         React.null
       }}
     </ModalContent>
-    // </Reveal>
-  </ModalOverlay>
+
+  let modalWithOverlay =
+    <ModalOverlay
+      showModal
+      handleOverlayClick
+      paddingClass
+      modalHeading
+      modalPosition
+      noBackDrop
+      isBackdropBlurReq
+      alignModal
+      addAttributeId
+      zIndexClass>
+      modalContent
+    </ModalOverlay>
+
+  switch fullPageModalRoot {
+  | Some(root) => isFrameExpanded ? ReactDOM.createPortal(modalWithOverlay, root) : React.null
+  | None => modalWithOverlay
+  }
 }

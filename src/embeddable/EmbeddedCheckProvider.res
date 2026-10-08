@@ -1,9 +1,13 @@
 type embeddedState = Success | NotInsideIframe | TokenFetchError | Loading
 
-type embeddedContextType = {setEmbeddedStateToError: unit => unit}
+type embeddedContextType = {
+  setEmbeddedStateToError: unit => unit,
+  isFullPageModalSupported: bool,
+}
 
 let embeddedProviderContext: embeddedContextType = {
   setEmbeddedStateToError: () => (),
+  isFullPageModalSupported: false,
 }
 
 let embeddedContext = React.createContext(embeddedProviderContext)
@@ -25,6 +29,7 @@ let make = (~children) => {
 
   let (componentKey, setComponentKey) = React.useState(_ => "")
   let (embeddedState, setEmbeddedState) = React.useState(_ => Loading)
+  let (isFullPageModalSupported, setIsFullPageModalSupported) = React.useState(_ => false)
 
   let handleAuthMessage = (ev: Dom.event) => {
     let objectdata = ev->HandlingEvents.convertToCustomEvent
@@ -48,6 +53,12 @@ let make = (~children) => {
             }
           | None => setEmbeddedState(_ => TokenFetchError)
           }
+        }
+
+        if messageType->messageToTypeConversion == INIT_CONFIG {
+          setIsFullPageModalSupported(_ =>
+            dict->getDictfromDict("sdk_capabilities")->getBool("full_page_modal", false)
+          )
         }
 
         if messageType->messageToTypeConversion == AUTH_ERROR {
@@ -74,7 +85,7 @@ let make = (~children) => {
     }
   }, [])
 
-  <Provider value={setEmbeddedStateToError: setEmbeddedStateToError}>
+  <Provider value={setEmbeddedStateToError, isFullPageModalSupported}>
     {switch embeddedState {
     | NotInsideIframe =>
       <div className="h-screen w-screen flex justify-center items-center p-4">
