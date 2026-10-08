@@ -217,10 +217,10 @@ let periodLabel = (startTime, endTime) => {
 let toIso = ms =>
   ms->Js.Date.fromFloat->Js.Date.toISOString->String.replaceRegExp(%re("/\.\d{3}Z$/"), "Z")
 
-let shortDate = iso =>
+let formatShortDate = iso =>
   (iso->String.slice(~start=0, ~end=10)->DayJs.getDayJsForString).format("MMM D")
 
-let windowDays = (startTime, endTime) => {
+let getWindowDays = (startTime, endTime) => {
   let dayMs = 86400000.0
   let startMs = startTime->Js.Date.fromString->Js.Date.getTime
   let endMs = endTime->Js.Date.fromString->Js.Date.getTime
@@ -228,6 +228,13 @@ let windowDays = (startTime, endTime) => {
   let count = Math.Int.max(1, Math.ceil((endMs -. first) /. dayMs)->Float.toInt)
   Array.fromInitializer(~length=count, index => toIso(first +. index->Int.toFloat *. dayMs))
 }
+
+let getValuesLabel = (values, ~split: array<dimension>, ~labelFor) =>
+  values
+  ->Array.mapWithIndex((value, index) =>
+    split->Array.get(index)->Option.mapOr(value, key => labelFor(key, value))
+  )
+  ->Array.joinWith(" · ")
 
 let getDimensionValueLabel = (
   key: dimension,
