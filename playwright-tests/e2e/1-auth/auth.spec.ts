@@ -42,7 +42,7 @@ test.describe.serial("Sign up", () => {
     page,
   }) => {
     const signupPage = new SignUpPage(page);
-    const signinPage = new SignInPage(page);
+    const _signinPage = new SignInPage(page);
 
     const invalidEmails = getInvalidEmails();
 
@@ -69,7 +69,7 @@ test.describe.serial("Sign up", () => {
     page,
   }) => {
     const signupPage = new SignUpPage(page);
-    const signinPage = new SignInPage(page);
+    const _signinPage = new SignInPage(page);
     const email = generateUniqueEmail();
 
     await visitSignupPage(page);
@@ -165,7 +165,7 @@ test.describe.serial("Sign up", () => {
 test.describe.serial("Sign in", () => {
   test("should verify all components on the signin page", async ({ page }) => {
     const signinPage = new SignInPage(page);
-    const signupPage = new SignUpPage(page);
+    const _signupPage = new SignUpPage(page);
 
     await page.goto("/");
 
@@ -217,7 +217,7 @@ test.describe.serial("Sign in", () => {
 
   test("should successfully login in with valid credentials", async ({
     page,
-    context,
+    context: _context,
   }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
@@ -228,9 +228,9 @@ test.describe.serial("Sign in", () => {
 
   test("should persist session and remain logged in after page reload", async ({
     page,
-    context,
+    context: _context,
   }) => {
-    const homePage = new HomePage(page);
+    const _homePage = new HomePage(page);
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
 
@@ -244,7 +244,7 @@ test.describe.serial("Sign in", () => {
 
   test("should redirect to login when session is expired or cleared", async ({
     page,
-    context,
+    context: _context,
   }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
@@ -277,7 +277,7 @@ test.describe.serial("Sign in", () => {
   test(
     "should successfully login using magic link for registered user",
     { tag: "@mail" },
-    async ({ page, context }) => {
+    async ({ page, context: _context }) => {
       // Magic-link flow chains signup, mail inbox redirect, password reset, then
       // a second mail inbox round-trip. Each hop is independently slow on CI.
       test.setTimeout(90000);
@@ -331,7 +331,7 @@ test.describe.serial("Sign in", () => {
 
   test("should verify components displayed in 2FA setup page", async ({
     page,
-    context,
+    context: _context,
   }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
@@ -377,7 +377,7 @@ test.describe.serial("Sign in", () => {
 
   test("should display error message with invalid TOTP in 2FA page", async ({
     page,
-    context,
+    context: _context,
   }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
@@ -402,7 +402,7 @@ test.describe.serial("Sign in", () => {
 
   test("should navigate to homepage when 2FA is skipped", async ({
     page,
-    context,
+    context: _context,
   }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
@@ -425,7 +425,7 @@ test.describe.serial("Sign in", () => {
 
   test("should navigate to signin page when 'Click here to log out.' is clicked in 2FA page", async ({
     page,
-    context,
+    context: _context,
   }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
@@ -492,7 +492,7 @@ test.describe("Forgot password", () => {
 
   test("should display success message when registered email is used", async ({
     page,
-    context,
+    context: _context,
   }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
@@ -522,9 +522,9 @@ test.describe("Forgot password", () => {
   test(
     "should reset password through mail and login successfully",
     { tag: "@mail" },
-    async ({ page, context }) => {
+    async ({ page, context: _context }) => {
       const email = generateUniqueEmail();
-      const newPassword = "Test@123";
+      const newPassword = "Test@1234567";
 
       const signinPage = new SignInPage(page);
       const resetPasswordPage = new ResetPasswordPage(page);
@@ -562,22 +562,21 @@ test.describe("Forgot password", () => {
   );
 
   test(
-    "should display validation error for weak password or mismatched confirmation on reset",
+    "should display validation error for invalid password or mismatched confirmation on reset",
     { tag: "@mail" },
-    async ({ page, context }) => {
+    async ({ page, context: _context }) => {
       const email = generateUniqueEmail();
       const signinPage = new SignInPage(page);
       const resetPasswordPage = new ResetPasswordPage(page);
 
+      const elevenCharacterPassword = "Valid@12345";
+      const twelveCharacterPassword = "Valid@123456";
+
       const weakPasswords = [
-        {
-          password: "Weak1!",
-          expectedError: "Password must be at least 8 characters long.",
-        },
         { password: "password123!", expectedError: /uppercase/ },
         { password: "PASSWORD123!", expectedError: /lowercase/ },
-        { password: "Password!@#", expectedError: /numeric/ },
-        { password: "Password123", expectedError: /special/ },
+        { password: "Password!@#>", expectedError: /numeric/ },
+        { password: "Password1234", expectedError: /special/ },
       ];
 
       await signupUser(email, PLAYWRIGHT_PASSWORD);
@@ -593,6 +592,47 @@ test.describe("Forgot password", () => {
       );
 
       await signinPage.skip2FAButton.click();
+
+      await resetPasswordPage.newPasswordField.fill(elevenCharacterPassword);
+      await resetPasswordPage.newPasswordField.blur();
+      await expect(
+        resetPasswordPage.minimumPasswordLengthRequirement,
+      ).toBeVisible();
+      await expect(
+        resetPasswordPage.minimumPasswordLengthCheckIcon,
+      ).not.toBeAttached();
+      await resetPasswordPage.confirmPasswordField.fill(
+        elevenCharacterPassword,
+      );
+
+      await expect(resetPasswordPage.weakPasswordError).toContainText(
+        "Password must be at least 12 characters long.",
+      );
+      await resetPasswordPage.confirmButton.click();
+      await expect(resetPasswordPage.confirmButton).toBeDisabled();
+
+      await resetPasswordPage.newPasswordField.fill(twelveCharacterPassword);
+      await resetPasswordPage.confirmPasswordField.fill(
+        twelveCharacterPassword,
+      );
+
+      await expect(resetPasswordPage.weakPasswordError).not.toBeVisible();
+      await expect(resetPasswordPage.confirmButton).toBeEnabled();
+
+      await resetPasswordPage.newPasswordField.fill(elevenCharacterPassword);
+      await expect(
+        resetPasswordPage.minimumPasswordLengthCheckIcon,
+      ).not.toBeAttached();
+      await resetPasswordPage.newPasswordField.blur();
+      await resetPasswordPage.confirmPasswordField.fill(
+        elevenCharacterPassword,
+      );
+      await resetPasswordPage.confirmPasswordField.blur();
+
+      await expect(resetPasswordPage.weakPasswordError).toContainText(
+        "Password must be at least 12 characters long.",
+      );
+      await expect(resetPasswordPage.confirmButton).toBeDisabled();
 
       for (const { password, expectedError } of weakPasswords) {
         await resetPasswordPage.newPasswordField.fill(password);
@@ -752,7 +792,7 @@ const ssoBaseUrl = process.env.PLAYWRIGHT_SSO_BASE_URL;
 
     test("should require full Okta login after logged out from okta", async ({
       page,
-      request,
+      request: _request,
     }) => {
       const homePage = new HomePage(page);
       const signinPage = new SignInPage(page);
@@ -785,7 +825,7 @@ const ssoBaseUrl = process.env.PLAYWRIGHT_SSO_BASE_URL;
 test.describe("TOTP flows", () => {
   test("should successfully setup 2FA while signup", async ({
     page,
-    context,
+    context: _context,
   }) => {
     let totpSecret = "";
     const email = generateUniqueEmail();
@@ -832,7 +872,10 @@ test.describe("TOTP flows", () => {
     await expect(page).toHaveURL(/.*dashboard\/home/);
   });
 
-  test("should successfully signin using 2FA", async ({ page, context }) => {
+  test("should successfully signin using 2FA", async ({
+    page,
+    context: _context,
+  }) => {
     let totpSecret = "";
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
@@ -1014,7 +1057,7 @@ test.describe("Maintenance mode and Down time", () => {
 
   test("should display maintenance alert banner in homepage when maintenance_alert is set", async ({
     page,
-    context,
+    context: _context,
   }) => {
     const maintenanceAlert =
       "Scheduled maintenance window time from 01:30 AM to 06:00 AM IST on 21st Jun";

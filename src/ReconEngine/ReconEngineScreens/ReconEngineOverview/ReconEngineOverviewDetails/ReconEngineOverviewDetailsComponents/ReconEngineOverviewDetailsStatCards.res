@@ -12,11 +12,18 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   )
   let getOverviewRules = ReconEngineHooks.useGetOverviewRules()
   let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
+  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
+  let filterValueJsonWithGlobalDate = ReconEngineFilterUtils.mergeGlobalDateFilters(
+    ~filterValueJson,
+    ~globalDateFilters,
+  )
 
   let getOverviewRulesData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
+      let baseQueryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
+        ~filterValueJson=filterValueJsonWithGlobalDate,
+      )
       let queryString =
         baseQueryString->isNonEmptyString
           ? `${baseQueryString}&rule_ids=${ruleDetails.rule_id}`
@@ -32,11 +39,11 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   }
 
   React.useEffect(() => {
-    if !(filterValue->isEmptyDict) {
+    if ReconEngineFilterUtils.hasGlobalDateFilterValue(~globalDateFilters) {
       getOverviewRulesData()->ignore
     }
     None
-  }, [filterValue])
+  }, (filterValue, globalDateFilters))
 
   let statCards = React.useMemo(() => {
     getDetailsConnectedStatCards(~overviewRule)

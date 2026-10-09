@@ -6,10 +6,9 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let (searchText, setSearchText) = React.useState(_ => "")
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
-  let {vaultProcessorsLiveList} =
-    HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
+  let {vaultProcessorsList: connectorsAvailableForIntegration} =
+    HyperswitchAtom.connectorDisplayListAtom->Recoil.useRecoilValueFromAtom
 
   let businessProfileRecoilVal =
     HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
@@ -21,9 +20,11 @@ let make = () => {
       list->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
-          isContainingStringLowercase(obj.connector_name, searchText) ||
-          isContainingStringLowercase(obj.id, searchText) ||
-          isContainingStringLowercase(obj.connector_label, searchText)
+          ConnectorUtils.matchesConnectorSearch(
+            ~connectorType=ConnectorTypes.VaultProcessor,
+            obj,
+            searchText,
+          )
         | None => false
         }
       })
@@ -52,9 +53,6 @@ let make = () => {
     getConnectorList()->ignore
     None
   }, [])
-  let connectorsAvailableForIntegration = featureFlagDetails.isLiveMode
-    ? vaultProcessorsLiveList
-    : ConnectorUtils.vaultProcessorList
   <div>
     <PageUtils.PageHeading
       title={"Vault Processor"} subTitle={"Connect and configure Vault Processor"}

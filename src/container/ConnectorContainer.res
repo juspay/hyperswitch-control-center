@@ -166,6 +166,12 @@ let make = () => {
         </SDKProvider>
       </AccessControl>
     // Routing
+    | list{"routing-workspace", ..._} =>
+      <AccessControl
+        isEnabled={featureFlagDetails.embedDecisionEngine}
+        authorization={userHasAccess(~groupAccess=WorkflowsView)}>
+        <DecisionEngineWorkspace />
+      </AccessControl>
     | list{"routing", ...remainingPath} =>
       <AccessControl authorization={userHasAccess(~groupAccess=WorkflowsView)}>
         <EntityScaffold
@@ -187,27 +193,14 @@ let make = () => {
         />
       </AccessControl>
     | list{"payment-settings", ...remainingPath} =>
-      <>
-        <RenderIf condition={featureFlagDetails.paymentSettingsRevamped}>
-          <AccessControl authorization=Access>
-            <EntityScaffold
-              entityName="PaymentSettingsRevamped"
-              remainingPath
-              renderList={() =>
-                isCurrentMerchantPlatform
-                  ? <PlatformPaymentSettings />
-                  : <PaymentSettingsRevamped />}
-            />
-          </AccessControl>
-        </RenderIf>
-        <RenderIf condition={!featureFlagDetails.paymentSettingsRevamped}>
-          <AccessControl authorization=Access>
-            <EntityScaffold
-              entityName="PaymentSettings" remainingPath renderList={() => <PaymentSettings />}
-            />
-          </AccessControl>
-        </RenderIf>
-      </>
+      <AccessControl authorization=Access>
+        <EntityScaffold
+          entityName="PaymentSettings"
+          remainingPath
+          renderList={() =>
+            isCurrentMerchantPlatform ? <PlatformPaymentSettings /> : <PaymentSettings />}
+        />
+      </AccessControl>
     | list{"sdk"} =>
       <AccessControl
         isEnabled={!featureFlagDetails.isLiveMode}

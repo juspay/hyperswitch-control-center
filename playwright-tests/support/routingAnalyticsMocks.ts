@@ -43,7 +43,9 @@ const json = (route: Route, body: unknown) =>
 
 // Returns the first element of an analytics request body (the body is a
 // single-element array `[{ ... }]`); falls back to the raw object.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function firstQuery(route: Route): Record<string, any> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let body: any;
   try {
     body = route.request().postDataJSON();
@@ -121,7 +123,9 @@ const FILTER_VALUES = {
 };
 
 const wrap = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   queryData: Array<Record<string, any>>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metaData: Array<Record<string, any>> = [{}],
 ) => ({
   queryData,
@@ -133,6 +137,7 @@ const wrap = (
 // ---------------------------------------------------------------------------
 
 // Connector Volume Distribution pie (payment_count grouped by connector).
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function connectorVolumeRows(): Array<Record<string, any>> {
   return CONNECTORS.map((connector, i) => ({
     connector,
@@ -141,6 +146,7 @@ function connectorVolumeRows(): Array<Record<string, any>> {
 }
 
 // Routing Logic Distribution pie (payment_count grouped by routing_approach).
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function routingApproachDistRows(): Array<Record<string, any>> {
   return ROUTING_APPROACHES.map((routing_approach, i) => ({
     routing_approach,
@@ -150,7 +156,9 @@ function routingApproachDistRows(): Array<Record<string, any>> {
 
 // Summary table — connector + routing_approach grouping (drives the expandable
 // per-connector detail rows). Amounts are minor units (÷100 on display).
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function summaryConnectorRoutingRows(): Array<Record<string, any>> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rows: Array<Record<string, any>> = [];
   ROUTING_APPROACHES.forEach((routing_approach, ri) => {
     CONNECTORS.forEach((connector, ci) => {
@@ -169,6 +177,7 @@ function summaryConnectorRoutingRows(): Array<Record<string, any>> {
 }
 
 // Summary table — routing_approach grouping (the top-level summary rows).
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function summaryRoutingRows(): Array<Record<string, any>> {
   return ROUTING_APPROACHES.map((routing_approach, i) => {
     const count = 700 - i * 150;
@@ -185,6 +194,7 @@ function summaryRoutingRows(): Array<Record<string, any>> {
 // Trends — "Success Over Time" line (payment_success_rate grouped by connector,
 // one row per connector per day bucket).
 function routingSuccessSeries() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const queryData: Array<Record<string, any>> = [];
   dayBuckets().forEach((day, i) => {
     CONNECTORS.forEach((connector, ci) => {
@@ -200,6 +210,7 @@ function routingSuccessSeries() {
 
 // Trends — "Volume Over Time" line (payment_count grouped by connector).
 function routingVolumeSeries() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const queryData: Array<Record<string, any>> = [];
   dayBuckets().forEach((day, i) => {
     CONNECTORS.forEach((connector, ci) => {
@@ -219,6 +230,7 @@ function routingVolumeSeries() {
 
 // Basic metrics card — "Total Savings" + "Debit Routed Transactions" (no
 // groupBy; the page sums these fields). Amount is minor units (÷100 on display).
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function leastCostBasicRows(): Array<Record<string, any>> {
   return [
     {
@@ -230,6 +242,7 @@ function leastCostBasicRows(): Array<Record<string, any>> {
 
 // Regulation card — "Regulated / Unregulated Transactions Percentage" (grouped
 // by is_issuer_regulated).
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function leastCostRegulationRows(): Array<Record<string, any>> {
   return [
     { is_issuer_regulated: true, debit_routed_transaction_count: 600 },
@@ -238,6 +251,7 @@ function leastCostRegulationRows(): Array<Record<string, any>> {
 }
 
 // Volume Distribution pie (grouped by card_network).
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function leastCostDistributionRows(): Array<Record<string, any>> {
   return CARD_NETWORKS.map((card_network, i) => {
     const count = 600 - i * 280;
@@ -250,7 +264,9 @@ function leastCostDistributionRows(): Array<Record<string, any>> {
 }
 
 // Summary table (grouped by card_network, signature_network, is_issuer_regulated).
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function leastCostSummaryRows(): Array<Record<string, any>> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rows: Array<Record<string, any>> = [];
   CARD_NETWORKS.forEach((card_network, i) => {
     [true, false].forEach((isRegulated) => {

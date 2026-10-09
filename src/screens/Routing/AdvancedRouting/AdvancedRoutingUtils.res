@@ -383,7 +383,11 @@ let validateStringNumericField = (str, field) => {
 let isStatementMandatoryFieldsPresent = (statement: RoutingTypes.statement) => {
   let fieldType = statement.lhs->stringToVariantType
   let statementValue = switch statement.value.value->JSON.Classify.classify {
-  | Array(ele) => ele->Array.length > 0
+  | Array(ele) =>
+    switch fieldType {
+    | CARD_BIN | EXTENDED_CARD_BIN => false
+    | OTHER => ele->Array.length > 0
+    }
   | String(str) =>
     switch fieldType {
     | CARD_BIN | EXTENDED_CARD_BIN => validateStringNumericField(str, statement.lhs)

@@ -1,5 +1,9 @@
 open DisputeTypes
 open LogicUtils
+
+// Page size for server-side pagination; backend allows limit between 1 and 100
+let disputesFetchLimit = 20
+
 let disputeStatusVariantMapper = status => {
   switch status {
   | "dispute_opened" => DisputeOpened
@@ -121,7 +125,7 @@ let initialFixedFilter = _ => [
           ~startKey=startTimeFilterKey,
           ~endKey=endTimeFilterKey,
           ~format="YYYY-MM-DDTHH:mm:ss[Z]",
-          ~showTime=false,
+          ~showTime=true,
           ~disablePastDates={false},
           ~disableFutureDates={true},
           ~predefinedDays=[

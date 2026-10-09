@@ -234,32 +234,6 @@ type paymentListSource =
   | @as("Normal") Normal
   | @as("Advanced") Advanced
 
-type openSearchCsvColumn =
-  | CsvPaymentId
-  | CsvStatus
-  | CsvAmount
-  | CsvCurrency
-  | CsvConnector
-  | CsvPaymentMethod
-  | CsvPaymentMethodType
-  | CsvProfileId
-  | CsvMerchantId
-  | CsvCustomerId
-  | CsvActiveAttemptId
-  | CsvMerchantConnectorId
-  | CsvCardLast4
-  | CsvCardNetwork
-  | CsvCardIssuer
-  | CsvRefundsStatus
-  | CsvRefundsCount
-  | CsvDisputeStatus
-  | CsvDisputeCount
-  | CsvRoutingApproach
-  | CsvUnifiedCode
-  | CsvUnifiedMessage
-  | CsvCreated
-  | CsvModified
-
 type openSearchRefundStatus = [#partial_refunded | #full_refunded]
 
 type openSearchDisputeStatus = [
@@ -309,6 +283,14 @@ type basePaymentListFilter = [
 ]
 
 type frmStatus = [#APPROVE | #REJECT]
+
+type manualUpdateStatus =
+  | @as("succeeded") Succeeded
+  | @as("failed") Failed
+  | @as("partially_captured") PartiallyCaptured
+  | @as("requires_capture") RequiresCapture
+  | @as("partially_authorized_and_requires_capture") PartiallyAuthorizedAndRequiresCapture
+  | @as("partially_captured_and_capturable") PartiallyCapturedAndCapturable
 
 let getSortString = (value: LoadedTable.sortOb) =>
   switch value.sortType {

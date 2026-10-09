@@ -18,12 +18,6 @@ let connectorListAtom: Recoil.recoilAtom<
   array<ConnectorTypes.connectorPayloadCommonType>,
 > = Recoil.atom("connectorListAtom", [])
 
-//Todo: remove this once we start using businessProfileInterface
-let businessProfileFromIdAtom = Recoil.atom(
-  "businessProfileFromIdAtom",
-  JSON.Encode.null->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1,
-)
-
 let businessProfileFromIdAtomInterface = Recoil.atom(
   "businessProfileFromIdAtomInterface",
   JSON.Encode.null->BusinessProfileInterfaceUtils.mapJsontoCommonType,
@@ -31,17 +25,21 @@ let businessProfileFromIdAtomInterface = Recoil.atom(
 
 let themeListAtom: Recoil.recoilAtom<JSON.t> = Recoil.atom("themeListAtom", JSON.Encode.null)
 
+let decisionEngineCutoverAtom: Recoil.recoilAtom<option<(string, option<bool>)>> = Recoil.atom(
+  "decisionEngineCutoverAtom",
+  None,
+)
+
 let enumVariantAtom = Recoil.atom("enumVariantDetails", "")
 
-let featureFlagAtom: Recoil.recoilAtom<FeatureFlagUtils.featureFlag> = Recoil.atom(
-  "featureFlag",
-  JSON.Encode.null->FeatureFlagUtils.featureFlagType,
-)
-let connectorListForLiveAtom: Recoil.recoilAtom<
-  ConnectorListForLiveFromConfigTypes.connectorListForLive,
+let featureFlagAtom = FeatureFlagAtom.featureFlagAtom
+// Seeded with the sandbox defaults since the feature flags are not resolved yet
+// at module init; HyperSwitchEntry overwrites this once the config is fetched.
+let connectorDisplayListAtom: Recoil.recoilAtom<
+  ConnectorListFromConfigTypes.connectorDisplayList,
 > = Recoil.atom(
-  "connectorListForLive",
-  JSON.Encode.null->ConnectorListForLiveFromConfigUtils.getConnectorListForLive,
+  "connectorDisplayList",
+  JSON.Encode.null->ConnectorListFromConfigUtils.getConnectorDisplayList(~isLiveMode=false),
 )
 let connectorCloneAllowListAtom: Recoil.recoilAtom<array<string>> = Recoil.atom(
   "connectorCloneAllowList",
@@ -50,6 +48,7 @@ let connectorCloneAllowListAtom: Recoil.recoilAtom<array<string>> = Recoil.atom(
 let merchantSpecificConfigAtom: Recoil.recoilAtom<
   FeatureFlagUtils.merchantSpecificConfig,
 > = Recoil.atom("merchantSpecificConfig", JSON.Encode.null->FeatureFlagUtils.merchantSpecificConfig)
+
 let paypalAccountStatusAtom: Recoil.recoilAtom<PayPalFlowTypes.setupAccountStatus> = Recoil.atom(
   "paypalAccountStatusAtom",
   PayPalFlowTypes.Connect_paypal_landing,

@@ -31,6 +31,10 @@ type groupAccessType =
   | ReconRulesManage
   | ReconExceptionsView
   | ReconExceptionsManage
+  | ConfigurationsView
+  | ConfigurationsManage
+  | OffersView
+  | OffersManage
   | UnknownGroupAccess(string)
 
 type resourceAccessType =
@@ -58,6 +62,8 @@ type resourceAccessType =
   | ReconStagingEntry
   | ReconTransaction
   | ReconRule
+  | SuperpositionConfigs
+  | Offers
   | UnknownResourceAccess(string)
 
 open CommonAuthTypes
@@ -87,6 +93,10 @@ type groupAccessJsonType = {
   reconRulesManage: authorization,
   reconExceptionsView: authorization,
   reconExceptionsManage: authorization,
+  configurationsView: authorization,
+  configurationsManage: authorization,
+  offersView: authorization,
+  offersManage: authorization,
 }
 
 type getInfoType = {

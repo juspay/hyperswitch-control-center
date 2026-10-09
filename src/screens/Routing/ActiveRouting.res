@@ -29,7 +29,7 @@ module ActionButtons = {
     ~routeType: routingType,
     ~onRedirectBaseUrl,
     ~isCutover=false,
-    ~onDecisionEngineRedirect=_ => (),
+    ~onDecisionEngineRedirect=(_, _) => (),
   ) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -46,7 +46,7 @@ module ActionButtons = {
         buttonSize=Small
         onClick={_ => {
           if isCutover {
-            onDecisionEngineRedirect(routeType->decisionEngineRoutingTarget)
+            onDecisionEngineRedirect(routeType->decisionEngineRoutingTarget, "")
           } else {
             RescriptReactRouter.push(
               GlobalVars.appendDashboardPath(
@@ -81,7 +81,13 @@ module ActionButtons = {
 
 module ActiveSection = {
   @react.component
-  let make = (~activeRouting, ~activeRoutingId, ~onRedirectBaseUrl, ~isCutover=false) => {
+  let make = (
+    ~activeRouting,
+    ~activeRoutingId,
+    ~onRedirectBaseUrl,
+    ~isCutover=false,
+    ~onDecisionEngineRedirect=(_, _) => (),
+  ) => {
     open LogicUtils
     let {profileId: currentprofileId} = React.useContext(
       UserInfoProvider.defaultContext,
@@ -99,6 +105,32 @@ module ActiveSection = {
       currentprofileId
     } else {
       activeRouting->getDictFromJsonObject->getString("profile_id", "")
+    }
+
+    let activeRuleTypeUrl = `/${onRedirectBaseUrl}/${routingTypeName(activeRoutingType)}`
+
+    let handleViewAndManage = _ => {
+      let decisionEngineTarget = activeRoutingType->decisionEngineRoutingTarget
+
+      let ruleId = switch activeRoutingType {
+      | ADVANCED | VOLUME_SPLIT => activeRoutingId
+      | _ => ""
+      }
+
+      if isCutover && decisionEngineTarget->isNonEmptyString {
+        onDecisionEngineRedirect(decisionEngineTarget, ruleId)
+      } else {
+        switch activeRoutingType {
+        | DEFAULTFALLBACK =>
+          RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=activeRuleTypeUrl))
+        | _ =>
+          RescriptReactRouter.push(
+            GlobalVars.appendDashboardPath(
+              ~url=`${activeRuleTypeUrl}?id=${activeRoutingId}&isActive=true`,
+            ),
+          )
+        }
+      }
     }
 
     <div className="flex flex-1">
@@ -130,24 +162,7 @@ module ActiveSection = {
           buttonType=Secondary
           customButtonStyle="w-4/3"
           buttonSize={Small}
-          onClick={_ => {
-            switch activeRoutingType {
-            | DEFAULTFALLBACK =>
-              RescriptReactRouter.push(
-                GlobalVars.appendDashboardPath(
-                  ~url=`/${onRedirectBaseUrl}/${routingTypeName(activeRoutingType)}`,
-                ),
-              )
-            | _ =>
-              RescriptReactRouter.push(
-                GlobalVars.appendDashboardPath(
-                  ~url=`/${onRedirectBaseUrl}/${routingTypeName(
-                      activeRoutingType,
-                    )}?id=${activeRoutingId}&isActive=true`,
-                ),
-              )
-            }
-          }}
+          onClick=handleViewAndManage
         />
       </div>
     </div>
@@ -160,7 +175,7 @@ module LevelWiseRoutingSection = {
     ~types: array<routingType>,
     ~onRedirectBaseUrl,
     ~isCutover=false,
-    ~onDecisionEngineRedirect=_ => (),
+    ~onDecisionEngineRedirect=(_, _) => (),
   ) => {
     let {debitRouting} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let renderCard = (value, key) =>
@@ -201,7 +216,11 @@ module LevelWiseRoutingSection = {
 }
 
 @react.component
-let make = (~routingType: array<JSON.t>, ~isCutover=false) => {
+let make = (
+  ~routingType: array<JSON.t>,
+  ~isCutover=false,
+  ~onDecisionEngineRedirect=(_, _) => (),
+) => {
   let {debitRouting} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let debitRoutingValue =
     (
@@ -220,6 +239,7 @@ let make = (~routingType: array<JSON.t>, ~isCutover=false) => {
         activeRoutingId={id}
         onRedirectBaseUrl="routing"
         isCutover
+        onDecisionEngineRedirect
       />
     })
     ->React.array}

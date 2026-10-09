@@ -16,14 +16,14 @@ import { HomePage } from "../support/pages/homepage/HomePage";
 import { PaymentOperations } from "../support/pages/operations/PaymentOperations";
 import { RefundOperations } from "../support/pages/operations/RefundOperations";
 import { CustomerOperations } from "../support/pages/operations/CustomerOperations";
-import { DisputesOperations } from "../support/pages/operations/DisputesOperations";
+import { DisputeOperations } from "../support/pages/operations/DisputeOperations";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
 test.describe("Visual Testing - Payment Operations", () => {
   test("payment operations when no payment exists should match visual snapshot", async ({
     page,
-    context,
+    context: _context,
   }) => {
     await mockV2MerchantList(page);
 
@@ -79,7 +79,7 @@ test.describe("Visual Testing - Payment Operations", () => {
         context.request,
         page,
       );
-      const paymentData = await createPaymentAPI(
+      await createPaymentAPI(
         merchantId,
         context.request,
         undefined,
@@ -137,6 +137,14 @@ test.describe("Visual Testing - Payment Operations", () => {
       animations: "disabled",
       maxDiffPixelRatio: 0.01,
     });
+
+    // The Attempts table is its own tab on the payment details page
+    // (ShowOrder.res builds paymentDetailsTabs), so it is not in the DOM while
+    // the events-and-logs tab is selected. Select it before expanding a row.
+    const paymentAttemptsTab =
+      paymentOperations.paymentDetailsTab("Payment Attempts");
+    await paymentAttemptsTab.click();
+    await expect(paymentAttemptsTab).toHaveAttribute("aria-selected", "true");
 
     await paymentOperations.firstAttemptRowExpander.click();
     await expect(paymentOperations.connectorTransactionIdInTable).toBeVisible();
@@ -258,7 +266,7 @@ test.describe("Visual Testing - Payment Operations", () => {
 test.describe("Visual Testing - Refund Operations", () => {
   test("refund operations when no refund exists should match visual snapshot", async ({
     page,
-    context,
+    context: _context,
   }) => {
     await mockV2MerchantList(page);
 
@@ -357,7 +365,7 @@ test.describe("Visual Testing - Refund Operations", () => {
 test.describe("Visual Testing - Payout Operations", () => {
   test("payout operations when no payouts exists should match visual snapshot", async ({
     page,
-    context,
+    context: _context,
   }) => {
     await mockV2MerchantList(page);
 
@@ -453,7 +461,7 @@ test.describe("Visual Testing - Payout Operations", () => {
 test.describe("Visual Testing - Dispute Operations", () => {
   test("dispute operations when no disputes exists should match visual snapshot", async ({
     page,
-    context,
+    context: _context,
   }) => {
     await mockV2MerchantList(page);
 
@@ -480,8 +488,7 @@ test.describe("Visual Testing - Dispute Operations", () => {
     await mockV2MerchantList(page);
 
     const homePage = new HomePage(page);
-    const paymentOperations = new PaymentOperations(page);
-    const disputesOperations = new DisputesOperations(page);
+    const disputesOperations = new DisputeOperations(page);
 
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
@@ -533,7 +540,7 @@ test.describe("Visual Testing - Dispute Operations", () => {
 test.describe("Visual Testing - Customers", () => {
   test("customers page when no customers exist should match visual snapshot", async ({
     page,
-    context,
+    context: _context,
   }) => {
     await mockV2MerchantList(page);
 

@@ -197,11 +197,19 @@ module ProfileNameComponent = {
 
 module AutoSubmitter = {
   @react.component
-  let make = (~autoApply, ~submit, ~defaultFilterKeys=[], ~submitInputOnEnter) => {
+  let make = (
+    ~autoApply,
+    ~submit,
+    ~defaultFilterKeys=[],
+    ~submitInputOnEnter,
+    ~submitWhenPristine=false,
+  ) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
       ReactFinalForm.useFormSubscription(["values", "dirtyFields"])->Nullable.make,
     )
     let form = ReactFinalForm.useForm()
+    let hasSkippedInitialSubmitRef = React.useRef(false)
+
     React.useEffect(() => {
       let onKeyDown = ev => {
         let keyCode = ev->ReactEvent.Keyboard.keyCode
@@ -214,7 +222,9 @@ module AutoSubmitter = {
     }, [])
 
     React.useEffect(() => {
-      if formState.dirty {
+      if !hasSkippedInitialSubmitRef.current {
+        hasSkippedInitialSubmitRef.current = true
+      } else if formState.dirty || submitWhenPristine {
         let defaultFieldsHaveChanged = defaultFilterKeys->Array.some(key => {
           formState.dirtyFields->Dict.get(key)->Option.getOr(false)
         })

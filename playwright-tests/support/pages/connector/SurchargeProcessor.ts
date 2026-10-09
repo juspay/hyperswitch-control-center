@@ -55,6 +55,21 @@ export class SurchargeProcessor {
     return this.page.getByRole("button", { name: "Done" });
   }
 
+  get connectorEnableToggle(): Locator {
+    return this.page
+      .locator("div")
+      .filter({ hasText: /^(Enabled|Disabled)$/ })
+      .locator("[data-bool-value]")
+      .first();
+  }
+
+  connectorEnableStatus(status: "Enabled" | "Disabled"): Locator {
+    return this.page
+      .locator("div")
+      .filter({ hasText: new RegExp(`^${status}$`) })
+      .first();
+  }
+
   get successToast(): Locator {
     return this.page.locator(
       '[data-toast*="success"], [data-toast*="Connected"]',

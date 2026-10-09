@@ -10,7 +10,6 @@ let defaultColumns: array<transformationHistoryColType> = [
   IgnoredCount,
   ErrorCount,
   TransformedAt,
-  Actions,
 ]
 
 let transformationHistoryTableEntity = (

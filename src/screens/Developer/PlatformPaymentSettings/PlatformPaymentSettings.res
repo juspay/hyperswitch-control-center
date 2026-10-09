@@ -1,4 +1,4 @@
-open PaymentSettingsRevampedHelper
+open PaymentSettingsHelper
 open PaymentSettingsProfileInfo
 open Typography
 
@@ -39,7 +39,7 @@ module PaymentBehaviour = {
         initialValues={businessProfileRecoilVal->Identity.genericTypeToJson}
         onSubmit
         validate={values => {
-          PaymentSettingsRevampedUtils.validateMerchantAccountFormV2(
+          PaymentSettingsUtils.validateMerchantAccountFormV2(
             ~values,
             ~isLiveMode=featureFlagDetails.isLiveMode,
             ~businessProfileRecoilVal,

@@ -50,7 +50,7 @@ let restorePersistedCursor = (persistKey): option<(cursor, cursorDirection)> => 
 
 let useCursorPagination = (
   ~fetchPage: (~sortBy: cursor, ~direction: cursorDirection) => promise<cursorPage<'item>>,
-  ~persistKey: string,
+  ~persistKey: option<string>=None,
 ) => {
   open SessionStorage
 
@@ -65,10 +65,14 @@ let useCursorPagination = (
       let page = await fetchPage(~sortBy, ~direction)
       setItems(_ => page.items)
       setCursors(_ => page.cursors)
-      sessionStorage.setItem(
-        persistKey,
-        ({sortBy, direction}: persistedCursorState)->Identity.genericTypeToJson->JSON.stringify,
-      )
+      switch persistKey {
+      | Some(key) =>
+        sessionStorage.setItem(
+          key,
+          ({sortBy, direction}: persistedCursorState)->Identity.genericTypeToJson->JSON.stringify,
+        )
+      | None => ()
+      }
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -76,7 +80,9 @@ let useCursorPagination = (
   }
 
   let goToFirstPage = () => {
-    let restored = hasRestoredRef.current ? None : restorePersistedCursor(persistKey)
+    let restored = hasRestoredRef.current
+      ? None
+      : persistKey->Option.flatMap(key => restorePersistedCursor(key))
     hasRestoredRef.current = true
     switch restored {
     | Some(sortBy, direction) => goTo(~sortBy, ~direction)->ignore

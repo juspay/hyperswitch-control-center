@@ -150,6 +150,11 @@ type processorTypes =
   | PAYCONEX
   | TSYSTRANSIT
   | GIVEPAYMENTS
+  | CITIGATE
+  | ILIXIUM
+  | WORLDPAYRAFT
+  | ETISALAT
+  | MERCHANTE
 
 type payoutProcessorTypes =
   | ADYEN
@@ -169,6 +174,9 @@ type payoutProcessorTypes =
   | TRUELAYER
   | ENVOY
   | TRUSTLY
+  | SANTANDER
+  | DEUTSCHEBANK
+  | GOTYME
 
 type threeDsAuthenticatorTypes =
   | THREEDSECUREIO
@@ -182,6 +190,7 @@ type frmTypes =
   | Signifyd
   | Riskifyed
   | CybersourceDecisionManager
+  | SanlamPayshield
 
 type pmAuthenticationProcessorTypes = PLAID
 

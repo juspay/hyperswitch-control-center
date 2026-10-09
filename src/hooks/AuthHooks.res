@@ -13,6 +13,18 @@ let headersForXFeature = (~uri, ~headers) => {
   }
 }
 
+// offer-engine authenticates Control Center users via x-hyperswitch-token (HSTokenAuth)
+// and is not merchant/profile scoped, so those headers must not be sent either.
+let headersForOffers = (~headers, ~token) => {
+  headers->Dict.delete("authorization")
+  headers->Dict.delete("X-Profile-Id")
+  headers->Dict.delete("X-Merchant-Id")
+  switch token {
+  | Some(str) => headers->Dict.set("x-hyperswitch-token", `Bearer ${str}`)
+  | None => ()
+  }
+}
+
 let getHeaders = (
   ~uri,
   ~headers,
@@ -22,6 +34,7 @@ let getHeaders = (
   ~merchantId,
   ~profileId,
   ~sendV1DummyApiKeyHeader,
+  ~cugUser,
   ~version: UserInfoTypes.version,
 ) => {
   let isMixpanel = uri->String.includes("mixpanel")
@@ -50,6 +63,12 @@ let getHeaders = (
       headersForXFeature(~headers, ~uri)
     }
 
+    // TODO: this header is scoped to Webhook events APIs for now;
+    // remove the uri condition once webhook CUG testing is done so it applies to all APIs
+    if cugUser && uri->String.includes("/events/") {
+      headers->Dict.set("x-cug-user", "true")
+    }
+
     // this header is specific to Intelligent Routing (Dynamic Routing)
     if uri->String.includes("dynamic-routing") {
       headers->Dict.set("x-feature", "dynamo-simulator")
@@ -66,6 +85,11 @@ let getHeaders = (
     // headers for V2
     headers->Dict.set("X-Profile-Id", profileId)
     headers->Dict.set("X-Merchant-Id", merchantId)
+
+    if uri->String.includes("/offers/") {
+      headersForOffers(~headers, ~token)
+    }
+
     headers
   }
   Fetch.HeadersInit.make(headerObj->Identity.dictOfAnyTypeToObj)
@@ -86,6 +110,7 @@ let useApiFetcher = () => {
   let url = RescriptReactRouter.useUrl()
   let setReqProgress = Recoil.useSetRecoilState(ApiProgressHooks.pendingRequestCount)
   let {setEmbeddedStateToError} = React.useContext(EmbeddedCheckProvider.embeddedContext)
+  let {cugUser} = FeatureFlagAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   React.useCallback(
     (
@@ -151,6 +176,7 @@ let useApiFetcher = () => {
               ~merchantId,
               ~profileId,
               ~sendV1DummyApiKeyHeader,
+              ~cugUser,
               ~version,
             ),
             ~signal?, // to be used in case of aborting requests
@@ -202,6 +228,6 @@ let useApiFetcher = () => {
         )
       })
     },
-    [],
+    [cugUser],
   )
 }

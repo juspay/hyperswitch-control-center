@@ -73,7 +73,7 @@ let make = (~ingestionHistoryId: string) => {
         ~order=sortOrder,
       ),
     )
-  }, ~persistKey=`recon-engine-pipeline-details-staging-entries-${ingestionHistoryId}`)
+  }, ~persistKey=Some(`recon-engine-pipeline-details-staging-entries-${ingestionHistoryId}`))
 
   let handleSearchSubmit = (selectedType: option<string>) => {
     searchTypeRef.current =
@@ -81,13 +81,13 @@ let make = (~ingestionHistoryId: string) => {
     goToFirstStagingPage()
   }
 
-  let onDownloadFile = async (~fileName: string) => {
+  let onDownloadFile = async (~historyItem: ingestionHistoryType) => {
     try {
       let url = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~hyperswitchReconType=#DOWNLOAD_INGESTION_HISTORY_FILE,
         ~methodType=Get,
-        ~id=Some(ingestionHistoryId),
+        ~id=Some(historyItem.id),
       )
       let res = await fetchApi(
         url,
@@ -97,7 +97,11 @@ let make = (~ingestionHistoryId: string) => {
         ~sendV1DummyApiKeyHeader,
       )
       let content = await res->Fetch.Response.blob
-      DownloadUtils.download(~fileName, ~content, ~fileType="application/octet-stream")
+      DownloadUtils.download(
+        ~fileName=historyItem.file_name,
+        ~content,
+        ~fileType="application/octet-stream",
+      )
       showToast(~message="File downloaded successfully", ~toastType=ToastSuccess)
     } catch {
     | _ => showToast(~message="Failed to download file. Please try again.", ~toastType=ToastError)
@@ -170,7 +174,7 @@ let make = (~ingestionHistoryId: string) => {
             leftIcon={CustomIcon(<Icon name="nd-download-down" size=12 />)}
             buttonType=Button.Secondary
             buttonSize=Small
-            onClick={_ => onDownloadFile(~fileName=historyItem.file_name)->ignore}
+            onClick={_ => onDownloadFile(~historyItem)->ignore}
             maxButtonWidth="!w-fit"
           />
         </RenderIf>

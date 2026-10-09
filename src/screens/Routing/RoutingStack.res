@@ -3,7 +3,6 @@ open APIUtils
 let make = (~remainingPath, ~previewOnly=false) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let updateDetails = useUpdateMethod(~showErrorToast=false)
   let url = RescriptReactRouter.useUrl()
   let pathVar = url.path->List.toArray->Array.joinWith("/")
 
@@ -19,13 +18,25 @@ let make = (~remainingPath, ~previewOnly=false) => {
     ).is_debit_routing_enabled->Option.getOr(false)
   let setCurrentTabName = Recoil.useSetRecoilState(HyperswitchAtom.currentTabNameRecoilAtom)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let showToast = ToastAdapter.useShowToast()
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let isRoutingEntryAllowed = DecisionEngineHooks.useRoutingEntryAllowed()
   let isCutover = cutoverStatus->Option.getOr(false)
 
   let (widthClass, marginClass) = React.useMemo(() => {
     previewOnly ? ("w-full", "mx-auto") : ("w-full", "mx-auto ")
   }, [previewOnly])
+
+  let connectorList = HyperswitchAtom.connectorListAtom->Recoil.useRecoilValueFromAtom
+  let {embedDecisionEngine} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let openDecisionEngineNewTab = DecisionEngineHooks.useDecisionEngineNewTab()
+
+  let openDecisionEngineRoutingPage = async (target, ruleId) => {
+    if embedDecisionEngine {
+      RescriptReactRouter.push(DecisionEngineUtils.workspaceUrl(~slug=target, ~ruleId))
+    } else {
+      await openDecisionEngineNewTab(~target, ~ruleId)
+    }
+  }
 
   let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
@@ -33,7 +44,13 @@ let make = (~remainingPath, ~previewOnly=false) => {
     let baseTabs = [
       {
         title: "Active configuration",
-        renderContent: () => <ActiveRouting routingType isCutover />,
+        renderContent: () =>
+          <ActiveRouting
+            routingType
+            isCutover
+            onDecisionEngineRedirect={(target, ruleId) =>
+              openDecisionEngineRoutingPage(target, ruleId)->ignore}
+          />,
       },
     ]
     hasWorkflowsManageAccess
@@ -42,7 +59,13 @@ let make = (~remainingPath, ~previewOnly=false) => {
             title: "Configuration History",
             renderContent: () => {
               records->Array.length > 0
-                ? <History records activeRoutingIds />
+                ? <History
+                    records
+                    activeRoutingIds
+                    isCutover
+                    onDecisionEngineRedirect={(target, ruleId) =>
+                      openDecisionEngineRoutingPage(target, ruleId)->ignore}
+                  />
                 : <DefaultLandingPage
                     height="90%"
                     title="No Routing Rule Configured!"
@@ -53,68 +76,73 @@ let make = (~remainingPath, ~previewOnly=false) => {
           },
         ])
       : baseTabs
-  }, (routingType, debitRoutingValue, isCutover))
+  }, (
+    routingType,
+    records,
+    activeRoutingIds,
+    debitRoutingValue,
+    isCutover,
+    connectorList,
+    profileId,
+  ))
 
-  let fetchRoutingRecords = async activeIds => {
-    try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      let routingUrl = `${getURL(~entityName=V1(ROUTING), ~methodType=Get)}?limit=100`
-      let routingJson = await fetchDetails(routingUrl)
-      let configuredRules = routingJson->RoutingUtils.getRecordsObject
-      let recordsData =
-        configuredRules
-        ->Belt.Array.keepMap(JSON.Decode.object)
-        ->Array.map(HistoryEntity.itemToObjMapper)
+  // Fetch and set the history records for the given active ids. Never touches screenState,
+  // so the same code serves the initial load and the silent focus re-sync.
+  let refreshRoutingRecords = async activeIds => {
+    let routingUrl = `${getURL(~entityName=V1(ROUTING), ~methodType=Get)}?limit=100`
+    let routingJson = await fetchDetails(routingUrl)
+    let configuredRules = routingJson->RoutingUtils.getRecordsObject
+    let recordsData =
+      configuredRules
+      ->Array.filterMap(JSON.Decode.object)
+      ->Array.map(HistoryEntity.itemToObjMapper)
 
-      // To sort the data in a format that active routing always comes at top of the table
-      // For ref:https://rescript-lang.org/docs/manual/latest/api/js/array-2#sortinplacewith
+    let sortedHistoryRecords =
+      recordsData
+      ->Array.toSorted((item1, item2) => {
+        if activeIds->Array.includes(item1.id) {
+          -1.
+        } else if activeIds->Array.includes(item2.id) {
+          1.
+        } else {
+          0.
+        }
+      })
+      ->Array.map(Nullable.make)
 
-      let sortedHistoryRecords =
-        recordsData
-        ->Array.toSorted((item1, item2) => {
-          if activeIds->Array.includes(item1.id) {
-            -1.
-          } else if activeIds->Array.includes(item2.id) {
-            1.
-          } else {
-            0.
-          }
-        })
-        ->Array.map(Nullable.make)
+    setRecords(_ => sortedHistoryRecords)
+  }
 
-      setRecords(_ => sortedHistoryRecords)
-      setScreenState(_ => PageLoaderWrapper.Success)
-    } catch {
-    | Exn.Error(e) =>
-      let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
-      setScreenState(_ => PageLoaderWrapper.Error(err))
+  let getActiveRoutingList = async () => {
+    let activeRoutingUrl = getURL(~entityName=V1(ACTIVE_ROUTING), ~methodType=Get)
+    let routingJson = await fetchDetails(activeRoutingUrl)
+    routingJson->LogicUtils.getArrayFromJson([])
+  }
+
+  let syncRoutingState = async () => {
+    open LogicUtils
+    let routingArr = await getActiveRoutingList()
+
+    if routingArr->isNonEmptyArray {
+      let currentActiveIds =
+        routingArr->Array.map(ele => ele->getDictFromJsonObject->getString("id", ""))
+      await refreshRoutingRecords(currentActiveIds)
+      setActiveRoutingIds(_ => currentActiveIds)
+      setRoutingType(_ => routingArr)
+    } else {
+      await refreshRoutingRecords([])
+      setActiveRoutingIds(_ => [])
+      let defaultFallback = [("kind", "default"->JSON.Encode.string)]->getJsonFromArrayOfJson
+      setRoutingType(_ => [defaultFallback])
     }
   }
 
+  // Initial load drives the page loader off the same sync.
   let fetchActiveRouting = async () => {
-    open LogicUtils
+    setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      let activeRoutingUrl = getURL(~entityName=V1(ACTIVE_ROUTING), ~methodType=Get)
-      let routingJson = await fetchDetails(activeRoutingUrl)
-
-      let routingArr = routingJson->getArrayFromJson([])
-
-      if routingArr->Array.length > 0 {
-        let currentActiveIds = []
-        routingArr->Array.forEach(ele => {
-          let id = ele->getDictFromJsonObject->getString("id", "")
-          currentActiveIds->Array.push(id)
-        })
-        await fetchRoutingRecords(currentActiveIds)
-        setActiveRoutingIds(_ => currentActiveIds)
-        setRoutingType(_ => routingArr)
-      } else {
-        await fetchRoutingRecords([])
-        let defaultFallback = [("kind", "default"->JSON.Encode.string)]->Dict.fromArray
-        setRoutingType(_ => [defaultFallback->JSON.Encode.object])
-        setScreenState(_ => PageLoaderWrapper.Success)
-      }
+      await syncRoutingState()
+      setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | Exn.Error(e) =>
       let err = Exn.message(e)->Option.getOr("Failed to Fetch!")
@@ -127,43 +155,39 @@ let make = (~remainingPath, ~previewOnly=false) => {
     None
   }, (pathVar, url.search, debitRoutingValue))
 
-  let checkRoutingEntry = async () => {
-    open LogicUtils
-    try {
-      let entryUrl = getURL(~entityName=V1(ROUTING), ~methodType=Get, ~id=Some("entry"))
-      let res = await updateDetails(entryUrl, JSON.Encode.null, Post)
-      let cutover = res->getDictFromJsonObject->getBool("is_cutover", false)
-      setCutoverStatus(_ => Some(cutover))
-    } catch {
-    | Exn.Error(_) => setCutoverStatus(_ => Some(false))
+  React.useEffect(() => {
+    if isCutover && !previewOnly {
+      // Rules can change in the Decision Engine dashboard tab; silently re-sync the active
+      // strategies and configuration history (no loader) when this tab regains focus.
+      let onFocus = _ =>
+        syncRoutingState()
+        ->Promise.catch(err => {
+          Console.error2("routing focus re-sync failed:", err)
+          Promise.resolve()
+        })
+        ->ignore
+      Window.addEventListener("focus", onFocus)
+      Some(() => Window.removeEventListener("focus", onFocus))
+    } else {
+      None
     }
-  }
+  }, (isCutover, previewOnly, profileId))
 
-  let openDecisionEngineRoutingPage = async target => {
-    open LogicUtils
-    try {
-      let entryUrl = getURL(~entityName=V1(ROUTING), ~methodType=Get, ~id=Some("entry"))
-      let res = await updateDetails(`${entryUrl}?target=${target}`, JSON.Encode.null, Post)
-      let redirectUrl = res->getDictFromJsonObject->getString("redirect_url", "")
-      if redirectUrl->isNonEmptyString {
-        redirectUrl->Window._open
-      }
-    } catch {
-    | Exn.Error(_) =>
-      showToast(
-        ~message="Failed to open Decision Engine routing. Please try again.",
-        ~toastType=ToastState.ToastError,
-      )
-    }
-  }
+  let checkRoutingEntryCutover = RoutingUtils.useCheckRoutingEntryCutover()
 
   React.useEffect(() => {
-    if !previewOnly {
+    if !previewOnly && isRoutingEntryAllowed {
       setCutoverStatus(_ => None)
-      checkRoutingEntry()->ignore
+
+      (
+        async () => {
+          let cutover = await checkRoutingEntryCutover()
+          setCutoverStatus(_ => Some(cutover->Option.getOr(false)))
+        }
+      )()->ignore
     }
     None
-  }, [profileId])
+  }, (profileId, isRoutingEntryAllowed))
 
   let getTabName = index => index == 0 ? "active" : "history"
 
@@ -180,7 +204,8 @@ let make = (~remainingPath, ~previewOnly=false) => {
           types=[AUTH_RATE_ROUTING, ADVANCED, VOLUME_SPLIT, DEFAULTFALLBACK]
           onRedirectBaseUrl="routing"
           isCutover
-          onDecisionEngineRedirect={target => openDecisionEngineRoutingPage(target)->ignore}
+          onDecisionEngineRedirect={(target, ruleId) =>
+            openDecisionEngineRoutingPage(target, ruleId)->ignore}
         />
       </div>
       <RenderIf condition={!previewOnly}>

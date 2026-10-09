@@ -6,16 +6,17 @@ module BlendDateRangeField = {
   let make = (
     ~startKey: string,
     ~endKey: string,
+    ~showTime=true,
     ~disable: bool,
     ~disablePastDates: bool,
     ~disableFutureDates: bool,
     ~predefinedDays: array<DateRangeUtils.customDateRange>,
     ~format: string,
     ~dateRangeLimit: option<int>,
+    ~allowedDateRange: option<Calendar.dateObj>,
   ) => {
     let startInput = useField(startKey).input
     let endInput = useField(endKey).input
-    let showToast = ToastAdapter.useShowToast()
     let blendValue = switch (
       startInput.value->getStringFromJson("")->getNonEmptyString,
       endInput.value->getStringFromJson("")->getNonEmptyString,
@@ -33,28 +34,34 @@ module BlendDateRangeField = {
     }
 
     let handleChange = React.useCallback((range: DateRangePickerBinding.dateRange) => {
-      let (endDate, limitMessage) = clampEndDate(
-        ~dateRangeLimit,
-        ~startDate=range.startDate,
-        ~endDate=range.endDate->Option.getOr(range.startDate),
-      )
+      let endDate = range.endDate->Option.getOr(range.startDate)
       startInput.onChange(
         formatIsoToFormat(range.startDate, format)->Identity.stringToFormReactEvent,
       )
       endInput.onChange(formatIsoToFormat(endDate, format)->Identity.stringToFormReactEvent)
-      limitMessage->Option.forEach(message => showToast(~message, ~toastType=ToastState.ToastError))
-    }, (startInput.onChange, endInput.onChange, format, dateRangeLimit, showToast))
+    }, (startInput.onChange, endInput.onChange, format))
 
-    let customPresets = predefinedDays->Array.map(day => toBlendPreset(day, ~disableFutureDates))
+    let customPresets =
+      predefinedDays
+      ->filterPresetsByLimit(dateRangeLimit)
+      ->Array.map(day => toBlendPreset(day, ~disableFutureDates))
+
+    let (minDate, maxDate) = allowedRangeBounds(allowedDateRange)
+
+    let formatConfig = showTime ? None : Some({DateRangePickerBinding.includeTime: false})
 
     <DateRangePickerBinding
       value=?blendValue
       onChange=handleChange
-      showDateTimePicker=true
+      showDateTimePicker=showTime
       isDisabled=disable
       disableFutureDates
       disablePastDates
       customPresets
+      maxRangeDays=?{dateRangeLimit->toMaxRangeDays}
+      ?minDate
+      ?maxDate
+      ?formatConfig
     />
   }
 }
@@ -94,12 +101,14 @@ let make = (
       <BlendDateRangeField
         startKey
         endKey
+        showTime
         disable
         disablePastDates
         disableFutureDates
         predefinedDays
         format
         dateRangeLimit
+        allowedDateRange
       />
     </RenderIf>
     <RenderIf condition={!isBlendEnabled}>

@@ -20,6 +20,11 @@ let make = (
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
+  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
+  let filterValueJsonWithGlobalDate = ReconEngineFilterUtils.mergeGlobalDateFilters(
+    ~filterValueJson,
+    ~globalDateFilters,
+  )
 
   let sortDict = Recoil.useRecoilValueFromAtom(LoadedTable.sortAtom)
   let title = "Transactions"
@@ -37,7 +42,7 @@ let make = (
   } = ReconEngineCursorPaginationHook.useCursorPagination(~fetchPage=(~sortBy, ~direction) => {
     getTransactionsV2(
       ~body=buildTransactionsV2Body(
-        ~filterValueJson,
+        ~filterValueJson=filterValueJsonWithGlobalDate,
         ~searchType=searchTypeRef.current,
         ~searchText,
         ~ruleId=rule.rule_id,
@@ -46,14 +51,10 @@ let make = (
         ~order=sortOrder,
       ),
     )
-  }, ~persistKey=`recon-engine-transactions-${rule.rule_id}`)
+  }, ~persistKey=Some(`recon-engine-transactions-${rule.rule_id}`))
   let (offset, setOffset) = React.useState(_ => 0)
   let (selectedRows, setSelectedRows) = React.useState(_ => [])
-
-  let mixpanelEvent = MixpanelHook.useSendEvent()
-  let dateDropDownTriggerMixpanelCallback = () => {
-    mixpanelEvent(~eventName="recon_engine_transactions_date_filter_opened")
-  }
+  let visibleColumns = TableAtoms.reconTransactionsHierarchicalCols->Recoil.useRecoilValueFromAtom
 
   let topFilterUi =
     <div className="flex flex-row -ml-1.5">
@@ -62,17 +63,17 @@ let make = (
         initialFilters={statusDisplayFilters()}
         options=[]
         popupFilterFields=[]
-        initialFixedFilters={initialFixedFilterFields(
-          null,
-          ~events=dateDropDownTriggerMixpanelCallback,
-        )}
-        defaultFilterKeys=[startTimeFilterKey, endTimeFilterKey]
+        initialFixedFilters=[]
+        defaultFilterKeys=[]
         tabNames=filterKeys
         key="ReconEngineTransactionsFilters"
         updateUrlWith=updateExistingKeys
         filterFieldsPortalName={filterFieldsPortalName}
         showCustomFilter=false
         refreshFilters=false
+      />
+      <PortalCapture
+        key={`${title}CustomizeColumn`} name={`${title}CustomizeColumn`} customStyle="ml-auto mt-4"
       />
     </div>
 
@@ -87,26 +88,12 @@ let make = (
     goToFirstPage()
   }
 
-  let setInitialFilters = HSwitchRemoteFilter.useSetInitialFilters(
-    ~updateExistingKeys,
-    ~startTimeFilterKey,
-    ~endTimeFilterKey,
-    ~range=180,
-    ~origin="recon_engine_transactions",
-    (),
-  )
-
   React.useEffect(() => {
-    setInitialFilters()
-    None
-  }, [])
-
-  React.useEffect(() => {
-    if !(filterValue->isEmptyDict) {
+    if ReconEngineFilterUtils.hasGlobalDateFilterValue(~globalDateFilters) {
       goToFirstPage()
     }
     None
-  }, (filterValue, sortOrder))
+  }, (filterValue, sortOrder, globalDateFilters))
 
   <div className="flex flex-col gap-4 mt-3">
     <PageLoaderWrapper screenState>
@@ -126,8 +113,12 @@ let make = (
         offset
         setOffset
         currentFetchCount={transactions->Array.length}
-        customColumnMapper=TableAtoms.transactionsHierarchicalDefaultCols
-        defaultColumns
+        customColumnMapper=TableAtoms.reconTransactionsHierarchicalCols
+        defaultColumns=mandatoryColumns
+        showSerialNumberInCustomizeColumns=false
+        sortingBasedOnDisabled=false
+        isDraggable=true
+        customizeColumnButtonIcon="nd-filter-horizontal"
         showPagination=false
         showResultsPerPageSelector=false
         remoteSortEnabled=true
@@ -135,8 +126,7 @@ let make = (
         dataLoading={screenState === PageLoaderWrapper.Loading}
         tableheadingClass="bg-gray-50"
         showAutoScroll=true
-        hideCustomisableColumnButton=true
-        customSeparation=[(3, 4)]
+        customSeparation={getCustomSeparation(visibleColumns)}
         filters={<SearchInput
           inputText=searchText
           onChange={value => setSearchText(_ => value)}

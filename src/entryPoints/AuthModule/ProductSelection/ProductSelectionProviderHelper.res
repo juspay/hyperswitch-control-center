@@ -14,6 +14,9 @@ module SwitchMerchantBody = {
       try {
         let version = UserUtils.getVersion(selectedProduct)
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantDetails.id), ~version)
+        setActiveProductValue(selectedProduct)
+        let productUrl = ProductUtils.getProductUrl(~productType=selectedProduct)
+        RescriptReactRouter.replace(productUrl)
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }
@@ -96,6 +99,9 @@ module SelectMerchantBody = {
         let version = UserUtils.getVersion(selectedProduct)
 
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantid), ~version)
+        setActiveProductValue(selectedProduct)
+        let productUrl = ProductUtils.getProductUrl(~productType=selectedProduct)
+        RescriptReactRouter.replace(productUrl)
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }
@@ -189,6 +195,9 @@ module CreateNewMerchantBody = {
       try {
         let version = UserUtils.getVersion(selectedProduct)
         let _ = await internalSwitch(~expectedMerchantId=Some(merchantid), ~version)
+        setActiveProductValue(selectedProduct)
+        let productUrl = ProductUtils.getProductUrl(~productType=selectedProduct)
+        RescriptReactRouter.replace(productUrl)
       } catch {
       | _ => showToast(~message="Failed to switch merchant", ~toastType=ToastError)
       }

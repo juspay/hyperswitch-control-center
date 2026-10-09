@@ -2,6 +2,40 @@ type tabs = Request | Response
 
 type eventRecipient = Merchant | Connector
 
+type eventClass = Payments | Refunds | Disputes | Mandates | Payouts | Subscriptions
+
+type webhookEventType =
+  | PaymentSucceeded
+  | PaymentFailed
+  | PaymentProcessing
+  | PaymentCancelled
+  | PaymentCancelledPostCapture
+  | PaymentAuthorized
+  | PaymentCaptured
+  | PaymentExpired
+  | ActionRequired
+  | SurchargePaymentSucceeded
+  | RefundSucceeded
+  | RefundFailed
+  | SurchargeRefundSucceeded
+  | DisputeOpened
+  | DisputeExpired
+  | DisputeAccepted
+  | DisputeCancelled
+  | DisputeChallenged
+  | DisputeWon
+  | DisputeLost
+  | MandateActive
+  | MandateRevoked
+  | PayoutSuccess
+  | PayoutFailed
+  | PayoutInitiated
+  | PayoutProcessing
+  | PayoutCancelled
+  | PayoutExpired
+  | PayoutReversed
+  | InvoicePaid
+
 type webhookObject = {
   eventId: string,
   merchantId: string,

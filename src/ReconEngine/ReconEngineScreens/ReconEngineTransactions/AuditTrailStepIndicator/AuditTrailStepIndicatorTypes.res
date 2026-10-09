@@ -3,4 +3,5 @@ type section = {
   customComponent: option<React.element>,
   onClick: JsxEventU.Mouse.t => unit,
   reasonText: option<string>,
+  modifiedBy: option<ReconEngineTypes.modifiedByType>,
 }

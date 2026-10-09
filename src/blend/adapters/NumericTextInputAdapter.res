@@ -16,7 +16,14 @@ let make = (
   let isBlendEnabled = BlendContext.useBlendEnabled()
 
   let cleanNumericString = rawValue => {
-    let cleanedValue = switch rawValue->Js.String2.match_(%re("/[\d\.]/g")) {
+    let isIntegerPrecision = precision == Some(0)
+    let cleanableRawValue = isIntegerPrecision
+      ? rawValue->String.split(".")->getValueFromArray(0, "")
+      : rawValue
+
+    let cleanedValue = switch cleanableRawValue->Js.String2.match_(
+      isIntegerPrecision ? %re("/[\d]/g") : %re("/[\d\.]/g"),
+    ) {
     | Some(strArr) =>
       let parts =
         strArr
@@ -40,7 +47,9 @@ let make = (
     precisionCheckedVal->getNonEmptyString->Option.getOr(cleanedValue)
   }
 
-  let blendValue = input.value->getOptionFloatFromJson->Option.mapOr(Nullable.null, Nullable.make)
+  let blendValue =
+    input.value->getOptionFloatFromJson->mapOptionOrDefault(Nullable.null, Nullable.make)
+  let step = precision == Some(0) ? Some(1.0) : None
 
   let blendOnChange = ev => {
     let strValue: string = ReactEvent.Form.target(ev)["value"]
@@ -63,6 +72,7 @@ let make = (
         disabled=isDisabled
         placeholder
         ?maxLength
+        ?step
         preventNegative=true
       />
     </RenderIf>

@@ -1,5 +1,6 @@
 open AuditTrailStepIndicatorTypes
 open Typography
+open LogicUtils
 
 @react.component
 let make = (~sections: array<section>) => {
@@ -9,11 +10,19 @@ let make = (~sections: array<section>) => {
         {sections
         ->Array.mapWithIndex((section, sectionIndex) => {
           let hasReason = switch section.reasonText {
-          | Some(reason) => reason->LogicUtils.isNonEmptyString
+          | Some(reason) => reason->isNonEmptyString
           | None => false
           }
 
-          <React.Fragment key={LogicUtils.randomString(~length=10)}>
+          let modifiedByName =
+            section.modifiedBy->mapOptionOrDefault("", user =>
+              user.name->isNonEmptyString
+                ? user.name->stringReplaceAll(".", " ")->getFirstLetterCaps(~splitBy=" ")
+                : user.email
+            )
+          let modifiedByEmail = section.modifiedBy->mapOptionOrDefault("", user => user.email)
+
+          <React.Fragment key={randomString(~length=10)}>
             <div className="flex flex-row gap-8 items-start">
               <div key={section.id} className="flex gap-x-3 items-center relative">
                 <div
@@ -46,6 +55,27 @@ let make = (~sections: array<section>) => {
                   <p className={`${body.md.medium} text-nd_gray-600`}>
                     {section.reasonText->Option.getOr("")->React.string}
                   </p>
+                  <RenderIf condition={modifiedByName->isNonEmptyString}>
+                    <div className="flex flex-row items-center justify-end gap-1.5 mt-3">
+                      <p className={`${body.sm.medium} text-nd_gray-400`}>
+                        {"Modified by"->React.string}
+                      </p>
+                      <ToolTip
+                        toolTipPosition=Top
+                        description={modifiedByEmail}
+                        toolTipFor={<div
+                          className="flex flex-row items-center gap-1.5 cursor-default">
+                          <div
+                            className={`w-5 h-5 rounded-full border border-nd_gray-200 bg-nd_gray-100 flex items-center justify-center flex-shrink-0 ${body.xs.semibold} text-nd_gray-500`}>
+                            {modifiedByName->String.charAt(0)->String.toUpperCase->React.string}
+                          </div>
+                          <span className={`${body.sm.semibold} text-nd_gray-600`}>
+                            {modifiedByName->React.string}
+                          </span>
+                        </div>}
+                      />
+                    </div>
+                  </RenderIf>
                 </div>
               </div>
             </RenderIf>

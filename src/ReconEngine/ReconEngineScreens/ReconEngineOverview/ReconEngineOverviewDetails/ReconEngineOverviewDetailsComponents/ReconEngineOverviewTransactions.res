@@ -5,6 +5,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   open LogicUtils
   open ReconEngineTransactionsUtils
   open ReconEngineTransactionsTypes
+  open ReconEngineFilterUtils
 
   let getTransactionsV2 = ReconEngineHooks.useGetCursorPage(
     ~hyperswitchReconType=#TRANSACTIONS_LIST_V2,
@@ -14,6 +15,8 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   let {updateExistingKeys, filterValueJson, filterValue, filterKeys} = React.useContext(
     FilterContext.filterContext,
   )
+  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
+  let filterValueJsonWithGlobalDate = mergeGlobalDateFilters(~filterValueJson, ~globalDateFilters)
   let showToast = ToastAdapter.useShowToast()
 
   let (accountData, setAccountData) = React.useState(_ => [])
@@ -37,7 +40,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   let fetchPage = (~sortBy, ~direction) =>
     getTransactionsV2(
       ~body=buildTransactionsV2Body(
-        ~filterValueJson,
+        ~filterValueJson=filterValueJsonWithGlobalDate,
         ~searchType=searchTypeRef.current,
         ~searchText,
         ~ruleId=ruleDetails.rule_id,
@@ -57,7 +60,7 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
     goToPrevPage,
   } = ReconEngineCursorPaginationHook.useCursorPagination(
     ~fetchPage,
-    ~persistKey=`recon-engine-overview-transactions-${ruleDetails.rule_id}`,
+    ~persistKey=Some(`recon-engine-overview-transactions-${ruleDetails.rule_id}`),
   )
 
   let handleSearchSubmit = (selectedType: option<string>) => {
@@ -72,11 +75,11 @@ let make = (~ruleDetails: ReconEngineRulesTypes.rulePayload) => {
   }, [])
 
   React.useEffect(() => {
-    if !(filterValue->isEmptyDict) {
+    if hasGlobalDateFilterValue(~globalDateFilters) {
       goToFirstPage()
     }
     None
-  }, (filterValue, sortOrder))
+  }, (filterValue, sortOrder, globalDateFilters))
 
   let statusFilterUi =
     <div className="flex flex-row">

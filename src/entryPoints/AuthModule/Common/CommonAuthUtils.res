@@ -2,11 +2,11 @@ open CommonAuthTypes
 let passwordKeyValidation = (value, key, keyVal, errors) => {
   let mustHave: array<string> = []
   if value->LogicUtils.isNonEmptyString && key === keyVal {
-    if value->String.length < 8 {
+    if value->String.length < 12 {
       Dict.set(
         errors,
         key,
-        "Your password is not strong enough. Password must be at least 8 characters long."->JSON.Encode.string,
+        "Your password is not strong enough. Password must be at least 12 characters long."->JSON.Encode.string,
       )
     } else {
       if !RegExp.test(%re("/^(?=.*[A-Z])/"), value) {

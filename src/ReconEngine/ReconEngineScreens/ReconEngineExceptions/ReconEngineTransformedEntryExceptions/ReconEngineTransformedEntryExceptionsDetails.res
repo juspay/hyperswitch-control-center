@@ -67,7 +67,7 @@ let make = (~id) => {
         path=[
           {
             title: "Transformed Entry Exceptions",
-            link: `/v1/recon-engine/transformed-entry-exceptions`,
+            link: `/v1/recon-engine/exceptions/transformed-entries`,
           },
         ]
         currentPageTitle=id

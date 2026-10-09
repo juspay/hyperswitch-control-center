@@ -150,6 +150,7 @@ module DateCell: {
     ~customDateStyle: string=?,
     ~hideTime: bool=?,
     ~hideTimeZone: bool=?,
+    ~convertToLocal: bool=?,
   ) => React.element
 }
 module StartEndDateCell: {

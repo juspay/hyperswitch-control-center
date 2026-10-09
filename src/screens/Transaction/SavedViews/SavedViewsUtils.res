@@ -23,16 +23,15 @@ let primitiveJsonToString = jsonValue =>
     }
   }
 
-let jsonValueToString = jsonValue =>
-  switch jsonValue->getOptionStrArrayFromJson {
-  | Some(_) =>
-    let sortedStrArr =
-      jsonValue
-      ->getArrayFromJson([])
-      ->Array.map(primitiveJsonToString)
-      ->Array.toSorted(String.compare)
-    "[" ++ sortedStrArr->Array.joinWith(",") ++ "]"
-  | None => jsonValue->primitiveJsonToString
+let jsonValueToString = (key, jsonValue) =>
+  switch jsonValue->JSON.Classify.classify {
+  | Array(arr) =>
+    let sortedStrArr = arr->Array.map(primitiveJsonToString)->Array.toSorted(String.compare)
+    switch (advancedPaymentTextListFilterKeys->Array.includes(key), sortedStrArr) {
+    | (true, [single]) => single
+    | _ => RemoteFiltersUtils.getStrFromJson(key, sortedStrArr->getJsonFromArrayOfString)
+    }
+  | _ => jsonValue->primitiveJsonToString
   }
 
 let foldAmountOption = filtersDict => {
@@ -73,25 +72,25 @@ let flattenToDict = (dictToSet, key, value) => {
   let idx = ref(0)
   while idx.contents < filtersToFlatten->Array.length {
     switch filtersToFlatten->Array.get(idx.contents) {
-    | Some((k, v)) =>
+    | Some((flattenedKey, flattenedValue)) =>
       idx := idx.contents + 1
-      switch v->JSON.Classify.classify {
+      switch flattenedValue->JSON.Classify.classify {
       | Null => ()
-      | _ if ["limit", "offset"]->Array.includes(k) => ()
+      | _ if ["limit", "offset"]->Array.includes(flattenedKey) => ()
       | Object(dict) =>
         dict
         ->Dict.toArray
         ->Array.forEach(((nestedKey, nestedValue)) => {
-          let flattenedKey = switch classifyFilterKey(k) {
+          let flattenedKey = switch classifyFilterKey(flattenedKey) {
           | FlattenRoot => nestedKey
           | Prefixed(prefix) => `${prefix}.${nestedKey}`
           }
           filtersToFlatten->Array.push((flattenedKey, nestedValue))->ignore
         })
       | _ =>
-        let strVal = jsonValueToString(v)
+        let strVal = jsonValueToString(flattenedKey, flattenedValue)
         if strVal->isNonEmptyString {
-          dictToSet->Dict.set(k, strVal)
+          dictToSet->Dict.set(flattenedKey, strVal)
         }
       }
     | None => idx := idx.contents + 1
@@ -207,6 +206,7 @@ let findMatchingView = (~savedViews: array<savedView>, ~currentFiltersDict, ~ver
     savedFilters
     ->Dict.toArray
     ->Array.forEach(((key, value)) => flattenToDict(savedFiltersStringDict, key, value))
+
     let startTimeKey = startTimeFilterKey(version)
     let endTimeKey = endTimeFilterKey(version)
     if savedFiltersStringDict->getOptionValFromDict(startTimeKey)->Option.isNone {

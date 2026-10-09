@@ -496,7 +496,6 @@ let getOpenExceptions = (
       | CurrencyMismatch
       | SplitMismatch
       | PartiallyReconciled
-      | Expected
       | Missing =>
         statusAcc + status.count
       | Posted(Manual)
@@ -504,6 +503,7 @@ let getOpenExceptions = (
       | Matched(Manual)
       | Matched(Force)
       | Matched(WithTolerance)
+      | Expected
       | Void
       | Archived
       | UnknownDomainTransactionStatus
@@ -709,7 +709,7 @@ let getStatCards = (
       statCardTitle: MatchRate,
       statCardValue: Percentage(matchRate),
       statCardIcon: FontAwesome("percent"),
-      statCardDescription: `${matchedCount->Int.toString} of ${totalCount->Int.toString} matched`,
+      statCardDescription: MatchedOutOf(matchedCount, totalCount),
       statCardType: Info,
       statCardPath: None,
     },
@@ -719,7 +719,7 @@ let getStatCards = (
       statCardIcon: CustomIcon(
         <Icon name="nd-information-triangle" size=14 className="text-nd_gray-500" />,
       ),
-      statCardDescription: "staging + txn exceptions",
+      statCardDescription: DescriptionText("staging + txn exceptions"),
       statCardType: Attention,
       statCardPath: Some(reconExceptionsPath),
     },
@@ -727,7 +727,7 @@ let getStatCards = (
       statCardTitle: ValueAtRisk,
       statCardValue: Amount(valueAtRisk, currency),
       statCardIcon: CustomIcon(<Icon name="lock-icon" size=14 className="text-nd_gray-500" />),
-      statCardDescription: "mismatch variance exposure",
+      statCardDescription: DescriptionText("mismatch variance exposure"),
       statCardType: Attention,
       statCardPath: Some(reconExceptionsPath),
     },
@@ -735,7 +735,7 @@ let getStatCards = (
       statCardTitle: ExpectedValue,
       statCardValue: Amount(expectedValue, currency),
       statCardIcon: CustomIcon(<Icon name="history" size=14 className="text-nd_gray-500" />),
-      statCardDescription: "amount expected",
+      statCardDescription: DescriptionText("amount expected"),
       statCardType: Info,
       statCardPath: Some(reconExceptionsPath),
     },
@@ -807,7 +807,7 @@ let getConnectedStatCards = (
       connectedStatCardTitle: FailedIngestions,
       connectedStatCardValue: Number(failedIngestionHistory->Array.length),
       connectedStatCardType: Info,
-      connectedStatCardPath: Some(appendDashboardPath(~url="v1/recon-engine/sources")),
+      connectedStatCardPath: Some(appendDashboardPath(~url="v1/recon-engine/pipelines")),
     },
     {
       connectedStatCardTitle: MissingTransactions,
@@ -819,7 +819,7 @@ let getConnectedStatCards = (
       connectedStatCardTitle: FailedTransformations,
       connectedStatCardValue: Number(failedTransformationHistory->Array.length),
       connectedStatCardType: Info,
-      connectedStatCardPath: Some(appendDashboardPath(~url="v1/recon-engine/transformation")),
+      connectedStatCardPath: Some(appendDashboardPath(~url="v1/recon-engine/pipelines")),
     },
     {
       connectedStatCardTitle: ManualCorrections,
@@ -960,9 +960,11 @@ let getRuleActivityItems = (~overviewRules: array<overviewRulesResponse>): array
   overviewRules
   ->Array.map(rule => {
     let volume = rule.status_breakdown->Array.reduce(0, (acc, status) => acc + status.count)
-    let (matchedCount, exceptionCount, _, _) = getBreakdownCategoryCounts(rule.status_breakdown)
+    let (matchedCount, exceptionCount, _, missingCount) = getBreakdownCategoryCounts(
+      rule.status_breakdown,
+    )
     let matchRate = getPercentage(~count=matchedCount, ~total=volume)
-    {overview_rule: rule, volume, exceptions: exceptionCount, matchRate}
+    {overview_rule: rule, volume, exceptions: exceptionCount + missingCount, matchRate}
   })
   ->Array.toSorted((a, b) => Int.compare(b.exceptions, a.exceptions))
 }

@@ -145,12 +145,12 @@ module TableRow = {
         }
       })
       ->Option.isSome
-    let bgColor = coloredRow
+    let bgColor = isVisited
+      ? "bg-nd_gray-50"
+      : coloredRow
       ? selectedRowColor
       : highlightSelectedRow && selectedIndex == actualIndex
       ? "bg-nd_gray-150"
-      : isVisited
-      ? "bg-nd_gray-50"
       : "bg-white dark:bg-jp-gray-lightgray_background"
     let fontSize = "text-fs-14"
     let fontWeight = "font-medium"

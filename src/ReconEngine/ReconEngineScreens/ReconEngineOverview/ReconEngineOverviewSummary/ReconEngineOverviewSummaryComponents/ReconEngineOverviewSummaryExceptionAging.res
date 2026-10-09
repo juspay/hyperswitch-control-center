@@ -7,7 +7,11 @@ let make = () => {
   open ReconEngineOverviewSummaryUtils
 
   let getOverviewRulesTimeSeries = ReconEngineHooks.useGetOverviewRulesTimeSeries()
-  let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
+  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
+  let filterValueJsonWithGlobalDate = ReconEngineFilterUtils.mergeGlobalDateFilters(
+    ~filterValueJson=Dict.make(),
+    ~globalDateFilters,
+  )
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (agingData, setAgingData) = React.useState(_ => [])
@@ -16,7 +20,9 @@ let make = () => {
     open ReconEngineFilterUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let baseQueryParams = buildQueryStringFromFilters(~filterValueJson)
+      let baseQueryParams = buildQueryStringFromFilters(
+        ~filterValueJson=filterValueJsonWithGlobalDate,
+      )
       let granularityParam = "granularity=day"
       let queryParams =
         baseQueryParams->isNonEmptyString
@@ -33,11 +39,11 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    if !(filterValue->isEmptyDict) {
+    if ReconEngineFilterUtils.hasGlobalDateFilterValue(~globalDateFilters) {
       fetchAgingData()->ignore
     }
     None
-  }, [filterValue])
+  }, [globalDateFilters])
 
   let total = agingData->Array.reduce(0, (acc, item) => acc + item.total)
 

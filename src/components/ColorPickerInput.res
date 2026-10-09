@@ -14,15 +14,15 @@ let make = (
     Re.test(Js.Re.fromString("^#([0-9A-Fa-f]{6})$"), value)
   }
 
-  let getHexColor = value =>
-    switch JSON.Decode.string(value) {
-    | Some(str) if str->isNonEmptyString && isValidHexCode(str) => str
-    | _ => "#006DF9"
-    }
+  let toValidHexColor = value => value->isNonEmptyString && isValidHexCode(value) ? value : ""
 
-  let initialColor = switch defaultValue {
-  | Some(val) => val
-  | None => getHexColor(input.value)
+  let getValidHexColor = value => value->JSON.Decode.string->mapOptionOrDefault("", toValidHexColor)
+
+  let fallbackColor = "#006DF9"
+
+  let initialColor = switch input.value->getValidHexColor {
+  | "" => defaultValue->mapOptionOrDefault("", toValidHexColor)
+  | hexColor => hexColor
   }
 
   let (color, setColor) = React.useState(() => initialColor->String.toUpperCase)
@@ -46,7 +46,7 @@ let make = (
       // Reset to last valid color or default
       let validColor = initialColor->String.toUpperCase
       setColor(_ => validColor)
-      setIsValid(_ => true)
+      setIsValid(_ => validColor->isNonEmptyString)
       input.onChange(validColor->Identity.anyTypeToReactEvent)
     }
   }
@@ -59,6 +59,18 @@ let make = (
   | (true, true) => !isValid
   | (true, false) => false
   | (false, _) => !isValid
+  }
+  let displayColor = if isValid {
+    Some(color)
+  } else if initialColor->isNonEmptyString {
+    Some(initialColor)
+  } else {
+    None
+  }
+  let pickerColor = displayColor->Option.getOr(fallbackColor)
+  let swatchStyle = switch displayColor {
+  | Some(color) => ReactDOMStyle.make(~backgroundColor=color, ())
+  | None => ReactDOMStyle.make(~backgroundColor="transparent", ())
   }
 
   <div
@@ -90,11 +102,11 @@ let make = (
           }
         }}
         className="flex-1 bg-transparent outline-none text-sm text-jp-gray-800 dark:text-jp-gray-text_darktheme"
-        placeholder="#FFFFFF"
+        placeholder=fallbackColor
       />
       <div
         className="h-5 w-5 border ml-2 rounded-sm border-jp-gray-500 dark:border-jp-gray-960"
-        style={ReactDOMStyle.make(~backgroundColor=isValid ? color : initialColor, ())}
+        style=swatchStyle
       />
     </div>
     <RenderIf condition={showError}>
@@ -105,7 +117,7 @@ let make = (
     <RenderIf condition={toggle}>
       <div
         className="mt-10 shadow-md border border-jp-gray-300 rounded-md z-50 absolute bg-white right-0">
-        <SketchPicker color={isValid ? color : initialColor} onChangeComplete />
+        <SketchPicker color=pickerColor onChangeComplete />
       </div>
     </RenderIf>
   </div>

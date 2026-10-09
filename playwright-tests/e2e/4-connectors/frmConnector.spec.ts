@@ -1,5 +1,5 @@
 import { test, expect } from "../../support/test";
-import type { Page, BrowserContext } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { FrmConnector } from "../../support/pages/connector/FrmConnector";
 import { generateUniqueEmail } from "../../support/helper";
@@ -14,22 +14,15 @@ import { frmConnectorConfig } from "../../support/fixtures/frmConnectorConfig";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
-async function signupAndLogin(page: Page, context: BrowserContext) {
+async function signupAndLogin(page: Page) {
   const email = generateUniqueEmail();
   await signupUser(email, PLAYWRIGHT_PASSWORD);
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 }
 
-async function gotoFrmList(page: Page) {
-  const homePage = new HomePage(page);
-  await homePage.connectors.click();
-  await homePage.frmConnectors.click();
-  await page.waitForLoadState("networkidle");
-}
-
 test.describe("FRM (Fraud & Risk) Connectors", () => {
-  test.beforeEach(async ({ page, context }) => {
-    await signupAndLogin(page, context);
+  test.beforeEach(async ({ page }) => {
+    await signupAndLogin(page);
   });
 
   test("should navigate to FRM connectors page via sidebar", async ({

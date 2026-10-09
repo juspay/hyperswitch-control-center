@@ -9,10 +9,20 @@ let flowTypeList = [PreAuth]
 
 let getFRMAuthType = (connector: ConnectorTypes.connectorTypes) => {
   switch connector {
-  | FRM(Signifyd) => "HeaderKey"
+  | FRM(Signifyd) | FRM(SanlamPayshield) => "HeaderKey"
   | FRM(Riskifyed) => "BodyKey"
   | FRM(CybersourceDecisionManager) => "SignatureKey"
   | _ => ""
+  }
+}
+
+let getFRMConfigurationNote = (connector: ConnectorTypes.connectorTypes): option<string> => {
+  switch connector {
+  | FRM(SanlamPayshield) =>
+    Some(
+      "Sanlam Payshield screens bank debit payments and bank transfer payouts. It is only compatible with the Absa payment connector and the GoTyme payout connector.",
+    )
+  | _ => None
   }
 }
 

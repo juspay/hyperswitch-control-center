@@ -33,12 +33,10 @@ type transformationHistoryColType =
   | CreatedAt
   | TransformedAt
   | TransformationStats
-  | TransformationComments
   | TotalRecords
   | ProcessedCount
   | IgnoredCount
   | ErrorCount
-  | Actions
 
 let ingestionHistoryDefaultColumns = [FileName, IngestionName, Status, IngestionType, ReceivedAt]
 let transformationHistoryDefaultColumns = [TransformationName, Status, CreatedAt, TransformedAt]
@@ -89,13 +87,10 @@ let getTransformationHistoryHeading = colType => {
   | TransformedAt => Table.makeHeaderInfo(~key="transformed_at", ~title="Transformed At")
   | TransformationStats =>
     Table.makeHeaderInfo(~key="transformation_stats", ~title="Processed / Ignored / Error")
-  | TransformationComments =>
-    Table.makeHeaderInfo(~key="transformation_comments", ~title="Comments")
   | TotalRecords => Table.makeHeaderInfo(~key="total_records", ~title="Total Records")
   | ProcessedCount => Table.makeHeaderInfo(~key="processed_count", ~title="Processed Count")
   | IgnoredCount => Table.makeHeaderInfo(~key="ignored_count", ~title="Ignored Count")
   | ErrorCount => Table.makeHeaderInfo(~key="error_count", ~title="Error Count")
-  | Actions => Table.makeHeaderInfo(~key="actions", ~title="Actions")
   }
 }
 
@@ -155,13 +150,10 @@ let getTransformationHistoryCell = (
   | TransformedAt => Date(transformationHistoryData.processed_at)
   | TransformationStats =>
     CustomCell(<TransformationStats stats={transformationHistoryData.data} />, "")
-  | TransformationComments =>
-    EllipsisText(transformationHistoryData.data.errors->Array.joinWith(", "), "max-w-xl")
   | TotalRecords => Text(transformationHistoryData.data.total_count->Int.toString)
   | ProcessedCount => Text(transformationHistoryData.data.transformed_count->Int.toString)
   | IgnoredCount => Text(transformationHistoryData.data.ignored_count->Int.toString)
-  | ErrorCount => Text(transformationHistoryData.data.errors->Array.length->Int.toString)
-  | Actions => CustomCell(<TransformationHistoryActionsComponent transformationHistoryData />, "")
+  | ErrorCount => Text(transformationHistoryData.data.failed_count->Int.toString)
   }
 }
 

@@ -2,7 +2,7 @@ import { test, expect } from "../../support/test";
 import type { Page } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { PaymentOperations } from "../../support/pages/operations/PaymentOperations";
-import { DisputesOperations } from "../../support/pages/operations/DisputesOperations";
+import { DisputeOperations } from "../../support/pages/operations/DisputeOperations";
 import { generateUniqueEmail } from "../../support/helper";
 import {
   signupUser,
@@ -13,6 +13,9 @@ import {
 } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
+// A 1st-of-month instant — the day blend mislabels sub-day presets. Pinned
+// deliberately so the Date Selector test below stays a regression guard.
+const FIRST_OF_MONTH = "2026-09-01T12:00:00.000Z";
 
 // Disputes have no client-facing creation endpoint — production disputes
 // arrive via connector webhooks — so every scenario that needs row data
@@ -48,7 +51,7 @@ test.describe("Disputes List page", () => {
   }) => {
     const homePage = new HomePage(page);
     const paymentOperations = new PaymentOperations(page);
-    const disputesOperations = new DisputesOperations(page);
+    const disputesOperations = new DisputeOperations(page);
 
     const dispute = sampleDispute();
     await mockDisputesList(page, [dispute]);
@@ -83,7 +86,7 @@ test.describe("Disputes List page", () => {
   }) => {
     const homePage = new HomePage(page);
     const paymentOperations = new PaymentOperations(page);
-    const disputesOperations = new DisputesOperations(page);
+    const disputesOperations = new DisputeOperations(page);
 
     await mockDisputesList(page, []);
     await goToDisputes(page, homePage);
@@ -100,7 +103,7 @@ test.describe("Disputes List page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
 
       const target = sampleDispute({
         dispute_id: "dp_playwright_search_target",
@@ -126,7 +129,7 @@ test.describe("Disputes List page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
 
       const target = sampleDispute({
         dispute_id: "dp_playwright_pay_search",
@@ -152,7 +155,7 @@ test.describe("Disputes List page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
 
       await mockDisputesList(page, [sampleDispute()]);
       await goToDisputes(page, homePage);
@@ -246,6 +249,15 @@ test.describe("Disputes List page", () => {
       await mockDisputesList(page, [sampleDispute()]);
       await goToDisputes(page, homePage);
 
+      // Pinned to the 1st on purpose. blend checks its "This month" preset before
+      // the sub-day ones and accepts any range starting within 25h of the 1st at
+      // 00:00, so on the 1st the trigger renders "This month" instead of the preset
+      // that was clicked (juspay/blend-design-system#1743). Pinning here keeps this
+      // a regression guard: it fails if the patches/@juspay+blend-design-system
+      // reorder is ever dropped, e.g. when regenerating the patch on a blend
+      // upgrade. Set here, not in beforeEach, so signup/setup run at real time.
+      await page.clock.setFixedTime(new Date(FIRST_OF_MONTH));
+
       await paymentOperations.customDateRangeButton.click();
       await page.getByRole("menuitem", { name: "Last 30 minutes" }).click();
       await expect(
@@ -260,7 +272,7 @@ test.describe("Disputes List page", () => {
     }) => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
 
       await mockDisputesList(page, [sampleDispute()]);
       await goToDisputes(page, homePage);
@@ -275,7 +287,7 @@ test.describe("Disputes List page", () => {
     }) => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
 
       const opened = sampleDispute({
         dispute_id: "dp_playwright_opened",
@@ -392,7 +404,7 @@ test.describe("Dispute detail page", () => {
   const openDisputeDetail = async (
     page: Page,
     homePage: HomePage,
-    disputesOperations: DisputesOperations,
+    disputesOperations: DisputeOperations,
     dispute: ReturnType<typeof sampleDispute>,
   ) => {
     const { profileId } = await ompLineage(page);
@@ -422,7 +434,7 @@ test.describe("Dispute detail page", () => {
   }) => {
     const homePage = new HomePage(page);
     const paymentOperations = new PaymentOperations(page);
-    const disputesOperations = new DisputesOperations(page);
+    const disputesOperations = new DisputeOperations(page);
     const dispute = sampleDispute();
 
     await openDisputeDetail(page, homePage, disputesOperations, dispute);
@@ -496,7 +508,7 @@ test.describe("Dispute detail page", () => {
     page,
   }) => {
     const homePage = new HomePage(page);
-    const disputesOperations = new DisputesOperations(page);
+    const disputesOperations = new DisputeOperations(page);
     const dispute = sampleDispute({ is_already_refunded: true });
 
     // Inline the openDisputeDetail flow so we can land on the list page
@@ -535,7 +547,7 @@ test.describe("Dispute detail page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute({
         connector: "stripe",
         dispute_status: "dispute_opened",
@@ -556,7 +568,7 @@ test.describe("Dispute detail page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute({
         connector: "checkout",
         dispute_status: "dispute_opened",
@@ -577,7 +589,7 @@ test.describe("Dispute detail page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute({
         connector: "adyen",
         dispute_status: "dispute_opened",
@@ -598,7 +610,7 @@ test.describe("Dispute detail page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute({
         connector: "checkout",
         dispute_status: "dispute_opened",
@@ -630,7 +642,7 @@ test.describe("Dispute detail page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute({
         connector: "checkout",
         dispute_status: "dispute_opened",
@@ -686,7 +698,7 @@ test.describe("Dispute detail page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute({
         connector: "stripe",
         dispute_status: "dispute_opened",
@@ -737,7 +749,7 @@ test.describe("Dispute detail page", () => {
       page,
     }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute({
         connector: "stripe",
         dispute_status: "dispute_opened",
@@ -837,7 +849,7 @@ test.describe("Dispute detail page", () => {
   test.describe("Events and logs accordion", () => {
     test("should be visible when audit_trail flag is ON", async ({ page }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute();
 
       await page.route("**/dashboard/config/feature?domain=", async (route) => {
@@ -855,7 +867,7 @@ test.describe("Dispute detail page", () => {
 
     test("should be hidden when audit_trail flag is OFF", async ({ page }) => {
       const homePage = new HomePage(page);
-      const disputesOperations = new DisputesOperations(page);
+      const disputesOperations = new DisputeOperations(page);
       const dispute = sampleDispute();
 
       await page.route("**/dashboard/config/feature?domain=", async (route) => {

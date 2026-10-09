@@ -19,6 +19,10 @@ export class PayoutOperations extends PaymentOperations {
   get clearAllButton(): Locator {
     return this.page.getByRole("button", { name: "Clear All" });
   }
+
+  get payoutAttemptsTable(): Locator {
+    return this.page.locator('table[data-expandable-table="Attempts"]').first();
+  }
 }
 
 export default PayoutOperations;

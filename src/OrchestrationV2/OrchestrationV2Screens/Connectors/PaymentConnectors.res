@@ -53,10 +53,7 @@ let make = () => {
     let filteredList = if searchText->isNonEmptyString {
       list->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
         switch Nullable.toOption(obj) {
-        | Some(obj) =>
-          isContainingStringLowercase(obj.connector_name, searchText) ||
-          isContainingStringLowercase(obj.id, searchText) ||
-          isContainingStringLowercase(obj.connector_label, searchText)
+        | Some(obj) => matchesConnectorSearch(obj, searchText)
         | None => false
         }
       })

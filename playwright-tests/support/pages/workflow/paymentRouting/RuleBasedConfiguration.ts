@@ -44,12 +44,11 @@ export class RuleBasedConfiguration {
   }
 
   get distributeCheckboxNotSelected(): Locator {
-    return this.page
-      .locator('#app').getByRole('checkbox');
+    return this.page.locator("#app").getByRole("checkbox");
   }
 
   get distributeCheckboxSelected(): Locator {
-    return this.page.getByRole('checkbox');
+    return this.page.getByRole("checkbox");
   }
 
   get addConditionButton(): Locator {

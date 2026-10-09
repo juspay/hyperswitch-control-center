@@ -9,6 +9,20 @@ let constructWebhookDetailsObject = webhookDetailsDict => {
   payment_created_enabled: webhookDetailsDict->getOptionBool("payment_created_enabled"),
   payment_succeeded_enabled: webhookDetailsDict->getOptionBool("payment_succeeded_enabled"),
   payment_failed_enabled: webhookDetailsDict->getOptionBool("payment_failed_enabled"),
+  payment_statuses_enabled: webhookDetailsDict->getOptionStrArrayFromDict(
+    "payment_statuses_enabled",
+  ),
+  refund_statuses_enabled: webhookDetailsDict->getOptionStrArrayFromDict("refund_statuses_enabled"),
+  payout_statuses_enabled: webhookDetailsDict->getOptionStrArrayFromDict("payout_statuses_enabled"),
+  dispute_statuses_enabled: webhookDetailsDict->getOptionStrArrayFromDict(
+    "dispute_statuses_enabled",
+  ),
+  mandate_statuses_enabled: webhookDetailsDict->getOptionStrArrayFromDict(
+    "mandate_statuses_enabled",
+  ),
+  invoice_statuses_enabled: webhookDetailsDict->getOptionStrArrayFromDict(
+    "invoice_statuses_enabled",
+  ),
 }
 
 let constructAuthConnectorObject = authConnectorDict => {
@@ -62,7 +76,7 @@ let getOptionalHeadersWithEmptyValParsing = (~dict, ~key) => {
     dict
     ->Dict.get(key)
     ->Option.mapOr(JSON.Encode.null, _ => {
-      let parsedValue = PaymentSettingsRevampedUtils.removeEmptyValues(~dict, ~key)
+      let parsedValue = PaymentSettingsUtils.removeEmptyValues(~dict, ~key)
       parsedValue->Identity.genericTypeToJson
     }),
   )
@@ -82,6 +96,14 @@ let convertOptionalStringToOptionalJson = optString => {
   | None => JSON.Encode.null
   }
   Some(jsonVal)
+}
+
+let convertOptionalStrArrayToOptionalJson = optArray => {
+  Some(
+    optArray->mapOptionOrDefault(JSON.Encode.null, value =>
+      value->Array.map(JSON.Encode.string)->JSON.Encode.array
+    ),
+  )
 }
 
 let convertOptionalIntToOptionalJson = optInt => {
@@ -192,8 +214,55 @@ let paymentLinkConfigMapper = paymentLinkConfigDict => {
   }
 }
 
+let defaultPaymentMethodBlockingEntry: paymentMethodBlockingEntry = {
+  issuing_country: None,
+  card_types: None,
+  card_networks: None,
+  funding_sources: None,
+  card_segment_types: None,
+  card_subtypes: None,
+  issuers: None,
+  block_virtual_cards: None,
+  block_non_reloadable_prepaid_cards: None,
+  gambling_blocked: None,
+  block_if_bin_info_unavailable: None,
+}
+
 let paymentMethodBlockingEntryMapper: Dict.t<JSON.t> => paymentMethodBlockingEntry = entryDict => {
+  issuing_country: entryDict->getOptionStrArrayFromDict("issuing_country"),
   card_types: entryDict->getOptionStrArrayFromDict("card_types"),
+  card_networks: entryDict->getOptionStrArrayFromDict("card_networks"),
+  funding_sources: entryDict->getOptionStrArrayFromDict("funding_sources"),
+  card_segment_types: entryDict->getOptionStrArrayFromDict("card_segment_types"),
+  card_subtypes: entryDict->getOptionStrArrayFromDict("card_subtypes"),
+  issuers: entryDict->getOptionStrArrayFromDict("issuers"),
+  block_virtual_cards: entryDict->getOptionBool("block_virtual_cards"),
+  block_non_reloadable_prepaid_cards: entryDict->getOptionBool(
+    "block_non_reloadable_prepaid_cards",
+  ),
+  gambling_blocked: entryDict->getOptionBool("gambling_blocked"),
+  block_if_bin_info_unavailable: entryDict->getOptionBool("block_if_bin_info_unavailable"),
+}
+
+let paymentMethodBlockingWalletEntryMapper = (walletDict, key, legacyEntry) => {
+  let entryDict = walletDict->getDictfromDict(key)
+  entryDict->isEmptyDict ? legacyEntry : Some(entryDict->paymentMethodBlockingEntryMapper)
+}
+
+let paymentMethodBlockingWalletMapper: Dict.t<
+  JSON.t,
+> => paymentMethodBlockingWallet = walletDict => {
+  let legacyEntry =
+    walletDict
+    ->getOptionStrArrayFromDict("card_types")
+    ->Option.map(cardTypes => {
+      ...defaultPaymentMethodBlockingEntry,
+      card_types: Some(cardTypes),
+    })
+  {
+    apple_pay: paymentMethodBlockingWalletEntryMapper(walletDict, "apple_pay", legacyEntry),
+    google_pay: paymentMethodBlockingWalletEntryMapper(walletDict, "google_pay", legacyEntry),
+  }
 }
 
 let paymentMethodBlockingMapper: Dict.t<JSON.t> => paymentMethodBlocking = pmbDict => {
@@ -201,7 +270,7 @@ let paymentMethodBlockingMapper: Dict.t<JSON.t> => paymentMethodBlocking = pmbDi
   let walletDict = pmbDict->getDictfromDict("wallet")
   {
     card: cardDict->isEmptyDict ? None : Some(cardDict->paymentMethodBlockingEntryMapper),
-    wallet: walletDict->isEmptyDict ? None : Some(walletDict->paymentMethodBlockingEntryMapper),
+    wallet: walletDict->isEmptyDict ? None : Some(walletDict->paymentMethodBlockingWalletMapper),
   }
 }
 

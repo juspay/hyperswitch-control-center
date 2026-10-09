@@ -182,3 +182,13 @@ let getTimestamp = (event: auditEvent): string => {
 let sortByTimeStamp = (a: auditEvent, b: auditEvent) => {
   compareLogic(a->getTimestamp, b->getTimestamp)
 }
+
+let getInitialValues = () => {
+  let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=7)
+  [
+    ("startTime", defaultDate.start_time->JSON.Encode.string),
+    ("endTime", defaultDate.end_time->JSON.Encode.string),
+  ]
+  ->Dict.fromArray
+  ->JSON.Encode.object
+}

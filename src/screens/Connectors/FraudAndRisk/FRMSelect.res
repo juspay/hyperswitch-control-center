@@ -1,10 +1,10 @@
 module NewProcessorCards = {
-  open FRMInfo
   @react.component
   let make = (~configuredFRMs: array<ConnectorTypes.connectorTypes>) => {
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    let frmAvailableForIntegration = frmList
+    let {frmProcessorsList} =
+      HyperswitchAtom.connectorDisplayListAtom->Recoil.useRecoilValueFromAtom
 
     let handleClick = frmName => {
       mixpanelEvent(~eventName=`connect_frm_${frmName}`)
@@ -64,15 +64,14 @@ module NewProcessorCards = {
     let headerText = "Connect a new fraud & risk management player"
 
     <RenderIf condition={configuredFRMCount == 0}>
-      <div className="flex flex-col gap-4">
-        {frmAvailableForIntegration->descriptedFRMs(headerText)}
-      </div>
+      <div className="flex flex-col gap-4"> {frmProcessorsList->descriptedFRMs(headerText)} </div>
     </RenderIf>
   }
 }
 
 @react.component
 let make = () => {
+  let {frmProcessorsList} = HyperswitchAtom.connectorDisplayListAtom->Recoil.useRecoilValueFromAtom
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let isMobileView = MatchMedia.useMatchMedia("(max-width: 844px)")
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -86,11 +85,22 @@ let make = () => {
   let connectorList = ConnectorListInterface.useFilteredConnectorList(
     ~retainInList=PaymentProcessor,
   )
+  let payoutConnectorList = ConnectorListInterface.useFilteredConnectorList(
+    ~retainInList=PayoutProcessor,
+  )
+  let eligibleConnectorList = connectorList->Array.concat(payoutConnectorList)
+  let frmAvailableForIntegration =
+    frmProcessorsList->Array.filter(selectedFRMName =>
+      FRMUtils.filterConnectorArrayByPaymentMethod(
+        ~connectorList=eligibleConnectorList,
+        ~selectedFRMName,
+      )->LogicUtils.isNonEmptyArray
+    )
   let frmConnectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=PaymentVas)
 
   let customUI =
     <BlurredTableComponent
-      infoText="No connectors configured yet. Try connecting a connector with card enabled as a payment method."
+      infoText="No eligible connectors configured yet. Configure a payment or payout connector with a supported payment method to get started."
       buttonText="Take me to connectors"
       onClickElement={React.null}
       onClickUrl="connectors"
@@ -100,9 +110,7 @@ let make = () => {
 
   let getConnectorList = async _ => {
     try {
-      let filteredArrayLength =
-        FRMUtils.filterConnectorArrayByPaymentMethod(~connectorList)->Array.length
-      if filteredArrayLength > 0 {
+      if frmAvailableForIntegration->LogicUtils.isNonEmptyArray {
         setConfiguredFRMs(_ => frmConnectorList)
         setFilteredFRMData(_ => frmConnectorList->Array.map(Nullable.make))
         setScreenState(_ => Success)
@@ -126,9 +134,11 @@ let make = () => {
       arr->Array.filter((frmPlayer: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
         switch Nullable.toOption(frmPlayer) {
         | Some(frmPlayer) =>
-          isContainingStringLowercase(frmPlayer.connector_name, searchText) ||
-          isContainingStringLowercase(frmPlayer.id, searchText) ||
-          isContainingStringLowercase(frmPlayer.connector_label, searchText)
+          ConnectorUtils.matchesConnectorSearch(
+            ~connectorType=ConnectorTypes.FRMPlayer,
+            frmPlayer,
+            searchText,
+          )
         | None => false
         }
       })

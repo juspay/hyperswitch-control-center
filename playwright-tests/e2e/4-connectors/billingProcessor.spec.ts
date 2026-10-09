@@ -1,18 +1,13 @@
 import { test, expect } from "../../support/test";
-import type { Page, BrowserContext } from "@playwright/test";
+import type { Page } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { BillingProcessor } from "../../support/pages/connector/BillingProcessor";
 import { generateUniqueEmail } from "../../support/helper";
-import {
-  signupUser,
-  loginUI,
-  fillConnectorFields,
-} from "../../support/commands";
-import { billingProcessorConfig } from "../../support/fixtures/billingProcessorConfig";
+import { signupUser, loginUI } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
-async function signupAndLogin(page: Page, context: BrowserContext) {
+async function signupAndLogin(page: Page) {
   const email = generateUniqueEmail();
   await signupUser(email, PLAYWRIGHT_PASSWORD);
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -27,8 +22,8 @@ async function gotoBilling(page: Page): Promise<boolean> {
 }
 
 test.describe("Billing Processor", () => {
-  test.beforeEach(async ({ page, context }) => {
-    await signupAndLogin(page, context);
+  test.beforeEach(async ({ page }) => {
+    await signupAndLogin(page);
     await gotoBilling(page);
   });
 
@@ -36,7 +31,6 @@ test.describe("Billing Processor", () => {
     page,
   }) => {
     const billingProcessor = new BillingProcessor(page);
-    const fallback = billingProcessor.goToHomeFallback;
     await expect(billingProcessor.requestProcessorButton).toBeVisible({
       timeout: 10000,
     });

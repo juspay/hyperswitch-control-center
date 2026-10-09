@@ -92,7 +92,6 @@ module StagingEntryHeader = {
 let getAccordionConfig = (
   ~ingestionHistoryData: ingestionHistoryType,
   ~transformationStatus,
-  ~setTransformationStatus,
   ~selectedTransformationHistoryId,
   ~setSelectedTransformationHistoryId,
   ~manualReviewStatus,
@@ -113,8 +112,6 @@ let getAccordionConfig = (
         <ReconEngineDataOverviewTransformation
           ingestionHistoryId=ingestionHistoryData.ingestion_history_id
           setSelectedTransformationHistoryId
-          onTransformationStatusChange={isProcessed =>
-            setTransformationStatus(_ => isProcessed ? #Processed : #AttentionRequired)}
           transformationHistoryId
         />,
       renderContentOnTop: Some(() => <TransformationHeader transformationStatus />),

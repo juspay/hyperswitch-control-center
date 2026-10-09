@@ -182,6 +182,7 @@ module RemoteTableFilters = {
     ~version=UserInfoTypes.V1,
     ~connectorTypes: array<ConnectorTypes.connector>=[Processor, ThreeDsAuthenticator],
     ~customFilterActions=React.null,
+    ~setRemoteFilterData=_ => (),
     (),
   ) => {
     open LogicUtils
@@ -230,6 +231,7 @@ module RemoteTableFilters = {
       try {
         let filterUrl = getURL(~entityName, ~methodType=apiType)
         setFilterDataJson(_ => None)
+        setRemoteFilterData(Dict.make()->JSON.Encode.object)
         let response = switch apiType {
         | Post => {
             let body =
@@ -292,6 +294,7 @@ module RemoteTableFilters = {
         }
 
         setFilterDataJson(_ => Some(filterDataResponse))
+        setRemoteFilterData(filterDataResponse)
       } catch {
       | _ => showToast(~message="Failed to load filters", ~toastType=ToastError)
       }

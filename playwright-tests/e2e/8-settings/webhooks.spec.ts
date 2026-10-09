@@ -6,6 +6,9 @@ import { generateUniqueEmail } from "../../support/helper";
 import { signupUser, loginUI } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
+const STATIC_WEBHOOKS_NOW = "2026-05-29T12:34:56.000Z";
+const STATIC_WEBHOOKS_TODAY_START = "2026-05-29T00:00:00Z";
+const STATIC_WEBHOOKS_TODAY_END = "2026-05-29T12:34:56Z";
 
 // A configured webhook with a couple of delivered events. One event delivered
 // successfully, the other failed — used to assert the table, columns and the
@@ -107,6 +110,8 @@ async function mockWebhookSearch(page: Page, events = WEBHOOK_EVENTS) {
 }
 
 test.describe("Webhooks events listing and detail", () => {
+  test.use({ timezoneId: "UTC" });
+
   test.beforeEach(async ({ page }) => {
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
@@ -122,11 +127,19 @@ test.describe("Webhooks events listing and detail", () => {
     await page.waitForTimeout(1000);
   }
 
-  test("should render heading, search-by-id input and the Object ID / Event ID type selector", async ({
+  test("should render controls and default the time range to today", async ({
     page,
   }) => {
+    await page.clock.setFixedTime(new Date(STATIC_WEBHOOKS_NOW));
+    await mockWebhookEvents(page, { total_count: 0, events: [] });
+    const webhookListRequest = page.waitForRequest("**/events/profile/list");
+
     await openWebhooks(page);
     const webhooks = new Webhooks(page);
+    const requestPayload = (await webhookListRequest).postDataJSON() as Record<
+      string,
+      unknown
+    >;
 
     await expect(webhooks.pageHeading).toBeVisible({ timeout: 10000 });
     await expect(webhooks.searchByIdInput).toBeVisible({ timeout: 10000 });
@@ -136,6 +149,9 @@ test.describe("Webhooks events listing and detail", () => {
     await expect(webhooks.eventIdOption).toBeVisible({ timeout: 10000 });
 
     await expect(webhooks.dateRangeFilter).toBeVisible({ timeout: 10000 });
+    //await expect(webhooks.dateRangePresetSelector).toContainText("Today");
+    expect(requestPayload.created_after).toBe(STATIC_WEBHOOKS_TODAY_START);
+    expect(requestPayload.created_before).toBe(STATIC_WEBHOOKS_TODAY_END);
     await expect(webhooks.notConfiguredMessage).toBeVisible({ timeout: 10000 });
   });
 

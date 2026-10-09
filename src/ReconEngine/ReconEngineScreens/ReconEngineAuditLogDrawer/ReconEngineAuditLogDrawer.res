@@ -53,61 +53,78 @@ module EmptyState = {
   }
 }
 
-@react.component
-let make = (~showDrawer: bool) => {
-  open APIUtils
-  open LogicUtils
+module AuditTrailFilteredContent = {
+  @react.component
+  let make = (~showDrawer: bool) => {
+    open APIUtils
+    open LogicUtils
 
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Success)
-  let (auditEvents, setAuditEvents) = React.useState(_ => [])
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
+    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+    let (auditEvents, setAuditEvents) = React.useState(_ => [])
+    let getURL = useGetURL()
+    let fetchDetails = useGetMethod()
 
-  let fetchAuditEvents = async () => {
-    try {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      let url = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~hyperswitchReconType=#AUDIT_TRAIL,
-        ~methodType=Get,
-      )
-      let response = await fetchDetails(url)
-      let events = response->getArrayFromJson([])->Array.map(getEventTypeFromJson)
-      events->Array.sort(sortByTimeStamp)
-      setAuditEvents(_ => events)
-      setScreenState(_ => PageLoaderWrapper.Success)
-    } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Custom)
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let formValues = formState.values->getDictFromJsonObject
+    let startTime = formValues->getString("startTime", "")
+    let endTime = formValues->getString("endTime", "")
+    let timeRangeQueryParams =
+      startTime->isNonEmptyString && endTime->isNonEmptyString
+        ? Some(`start_time=${startTime}&end_time=${endTime}`)
+        : None
+
+    let fetchAuditEvents = async () => {
+      try {
+        setScreenState(_ => PageLoaderWrapper.Loading)
+        let url = getURL(
+          ~entityName=V1(HYPERSWITCH_RECON),
+          ~hyperswitchReconType=#AUDIT_TRAIL,
+          ~methodType=Get,
+          ~queryParameters=timeRangeQueryParams,
+        )
+        let response = await fetchDetails(url)
+        let events = response->getArrayFromJson([])->Array.map(getEventTypeFromJson)
+        events->Array.sort(sortByTimeStamp)
+        setAuditEvents(_ => events)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } catch {
+      | _ => setScreenState(_ => PageLoaderWrapper.Custom)
+      }
     }
-  }
 
-  React.useEffect(() => {
-    if showDrawer {
-      fetchAuditEvents()->ignore
-    }
-    None
-  }, [showDrawer])
+    React.useEffect(() => {
+      if showDrawer {
+        fetchAuditEvents()->ignore
+      }
+      None
+    }, (showDrawer, timeRangeQueryParams))
 
-  let transitionClass = showDrawer ? "translate-x-0" : "translate-x-full"
-
-  <>
-    <div
-      className={`fixed right-0 top-0 h-full w-500-px bg-white shadow-2xl rounded-l-xl overflow-hidden transform transition-all duration-300 ease-in-out flex flex-col z-20 ${transitionClass}`}>
-      <div className="flex flex-col gap-2 p-6 border-b border-nd_br_gray-150 bg-white">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Icon name="notification_bell" size=20 className="text-nd_gray-600" />
-            <div className={`${heading.sm.semibold} text-nd_gray-700`}>
-              {"Activity"->React.string}
-            </div>
-          </div>
-          <Icon
-            onClick={_ => fetchAuditEvents()->ignore}
-            name="sync-alt"
-            size=16
-            className="hover:rotate-180 transition-transform duration-500 cursor-pointer text-nd_gray-600"
-          />
-        </div>
+    <>
+      <div
+        className="flex items-center justify-between gap-2 px-6 pb-4 border-b border-nd_br_gray-150 bg-white">
+        <FormRenderer.FieldRenderer
+          field={FormRenderer.makeMultiInputFieldInfo(
+            ~label="",
+            ~comboCustomInput=InputFields.filterDateRangeField(
+              ~startKey="startTime",
+              ~endKey="endTime",
+              ~format="YYYY-MM-DDTHH:mm:ss[Z]",
+              ~showTime=false,
+              ~disablePastDates=false,
+              ~disableFutureDates=true,
+              ~dateRangeLimit=31,
+            ),
+            ~inputFields=[],
+          )}
+        />
+        <Icon
+          onClick={_ => fetchAuditEvents()->ignore}
+          name="sync-alt"
+          size=16
+          className="hover:rotate-180 transition-transform duration-500 cursor-pointer text-nd_gray-600"
+        />
       </div>
       <div className="flex-1 overflow-y-auto overflow-x-hidden">
         <PageLoaderWrapper
@@ -133,6 +150,23 @@ let make = (~showDrawer: bool) => {
           </RenderIf>
         </PageLoaderWrapper>
       </div>
+    </>
+  }
+}
+
+@react.component
+let make = (~showDrawer: bool) => {
+  let transitionClass = showDrawer ? "translate-x-0" : "translate-x-full"
+  let initialValues = React.useMemo(() => getInitialValues(), [])
+
+  <div
+    className={`fixed right-0 top-0 h-full w-500-px bg-white shadow-2xl rounded-l-xl overflow-hidden transform transition-all duration-300 ease-in-out flex flex-col z-20 ${transitionClass}`}>
+    <div className="flex items-center gap-3 px-6 pt-6">
+      <Icon name="notification_bell" size=20 className="text-nd_gray-600" />
+      <div className={`${heading.sm.semibold} text-nd_gray-700`}> {"Activity"->React.string} </div>
     </div>
-  </>
+    <Form initialValues formClass="flex flex-col flex-1 overflow-hidden">
+      <AuditTrailFilteredContent showDrawer />
+    </Form>
+  </div>
 }

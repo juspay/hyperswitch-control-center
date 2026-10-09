@@ -91,6 +91,7 @@ let make: (
   ~showTooltip: bool=?,
   ~tooltipText: string=?,
   ~toolTipPosition: ToolTip.toolTipPosition=?,
+  ~ariaLabel: string=?,
   ~dataTestId: string=?,
   ~maxButtonWidth: string=?,
 ) => React.element

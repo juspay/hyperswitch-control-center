@@ -50,49 +50,55 @@ let buildProcessingEntriesV2Body = (
   ~transformationHistoryIds: array<string>=[],
 ) => {
   let statusFilter = filterValueJson->getStrArrayFromDict("status", [])
-  let statusValues =
+  let detailedStatuses =
     statusFilter->isEmptyArray
-      ? getProcessingEntryStatusValueFromStatusList([Pending, Processed, NeedsManualReview, Void])
-      : statusFilter
+      ? allStagingEntryStatuses
+      : statusFilter->Array.map(value =>
+          getStagingEntryStatusFromValue(value, allStagingEntryStatuses)
+        )
 
   let entryTypeFilter = filterValueJson->getStrArrayFromDict("entry_type", [])
   let accountIdFilter = filterValueJson->getStrArrayFromDict("account_ids", [])
+  let transformationConfigIdFilter =
+    filterValueJson->getStrArrayFromDict("transformation_config_ids", [])
 
-  let startTime = filterValueJson->getString("startTime", "")
-  let endTime = filterValueJson->getString("endTime", "")
-  let hasTimeRange = startTime->isNonEmptyString && endTime->isNonEmptyString
+  let startTime = filterValueJson->getString("startTime", "")->toReconTimeString
+  let endTime = filterValueJson->getString("endTime", "")->toReconTimeString
 
   let filtersDict = Dict.make()
-  filtersDict->Dict.set("status", statusValues->getJsonFromArrayOfString)
+  let detailedStatusPayload = detailedStatuses->getStagingEntryStatusPayload
 
-  if entryTypeFilter->isNonEmptyArray {
-    filtersDict->Dict.set("entry_type", entryTypeFilter->getJsonFromArrayOfString)
-  }
-
-  if accountIdFilter->isNonEmptyArray {
-    filtersDict->Dict.set("account_ids", accountIdFilter->getJsonFromArrayOfString)
-  }
-
-  if searchText->isNonEmptyString {
-    filtersDict->Dict.set((searchType :> string), searchText->String.trim->JSON.Encode.string)
-  }
-
-  if transformationHistoryIds->isNonEmptyArray {
-    filtersDict->Dict.set(
-      "transformation_history_ids",
-      transformationHistoryIds->getJsonFromArrayOfString,
-    )
-  }
-
-  if hasTimeRange {
-    filtersDict->Dict.set(
-      "time_range",
-      [
-        ("start_time", startTime->JSON.Encode.string),
-        ("end_time", endTime->JSON.Encode.string),
-      ]->getJsonFromArrayOfJson,
-    )
-  }
+  filtersDict->setOptionArray("detailed_status", detailedStatusPayload->getNonEmptyArray)
+  filtersDict->setOptionArray(
+    "entry_type",
+    entryTypeFilter->Array.map(JSON.Encode.string)->getNonEmptyArray,
+  )
+  filtersDict->setOptionArray(
+    "account_ids",
+    accountIdFilter->Array.map(JSON.Encode.string)->getNonEmptyArray,
+  )
+  filtersDict->setOptionArray(
+    "transformation_config_ids",
+    transformationConfigIdFilter->Array.map(JSON.Encode.string)->getNonEmptyArray,
+  )
+  filtersDict->setOptionArray(
+    "transformation_history_ids",
+    transformationHistoryIds->Array.map(JSON.Encode.string)->getNonEmptyArray,
+  )
+  filtersDict->setOptionString((searchType :> string), searchText->String.trim->getNonEmptyString)
+  filtersDict->setOptionDict(
+    "time_range",
+    switch (startTime->getNonEmptyString, endTime->getNonEmptyString) {
+    | (Some(startValue), Some(endValue)) =>
+      Some(
+        Dict.fromArray([
+          ("start_time", startValue->JSON.Encode.string),
+          ("end_time", endValue->JSON.Encode.string),
+        ]),
+      )
+    | _ => None
+    },
+  )
 
   [
     ("filters", filtersDict->JSON.Encode.object),
@@ -122,7 +128,7 @@ let getProcessingEntryPayloadFromDict = dict => {
 
 let sumStagingOverviewStatusCount = (
   accountsOverview: array<accountStagingEntriesOverview>,
-  ~matchesStatus: processingEntryStatus => bool,
+  ~matchesStatus: domainStagingEntryStatus => bool,
 ): float => {
   accountsOverview
   ->Array.reduce(0, (acc, account) => {
@@ -137,7 +143,14 @@ let getTotalNeedsManualReviewEntries = (
   accountsOverview: array<accountStagingEntriesOverview>,
 ): float => {
   accountsOverview->sumStagingOverviewStatusCount(~matchesStatus=status =>
-    status == NeedsManualReview
+    switch status {
+    | NeedsManualReview(_) => true
+    | Pending
+    | Processed
+    | Void
+    | Archived
+    | UnknownDomainStagingEntryStatus => false
+    }
   )
 }
 
@@ -153,20 +166,22 @@ let getTotalEntries = (accountsOverview: array<accountStagingEntriesOverview>): 
 
 let getViewStatusFilter = (view: transformedEntriesViewType): string => {
   switch view {
-  | AllViewType => "pending,processed,needs_manual_review,void"
-  | ProcessedViewType => "processed"
-  | NeedsManualReviewViewType => "needs_manual_review"
-  | UnknownTransformedEntriesViewType => ""
+  | AllViewType => allStagingEntryStatuses
+  | ProcessedViewType => [Processed]
+  | NeedsManualReviewViewType => allStagingEntryManualReviewStatuses
+  | UnknownTransformedEntriesViewType => []
   }
+  ->getStagingEntryStatusValueFromStatusList
+  ->Array.joinWith(",")
 }
 
-let getViewTypeFromStatus = (status: string): transformedEntriesViewType => {
-  switch status {
-  | "processed" => ProcessedViewType
-  | "needs_manual_review" => NeedsManualReviewViewType
-  | "pending,processed,needs_manual_review,void" => AllViewType
-  | _ => UnknownTransformedEntriesViewType
-  }
+let getViewTypeFromStatusFilter = (appliedStatuses: array<string>): transformedEntriesViewType => {
+  let sorted = appliedStatuses->Array.toSorted(compareLogic)
+  [AllViewType, ProcessedViewType, NeedsManualReviewViewType]
+  ->Array.find(view =>
+    view->getViewStatusFilter->String.split(",")->Array.toSorted(compareLogic) == sorted
+  )
+  ->Option.getOr(UnknownTransformedEntriesViewType)
 }
 
 let cardDetails = (~stagingOverviewData: array<accountStagingEntriesOverview>) => {
@@ -198,7 +213,11 @@ let cardDetails = (~stagingOverviewData: array<accountStagingEntriesOverview>) =
   ]
 }
 
-let getLineageSections = (~ingestionHistoryData, ~transformationHistoryData, ~entry) => [
+let getLineageSections = (
+  ~ingestionHistoryData: ingestionHistoryType,
+  ~transformationHistoryData: transformationHistoryType,
+  ~entry: processingEntryType,
+) => [
   {
     lineageSectionTitle: "Source",
     lineageSectionFields: [
@@ -241,13 +260,13 @@ let getLineageSections = (~ingestionHistoryData, ~transformationHistoryData, ~en
   },
 ]
 
-let initialDisplayFilters = (~accountOptions) => {
+let initialDisplayFilters = (~transformationConfigOptions, ~accountOptions) => {
   let entryTypeOptions: array<FilterSelectBox.dropdownOption> = [
     {label: "Credit", value: "credit"},
     {label: "Debit", value: "debit"},
   ]
 
-  let statusOptions = getStagingEntryStatusOptions([Processed, Pending, NeedsManualReview, Void])
+  let statusOptions = getGroupedStagingEntryStatusOptions(allStagingEntryStatuses)
 
   [
     (
@@ -298,6 +317,26 @@ let initialDisplayFilters = (~accountOptions) => {
           ~customInput=InputFields.filterMultiSelectInput(
             ~options=accountOptions,
             ~buttonText="Select Account",
+            ~showSelectionAsChips=false,
+            ~searchable=true,
+            ~showToolTip=true,
+            ~showNameAsToolTip=true,
+            ~customButtonStyle="bg-none",
+            ~fixedDropDownDirection=BottomRight,
+            (),
+          ),
+        ),
+        localFilter: Some((_, _) => []->Array.map(Nullable.make)),
+      }: EntityType.initialFilters<'t>
+    ),
+    (
+      {
+        field: FormRenderer.makeFieldInfo(
+          ~label="Transformation",
+          ~name="transformation_config_ids",
+          ~customInput=InputFields.filterMultiSelectInput(
+            ~options=transformationConfigOptions,
+            ~buttonText="Select Transformation",
             ~showSelectionAsChips=false,
             ~searchable=true,
             ~showToolTip=true,

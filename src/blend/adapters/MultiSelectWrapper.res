@@ -75,6 +75,7 @@ let make = (
   ~primaryAction: option<MultiSelectBindings.actionButtonType>=?,
   ~secondaryAction: option<MultiSelectBindings.secondaryActionButtonType>=?,
   ~variant: option<MultiSelectBindings.selectMenuItemVariant>=?,
+  ~selectionTagType: option<MultiSelectBindings.selectionTagType>=?,
   ~onFocus: option<unit => unit>=?,
   ~onBlur: option<unit => unit>=?,
   ~showClearButton: option<bool>=?,
@@ -83,6 +84,7 @@ let make = (
   ~error: bool=false,
   ~errorMessage: option<string>=?,
   ~height: option<int>=?,
+  ~menuFooter: option<React.element>=?,
 ) => {
   let authContext = React.useContext(FormAuthContext.formAuthContext)
   let isDisabled = disabled || authContext === CommonAuthTypes.NoAccess
@@ -163,5 +165,7 @@ let make = (
     enableSelectAll=?showSelectAll
     ?primaryAction
     ?secondaryAction
+    ?selectionTagType
+    ?menuFooter
   />
 }

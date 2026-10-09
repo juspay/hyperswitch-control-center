@@ -139,6 +139,15 @@ let getStringFromJson = (json: JSON.t, default) => {
   json->JSON.Decode.string->Option.getOr(default)
 }
 
+let getErrorCodeFromExn = exn => {
+  exn
+  ->Exn.message
+  ->Option.getOr("")
+  ->safeParse
+  ->getDictFromJsonObject
+  ->getString("code", "")
+}
+
 let getBoolFromJson = (json, defaultValue) => {
   json->JSON.Decode.bool->Option.getOr(defaultValue)
 }
@@ -472,6 +481,15 @@ let isNullJson = val => {
 let stringReplaceAll = (str, old, new) => {
   str->String.split(old)->Array.joinWith(new)
 }
+
+let getNormalizedPemValue = value =>
+  value
+  ->stringReplaceAll("\\r\\n", "\n")
+  ->stringReplaceAll("\\n", "\n")
+  ->String.split("\n")
+  ->Array.map(String.trim)
+  ->Array.joinWith("\n")
+  ->String.trim
 
 let getUniqueArray = (arr: array<'t>) => {
   arr->Array.map(item => (item, ""))->Dict.fromArray->Dict.keysToArray

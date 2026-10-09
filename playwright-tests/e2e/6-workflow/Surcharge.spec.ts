@@ -275,10 +275,8 @@ test.describe("Surcharge", () => {
       await expect(
         page.getByText("Tax on Surcharge", { exact: true }),
       ).toBeVisible();
-      await expect(page.getByRole('spinbutton').nth(1)).toHaveValue(
-        "0",
-      );
-      await expect(page.getByRole('spinbutton').nth(2)).toHaveValue("0");
+      await expect(page.getByRole("spinbutton").nth(1)).toHaveValue("0");
+      await expect(page.getByRole("spinbutton").nth(2)).toHaveValue("0");
 
       // Form actions
       await expect(surcharge.saveButton).toBeVisible();
@@ -332,7 +330,7 @@ test.describe("Surcharge", () => {
 
       await expect(surcharge.ruleHeadingByIndex(2)).toHaveCount(0);
 
-      await page.getByRole('spinbutton', { name: 'Enter value' }).fill("50000");
+      await page.getByRole("spinbutton", { name: "Enter value" }).fill("50000");
       await surcharge.copyRuleButton.click();
       await expect(surcharge.ruleHeadingByIndex(2)).toBeVisible();
       await expect(page.getByPlaceholder("Enter value").nth(1)).toHaveValue(
@@ -372,14 +370,14 @@ test.describe("Surcharge", () => {
 
       // 3. Pick a currency for the second condition (currency IS USD).
       await surcharge.selectValueButton.first().click();
-      await page.getByRole('menuitem', { name: 'USD' }).click();
+      await page.getByRole("menuitem", { name: "USD" }).click();
 
       // 4. Surcharge rate must be > 0 and <= 100 to satisfy validateSurchargeRate.
-      await page.getByRole('spinbutton').nth(1).fill("5");
+      await page.getByRole("spinbutton").nth(1).fill("5");
 
       // 5. Tax on surcharge — non-zero so the preview's compressed view
       // shows a meaningful value.
-      await page.getByRole('spinbutton').nth(2).fill("1");
+      await page.getByRole("spinbutton").nth(2).fill("1");
 
       // 6. Save and wait for the PUT to land before assertions.
       const putRequest = page.waitForRequest(

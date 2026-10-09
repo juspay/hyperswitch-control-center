@@ -12,7 +12,7 @@ import { taxProcessorConfig } from "../../support/fixtures/taxProcessorConfig";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
-async function signupAndLogin(page: Page, context: BrowserContext) {
+async function signupAndLogin(page: Page, _context: BrowserContext) {
   const email = generateUniqueEmail();
   await signupUser(email, PLAYWRIGHT_PASSWORD);
   await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -53,7 +53,7 @@ test.describe("All Tax Processors", () => {
   let email: string;
 
   const taxProcessors = Object.entries(taxProcessorConfig);
-  test.beforeEach(async ({ page, context }) => {
+  test.beforeEach(async ({ page, context: _context }) => {
     email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -62,7 +62,6 @@ test.describe("All Tax Processors", () => {
 
   for (const [key, processor] of taxProcessors) {
     test(`should setup and verify ${key} tax processor`, async ({ page }) => {
-      const homePage = new HomePage(page);
       const taxProcessor = new TaxProcessor(page);
 
       await expect(page).toHaveURL(/.*dashboard\/tax-processor/);

@@ -11,6 +11,7 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
   let fetchDetails = useGetMethod()
   let url = RescriptReactRouter.useUrl()
   let getIngestionHistory = ReconEngineHooks.useGetIngestionHistory()
+  let getTransformationHistory = ReconEngineHooks.useGetTransformationHistory()
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (ingestionHistoryData, setIngestionHistoryData) = React.useState(_ =>
@@ -18,7 +19,10 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
   )
   let (accountData, setAccountData) = React.useState(_ => Dict.make()->getAccountPayloadFromDict)
   let (selectedTransformationHistoryId, setSelectedTransformationHistoryId) = React.useState(_ =>
-    ""
+    url.search
+    ->getDictFromUrlSearchParams
+    ->getOptionValFromDict("transformationHistoryId")
+    ->Option.getOr("")
   )
 
   let (transformationStatus, setTransformationStatus) = React.useState(_ => #Loading)
@@ -48,6 +52,15 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
       let accountRes = await fetchDetails(accountUrl)
       let accountData = accountRes->getDictFromJsonObject->getAccountPayloadFromDict
       setAccountData(_ => accountData)
+
+      let transformationHistoryList = await getTransformationHistory(
+        ~queryParameters=Some(
+          `ingestion_history_id=${latestIngestionHistory.ingestion_history_id}`,
+        ),
+      )
+      let allProcessed = transformationHistoryList->Array.every(entry => entry.status === Processed)
+      setTransformationStatus(_ => allProcessed ? #Processed : #AttentionRequired)
+
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
@@ -103,7 +116,6 @@ let make = (~breadCrumbNavigationPath, ~ingestionHistoryId) => {
           accordion={ReconEngineDataOverviewHelper.getAccordionConfig(
             ~ingestionHistoryData,
             ~transformationStatus,
-            ~setTransformationStatus,
             ~selectedTransformationHistoryId,
             ~setSelectedTransformationHistoryId,
             ~manualReviewStatus,

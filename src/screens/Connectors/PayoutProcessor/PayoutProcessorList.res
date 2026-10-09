@@ -1,6 +1,5 @@
 @react.component
 let make = () => {
-  open ConnectorUtils
   let {showFeedbackModal, setShowFeedbackModal} = React.useContext(GlobalProvider.defaultContext)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (configuredConnectors, setConfiguredConnectors) = React.useState(_ => [])
@@ -11,9 +10,8 @@ let make = () => {
   let (processorModal, setProcessorModal) = React.useState(_ => false)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let connectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=PayoutProcessor)
-  let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {payoutProcessorsLiveList} =
-    HyperswitchAtom.connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
+  let {payoutProcessorsList: payoutConnectorList} =
+    HyperswitchAtom.connectorDisplayListAtom->Recoil.useRecoilValueFromAtom
 
   let getConnectorListAndUpdateState = async () => {
     try {
@@ -49,9 +47,11 @@ let make = () => {
       list->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
-          isContainingStringLowercase(obj.connector_name, searchText) ||
-          isContainingStringLowercase(obj.id, searchText) ||
-          isContainingStringLowercase(obj.connector_label, searchText)
+          ConnectorUtils.matchesConnectorSearch(
+            ~connectorType=ConnectorTypes.PayoutProcessor,
+            obj,
+            searchText,
+          )
         | None => false
         }
       })
@@ -60,10 +60,6 @@ let make = () => {
     }
     setFilteredConnectorData(_ => filteredList)
   }, ~wait=200)
-
-  let payoutConnectorList = featureFlagDetails.isLiveMode
-    ? payoutProcessorsLiveList
-    : payoutConnectorList
 
   <div>
     <PageLoaderWrapper screenState>

@@ -6,27 +6,27 @@ open HyperswitchAtom
 
 let useGetHsSidebarValues = () => {
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let connectorListForLive = connectorListForLiveAtom->Recoil.useRecoilValueFromAtom
+  let connectorDisplayList = connectorDisplayListAtom->Recoil.useRecoilValueFromAtom
   let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
-  let {userEntity} = getResolvedUserInfo()
+  let {userEntity, roleId} = getResolvedUserInfo()
+  let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let {
     frm,
     payOut,
     default,
     surcharge: isSurchargeEnabled,
-    isLiveMode,
     threedsAuthenticator,
     disputeAnalytics,
     configurePmts,
     complianceCertificate,
+    hierarchicalConfigurations,
     pmAuthenticationProcessor,
     taxProcessor,
     newAnalytics,
     authenticationAnalytics,
     devAltPaymentMethods,
     devWebhooks,
-    devBlocklist,
     threedsExemptionRules,
     routingAnalytics,
     billingProcessor,
@@ -37,6 +37,11 @@ let useGetHsSidebarValues = () => {
     devTheme,
     devVault,
     devUsers,
+    devSuperposition,
+    paymentLinkOperations,
+    embedDecisionEngine,
+    devAlerts,
+    devAnalyticsExplorer,
   } = featureFlagDetails
   let {
     isFeatureEnabledForDenyListMerchant,
@@ -46,14 +51,19 @@ let useGetHsSidebarValues = () => {
     newAnalytics && isFeatureEnabledForDenyListMerchant(merchantSpecificConfig.newAnalytics)
   let {isCurrentMerchantPlatform, isCurrentMerchantConnected} = OMPSwitchHooks.useOMPType()
 
+  let cutover = DecisionEngineHooks.useDecisionEngineCutover()
+  let showDecisionEngine = embedDecisionEngine && cutover->Option.getOr(false)
+
   let standardModules = !isCurrentMerchantPlatform
     ? [
+        showDecisionEngine->decisionEngineRouting(~userHasResourceAccess),
         default->workflow(
           isSurchargeEnabled,
           threedsExemptionRules,
           ~userHasResourceAccess,
           ~isPayoutEnabled=payOut,
           ~userEntity,
+          ~isEmbedDecisionEngineEnabled=showDecisionEngine,
         ),
         devVault->vault(~userHasResourceAccess),
         devAltPaymentMethods->alternatePaymentMethods,
@@ -65,11 +75,11 @@ let useGetHsSidebarValues = () => {
     default->operations(
       ~userHasResourceAccess,
       ~isPayoutsEnabled=payOut,
+      ~isPaymentLinkEnabled=paymentLinkOperations,
       ~userEntity,
       ~isCurrentMerchantPlatform,
     ),
     default->connectors(
-      ~isLiveMode,
       ~isFrmEnabled=frm,
       ~isPayoutsEnabled=payOut,
       ~isThreedsConnectorEnabled=threedsAuthenticator,
@@ -81,21 +91,23 @@ let useGetHsSidebarValues = () => {
       ~isSurchargeProcessor=surchargeProcessor,
       ~isCurrentMerchantPlatform,
       ~isCurrentMerchantConnected,
-      ~connectorListForLive,
+      ~connectorDisplayList,
     ),
     default->analytics(
       disputeAnalytics,
       isNewAnalyticsEnable,
       routingAnalytics,
       ~authenticationAnalyticsFlag=authenticationAnalytics,
+      ~analyticsExplorerFlag=devAnalyticsExplorer,
       ~userHasResourceAccess,
+      ~isEmbedDecisionEngineEnabled=showDecisionEngine,
     ),
+    alertsSection(~isAlertsEnabled={devAlerts && isInternalUser}),
+    monitoringSection(~isMonitoringEnabled={devAlerts && isInternalUser}),
     ...standardModules,
     default->developers(
       ~isWebhooksEnabled=devWebhooks,
-      ~isBlocklistEnabled=devBlocklist,
       ~userHasResourceAccess,
-      ~userHasAccess,
       ~checkUserEntity,
       ~paymentLinkThemeConfigurator,
       ~isCurrentMerchantPlatform,
@@ -106,11 +118,13 @@ let useGetHsSidebarValues = () => {
       ~userHasAccess,
       ~checkUserEntity,
       ~complianceCertificate,
+      ~hierarchicalConfigurations,
       ~devModularityV2Enabled=devModularityV2,
       ~devThemeEnabled=devTheme,
       ~devUsers,
       ~isCurrentMerchantPlatform,
     ),
+    superposition(~userHasResourceAccess, ~isEnabled=devSuperposition),
   ]
 }
 
@@ -170,11 +184,7 @@ let useGetAllProductSections = (~products: array<productTypes>) => {
   products->Array.map(productType => {
     let links = switch productType {
     | Recon(V1) =>
-      ReconEngineSidebarValues.reconEngineSidebars(
-        ~userHasResourceAccess,
-        ~userHasAccess,
-        ~isReconEnginePipelinesEnabled=featureFlagDetails.devReconEnginePipelines,
-      )
+      ReconEngineSidebarValues.reconEngineSidebars(~userHasResourceAccess, ~userHasAccess)
     | Recon(V2) => ReconSidebarValues.reconSidebars
     | Recovery => RevenueRecoverySidebarValues.recoverySidebars(isLiveMode)
     | Vault => VaultSidebarValues.vaultSidebars
@@ -284,11 +294,7 @@ let useGetSidebarValuesForCurrentActive = () => {
   | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
   | Orchestration(V2) => orchestratorV2Sidebars
   | Recon(V1) =>
-    ReconEngineSidebarValues.reconEngineSidebars(
-      ~userHasResourceAccess,
-      ~userHasAccess,
-      ~isReconEnginePipelinesEnabled=featureFlagDetails.devReconEnginePipelines,
-    )
+    ReconEngineSidebarValues.reconEngineSidebars(~userHasResourceAccess, ~userHasAccess)
   | OnBoarding(_)
   | UnknownProduct => []
   }

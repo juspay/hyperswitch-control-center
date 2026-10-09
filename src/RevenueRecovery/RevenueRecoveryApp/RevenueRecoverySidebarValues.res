@@ -1,20 +1,13 @@
 open SidebarTypes
 
+let defaultPath = "/v2/recovery/invoices"
+
 let revenueRecoveryHome = {
   Link({
     name: "Home",
     link: `/v2/recovery`,
     access: Access,
     icon: "nd-home",
-  })
-}
-
-let revenueRecoveryPayments = {
-  Link({
-    name: "Overview",
-    link: `/v2/recovery/overview`,
-    access: Access,
-    icon: "nd-operations",
   })
 }
 
@@ -36,12 +29,6 @@ let revenueRecoverySummary = {
   })
 }
 
-let recoverySidebars = isLiveMode => {
-  let links = [revenueRecoveryInvoices, revenueRecoverySummary]
-
-  if !isLiveMode {
-    links->Array.unshift(revenueRecoveryPayments)
-  }
-
-  links
+let recoverySidebars = _isLiveMode => {
+  [revenueRecoveryInvoices, revenueRecoverySummary]
 }

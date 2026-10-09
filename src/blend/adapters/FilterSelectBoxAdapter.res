@@ -132,6 +132,8 @@ module BlendMultiSelect = {
     let onClearAllClick = () => {
       hasPendingChanges.current = false
       [input.name]->removeKeys
+      setPendingValues(_ => [])
+      input.onChange([]->getJsonFromArrayOfString->Identity.jsonToFormReactEvent)
       setfilterKeys(_ => filterKeys->Array.filter(item => item !== input.name))
     }
 

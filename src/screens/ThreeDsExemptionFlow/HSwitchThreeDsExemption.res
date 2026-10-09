@@ -3,12 +3,13 @@ open ThreeDsExemptionUtils
 open LogicUtils
 open APIUtils
 open ThreeDSUtils
+open Typography
 
 external toWasm: Dict.t<JSON.t> => wasmModule = "%identity"
 
 module ActiveRulePreview = {
   @react.component
-  let make = (~initialRule, ~setInitialRule) => {
+  let make = (~initialRule, ~setInitialRule, ~onDuplicateAndEdit, ~onDeleteSuccess) => {
     let getURL = useGetURL()
     let updateDetails = useUpdateMethod()
     let showPopUp = PopUpState.useShowPopUp()
@@ -40,6 +41,7 @@ module ActiveRulePreview = {
           ~toastType=ToastSuccess,
         )
         setInitialRule(_ => None)
+        onDeleteSuccess()
       } catch {
       | _ => showToast(~message="Failed to delete active 3ds exemption rule", ~toastType=ToastError)
       }
@@ -81,6 +83,47 @@ module ActiveRulePreview = {
         </p>
       </div>
       <RulePreviewer ruleInfo isFrom3DsExemptions=true />
+      <ACLButton
+        text="Duplicate and Edit Configuration"
+        authorization={userHasAccess(~groupAccess=WorkflowsManage)}
+        buttonType=Primary
+        customButtonStyle="w-fit"
+        onClick={_ => onDuplicateAndEdit()}
+      />
+    </div>
+  }
+}
+
+module ActiveConfigurationCard = {
+  @react.component
+  let make = (~initialRule, ~onViewAndManage) => {
+    let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+    let ruleInfo = initialRule->Option.getOr(Dict.make())
+    let name = ruleInfo->getString("name", "")
+    let description = ruleInfo->getString("description", "")
+
+    <div className="relative flex flex-col gap-6 border rounded-lg p-4 pt-10 bg-white">
+      <div
+        className="absolute top-0 left-0 flex items-center w-fit bg-nd_green-100 text-nd_green-600 py-1 px-2 rounded-tl-lg rounded-br-md">
+        <Icon name="check" size=8 className="mr-1" />
+        <span className={body.md.semibold}> {"Active"->React.string} </span>
+      </div>
+      <div className="flex flex-col gap-2">
+        <p className={`${body.lg.semibold} text-nd_gray-600`}>
+          {name->capitalizeString->React.string}
+        </p>
+        <p className={`${body.md.regular} text-nd_gray-600 opacity-50`}>
+          {description->React.string}
+        </p>
+      </div>
+      <ACLButton
+        authorization={userHasAccess(~groupAccess=WorkflowsView)}
+        text="View and Manage"
+        buttonType=Secondary
+        buttonSize=Small
+        customButtonStyle="w-fit"
+        onClick={_ => onViewAndManage()}
+      />
     </div>
   }
 }
@@ -154,7 +197,7 @@ let make = () => {
   let (initialRule, setInitialRule) = React.useState(() => None)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (pageView, setPageView) = React.useState(_ => LANDING)
-  let showPopUp = PopUpState.useShowPopUp()
+  let (isManageView, setIsManageView) = React.useState(_ => false)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let showToast = ToastAdapter.useShowToast()
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
@@ -171,7 +214,7 @@ let make = () => {
     mixpanelEvent: "create_new_3ds_rule",
   }
 
-  let (initialValues, _setInitialValues) = React.useState(_ => {
+  let (initialValues, setInitialValues) = React.useState(_ => {
     let currentTime = getTimeInCustomTimeZone("ddd, DD MMM YYYY HH:mm:ss", ~includeTimeZone=true)
     let currentDate = getTimeInCustomTimeZone("YYYY-MM-DD")
     getInitialThreeDsExemptionValue(~currentDate, ~currentTime)->Identity.genericTypeToJson
@@ -251,6 +294,7 @@ let make = () => {
     let filtersFromUrl =
       getDictFromUrlSearchParams(searchParams)->Dict.get("type")->Option.getOr("")
     setPageView(_ => filtersFromUrl->pageStateMapper)
+    setIsManageView(_ => filtersFromUrl === "manage")
     None
   }, [url.search])
 
@@ -336,26 +380,48 @@ let make = () => {
     RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=pageConfig.newUrl))
   }
 
+  let redirectToLanding = () => {
+    RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url=pageConfig.baseUrl))
+    setPageView(_ => LANDING)
+    setIsManageView(_ => false)
+  }
+
+  let redirectToManage = () => {
+    RescriptReactRouter.push(
+      GlobalVars.appendDashboardPath(~url=`${pageConfig.baseUrl}?type=manage`),
+    )
+    setIsManageView(_ => true)
+  }
+
+  let handleDuplicateAndEdit = () => {
+    switch initialRule {
+    | Some(rule) => {
+        let ruleDict = rule
+        let algorithm =
+          ruleDict
+          ->getDictfromDict("algorithm")
+          ->DuplicateAndEditUtils.dataMapper
+          ->getDictFromJsonObject
+          ->AdvancedRoutingUtils.ruleInfoTypeMapperForThreeDsExemption
+          ->Identity.genericTypeToJson
+
+        let duplicateInitialValues =
+          [
+            ("name", ruleDict->getString("name", "")->JSON.Encode.string),
+            ("description", ruleDict->getString("description", "")->JSON.Encode.string),
+            ("algorithm", algorithm),
+          ]->getJsonFromArrayOfJson
+
+        setInitialValues(_ => duplicateInitialValues)
+        redirectToNewRule()
+      }
+    | None => ()
+    }
+  }
+
   let handleCreateNew = () => {
     mixpanelEvent(~eventName=pageConfig.mixpanelEvent)
-    if initialRule->Option.isSome {
-      showPopUp({
-        popUpType: (Warning, WithIcon),
-        heading: "Heads up!",
-        description: "This will override the existing 3DS configuration. Please confirm to proceed"->React.string,
-        handleConfirm: {
-          text: "Confirm",
-          onClick: {
-            _ => redirectToNewRule()
-          },
-        },
-        handleCancel: {
-          text: "Cancel",
-        },
-      })
-    } else {
-      redirectToNewRule()
-    }
+    redirectToNewRule()
   }
 
   <PageLoaderWrapper screenState>
@@ -411,26 +477,45 @@ let make = () => {
           </Form>
         </div>
       | LANDING =>
-        <div className="flex flex-col gap-6">
-          <RenderIf condition={initialRule->Option.isSome}>
-            <ActiveRulePreview initialRule setInitialRule />
-          </RenderIf>
-          <div className="w-full border p-6 flex flex-col gap-6 bg-white rounded-md">
-            <p className="text-base font-semibold text-grey-700">
-              {pageConfig.configureTitle->React.string}
-            </p>
-            <p className="text-base font-normal text-grey-700 opacity-50">
-              {pageConfig.configureDescription->React.string}
-            </p>
-            <ACLButton
-              text="Create New"
-              authorization={userHasAccess(~groupAccess=WorkflowsManage)}
-              buttonType=Primary
-              customButtonStyle="!w-1/6"
-              onClick={_ => handleCreateNew()}
+        if isManageView {
+          <div className="flex flex-col gap-6">
+            <BreadCrumbNavigation
+              path=[{title: pageConfig.pageTitle, link: pageConfig.baseUrl}]
+              currentPageTitle="View and Manage"
             />
+            <RenderIf condition={initialRule->Option.isSome}>
+              <ActiveRulePreview
+                initialRule
+                setInitialRule
+                onDuplicateAndEdit=handleDuplicateAndEdit
+                onDeleteSuccess=redirectToLanding
+              />
+            </RenderIf>
           </div>
-        </div>
+        } else {
+          <div className="flex flex-col gap-6">
+            <RenderIf condition={initialRule->Option.isSome}>
+              <ActiveConfigurationCard initialRule onViewAndManage=redirectToManage />
+            </RenderIf>
+            <RenderIf condition={initialRule->Option.isNone}>
+              <div className="w-full border p-6 flex flex-col gap-6 bg-white rounded-md">
+                <p className={`${body.lg.semibold} text-nd_gray-600`}>
+                  {pageConfig.configureTitle->React.string}
+                </p>
+                <p className={`${body.lg.regular} text-nd_gray-600 opacity-50`}>
+                  {pageConfig.configureDescription->React.string}
+                </p>
+                <ACLButton
+                  text="Create New"
+                  authorization={userHasAccess(~groupAccess=WorkflowsManage)}
+                  buttonType=Primary
+                  customButtonStyle="!w-1/6"
+                  onClick={_ => handleCreateNew()}
+                />
+              </div>
+            </RenderIf>
+          </div>
+        }
       }}
     </div>
   </PageLoaderWrapper>

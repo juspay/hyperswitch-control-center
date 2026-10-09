@@ -6,6 +6,12 @@ type webhookDetails_v1 = {
   payment_created_enabled: option<bool>,
   payment_succeeded_enabled: option<bool>,
   payment_failed_enabled: option<bool>,
+  payment_statuses_enabled: option<array<string>>,
+  refund_statuses_enabled: option<array<string>>,
+  payout_statuses_enabled: option<array<string>>,
+  dispute_statuses_enabled: option<array<string>>,
+  mandate_statuses_enabled: option<array<string>>,
+  invoice_statuses_enabled: option<array<string>>,
 }
 type authConnectorDetailsType_v1 = {
   authentication_connectors: option<array<JSON.t>>,
@@ -48,7 +54,15 @@ type profileEntityRequestType_v1 = {
   payment_method_blocking: option<JSON.t>,
   surcharge_connector_details: option<surchargeConnectorDetailsType_v1>,
 }
-type webhookDetailsRequest_v1 = {webhook_url: option<JSON.t>}
+type webhookDetailsRequest_v1 = {
+  webhook_url: option<JSON.t>,
+  payment_statuses_enabled: option<JSON.t>,
+  refund_statuses_enabled: option<JSON.t>,
+  payout_statuses_enabled: option<JSON.t>,
+  dispute_statuses_enabled: option<JSON.t>,
+  mandate_statuses_enabled: option<JSON.t>,
+  invoice_statuses_enabled: option<JSON.t>,
+}
 
 type backgroundImage_v1 = {
   url: string,

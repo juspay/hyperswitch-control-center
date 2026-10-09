@@ -128,6 +128,24 @@ external getPayoutDescriptionCategory: unit => JSON.t = "getPayoutDescriptionCat
 external getMerchantCategoryCodeWithName: unit => array<JSON.t> = "getMerchantCategoryCodeWithName"
 
 @val @scope("window")
+external getCardTypeValues: unit => array<string> = "getCardTypeValues"
+
+@val @scope("window")
+external getCardSubtypeValues: unit => array<string> = "getCardSubtypeValues"
+
+@val @scope("window")
+external getTwoLetterCountryCode: unit => array<JSON.t> = "getTwoLetterCountryCode"
+
+@val @scope("window")
+external getFundingSourceValues: unit => array<string> = "getFundingSourceValues"
+
+@val @scope("window")
+external getCardSegmentTypeValues: unit => array<string> = "getCardSegmentTypeValues"
+
+@val @scope("window")
+external getWebhookStatusConfig: unit => array<JSON.t> = "getWebhookStatusConfig"
+
+@val @scope("window")
 external requestAnimationFrame: (unit => unit) => unit = "requestAnimationFrame"
 
 module MatchMedia = {
@@ -277,7 +295,7 @@ type boundingClient = {x: int, y: int, width: int, height: int, left: int}
 external appendStyle: HyperSwitchConfigTypes.customStylesTheme => unit = "appendStyle"
 
 @val @scope("window")
-external env: HyperSwitchConfigTypes.urlConfig = "_env_"
+external env: HyperSwitchConfigTypes.baseConfig = "_env_"
 
 @val @scope("window")
 external validateExtract: (Js.TypedArray2.Uint8Array.t, JSON.t, JSON.t) => JSON.t =

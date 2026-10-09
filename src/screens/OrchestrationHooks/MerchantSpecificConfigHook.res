@@ -23,13 +23,12 @@ type merchantSpecificConfig = {
 let useMerchantSpecificConfig = () => {
   open APIUtils
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
-  let setMerchantSpecificConfig =
-    HyperswitchAtom.merchantSpecificConfigAtom->Recoil.useSetRecoilState
+  let (merchantSpecificConfig, setMerchantSpecificConfig) =
+    HyperswitchAtom.merchantSpecificConfigAtom->Recoil.useRecoilState
   let {orgId, merchantId, profileId} = React.useContext(
     UserInfoProvider.defaultContext,
   ).getCommonSessionDetails()
-  let merchantSpecificConfig =
-    HyperswitchAtom.merchantSpecificConfigAtom->Recoil.useRecoilValueFromAtom
+
   let fetchMerchantSpecificConfig = async () => {
     try {
       let domain = HSLocalStorage.getDomainfromStore()->Option.getOr("")

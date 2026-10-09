@@ -1,8 +1,13 @@
 [default.endpoints]
 api_url="http://localhost:9000/api"
+# Full base URL for endpoints on the OLAP routing allowlist; empty falls back to api_url.
+olap_url=""
+# Full base URL for euler-hosted services (offer-engine); empty falls back to api_url.
+euler_url=""
 sdk_url="http://localhost:9050/HyperLoader.js"
 apple_pay_certificate_url=""
-dss_certificate_url=""
+dss_certificate_us_url=""
+dss_certificate_eu_url=""
 logo_url=""
 favicon_url=""
 recon_iframe_url=""
@@ -15,6 +20,7 @@ dynamo_simulation_template_url=""
 branding=false
 connector_clone=false
 send_v1_dummy_api_key_header=false
+cug_user=false
 mixpanel=false
 test_live_toggle=false
 is_live_mode=false
@@ -64,10 +70,11 @@ google_pay_direct_flow=false
 sample_data_analytics=false
 acquirer_config_settings=true
 payment_link_theme_configurator=false
+payment_link_operations=false
 allow_connected_merchants=false
-payment_settings_revamped=true
 network_tokenization=false
 vault_psp_tokenization=false
+hierarchical_configurations=false
 dev_click_to_pay=true
 dev_alt_payment_methods=false
 dev_modularity_v2=true
@@ -81,9 +88,9 @@ dev_sidebar_v2=true
 dev_debit_routing=true
 dev_webhooks=true
 dev_blocklist=false
-recon_engine_permissions=true
 dev_recon_engine_v1=false
-dev_recon_engine_pipelines=false
+dev_alerts=false
+dev_analytics_explorer=false
 dev_ai_chat_bot=false
 dev_launch_sage=false
 dev_roles_v2=true
@@ -91,21 +98,32 @@ dev_customer=true
 dev_accept_invite=true
 dev_theme=false
 dev_opensearch=false
+dev_advanced_payments_view=false
 dev_vault=true
 dev_users=true
 dev_blend_enabled=true
 dev_sort_enabled=true
 dev_saved_views=false
 dev_clickhouse_aggregate=false
+dev_superposition=false
+dev_embed_decision_engine=false
 [default.connector_list_for_live]
-paymentProcessors = ["adyen","authorizedotnet","archipel","airwallex","bankofamerica","bluesnap","bambora","braintree","calida","checkout","cryptopay","cashtocode","cybersource","coingate","datatrans","fiuu","gigadat","iatapay","klarna","loonio","mifinity","mollie","nexixpay","nmi","novalnet","nuvei","paypal","paybox","payme","peachpayments","redsys","stripe","trustpay","volt","worldpay","worldpayxml","zift","zsl","zen","worldpaymodular","payjustnow","payjustnowinstore","payload","finix"]
-threedsAuthProcessors = ["netcetera","juspaythreedsserver","ctp_visa"]
-payoutProcessors = ["adyen","adyenplatform","cybersource","ebanx","paypal","stripe","wise","nomupay","nuvei","gigadat","loonio","worldpay","worldpayxml"]
-vaultProcessors = ["vgs"]
+paymentProcessors = []
+threedsAuthProcessors = []
+payoutProcessors = []
+vaultProcessors = []
+pmAuthProcessors = []
+billingProcessors = []
+surchargeProcessors = []
+taxProcessors = []
+frmProcessors = []
 
 [default.connector_clone]
 paymentProcessors = ["peachpayments"]
-
+[default.superposition_configs]
+organization_id=""
+workspace=""
+display_configs=[]
 [default.merchant_config]
 [default.merchant_config.allowlist]
 [default.merchant_config.allowlist.dev_recon_engine_v1]

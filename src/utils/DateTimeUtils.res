@@ -1,3 +1,5 @@
+@send external toLocaleStringWithLocale: (int, string) => string = "toLocaleString"
+
 type days = Sunday | Monday | Tuesday | Wednesday | Thursday | Friday | Saturday
 
 let daysArr = [Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday]

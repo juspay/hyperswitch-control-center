@@ -5,16 +5,12 @@ open BusinessProfileInterface
 let useFetchBusinessProfileFromIdV1 = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let setBusinessProfileRecoil = HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
   let setBusinessProfileInterfaceRecoil =
     HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useSetRecoilState
   async (~profileId) => {
     try {
       let url = getURL(~entityName=V1(BUSINESS_PROFILE), ~methodType=Get, ~id=profileId)
       let businessProfile = await fetchDetails(url)
-      setBusinessProfileRecoil(_ =>
-        businessProfile->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
-      )
       let commonTypedData = mapJsonToCommonType(businessProfileInterfaceV1, businessProfile)
       setBusinessProfileInterfaceRecoil(_ => commonTypedData)
       businessProfile
@@ -30,16 +26,12 @@ let useFetchBusinessProfileFromIdV1 = () => {
 let useFetchBusinessProfileFromIdV2 = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
-  let setBusinessProfileRecoil = HyperswitchAtom.businessProfileFromIdAtom->Recoil.useSetRecoilState
   let setBusinessProfileInterfaceRecoil =
     HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useSetRecoilState
   async (~profileId) => {
     try {
       let url = getURL(~entityName=V2(BUSINESS_PROFILE), ~methodType=Get, ~id=profileId)
       let businessProfile = await fetchDetails(url, ~version=V2)
-      setBusinessProfileRecoil(_ =>
-        businessProfile->BusinessProfileInterfaceUtilsV1.mapJsonToBusinessProfileV1
-      )
       let commonTypedData = mapJsonToCommonType(businessProfileInterfaceV2, businessProfile)
       setBusinessProfileInterfaceRecoil(_ => commonTypedData)
       businessProfile

@@ -578,6 +578,7 @@ module SubmitButton = {
     ~loginPageValidator=false,
     ~customSubmitButtonStyle="",
     ~showToolTip=true,
+    ~toolTipFullWidth=false,
     ~buttonType=Button.Primary,
     ~loadingText="",
     ~buttonSize=?,
@@ -714,7 +715,7 @@ module SubmitButton = {
         ->Array.joinWith("\n")
 
       if showToolTip && !avoidDisable {
-        <ToolTip description toolTipFor=button toolTipPosition />
+        <ToolTip description toolTipFor=button toolTipPosition fullWidth=toolTipFullWidth />
       } else {
         button
       }

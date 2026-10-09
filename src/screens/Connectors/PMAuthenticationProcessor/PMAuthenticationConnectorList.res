@@ -7,6 +7,8 @@ let make = () => {
   let (searchText, setSearchText) = React.useState(_ => "")
   let (filteredConnectorData, setFilteredConnectorData) = React.useState(_ => [])
   let connectorList = ConnectorListInterface.useFilteredConnectorList(~retainInList=PMAuthProcessor)
+  let {pmAuthProcessorsList} =
+    HyperswitchAtom.connectorDisplayListAtom->Recoil.useRecoilValueFromAtom
 
   let filterLogic = ReactDebounce.useDebounced(ob => {
     open LogicUtils
@@ -15,9 +17,11 @@ let make = () => {
       list->Array.filter((obj: Nullable.t<ConnectorTypes.connectorPayloadCommonType>) => {
         switch Nullable.toOption(obj) {
         | Some(obj) =>
-          isContainingStringLowercase(obj.connector_name, searchText) ||
-          isContainingStringLowercase(obj.id, searchText) ||
-          isContainingStringLowercase(obj.connector_label, searchText)
+          ConnectorUtils.matchesConnectorSearch(
+            ~connectorType=ConnectorTypes.PMAuthenticationProcessor,
+            obj,
+            searchText,
+          )
         | None => false
         }
       })
@@ -86,7 +90,7 @@ let make = () => {
             ConnectorTypes.PMAuthenticationProcessor,
             configuredConnectors,
           )}
-          connectorsAvailableForIntegration=ConnectorUtils.pmAuthenticationConnectorList
+          connectorsAvailableForIntegration={pmAuthProcessorsList}
           urlPrefix="pm-authentication-processor/new"
           connectorType=ConnectorTypes.PMAuthenticationProcessor
         />

@@ -10,7 +10,11 @@ let make = () => {
   let getTransformationHistory = ReconEngineHooks.useGetTransformationHistory()
   let getIngestionHistory = ReconEngineHooks.useGetIngestionHistory()
 
-  let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
+  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
+  let filterValueJsonWithGlobalDate = ReconEngineFilterUtils.mergeGlobalDateFilters(
+    ~filterValueJson=Dict.make(),
+    ~globalDateFilters,
+  )
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (overviewRules, setOverviewRules) = React.useState(_ => [])
   let (stagingOverviewData, setStagingOverviewData) = React.useState(_ => [])
@@ -21,7 +25,7 @@ let make = () => {
     open ReconEngineFilterUtils
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let queryParams = buildQueryStringFromFilters(~filterValueJson)
+      let queryParams = buildQueryStringFromFilters(~filterValueJson=filterValueJsonWithGlobalDate)
 
       let ingestionTransformationStatusList = getIngestionTransformationHistoryStatusValueFromStatusList([
         Failed,
@@ -62,11 +66,11 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    if !(filterValue->isEmptyDict) {
+    if ReconEngineFilterUtils.hasGlobalDateFilterValue(~globalDateFilters) {
       fetchOverviewRules()->ignore
     }
     None
-  }, [filterValue])
+  }, [globalDateFilters])
 
   let (statCards, connectedStatCards) = React.useMemo(() => {
     (
@@ -74,24 +78,6 @@ let make = () => {
       getConnectedStatCards(~overviewRules, ~failedTransformationHistory, ~failedIngestionHistory),
     )
   }, (overviewRules, stagingOverviewData, failedTransformationHistory, failedIngestionHistory))
-
-  let startTimeFilterKey = HSAnalyticsUtils.startTimeFilterKey
-  let endTimeFilterKey = HSAnalyticsUtils.endTimeFilterKey
-
-  let appendDateFilters = path => {
-    let startTime = filterValueJson->getString(startTimeFilterKey, "")
-    let endTime = filterValueJson->getString(endTimeFilterKey, "")
-    if startTime->isNonEmptyString && endTime->isNonEmptyString {
-      let dateQuery =
-        [(startTimeFilterKey, startTime), (endTimeFilterKey, endTime)]
-        ->Dict.fromArray
-        ->FilterUtils.parseFilterDictV2
-      let separator = path->String.includes("?") ? "&" : "?"
-      `${path}${separator}${dateQuery}`
-    } else {
-      path
-    }
-  }
 
   <div className="flex flex-col gap-6">
     <div
@@ -110,9 +96,7 @@ let make = () => {
             description=card.statCardDescription
             cardType=card.statCardType
             onStatCardClick={() =>
-              card.statCardPath->mapOptionOrDefault((), path =>
-                RescriptReactRouter.push(path->appendDateFilters)
-              )}
+              card.statCardPath->mapOptionOrDefault((), path => RescriptReactRouter.push(path))}
           />
         </PageLoaderWrapper>
       })
@@ -133,7 +117,7 @@ let make = () => {
             cardType=card.connectedStatCardType
             onConnectedStatCardClick={() => {
               card.connectedStatCardPath->mapOptionOrDefault((), path =>
-                RescriptReactRouter.push(path->appendDateFilters)
+                RescriptReactRouter.push(path)
               )
             }}
           />

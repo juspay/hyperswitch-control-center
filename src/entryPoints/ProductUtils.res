@@ -18,6 +18,17 @@ let getProductVariantFromString = (product, ~version: UserInfoTypes.version) => 
   }
 }
 
+let productSortOrder = [
+  Orchestration(V1),
+  Orchestration(V2),
+  Recon(V1),
+  Recon(V2),
+  Recovery,
+  Vault,
+  CostObservability,
+  DynamicRouting,
+]
+
 let getProductDisplayName = product =>
   switch product {
   | Recon(V2) => "Recon"
@@ -103,18 +114,13 @@ let productTypeIconMapper = productType => {
   }
 }
 
-let getProductUrl = (~productType: ProductTypes.productTypes, ~isLiveMode) => {
+let getProductUrl = (~productType: ProductTypes.productTypes) => {
   open GlobalVars
   switch productType {
   | Orchestration(V1) => appendDashboardPath(~url="home")
   | Recon(V2) => appendDashboardPath(~url="v2/recon/overview")
   | Recon(V1) => appendDashboardPath(~url="v1/recon-engine/overview")
-  | Recovery =>
-    if isLiveMode {
-      appendDashboardPath(~url="v2/recovery/invoices")
-    } else {
-      appendDashboardPath(~url="v2/recovery/overview")
-    }
+  | Recovery => appendDashboardPath(~url="v2/recovery/invoices")
   | DynamicRouting => appendDashboardPath(~url=`v2/${productType->getProductRouteName}`)
   | Vault
   | CostObservability

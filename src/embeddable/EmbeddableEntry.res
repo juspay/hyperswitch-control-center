@@ -16,6 +16,7 @@ module EmbeddableEntryComponent = {
   let make = () => {
     let fetchDetails = APIUtils.useGetMethod()
     let setFeatureFlag = HyperswitchAtom.featureFlagAtom->Recoil.useSetRecoilState
+    let setConnectorDisplayList = HyperswitchAtom.connectorDisplayListAtom->Recoil.useSetRecoilState
     let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
 
     let configEnv = (urlConfig: JSON.t) => {
@@ -35,7 +36,12 @@ module EmbeddableEntryComponent = {
         let apiURL = `${GlobalVars.getHostUrlWithBasePath}/config/feature?domain=""` // todo: domain shall be removed from query params later
         let res = await fetchDetails(apiURL)
         let featureFlags = res->FeatureFlagUtils.featureFlagType
+        let connectorDisplayList =
+          res->ConnectorListFromConfigUtils.getConnectorDisplayList(
+            ~isLiveMode=featureFlags.isLiveMode,
+          )
         setFeatureFlag(_ => featureFlags)
+        setConnectorDisplayList(_ => connectorDisplayList)
         let _ = configEnv(res) // to set initial env
         // Delay added on Expecting feature flag recoil gets updated
         await HyperSwitchUtils.delay(1000)

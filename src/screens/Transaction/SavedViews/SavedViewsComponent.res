@@ -30,7 +30,7 @@ let make = (
     setSavedViews(_ => [])
     fetchSavedViews()->ignore
     None
-  }, [])
+  }, (entity, version))
 
   React.useEffect(() => {
     if !isInternalUpdate {

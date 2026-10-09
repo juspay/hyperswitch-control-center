@@ -1,4 +1,5 @@
 open RoutingTypes
+open AdvancedRoutingUtils
 open LogicUtils
 external toWasm: Dict.t<JSON.t> => wasmModule = "%identity"
 
@@ -26,12 +27,50 @@ let routingTypeName = routingType => {
   }
 }
 
+let routingTypeFromName = name => {
+  switch name->String.toLowerCase {
+  | "volume" => VOLUME_SPLIT
+  | "rule" => ADVANCED
+  | "default" => DEFAULTFALLBACK
+  | "auth-rate" => AUTH_RATE_ROUTING
+  | _ => NO_ROUTING
+  }
+}
+
+let historyRecordNativeUrl = (~kind, ~id, ~activeRoutingIds) =>
+  GlobalVars.appendDashboardPath(
+    ~url=`/routing/${kind
+      ->routingTypeMapper
+      ->routingTypeName}?id=${id}${activeRoutingIds->Array.includes(id) ? "&isActive=true" : ""}`,
+  )
+
 let decisionEngineRoutingTarget = routingType => {
   switch routingType {
   | VOLUME_SPLIT => "volume"
   | ADVANCED => "rule"
   | AUTH_RATE_ROUTING => "multi_objective"
   | _ => ""
+  }
+}
+
+// Single source for the routing "entry" probe: POST /routing/entry and read whether the
+// profile has cut over to the Decision Engine. Shared by RoutingStack and RoutingConfigure.
+// Returns Some(is_cutover) on success and None when the probe fails, so callers can tell
+// "not cut over" apart from "unknown" and fail safe instead of assuming non-cutover.
+let useCheckRoutingEntryCutover = () => {
+  open APIUtils
+  let getURL = useGetURL()
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
+  async () => {
+    try {
+      let entryUrl = getURL(~entityName=V1(ROUTING), ~methodType=Get, ~id=Some("entry"))
+      let res = await updateDetails(entryUrl, JSON.Encode.null, Post)
+      Some(res->getDictFromJsonObject->getBool("is_cutover", false))
+    } catch {
+    | Exn.Error(err) =>
+      Console.error2("checkRoutingEntry failed:", err)
+      None
+    }
   }
 }
 
@@ -237,7 +276,8 @@ let validateConditionsFor3ds = dict => {
   let decisionValue = dict->getDictfromDict("connectorSelection")->getString("override_3ds", "")
 
   conditionsArray->Array.every(value => {
-    value->validateConditionJson(["comparison", "lhs"])
+    value->validateConditionJson(["comparison", "lhs"]) &&
+      value->getDictFromJsonObject->statementTypeMapper->isStatementMandatoryFieldsPresent
   }) && decisionValue->isNonEmptyString
 }
 
@@ -269,6 +309,47 @@ let filterConnectorList = (
     ->ConnectorUtils.connectorTypeTypedValueToStringMapper
     ->filter(~retainInList)
   )
+}
+
+let decisionEngineHandoffFragment = (
+  connectorList: array<ConnectorTypes.connectorPayloadCommonType>,
+  ~profileId,
+  ~ruleId="",
+  ~route="",
+) => {
+  let connectors =
+    connectorList
+    ->filterConnectorList(~retainInList=PaymentConnector)
+    ->Array.filter(connector =>
+      connector.profile_id === profileId && connector.connector_name !== "applepay"
+    )
+    ->Array.map(connector =>
+      [
+        ("merchant_connector_id", connector.id->JSON.Encode.string),
+        ("connector_name", connector.connector_name->JSON.Encode.string),
+        ("connector_label", connector.connector_label->JSON.Encode.string),
+        ("disabled", connector.disabled->JSON.Encode.bool),
+      ]->getJsonFromArrayOfJson
+    )
+
+  let params = []
+  if connectors->isNonEmptyArray {
+    params->Array.push((
+      "connectors",
+      connectors->JSON.Encode.array->JSON.stringify->encodeURIComponent,
+    ))
+  }
+  if ruleId->isNonEmptyString {
+    params->Array.push(("rule_id", ruleId->encodeURIComponent))
+  }
+
+  if route->isNonEmptyString {
+    params->Array.push(("route", route->encodeURIComponent))
+  }
+
+  params->isEmptyArray
+    ? ""
+    : `#${params->Array.map(((key, value)) => `${key}=${value}`)->Array.joinWith("&")}`
 }
 
 let filterConnectorListJson = (json, ~retainInList) => {

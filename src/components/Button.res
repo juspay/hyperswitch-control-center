@@ -292,6 +292,7 @@ let make = (
   ~showTooltip=false,
   ~tooltipText=?,
   ~toolTipPosition=ToolTip.Top,
+  ~ariaLabel=?,
   ~dataTestId="",
   ~maxButtonWidth="",
 ) => {
@@ -627,6 +628,7 @@ let make = (
     <AddDataAttributes attributes=[(dataAttrKey, dataAttrStr), ("data-testid", dataTestId)]>
       <button
         type_
+        ?ariaLabel
         disabled=dis
         ref={parentRef->ReactDOM.Ref.domRef}
         onKeyUp={e => e->ReactEvent.Keyboard.preventDefault}

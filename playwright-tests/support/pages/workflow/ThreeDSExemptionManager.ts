@@ -31,24 +31,18 @@ export class ThreeDSExemptionManager {
 
   // LANDING view — active rule preview
   get activeBadge(): Locator {
-    return this.page.getByText("ACTIVE", { exact: true });
+    return this.page.getByText("Active", { exact: true });
+  }
+
+  get viewAndManageButton(): Locator {
+    return this.page.getByRole("button", { name: "View and Manage" });
   }
 
   get deleteIcon(): Locator {
     return this.page.locator('[data-icon="delete"]').first();
   }
 
-  // Override / delete confirmation popups
-  get overrideWarningHeading(): Locator {
-    return this.page.getByText("Heads up!", { exact: true });
-  }
-
-  get overrideWarningDescription(): Locator {
-    return this.page.getByText(
-      /This will override the existing 3DS configuration/,
-    );
-  }
-
+  // Delete confirmation popup
   get deleteConfirmHeading(): Locator {
     return this.page.getByText("Confirm delete?", { exact: true });
   }

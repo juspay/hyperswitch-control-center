@@ -147,13 +147,19 @@ let make = () => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (accountsData, setAccountsData) = React.useState(_ => [])
   let getRuleAccountBreakdown = ReconEngineHooks.useGetRuleAccountBreakdown()
-  let {filterValueJson, filterValue} = React.useContext(FilterContext.filterContext)
+  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
+  let filterValueJsonWithGlobalDate = ReconEngineFilterUtils.mergeGlobalDateFilters(
+    ~filterValueJson=Dict.make(),
+    ~globalDateFilters,
+  )
 
   let getAccountsData = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
 
-      let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(~filterValueJson)
+      let queryString = ReconEngineFilterUtils.buildQueryStringFromFilters(
+        ~filterValueJson=filterValueJsonWithGlobalDate,
+      )
       let ruleAccountsOverview = await getRuleAccountBreakdown(~queryParameters=Some(queryString))
 
       let accountsWithTransactionAmounts =
@@ -173,11 +179,11 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    if !(filterValue->isEmptyDict) {
+    if ReconEngineFilterUtils.hasGlobalDateFilterValue(~globalDateFilters) {
       getAccountsData()->ignore
     }
     None
-  }, [filterValue])
+  }, [globalDateFilters])
 
   let (allRowsData, currency) = React.useMemo(() => {
     let totals = calculateTotals(accountsData)

@@ -220,8 +220,7 @@ let make = () => {
   }
 
   let onClipboardSuggestionClicked = (suggestion: clipboardSuggestion) => {
-    let filterKey = (suggestion.idType :> string)->camelToSnake
-    setLocalSearchText(_ => `${filterKey}:${suggestion.id}`)
+    setLocalSearchText(_ => suggestion.id)
     setFilterText("")
     setClipboardSuggestion(_ => None)
     revertFocus(~inputRef)

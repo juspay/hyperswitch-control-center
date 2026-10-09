@@ -256,11 +256,11 @@ module TableRow = {
               <AddDataAttributes
                 attributes=[
                   (
-                    "data-calender-date",
+                    "data-calendar-date",
                     hSelf.highlightSelf || startDate->isNonEmptyString ? "selected" : "normal",
                   ),
                   (
-                    "data-calender-date-disabled",
+                    "data-calendar-date-disabled",
                     (isFutureDate && disableFutureDates) ||
                     customDisabledFutureDays > 0.0 && isInCustomDisable ||
                     !isFutureDate && disablePastDates ||

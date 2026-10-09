@@ -7,6 +7,9 @@
     "mode": "classic"
   },
   "bsc-flags": ["-bs-super-errors", "-open RescriptCore"],
+  "warnings": {
+    "error": "+a"
+  },
   "sources": {
     "dir": "src",
     "subdirs": true
