@@ -9,7 +9,7 @@ let make = () => {
   let url = RescriptReactRouter.useUrl()
   let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
   let contentRef = React.useRef(Js.Nullable.null)
-  let {isFrameExpanded, setModalRoot, isModalActive} = FullPageModalContext.useFullPageModal()
+  let {isFrameExpanded, setModalRoot} = FullPageModalContext.useFullPageModal()
 
   let measureAndSendDimensions = rootElement => {
     // Get height dimensions - PRIORITIZING SCROLL HEIGHT
@@ -36,13 +36,11 @@ let make = () => {
     }
 
     // Send dimensions message to parent iframe
-    if !isModalActive() {
-      sendComponentDimensionToParent(
-        finalHeight,
-        finalWidth,
-        url.path->urlPath->LogicUtils.getListHead,
-      )
-    }
+    sendComponentDimensionToParent(
+      finalHeight,
+      finalWidth,
+      url.path->urlPath->LogicUtils.getListHead,
+    )
   }
 
   React.useEffect(() => {
