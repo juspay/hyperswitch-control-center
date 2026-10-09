@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.10.09.0
+
+### Bug Fixes
+
+- **routing:** Include disabled connectors in Decision Engine handoff ([#5654](https://github.com/juspay/hyperswitch-control-center/pull/5654)) ([`b41188e`](https://github.com/juspay/hyperswitch-control-center/commit/b41188e23d4b01d4654576d354bd343dc47f463e))
+
+**Full Changelog:** [`2026.10.08.1...2026.10.09.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.08.1...2026.10.09.0)
+
+- - -
+
 ## 2026.10.08.1
 
 ### Features
