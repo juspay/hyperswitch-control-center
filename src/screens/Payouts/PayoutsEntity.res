@@ -32,6 +32,16 @@ type payoutAttempts = {
   unified_message: string,
 }
 
+type payoutFrmMessage = {
+  frm_name: string,
+  frm_transaction_id: string,
+  frm_transaction_type: string,
+  frm_status: string,
+  frm_score: int,
+  frm_reason: string,
+  frm_error: string,
+}
+
 type payouts = {
   payout_id: string,
   merchant_id: string,
@@ -58,6 +68,7 @@ type payouts = {
   status: string,
   error_message: string,
   error_code: string,
+  frm_message: payoutFrmMessage,
   profile_id: string,
   created: string,
   connector_transaction_id: string,
@@ -322,6 +333,23 @@ type otherDetailsColType =
   | ErrorCode
   | MerchantId
 
+type frmColType =
+  | FrmConnector
+  | FrmTransactionId
+  | FrmTransactionType
+  | FrmStatus
+  | FrmScore
+  | FrmMessage
+
+let frmDetailsFields = [
+  FrmConnector,
+  FrmTransactionId,
+  FrmTransactionType,
+  FrmStatus,
+  FrmScore,
+  FrmMessage,
+]
+
 let useGetStatus = order => {
   let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
   let orderStatusLabel = order.status->String.toUpperCase
@@ -481,6 +509,18 @@ let itemToObjMapperAttempts = json => {
   }
 }
 
+let itemToObjMapperForFrmMessage = dict => {
+  {
+    frm_name: getString(dict, "frm_name", ""),
+    frm_transaction_id: getString(dict, "frm_transaction_id", ""),
+    frm_transaction_type: getString(dict, "frm_transaction_type", ""),
+    frm_status: getString(dict, "frm_status", ""),
+    frm_score: getInt(dict, "frm_score", 0),
+    frm_reason: getString(dict, "frm_reason", ""),
+    frm_error: getString(dict, "frm_error", ""),
+  }
+}
+
 let itemToObjMapper = dict => {
   let addressKeys = ["line1", "line2", "line3", "city", "state", "country", "zip"]
 
@@ -522,6 +562,7 @@ let itemToObjMapper = dict => {
     status: getString(dict, "status", ""),
     error_message: getString(dict, "error_message", ""),
     error_code: getString(dict, "error_code", ""),
+    frm_message: dict->getDictfromDict("frm_message")->itemToObjMapperForFrmMessage,
     profile_id: getString(dict, "profile_id", ""),
     created: getString(dict, "created", ""),
     connector_transaction_id: getString(dict, "connector_transaction_id", ""),
@@ -704,5 +745,30 @@ let getCellForOtherDetails = (payoutData, otherDetailsColType): Table.cell => {
   | Priority => Text(payoutData.priority)
   | ErrorCode => Text(payoutData.error_code)
   | MerchantId => DisplayCopyCell(payoutData.merchant_id)
+  }
+}
+
+let getHeadingForFrm = (frmColType: frmColType) => {
+  switch frmColType {
+  | FrmConnector => Table.makeHeaderInfo(~key="frm_name", ~title="FRM Connector")
+  | FrmTransactionId => Table.makeHeaderInfo(~key="frm_transaction_id", ~title="FRM Transaction ID")
+  | FrmTransactionType =>
+    Table.makeHeaderInfo(~key="frm_transaction_type", ~title="Transaction Flow")
+  | FrmStatus => Table.makeHeaderInfo(~key="frm_status", ~title="FRM Status")
+  | FrmScore => Table.makeHeaderInfo(~key="frm_score", ~title="FRM Score")
+  | FrmMessage => Table.makeHeaderInfo(~key="frm_reason", ~title="FRM Message")
+  }
+}
+
+let getCellForFrm = (payoutData, frmColType: frmColType): Table.cell => {
+  let frmMessage = payoutData.frm_message
+  switch frmColType {
+  | FrmConnector =>
+    Text(frmMessage.frm_name->ConnectorUtils.getDisplayNameForConnector(~connectorType=FRMPlayer))
+  | FrmTransactionId => DisplayCopyCell(frmMessage.frm_transaction_id)
+  | FrmTransactionType => Text(frmMessage.frm_transaction_type)
+  | FrmStatus => Text(frmMessage.frm_status)
+  | FrmScore => Text(frmMessage.frm_score->Int.toString)
+  | FrmMessage => Text(frmMessage.frm_reason)
   }
 }
