@@ -22,6 +22,9 @@ let formatDateString = date => {
   date->Date.toISOString->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:ss[Z]")
 }
 
+let last7DaysRange = 6
+let last30DaysRange = 29
+
 let getDateFilteredObject = (~range=7) => {
   let currentDate = Date.make()
 
@@ -54,7 +57,7 @@ let useSetInitialFilters = (
   ~enableCompareTo=None,
   ~comparisonKey="",
   ~isInsightsPage=false,
-  ~range=7,
+  ~range=last7DaysRange,
   ~origin,
   (),
 ) => {
@@ -216,7 +219,7 @@ module RemoteTableFilters = {
 
     let (filterDataJson, setFilterDataJson) = React.useState(_ => None)
     let updateDetails = useUpdateMethod()
-    let defaultDate = getDateFilteredObject(~range=30)
+    let defaultDate = getDateFilteredObject(~range=last30DaysRange)
 
     let (start_time, end_time) = React.useMemo(() => {
       (
@@ -314,7 +317,7 @@ module RemoteTableFilters = {
       ~compareToStartTimeKey,
       ~compareToEndTimeKey,
       ~comparisonKey,
-      ~range=30,
+      ~range=last30DaysRange,
       ~origin="orders",
       (),
     )
