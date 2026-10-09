@@ -1,5 +1,5 @@
 open LogicUtils
-
+open EmbeddedTypes
 let getConfigFromDict: Dict.t<JSON.t> => HyperSwitchConfigTypes.baseConfig = dict => {
   {
     apiBaseUrl: dict->getString("api_url", ""),
@@ -29,9 +29,11 @@ let getConfigFromDict: Dict.t<JSON.t> => HyperSwitchConfigTypes.baseConfig = dic
 
 let messageToTypeConversion = messageString => {
   switch messageString->String.toLowerCase {
-  | "auth_token" => EmbeddedTypes.AUTH_TOKEN
-  | "auth_error" => EmbeddedTypes.AUTH_ERROR
-  | "init_config" => EmbeddedTypes.INIT_CONFIG
+  | "auth_token" => AUTH_TOKEN
+  | "auth_error" => AUTH_ERROR
+  | "init_config" => INIT_CONFIG
+  | "embedded_modal_opened" => EMBEDDED_MODAL_OPENED
+  | "embedded_modal_closed" => EMBEDDED_MODAL_CLOSED
   | str => EmbeddedTypes.Unknown(str)
   }
 }

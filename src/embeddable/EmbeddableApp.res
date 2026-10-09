@@ -9,6 +9,7 @@ let make = () => {
   let url = RescriptReactRouter.useUrl()
   let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
   let contentRef = React.useRef(Js.Nullable.null)
+  let {isFrameExpanded, setModalRoot, isModalActive} = FullPageModalContext.useFullPageModal()
 
   let measureAndSendDimensions = rootElement => {
     // Get height dimensions - PRIORITIZING SCROLL HEIGHT
@@ -34,13 +35,8 @@ let make = () => {
       Js.Math.max_int(clientW, offsetW) // Fallback
     }
 
-    let isFullPageModalOpen =
-      EmbeddableComponentContext.getModalRoot()->Option.mapOr(false, modalRoot =>
-        !(modalRoot->EmbeddableComponentContext.isModalRootEmpty)
-      )
-
     // Send dimensions message to parent iframe
-    if !isFullPageModalOpen {
+    if !isModalActive() {
       sendComponentDimensionToParent(
         finalHeight,
         finalWidth,
@@ -100,18 +96,21 @@ let make = () => {
     )
   }, [])
 
-  <div id="embeddable-app" className={backgroundColor} ref={ReactDOM.Ref.domRef(contentRef)}>
-    <div id=EmbeddableComponentContext.modalRootId />
-    <div id="embeddable-content">
+  <div
+    id="embeddable-app"
+    className={isFrameExpanded ? "bg-transparent" : backgroundColor}
+    ref={ReactDOM.Ref.domRef(contentRef)}>
+    <div ref={ReactDOM.Ref.callbackDomRef(setModalRoot)} />
+    <div id="embeddable-content" className={isFrameExpanded ? "hidden" : ""}>
       <ErrorBoundary>
-        {switch url.path->urlPath {
-        | list{name, ...remainingPath} =>
-          switch EmbeddableRegistry.getComponent(name) {
-          | Some(component) => <EmbeddableHost key=name component remainingPath />
-          | None => <NotFoundPage />
-          }
-        | _ => <NotFoundPage />
-        }}
+        <DisplayOptionsContext.Provider value=DisplayOptionsContext.embeddableDisplayOptions>
+          {switch url.path->urlPath {
+          | list{"connectors", ...remainingPath} => <ConnectorEmbeddedContainer remainingPath />
+          | list{"payments", ...remainingPath} => <PaymentsEmbeddedContainer remainingPath />
+          | list{"refunds", ...remainingPath} => <RefundsEmbeddedContainer remainingPath />
+          | _ => <NotFoundPage />
+          }}
+        </DisplayOptionsContext.Provider>
       </ErrorBoundary>
     </div>
   </div>

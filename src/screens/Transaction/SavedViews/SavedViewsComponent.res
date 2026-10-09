@@ -14,8 +14,7 @@ let make = (
   let {updateExistingKeys, filterValue, reset, setfilterKeys} = React.useContext(
     FilterContext.filterContext,
   )
-  let {isEmbeddableSession} = React.useContext(UserInfoProvider.defaultContext)
-  let isEmbedded = isEmbeddableSession()
+  let {showSavedViews} = DisplayOptionsContext.useDisplayOptions()
   let (panelState, setPanelState) = React.useState(_ => NoActiveInteraction)
   let (savedViews: array<SavedViewTypes.savedView>, setSavedViews) = React.useState(_ => [])
   let (activeView: option<SavedViewTypes.savedView>, setActiveView) = React.useState(_ => None)
@@ -30,7 +29,7 @@ let make = (
     setActiveView(_ => None)
     setPanelState(_ => NoActiveInteraction)
     setSavedViews(_ => [])
-    if !isEmbedded {
+    if showSavedViews {
       fetchSavedViews()->ignore
     }
     None
@@ -118,7 +117,7 @@ let make = (
     None
   }, [filterValue])
 
-  <RenderIf condition={!isEmbedded}>
+  <RenderIf condition=showSavedViews>
     <div className="flex items-center gap-2">
       <Button
         text="Save Current View"

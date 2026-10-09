@@ -4,7 +4,11 @@ module EmbeddableAuthEntry = {
     <EmbeddedCheckProvider>
       <GlobalProvider>
         <UserInfoProvider isEmbeddableApp=true>
-          <EmbeddableApp />
+          <FullPageModalProvider>
+            <PopUpContainer>
+              <EmbeddableApp />
+            </PopUpContainer>
+          </FullPageModalProvider>
         </UserInfoProvider>
       </GlobalProvider>
     </EmbeddedCheckProvider>
@@ -81,14 +85,12 @@ module ContextWrapper = {
             <ErrorBoundary>
               <BlendProvider>
                 <BlendThemeProvider foundationTokens={FoundationTokens.defaultFoundationTokens}>
-                  <PopUpContainer>
-                    <SnackbarBinding position="top-center" />
-                    <SnackBarContainer>
-                      <ToastContainer>
-                        <ModalContainer> {children} </ModalContainer>
-                      </ToastContainer>
-                    </SnackBarContainer>
-                  </PopUpContainer>
+                  <SnackbarBinding position="top-center" />
+                  <SnackBarContainer>
+                    <ToastContainer>
+                      <ModalContainer> {children} </ModalContainer>
+                    </ToastContainer>
+                  </SnackBarContainer>
                 </BlendThemeProvider>
               </BlendProvider>
             </ErrorBoundary>

@@ -321,7 +321,7 @@ module OMPViews = {
     ~disabledDisplayName="",
   ) => {
     let (_, getNameForId) = OMPSwitchHooks.useOMPData()
-    let {isEmbeddableSession} = React.useContext(UserInfoProvider.defaultContext)
+    let {showOMPViews} = DisplayOptionsContext.useDisplayOptions()
 
     let input: ReactFinalForm.fieldRenderPropsInput = {
       name: "name",
@@ -338,7 +338,7 @@ module OMPViews = {
     let options = views->generateDropdownOptionsOMPViews(getNameForId)
 
     let displayName = disabled ? disabledDisplayName : selectedEntity->getNameForId
-    <RenderIf condition={!isEmbeddableSession()}>
+    <RenderIf condition=showOMPViews>
       <OMPViewsComp input options displayName disabled />
     </RenderIf>
   }

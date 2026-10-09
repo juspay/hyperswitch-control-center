@@ -15,7 +15,7 @@ module PageHeading = {
     ~customTitleSectionStyles="",
     ~showPermLink=true,
   ) => {
-    let {showPageHeading} = EmbeddableComponentContext.useDisplayOptions()
+    let {showPageHeading} = DisplayOptionsContext.useDisplayOptions()
     <RenderIf condition=showPageHeading>
       <div className={`mb-4 ${customHeadingStyle}`}>
         {switch leftIcon {

@@ -22,6 +22,7 @@ let make = (~children) => {
   open LogicUtils
   open EmbeddableGlobalUtils
   open EmbeddedStorageUtils
+  open EmbeddedIframeUtils
 
   let isEmbedded = (): bool => {
     Window.self !== Window.top
@@ -32,8 +33,8 @@ let make = (~children) => {
   let (isFullPageModalSupported, setIsFullPageModalSupported) = React.useState(_ => false)
 
   let handleAuthMessage = (ev: Dom.event) => {
-    let objectdata = ev->HandlingEvents.convertToCustomEvent
-    switch objectdata.data->JSON.Decode.object {
+    ev->updateParentOrigin
+    switch ev->getMessageFromParent {
     | Some(dict) => {
         let messageType = dict->getString("type", "")
 
@@ -79,7 +80,7 @@ let make = (~children) => {
       setEmbeddedState(_ => NotInsideIframe)
       None
     } else {
-      EmbeddedIframeUtils.sendIframeReadyMessageToParent()
+      sendIframeReadyMessageToParent()
       Window.addEventListener("message", handleAuthMessage)
       Some(() => Window.removeEventListener("message", handleAuthMessage))
     }
