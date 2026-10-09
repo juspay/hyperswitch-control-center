@@ -1,5 +1,6 @@
 open ExplorerTypes
 open ExplorerUtils
+open ExplorerMetricCardsUtils
 open ExplorerData
 open ExplorerDescriptions
 
@@ -17,7 +18,7 @@ let make = (~question: question, ~dataset: dataset) => {
           ? Some(getMeasureValue(source, measure, previousCounts))
           : None
       let isMeasurable = measurable(source, measure, counts)
-      <ExplorerHelper.MetricCard
+      <ExplorerMetricCardsHelper.MetricCard
         key={(measure :> string)}
         label={measureLabel(source, measure)}
         definition={measureDefinition(source, measure)}

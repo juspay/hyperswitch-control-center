@@ -32,32 +32,21 @@ let countMetrics = question => {
   [config.countMetric]->Array.concat(isAmount(question.measure) ? [config.amountMetric] : [])
 }
 
-let timeRangeJson = (startTime, endTime) =>
-  [
-    ("startTime", startTime->JSON.Encode.string),
-    ("endTime", endTime->JSON.Encode.string),
-  ]->getJsonFromArrayOfJson
-
-let requestBody = (
-  ~window as (startTime, endTime),
-  ~groupBy: array<dimension>,
-  ~metrics: array<metric>,
-) =>
-  [
-    [
-      ("timeRange", timeRangeJson(startTime, endTime)),
-      ("groupByNames", groupBy->Array.map(item => (item :> string))->getJsonFromArrayOfString),
-      ("metrics", metrics->Array.map(item => (item :> string))->getJsonFromArrayOfString),
-    ]->getJsonFromArrayOfJson,
-  ]->JSON.Encode.array
-
 let previousWindow = question =>
   DateRangeUtils.getComparisonTimePeriod(~startDate=question.startTime, ~endDate=question.endTime)
 
 let currentWindow = question => (question.startTime, question.endTime)
 
-let getCountRequestBody = (question, ~window) =>
-  requestBody(~window, ~groupBy=question->countGroupBy, ~metrics=question->countMetrics)
+let getCountRequestBody = (question, ~window as (startDateTime, endDateTime)) =>
+  [
+    AnalyticsUtils.getFilterRequestBody(
+      ~groupByNames=Some(question->countGroupBy->Array.map(item => (item :> string))),
+      ~metrics=Some(question->countMetrics->Array.map(item => (item :> string))),
+      ~delta=false,
+      ~startDateTime,
+      ~endDateTime,
+    )->JSON.Encode.object,
+  ]->JSON.Encode.array
 
 let requestKey = question =>
   [

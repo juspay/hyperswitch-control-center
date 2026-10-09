@@ -1,6 +1,6 @@
 open ExplorerTypes
 open ExplorerUtils
-open ExplorerQuery
+open ExplorerQuestion
 open ExplorerHelper
 open NewAnalyticsHelper
 
@@ -50,19 +50,21 @@ let make = () => {
   <div className="flex flex-col gap-4">
     <SourceTabs question onSource=setSource />
     <ExplorerQueryBar question dataset onUpdate=updateExistingKeys />
-    {if question->hasDates {
+    <RenderIf condition={question->hasDates}>
       <PageLoaderWrapper
         screenState
         customLoader={<Shimmer styleClass="w-full h-32 rounded-xl" />}
         sectionHeight="h-32">
-        {dataset.overall.total == 0.0
-          ? <NoData
-              height="h-32" message="No data for the selected dates. Try a wider date range."
-            />
-          : <ExplorerMetricCards question dataset />}
+        <RenderIf condition={dataset.overall.total > 0.0}>
+          <ExplorerMetricCards question dataset />
+        </RenderIf>
+        <RenderIf condition={dataset.overall.total == 0.0}>
+          <NoData height="h-32" message="No data for the selected dates. Try a wider date range." />
+        </RenderIf>
       </PageLoaderWrapper>
-    } else {
+    </RenderIf>
+    <RenderIf condition={!(question->hasDates)}>
       <NoData height="h-32" message="Select a date range to load the data." />
-    }}
+    </RenderIf>
   </div>
 }

@@ -2,7 +2,7 @@ open LogicUtils
 open ExplorerTypes
 open ExplorerCatalog
 open ExplorerUtils
-open ExplorerQuery
+open ExplorerQuestion
 
 let emptyCounts = {
   total: 0.0,
@@ -94,29 +94,36 @@ let getMeasureCounts = (dataset, measure) =>
     ? (dataset.inCurrency, dataset.inCurrencyPrevious)
     : (dataset.overall, dataset.overallPrevious)
 
+let getCurrenciesBySuccess = (source, rows) =>
+  rows
+  ->Array.map(getDictFromJsonObject)
+  ->Array.reduce(Dict.make(), (acc, dict) => {
+    let currency = dict->getDimensionValue(#currency)
+    if currency->isNonEmptyString {
+      acc->Dict.set(
+        currency,
+        acc->Dict.get(currency)->Option.getOr(0.0) +. getRowCounts(source, dict).success,
+      )
+    }
+    acc
+  })
+  ->Dict.toArray
+  ->Array.toSorted(((_, a), (_, b)) => b -. a)
+  ->Array.map(((currency, _)) => currency)
+
 let buildDataset = (question, responses) => {
   let source = question.source
   let needsCurrency = question->needsCurrency
 
   let amountCurrencies = needsCurrency
-    ? responses.currentRows
-      ->Array.map(getDictFromJsonObject)
-      ->Array.reduce(Dict.make(), (acc, dict) => {
-        let currency = dict->getDimensionValue(#currency)
-        if currency->isNonEmptyString {
-          acc->Dict.set(
-            currency,
-            acc->Dict.get(currency)->Option.getOr(0.0) +. getRowCounts(source, dict).success,
-          )
-        }
-        acc
-      })
-      ->Dict.toArray
-      ->Array.toSorted(((_, a), (_, b)) => b -. a)
-      ->Array.map(((currency, _)) => currency)
+    ? getCurrenciesBySuccess(source, responses.currentRows)
+      ->Array.concat(getCurrenciesBySuccess(source, responses.previousRows))
+      ->Array.concat([question.currency])
+      ->Array.filter(isNonEmptyString)
+      ->ArrayUtils.getUniqueStrArray
     : []
   let amountCurrency =
-    amountCurrencies->Array.includes(question.currency)
+    question.currency->isNonEmptyString
       ? question.currency
       : amountCurrencies->getValueFromArray(0, "")
 

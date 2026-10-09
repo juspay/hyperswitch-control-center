@@ -1,17 +1,18 @@
 open Typography
 open LogicUtils
 open ExplorerTypes
-open ExplorerUtils
 open ExplorerDescriptions
-open ExplorerQuery
-open ExplorerHelper
+open ExplorerQuestion
+open ExplorerQueryBarHelper
+open ExplorerQueryBarUtils
 
 @react.component
 let make = (~question: question, ~dataset: dataset, ~onUpdate: Dict.t<string> => unit) => {
   let source = question.source
   let setSelection = updates => updates->selectionUpdate->onUpdate
 
-  <ExplorerCard className="flex flex-col gap-4 px-6 py-5">
+  <div
+    className="flex flex-col gap-4 rounded-xl border border-nd_br_gray-200 bg-nd_gray-0 px-6 py-5">
     <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
       <QueryText text="Show" />
       <QuerySelect
@@ -40,5 +41,5 @@ let make = (~question: question, ~dataset: dataset, ~onUpdate: Dict.t<string> =>
       </span>
       {measureDefinition(source, question.measure)->React.string}
     </div>
-  </ExplorerCard>
+  </div>
 }

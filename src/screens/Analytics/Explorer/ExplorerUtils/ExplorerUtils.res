@@ -1,7 +1,6 @@
 open LogicUtils
 open ExplorerTypes
 open ExplorerCatalog
-open ExplorerDescriptions
 
 let emptyResponses = {
   currentRows: [],
@@ -35,11 +34,11 @@ let getOutcomesOfStatus = (source: source, status) =>
   | #intent =>
     intentStatuses
     ->Array.find(item => (item :> string) == status)
-    ->Option.mapOr([], intentStatusOutcomes)
+    ->mapOptionOrDefault([], intentStatusOutcomes)
   | #attempt =>
     attemptStatuses
     ->Array.find(item => (item :> string) == status)
-    ->Option.mapOr([], attemptStatusOutcomes)
+    ->mapOptionOrDefault([], attemptStatusOutcomes)
   }
 
 let sourceFromString = id =>
@@ -49,23 +48,6 @@ let measureFromString = (source, id) =>
   sourceConfig(source).measures
   ->Array.find(measure => (measure :> string) == id)
   ->Option.getOr(#success_rate)
-
-let measureOptions = source =>
-  sourceConfig(source).measures->Array.map((measure): MultiSelectBindings.selectMenuItemType => {
-    label: measureLabel(source, measure),
-    value: (measure :> string),
-    subLabel: measureDefinition(source, measure),
-  })
-
-let metricCardMeasures = question => {
-  let offered = sourceConfig(question.source).measures
-  let headlineMeasures: array<measure> = [#success_rate, #volume, #successful, #failed]
-  [question.measure]->Array.concat(
-    headlineMeasures
-    ->Array.filter(measure => measure != question.measure && offered->Array.includes(measure))
-    ->Array.slice(~start=0, ~end=3),
-  )
-}
 
 let formatPercentage = value => `${value->Float.toFixedWithPrecision(~digits=1)}%`
 
