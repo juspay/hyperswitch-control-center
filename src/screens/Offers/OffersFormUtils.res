@@ -125,6 +125,12 @@ let maxOrderAmountRule = (formValues: offerFormValues) =>
     },
   ])
 
+let maxAmountRule = (formValues: offerFormValues) =>
+  switch formValues.calculationRule {
+  | Percentage => optionalPositiveAmount(values => values.maxAmount)(formValues)
+  | _ => None
+  }
+
 let offerDetailsRules: array<offerFormRule> = [
   ("offer_code", requiredString(values => values.offerCode)),
   ("title", requiredString(values => values.title)),
@@ -133,7 +139,7 @@ let offerDetailsRules: array<offerFormRule> = [
   ("end_time", endTimeRule),
   ("calculation_rule", discountTypeRule),
   ("benefit_value", benefitValueRule),
-  ("max_amount", optionalPositiveAmount(values => values.maxAmount)),
+  ("max_amount", maxAmountRule),
   ("campaign_amount", optionalPositiveAmount(values => values.campaignAmount)),
   ("campaign_count", optionalPositiveCount(values => values.campaignCount)),
 ]
@@ -265,7 +271,7 @@ let buildCreateBody = (~merchantId, formValues: offerFormValues) => {
     (
       "ui_configs",
       [
-        ("auto_apply", "false"->JSON.Encode.string),
+        ("auto_apply", "true"->JSON.Encode.string),
         ("should_validate", "true"->JSON.Encode.string),
         ("is_hidden", "false"->JSON.Encode.string),
       ]->getJsonFromArrayOfJson,

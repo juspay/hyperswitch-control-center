@@ -4,6 +4,20 @@ open OffersFormFields
 open OffersFormUtils
 open OffersHelpers
 
+module MaxAmountRow = {
+  @react.component
+  let make = () => {
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let {calculationRule} = formState.values->getDictFromJsonObject->offerFormValuesMapper
+
+    <RenderIf condition={calculationRule == OffersTypes.Percentage}>
+      <FieldRow fields=[maxAmountField] />
+    </RenderIf>
+  }
+}
+
 @react.component
 let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -57,7 +71,7 @@ let make = () => {
             <FieldRow fields=[descriptionField] />
             <FieldRow fields=[validityField] />
             <FieldRow fields=[calculationRuleField, benefitValueField] />
-            <FieldRow fields=[maxAmountField] />
+            <MaxAmountRow />
             <FieldRow fields=[campaignAmountField, campaignCountField] />
           </FormSection>
           <FormSection title="Transaction Level Details">
