@@ -13,9 +13,29 @@ export interface ConnectorConfig {
   label: string;
   fields: ConnectorFieldConfig;
   paymentSections: Record<string, PaymentSection>;
+  metadataFields?: Record<string, string>;
 }
 
 export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
+  paysafe: {
+    label: "paysafe",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "paysafe_default",
+      },
+      fieldLabels: ["Username *", "Password *", "Source verification key"],
+    },
+    paymentSections: {
+      GiftCard: {
+        label: "Gift Card",
+        methods: ["pay_safe_card"],
+      },
+    },
+    metadataFields: {
+      "Enter CAD Account ID": "123456",
+    },
+  },
   adyen: {
     label: "adyen",
     fields: {

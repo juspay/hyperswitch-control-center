@@ -1,5 +1,41 @@
 open LogicUtils
 open Typography
+module PayoutAccountIds = {
+  @react.component
+  let make = (~connectorMetaDataFields) => {
+    let accountIds =
+      connectorMetaDataFields
+      ->getDictfromDict("account_id")
+      ->getDictfromDict("pay_safe_card")
+      ->JSON.Encode.object
+      ->convertMapObjectToDict
+    let currencies = accountIds->Dict.keysToArray
+    currencies->Array.sort((a, b) => String.compare(a, b))
+
+    <>
+      {currencies
+      ->Array.map(currency => {
+        let fields =
+          accountIds
+          ->getArrayFromDict(currency, [])
+          ->getValueFromArray(0, JSON.Encode.null)
+          ->convertMapObjectToDict
+          ->CommonConnectorUtils.inputFieldMapper
+        <FormRenderer.FieldRenderer
+          key=currency
+          labelClass="font-semibold !text-hyperswitch_black"
+          field={ConnectorMetaDataUtils.getField(
+            ~inputType=fields.\"type",
+            ~name=`metadata.account_id.pay_safe_card.${currency}.three_ds`,
+            ~connectorMetaDataFields={...fields, required: false},
+          )}
+        />
+      })
+      ->React.array}
+    </>
+  }
+}
+
 module AccountIdCurrencyFields = {
   @react.component
   let make = (

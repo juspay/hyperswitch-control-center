@@ -1,5 +1,12 @@
 @react.component
-let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isUpdateFlow) => {
+let make = (
+  ~setCurrentStep,
+  ~connector,
+  ~setInitialValues,
+  ~initialValues,
+  ~isUpdateFlow,
+  ~connectorType: ConnectorTypes.connector=Processor,
+) => {
   open APIUtils
   open LogicUtils
   open ConnectorUtils
@@ -19,7 +26,10 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
   let connectorDetails = React.useMemo(() => {
     try {
       if connector->isNonEmptyString {
-        let dict = Window.getConnectorConfig(connector)
+        let dict = switch connectorType {
+        | PayoutProcessor => Window.getPayoutConnectorConfig(connector)
+        | _ => Window.getConnectorConfig(connector)
+        }
         setScreenState(_ => Success)
         dict
       } else {
@@ -32,7 +42,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
         Dict.make()->JSON.Encode.object
       }
     }
-  }, [connector])
+  }, (connector, connectorType))
   let onSubmit = async (values, _) => {
     try {
       setScreenState(_ => Loading)
@@ -73,10 +83,15 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
   let {connectorMetaDataFields} = getConnectorFields(connectorDetails)
 
   let validDateMetaDataMandatoryFields = values => {
-    ConnectorMetaDataUtils.validateMetadataRequiredFields(
-      ~connector=connector->getConnectorNameTypeFromString,
-      ~values,
-    )->JSON.Encode.object
+    switch connector->getConnectorNameTypeFromString(~connectorType) {
+    | PayoutProcessor(PAYSAFE) =>
+      PaySafeUtils.payoutConnectorValidation(~values, ~connectorMetaDataFields)->JSON.Encode.object
+    | _ =>
+      ConnectorMetaDataUtils.validateMetadataRequiredFields(
+        ~connector=connector->getConnectorNameTypeFromString(~connectorType),
+        ~values,
+      )->JSON.Encode.object
+    }
   }
   <PageLoaderWrapper screenState>
     <div className="flex flex-col">
@@ -85,15 +100,19 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
           <div className="flex gap-2 items-center">
             <GatewayIcon gateway={connector->String.toUpperCase} />
             <h2 className="text-xl font-semibold">
-              {connector->getDisplayNameForConnector->React.string}
+              {connector->getDisplayNameForConnector(~connectorType)->React.string}
             </h2>
           </div>
           <div className="self-center">
             <FormRenderer.SubmitButton text="Proceed" />
           </div>
         </div>
-        {switch connector->getConnectorNameTypeFromString {
+        {switch connector->getConnectorNameTypeFromString(~connectorType) {
         | Processors(PAYSAFE) => <PaySafe connectorMetaDataFields />
+        | PayoutProcessor(PAYSAFE) =>
+          <div className="px-8 py-4 max-w-3xl">
+            <PaySafe.PayoutAccountIds connectorMetaDataFields />
+          </div>
         | _ => React.null
         }}
       </Form>

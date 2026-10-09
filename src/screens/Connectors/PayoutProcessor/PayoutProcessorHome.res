@@ -107,7 +107,8 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
   let url = RescriptReactRouter.useUrl()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let connector = UrlUtils.useGetFilterDictFromUrl("")->LogicUtils.getString("name", "")
-  let connectorTypeFromName = connector->getConnectorNameTypeFromString
+  let connectorTypeFromName =
+    connector->getConnectorNameTypeFromString(~connectorType=PayoutProcessor)
   let connectorID = HSwitchUtils.getConnectorIDFromUrl(url.path->List.toArray, "")
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let updateDetails = useUpdateMethod()
@@ -240,7 +241,12 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
         />
       </RenderIf>
       <RenderIf condition={currentStep !== Preview && showStepIndicator}>
-        <ConnectorCurrentStepIndicator currentStep stepsArr=payoutStepsArr />
+        <ConnectorCurrentStepIndicator
+          currentStep
+          stepsArr={connectorTypeFromName == PayoutProcessor(PAYSAFE)
+            ? [IntegFields, PaymentMethods, CustomMetadata, SummaryAndTest]
+            : payoutStepsArr}
+        />
       </RenderIf>
       <RenderIf
         condition={connectorTypeFromName->checkIsDummyConnector(featureFlagDetails.testProcessors)}>
@@ -262,7 +268,15 @@ let make = (~showStepIndicator=true, ~showBreadCrumb=true) => {
           <PayoutProcessorPaymentMethod
             setCurrentStep connector setInitialValues initialValues isUpdateFlow
           />
-        | CustomMetadata
+        | CustomMetadata =>
+          <ConnectorCustomMetadata
+            setCurrentStep
+            connector
+            setInitialValues
+            initialValues
+            isUpdateFlow
+            connectorType=PayoutProcessor
+          />
         | SummaryAndTest
         | Preview =>
           <ConnectorAccountDetailsHelper.ConnectorHeaderWrapper

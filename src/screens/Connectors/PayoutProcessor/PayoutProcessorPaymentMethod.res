@@ -67,15 +67,24 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
       let _ = ConnectorUtils.updateMetaData(~metaData)
       //
       let connectorUrl = getURL(~entityName=V1(CONNECTOR), ~methodType=Post, ~id=connectorID)
-      let response = await updateAPIHook(connectorUrl, body, Post)
-      let _ = await fetchConnectorList()
-      setInitialValues(_ => response)
-      setScreenState(_ => Success)
-      setCurrentStep(_ => ConnectorTypes.SummaryAndTest)
-      showToast(
-        ~message=!isUpdateFlow ? "Connector Created Successfully!" : "Details Updated!",
-        ~toastType=ToastSuccess,
-      )
+      if (
+        connector->getConnectorNameTypeFromString(~connectorType=PayoutProcessor) ==
+          PayoutProcessor(PAYSAFE)
+      ) {
+        setInitialValues(_ => body)
+        setCurrentStep(_ => ConnectorTypes.CustomMetadata)
+        setScreenState(_ => Success)
+      } else {
+        let response = await updateAPIHook(connectorUrl, body, Post)
+        let _ = await fetchConnectorList()
+        setInitialValues(_ => response)
+        setScreenState(_ => Success)
+        setCurrentStep(_ => ConnectorTypes.SummaryAndTest)
+        showToast(
+          ~message=!isUpdateFlow ? "Connector Created Successfully!" : "Details Updated!",
+          ~toastType=ToastSuccess,
+        )
+      }
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
