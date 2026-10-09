@@ -1989,7 +1989,10 @@ export async function assertPaymentMethodTypes(
   >,
 ): Promise<void> {
   for (const section of Object.values(sections)) {
-    const sectionHeader = page.getByText(section.label, { exact: true });
+    // D24 uses "Card Redirect" for both the heading and its method label.
+    const sectionHeader = page
+      .getByText(section.label, { exact: true })
+      .first();
     await expect(sectionHeader).toBeVisible({
       timeout: 5000,
     });
