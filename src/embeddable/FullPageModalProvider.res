@@ -8,19 +8,13 @@ let make = (~children) => {
   let (openModalCount, setOpenModalCount) = React.useState(_ => 0)
   let (isFrameExpanded, setIsFrameExpanded) = React.useState(_ => false)
   let (modalRoot, setModalRootElement) = React.useState(_ => None)
-  let isFrameExpandedRef = React.useRef(false)
 
   let hasOpenModals = openModalCount > 0
 
   React.useEffect(() => {
     if isEnabled {
       let handleFrameMessage = (ev: Dom.event) => {
-        let messageType =
-          ev
-          ->getMessageFromParent
-          ->Option.mapOr("", dict => dict->LogicUtils.getString("type", ""))
-          ->EmbeddableGlobalUtils.messageToTypeConversion
-        switch messageType {
+        switch ev->decodeMessageFromParent {
         | EMBEDDED_MODAL_OPENED => setIsFrameExpanded(_ => true)
         | EMBEDDED_MODAL_CLOSED => setIsFrameExpanded(_ => false)
         | _ => ()
@@ -30,9 +24,7 @@ let make = (~children) => {
       Some(
         () => {
           Window.removeEventListener("message", handleFrameMessage)
-          if isFrameExpandedRef.current {
-            sendModalStateToParent(false)
-          }
+          sendModalStateToParent(false)
         },
       )
     } else {
@@ -48,7 +40,6 @@ let make = (~children) => {
   }, (isEnabled, hasOpenModals, isFrameExpanded))
 
   React.useEffect(() => {
-    isFrameExpandedRef.current = isFrameExpanded
     if isEnabled {
       sendModalVisibleToParent()
     }

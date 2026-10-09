@@ -1,7 +1,12 @@
+type initConfigPayload = {
+  initConfig: JSON.t,
+  isFullPageModalSupported: bool,
+}
+
 type messageFromParent =
-  | AUTH_TOKEN
+  | AUTH_TOKEN(option<string>)
   | AUTH_ERROR
-  | INIT_CONFIG
+  | INIT_CONFIG(initConfigPayload)
   | EMBEDDED_MODAL_OPENED
   | EMBEDDED_MODAL_CLOSED
   | Unknown(string)

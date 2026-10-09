@@ -20,7 +20,6 @@ module Provider = {
 let make = (~children) => {
   open Typography
   open LogicUtils
-  open EmbeddableGlobalUtils
   open EmbeddedStorageUtils
   open EmbeddedIframeUtils
 
@@ -33,41 +32,34 @@ let make = (~children) => {
   let (isFullPageModalSupported, setIsFullPageModalSupported) = React.useState(_ => false)
 
   let handleAuthMessage = (ev: Dom.event) => {
-    ev->updateParentOrigin
-    switch ev->getMessageFromParent {
-    | Some(dict) => {
-        let messageType = dict->getString("type", "")
-
-        if messageType->messageToTypeConversion == AUTH_TOKEN {
-          setEmbeddedState(_ => Loading)
-          setComponentKey(_ => "")
-          let tokenFromParent = dict->getOptionString("token")
-          switch tokenFromParent {
-          | Some(tokenStringFromParent) =>
-            if tokenStringFromParent->isNonEmptyString {
-              LocalStorage.setEmbeddedTokenToStorage(tokenStringFromParent)
-              setComponentKey(_ => randomString(~length=10))
-              setEmbeddedState(_ => Success)
-            } else {
-              LocalStorage.setEmbeddedTokenToStorage("")
-              setEmbeddedState(_ => TokenFetchError)
-            }
-          | None => setEmbeddedState(_ => TokenFetchError)
+    switch ev->decodeMessageFromParent {
+    | AUTH_TOKEN(tokenFromParent) => {
+        ev->pinParentOrigin
+        setEmbeddedState(_ => Loading)
+        setComponentKey(_ => "")
+        switch tokenFromParent {
+        | Some(tokenStringFromParent) =>
+          if tokenStringFromParent->isNonEmptyString {
+            LocalStorage.setEmbeddedTokenToStorage(tokenStringFromParent)
+            setComponentKey(_ => randomString(~length=10))
+            setEmbeddedState(_ => Success)
+          } else {
+            LocalStorage.setEmbeddedTokenToStorage("")
+            setEmbeddedState(_ => TokenFetchError)
           }
-        }
-
-        if messageType->messageToTypeConversion == INIT_CONFIG {
-          setIsFullPageModalSupported(_ =>
-            dict->getDictfromDict("sdk_capabilities")->getBool("full_page_modal", false)
-          )
-        }
-
-        if messageType->messageToTypeConversion == AUTH_ERROR {
-          LocalStorage.setEmbeddedTokenToStorage("")
-          setEmbeddedState(_ => TokenFetchError)
+        | None => setEmbeddedState(_ => TokenFetchError)
         }
       }
-    | None => ()
+    | INIT_CONFIG({isFullPageModalSupported}) => {
+        ev->pinParentOrigin
+        setIsFullPageModalSupported(_ => isFullPageModalSupported)
+      }
+    | AUTH_ERROR => {
+        ev->pinParentOrigin
+        LocalStorage.setEmbeddedTokenToStorage("")
+        setEmbeddedState(_ => TokenFetchError)
+      }
+    | EMBEDDED_MODAL_OPENED | EMBEDDED_MODAL_CLOSED | Unknown(_) => ()
     }
   }
 

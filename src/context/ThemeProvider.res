@@ -297,14 +297,10 @@ let make = (~children) => {
   }
 
   let handleInitConfigMessage = (ev: Dom.event) => {
-    open EmbeddableGlobalUtils
     try {
-      let objectdata = ev->HandlingEvents.convertToCustomEvent
-      let dict = objectdata.data->getDictFromJsonObject
-      switch dict->getOptionString("type")->Option.map(messageToTypeConversion) {
-      | Some(INIT_CONFIG) => {
-          let initConfigJson = dict->getJsonObjectFromDict("init_config")
-          let themeValues = isNullJson(initConfigJson) ? getDefaultStyle() : initConfigJson
+      switch ev->EmbeddedIframeUtils.decodeMessageFromParent {
+      | INIT_CONFIG({initConfig}) => {
+          let themeValues = isNullJson(initConfig) ? getDefaultStyle() : initConfig
           applyThemeConfig(themeValues)
         }
       | _ => ()
