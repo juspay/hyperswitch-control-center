@@ -392,8 +392,8 @@ let useGetURL = () => {
         }
       | CONNECTOR_WEBHOOK =>
         switch id {
-        | Some(mcaId) => `${connectorBaseURL}/webhooks/${mcaId}`
-        | None => connectorBaseURL
+        | Some(mcaId) => Default(`${connectorBaseURL}/webhooks/${mcaId}`)
+        | None => Default(connectorBaseURL)
         }
 
       /* OPERATIONS */
