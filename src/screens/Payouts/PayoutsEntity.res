@@ -32,6 +32,16 @@ type payoutAttempts = {
   unified_message: string,
 }
 
+type payoutFrmMessage = {
+  frm_name: string,
+  frm_transaction_id: string,
+  frm_transaction_type: string,
+  frm_status: string,
+  frm_score: int,
+  frm_reason: string,
+  frm_error: string,
+}
+
 type payouts = {
   payout_id: string,
   merchant_id: string,
@@ -58,6 +68,7 @@ type payouts = {
   status: string,
   error_message: string,
   error_code: string,
+  frm_message: payoutFrmMessage,
   profile_id: string,
   created: string,
   connector_transaction_id: string,
@@ -481,6 +492,18 @@ let itemToObjMapperAttempts = json => {
   }
 }
 
+let itemToObjMapperForFrmMessage = dict => {
+  {
+    frm_name: getString(dict, "frm_name", ""),
+    frm_transaction_id: getString(dict, "frm_transaction_id", ""),
+    frm_transaction_type: getString(dict, "frm_transaction_type", ""),
+    frm_status: getString(dict, "frm_status", ""),
+    frm_score: getInt(dict, "frm_score", 0),
+    frm_reason: getString(dict, "frm_reason", ""),
+    frm_error: getString(dict, "frm_error", ""),
+  }
+}
+
 let itemToObjMapper = dict => {
   let addressKeys = ["line1", "line2", "line3", "city", "state", "country", "zip"]
 
@@ -522,6 +545,7 @@ let itemToObjMapper = dict => {
     status: getString(dict, "status", ""),
     error_message: getString(dict, "error_message", ""),
     error_code: getString(dict, "error_code", ""),
+    frm_message: dict->getDictfromDict("frm_message")->itemToObjMapperForFrmMessage,
     profile_id: getString(dict, "profile_id", ""),
     created: getString(dict, "created", ""),
     connector_transaction_id: getString(dict, "connector_transaction_id", ""),

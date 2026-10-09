@@ -210,3 +210,34 @@ module Details = {
     }
   }
 }
+
+module FraudRiskBanner = {
+  @react.component
+  let make = (~frmName, ~onReviewDetailsClick=?, ~transactionLabel="payment") => {
+    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
+    let frmDisplayName =
+      frmName->ConnectorUtils.getDisplayNameForConnector(~connectorType=FRMPlayer)
+    <div
+      className="flex justify-between items-center w-full  p-4 rounded-md bg-white border border-[#C04141]/50 ">
+      <div className="flex gap-2">
+        <img alt="image" src={`/icons/redFlag.svg`} />
+        <p className="text-lightgray_background font-medium text-fs-16">
+          {`This ${transactionLabel} is marked fraudulent by`->React.string}
+        </p>
+        <GatewayIcon gateway={frmName->String.toUpperCase} className="w-6 h-6" />
+        <p className="text-lightgray_background font-medium text-fs-16">
+          {frmDisplayName->React.string}
+        </p>
+      </div>
+      {switch onReviewDetailsClick {
+      | Some(onClick) =>
+        <div
+          className={`${textColor.primaryNormal} font-semibold text-fs-16 cursor-pointer`}
+          onClick={_ => onClick()}>
+          {"Review details"->React.string}
+        </div>
+      | None => React.null
+      }}
+    </div>
+  }
+}
