@@ -333,6 +333,23 @@ type otherDetailsColType =
   | ErrorCode
   | MerchantId
 
+type frmColType =
+  | FrmConnector
+  | FrmTransactionId
+  | FrmTransactionType
+  | FrmStatus
+  | FrmScore
+  | FrmMessage
+
+let frmDetailsFields = [
+  FrmConnector,
+  FrmTransactionId,
+  FrmTransactionType,
+  FrmStatus,
+  FrmScore,
+  FrmMessage,
+]
+
 let useGetStatus = order => {
   let {globalUIConfig: {primaryColor}} = React.useContext(ThemeProvider.themeContext)
   let orderStatusLabel = order.status->String.toUpperCase
@@ -728,5 +745,30 @@ let getCellForOtherDetails = (payoutData, otherDetailsColType): Table.cell => {
   | Priority => Text(payoutData.priority)
   | ErrorCode => Text(payoutData.error_code)
   | MerchantId => DisplayCopyCell(payoutData.merchant_id)
+  }
+}
+
+let getHeadingForFrm = (frmColType: frmColType) => {
+  switch frmColType {
+  | FrmConnector => Table.makeHeaderInfo(~key="frm_name", ~title="FRM Connector")
+  | FrmTransactionId => Table.makeHeaderInfo(~key="frm_transaction_id", ~title="FRM Transaction ID")
+  | FrmTransactionType =>
+    Table.makeHeaderInfo(~key="frm_transaction_type", ~title="Transaction Flow")
+  | FrmStatus => Table.makeHeaderInfo(~key="frm_status", ~title="FRM Status")
+  | FrmScore => Table.makeHeaderInfo(~key="frm_score", ~title="FRM Score")
+  | FrmMessage => Table.makeHeaderInfo(~key="frm_reason", ~title="FRM Message")
+  }
+}
+
+let getCellForFrm = (payoutData, frmColType: frmColType): Table.cell => {
+  let frmMessage = payoutData.frm_message
+  switch frmColType {
+  | FrmConnector =>
+    Text(frmMessage.frm_name->ConnectorUtils.getDisplayNameForConnector(~connectorType=FRMPlayer))
+  | FrmTransactionId => DisplayCopyCell(frmMessage.frm_transaction_id)
+  | FrmTransactionType => Text(frmMessage.frm_transaction_type)
+  | FrmStatus => Text(frmMessage.frm_status)
+  | FrmScore => Text(frmMessage.frm_score->Int.toString)
+  | FrmMessage => Text(frmMessage.frm_reason)
   }
 }
