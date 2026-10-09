@@ -304,6 +304,9 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         </div>
       </div>
       {<div className="flex flex-col gap-8">
+        <RenderIf condition={payoutData.frm_message.frm_status === "fraud"}>
+          <FraudRiskBanner frmMessage={payoutData.frm_message} transactionLabel="payout" />
+        </RenderIf>
         <PayoutInfo payoutData />
         <RenderIf
           condition={version == V1 &&
