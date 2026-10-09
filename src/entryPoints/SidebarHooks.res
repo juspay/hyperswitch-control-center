@@ -66,6 +66,7 @@ let useGetHsSidebarValues = () => {
           ~isEmbedDecisionEngineEnabled=showDecisionEngine,
         ),
         devVault->vault(~userHasResourceAccess),
+        offers(userHasResourceAccess),
         devAltPaymentMethods->alternatePaymentMethods,
       ]
     : []
