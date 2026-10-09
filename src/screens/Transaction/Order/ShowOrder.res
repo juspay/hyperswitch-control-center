@@ -1100,6 +1100,13 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     tabIndex >= 0 ? setSelectedTabIndex(_ => tabIndex) : ()
   }
 
+  let showReviewStatusBanner =
+    version === V1 &&
+      switch orderData.status->statusVariantMapper {
+      | Review | Conflicted => true
+      | _ => false
+      }
+
   <div className="flex flex-col overflow-scroll gap-8">
     <div className="flex justify-between w-full">
       <div className="flex items-end justify-between w-full">
@@ -1138,7 +1145,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         onReviewDetailsClick={() => selectTabByTitle("FRM Details")}
       />
     </RenderIf>
-    <RenderIf condition={orderData.status->statusVariantMapper === Review}>
+    <RenderIf condition={showReviewStatusBanner}>
       <ReviewStatusBanner order={orderData} refetch={refreshStatus} />
     </RenderIf>
     <PageLoaderWrapper

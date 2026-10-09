@@ -489,7 +489,7 @@ let useGetURL = () => {
         }
       | MANUAL_STATUS_UPDATE =>
         switch methodType {
-        | Post =>
+        | Get | Post =>
           switch id {
           | Some(payment_id) => Default(`payments/${payment_id}/manual-status-update`)
           | None => Default("")
@@ -1335,7 +1335,7 @@ let useGetURL = () => {
             switch id {
             | Some(transactionId) =>
               Default(
-                `${reconBaseURL}/exception_management/transactions/${transactionId}/manual_reconciliation`,
+                `${reconBaseURL}/exception_management/transactions/${transactionId}/manual_reconciliation/v2`,
               )
             | None => Default(``)
             }

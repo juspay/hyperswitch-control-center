@@ -64,7 +64,8 @@ module EditEntryModalContent = {
   let make = (
     ~entryDetails: ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType,
     ~isNewlyCreatedEntry,
-    ~updatedEntriesList,
+    ~transactionCurrency,
+    ~ruleAccountIds,
     ~onSubmit,
   ) => {
     open ReconEngineExceptionTransactionUtils
@@ -92,7 +93,7 @@ module EditEntryModalContent = {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let accountData = await getAccounts()
-        setAccountsList(_ => accountData)
+        setAccountsList(_ => accountData->getRuleAccounts(~ruleAccountIds))
         if entryDetails.account_id->isNonEmptyString {
           let url = getURL(
             ~entityName=V1(HYPERSWITCH_RECON),
@@ -140,6 +141,8 @@ module EditEntryModalContent = {
       getInitialValuesForEditEntries(entryDetails->getEntryTypeFromExceptionEntryType)
     }, [])
 
+    let isStagingLinkedEntry = isNewlyCreatedEntry && entryDetails.staging_entry_id->Option.isSome
+
     <PageLoaderWrapper screenState customLoader={<Shimmer styleClass="h-full w-full" />}>
       <div className="flex flex-col gap-4 mx-4 h-full">
         <Form
@@ -148,21 +151,25 @@ module EditEntryModalContent = {
           initialValues={initialFormValues}
           formClass="h-full flex flex-col justify-between">
           <div className="flex flex-col max-h-890-px overflow-y-auto">
-            {accountTransformationSelectInputField(~accountsList, ~setTransformationsList)}
+            {accountTransformationSelectInputField(
+              ~accountsList,
+              ~setTransformationsList,
+              ~disabled=!isNewlyCreatedEntry || isStagingLinkedEntry,
+            )}
             {transformationConfigSelectInputField(
               ~transformationsList,
-              ~disabled=false,
+              ~disabled=isStagingLinkedEntry,
               ~setMetadataSchema,
               ~setIsMetadataLoading,
             )}
-            {entryTypeSelectInputField(~disabled=false)}
+            {entryTypeSelectInputField(~disabled=isStagingLinkedEntry)}
             {currencySelectInputField(
-              ~entriesList=updatedEntriesList,
+              ~transactionCurrency,
               ~isNewlyCreatedEntry,
               ~entryDetails=entryDetails->getEntryTypeFromExceptionEntryType,
-              ~disabled=false,
+              ~disabled=isStagingLinkedEntry,
             )}
-            {amountTextInputField(~disabled=false)}
+            {amountTextInputField(~disabled=isStagingLinkedEntry)}
             {orderIdTextInputField(~disabled=false)}
             {effectiveAtDatePickerInputField()}
             {metadataCustomInputField(
@@ -192,7 +199,8 @@ module MarkAsReceivedModalContent = {
   let make = (
     ~entryDetails: ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType,
     ~isNewlyCreatedEntry,
-    ~updatedEntriesList,
+    ~transactionCurrency,
+    ~ruleAccountIds,
     ~onSubmit,
   ) => {
     open ReconEngineExceptionTransactionUtils
@@ -220,7 +228,7 @@ module MarkAsReceivedModalContent = {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let accountData = await getAccounts()
-        setAccountsList(_ => accountData)
+        setAccountsList(_ => accountData->getRuleAccounts(~ruleAccountIds))
         if entryDetails.account_id->isNonEmptyString {
           let url = getURL(
             ~entityName=V1(HYPERSWITCH_RECON),
@@ -271,7 +279,11 @@ module MarkAsReceivedModalContent = {
           initialValues={initialFormValues}
           formClass="h-full flex flex-col justify-between">
           <div className="flex flex-col max-h-890-px overflow-y-auto">
-            {accountTransformationSelectInputField(~accountsList, ~setTransformationsList)}
+            {accountTransformationSelectInputField(
+              ~accountsList,
+              ~setTransformationsList,
+              ~disabled=true,
+            )}
             {transformationConfigSelectInputField(
               ~transformationsList,
               ~disabled=false,
@@ -280,7 +292,7 @@ module MarkAsReceivedModalContent = {
             )}
             {entryTypeSelectInputField(~disabled=false)}
             {currencySelectInputField(
-              ~entriesList=updatedEntriesList,
+              ~transactionCurrency,
               ~isNewlyCreatedEntry,
               ~entryDetails=entryDetails->getEntryTypeFromExceptionEntryType,
               ~disabled=true,
@@ -312,7 +324,7 @@ module MarkAsReceivedModalContent = {
 
 module CreateEntryModalContent = {
   @react.component
-  let make = (~entriesList, ~onSubmit, ~entryDetails) => {
+  let make = (~transactionCurrency, ~ruleAccountIds, ~onSubmit, ~entryDetails) => {
     open ReconEngineExceptionTransactionUtils
     open ReconEngineExceptionsHelper
     open ReconEngineExceptionTransactionHelper
@@ -332,7 +344,7 @@ module CreateEntryModalContent = {
       try {
         setScreenState(_ => PageLoaderWrapper.Loading)
         let accountData = await getAccounts()
-        setAccountsList(_ => accountData)
+        setAccountsList(_ => accountData->getRuleAccounts(~ruleAccountIds))
         setScreenState(_ => PageLoaderWrapper.Success)
       } catch {
       | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to load data"))
@@ -369,7 +381,7 @@ module CreateEntryModalContent = {
             )}
             {entryTypeSelectInputField()}
             {currencySelectInputField(
-              ~entriesList,
+              ~transactionCurrency,
               ~isNewlyCreatedEntry=true,
               ~entryDetails=entryDetails->getEntryTypeFromExceptionEntryType,
             )}
@@ -406,7 +418,7 @@ module ReplaceStagingEntryModalContent = {
     ~activeModal,
     ~setActiveModal,
     ~onSubmit,
-    ~updatedEntriesList: array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>,
+    ~linkedStagingEntryIds: Set.t<string>,
   ) => {
     open LogicUtils
     open ReconEngineExceptionTransactionHelper
@@ -453,15 +465,13 @@ module ReplaceStagingEntryModalContent = {
       ~sortBy,
       ~direction,
     ) => {
-      let linkedStagingEntryIds =
-        updatedEntriesList->Array.filterMap(entry => entry.staging_entry_id)->Set.fromArray
-
       let page = await getLinkableStagingEntriesV2(
         ~body=buildLinkableStagingEntriesV2Body(
           ~sortBy,
           ~direction,
           ~searchType=searchTypeRef.current,
           ~searchText,
+          ~accountIds=[entryDetails.account_id],
         ),
         ~id=Some(currentExceptionDetails.id),
       )
@@ -487,7 +497,7 @@ module ReplaceStagingEntryModalContent = {
         goToFirstPage()
       }
       None
-    }, (currentExceptionDetails.id, updatedEntriesList))
+    }, (currentExceptionDetails.id, linkedStagingEntryIds))
 
     let (groupedEntries, accountInfoMap) = React.useMemo(() => {
       getGroupedEntriesAndAccountMaps(~accountsData, ~updatedEntriesList=[entryDetails])
@@ -502,7 +512,7 @@ module ReplaceStagingEntryModalContent = {
     }
 
     let handleRowSelect = (updateFn: array<JSON.t> => array<JSON.t>) => {
-      setSelectedRows(updateFn)
+      setSelectedRows(prev => updateFn(prev)->getLastSelectedRow)
     }
 
     let entriesTableSections = React.useMemo(() => {
@@ -627,7 +637,8 @@ module LinkStagingEntryModalContent = {
     ~setActiveModal,
     ~setExceptionStage,
     ~onSubmit,
-    ~updatedEntriesList: array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>,
+    ~linkedStagingEntryIds: Set.t<string>,
+    ~ruleAccountIds,
   ) => {
     open LogicUtils
     open ReconEngineExceptionTransactionHelper
@@ -662,15 +673,13 @@ module LinkStagingEntryModalContent = {
       goToPrevPage,
     } = ReconEngineCursorPaginationHook.useCursorPagination(
       ~fetchPage=async (~sortBy, ~direction) => {
-        let linkedStagingEntryIds =
-          updatedEntriesList->Array.filterMap(entry => entry.staging_entry_id)->Set.fromArray
-
         let page = await getLinkableStagingEntriesV2(
           ~body=buildLinkableStagingEntriesV2Body(
             ~sortBy,
             ~direction,
             ~searchType=searchTypeRef.current,
             ~searchText,
+            ~accountIds=ruleAccountIds,
           ),
           ~id=Some(currentExceptionDetails.id),
         )
@@ -698,17 +707,10 @@ module LinkStagingEntryModalContent = {
         goToFirstPage()
       }
       None
-    }, (currentExceptionDetails.id, updatedEntriesList))
+    }, (currentExceptionDetails.id, linkedStagingEntryIds))
 
     let handleRowSelect = (updateFn: array<JSON.t> => array<JSON.t>) => {
-      setSelectedRows(prev => {
-        let updated = updateFn(prev)
-        updated->Array.length > 1
-          ? updated
-            ->Array.get(updated->Array.length - 1)
-            ->Option.mapOr([], row => [row])
-          : updated
-      })
+      setSelectedRows(prev => updateFn(prev)->getLastSelectedRow)
     }
 
     let stagingEntriesTableSections = React.useMemo(() => {
@@ -819,11 +821,11 @@ let make = (
   ~setExceptionStage,
   ~selectedRows,
   ~setSelectedRows,
-  ~updatedEntriesList: array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>,
-  ~setUpdatedEntriesList,
+  ~changes: Dict.t<ReconEngineExceptionTransactionTypes.entryChange>,
+  ~setChanges,
   ~currentExceptionDetails: ReconEngineTypes.transactionType,
   ~accountsData: array<ReconEngineTypes.accountType>,
-  ~oldEntriesList: array<ReconEngineExceptionTransactionTypes.exceptionResolutionEntryType>,
+  ~ruleAccountIds: array<string>,
 ) => {
   open ReconEngineExceptionTransactionUtils
   open ReconEngineExceptionTransactionHelper
@@ -840,6 +842,8 @@ let make = (
   let updateDetails = useUpdateMethod()
   let fetchDetails = useGetMethod()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
+  let getTransactionEntryWithStatus = ReconEngineHooks.useGetTransactionEntryWithStatus()
+  let (showMarkAsReceivedButton, setShowMarkAsReceivedButton) = React.useState(_ => false)
 
   let fetchTransactionResolutions = async () => {
     try {
@@ -863,8 +867,21 @@ let make = (
     }
   }
 
+  let fetchExpectedEntry = async () => {
+    try {
+      let entry = await getTransactionEntryWithStatus(
+        ~primaryTransactionId=currentExceptionDetails.id,
+        ~status=Expected,
+      )
+      setShowMarkAsReceivedButton(_ => entry->Option.isSome)
+    } catch {
+    | _ => setShowMarkAsReceivedButton(_ => false)
+    }
+  }
+
   React.useEffect(() => {
     fetchTransactionResolutions()->ignore
+    fetchExpectedEntry()->ignore
     None
   }, [currentExceptionDetails.id])
 
@@ -958,12 +975,7 @@ let make = (
     let entryDetails =
       selectedEntry->getDictFromJsonObject->exceptionTransactionEntryItemToItemMapper
 
-    let updatedEntry = getUpdatedEntry(~formData, ~entryDetails)
-    let newEntriesList =
-      updatedEntriesList->Array.map(entry =>
-        entry.entry_key == updatedEntry.entry_key ? updatedEntry : entry
-      )
-    setUpdatedEntriesList(_ => newEntriesList)
+    setChanges(changes => changes->recordEditedEntry(~entry=entryDetails, ~formData))
     setExceptionStage(_ => ConfirmResolution(EditEntry))
     setActiveModal(_ => None)
     setSelectedRows(_ => [])
@@ -976,12 +988,9 @@ let make = (
     let entryDetails =
       selectedEntry->getDictFromJsonObject->exceptionTransactionEntryItemToItemMapper
 
-    let updatedEntry = getUpdatedEntry(~formData, ~markAsReceived=true, ~entryDetails)
-    let newEntriesList =
-      updatedEntriesList->Array.map(entry =>
-        entry.entry_key == updatedEntry.entry_key ? updatedEntry : entry
-      )
-    setUpdatedEntriesList(_ => newEntriesList)
+    setChanges(changes =>
+      changes->recordEditedEntry(~entry=entryDetails, ~formData, ~isMarkReceived=true)
+    )
     setExceptionStage(_ => ConfirmResolution(EditEntry))
     setActiveModal(_ => None)
     setSelectedRows(_ => [])
@@ -990,14 +999,18 @@ let make = (
   }
 
   let onReplaceEntrySubmit = async (values, _form: ReactFinalForm.formApi) => {
-    let formData = values->getArrayDataFromJson(exceptionTransactionEntryItemToItemMapper)
-    let selectedEntry = selectedRows->getValueFromArray(0, JSON.Encode.null)
-    let selectedEntryDetails =
-      selectedEntry->getDictFromJsonObject->exceptionTransactionEntryItemToItemMapper
-    let newEntriesList =
-      updatedEntriesList->Array.filter(entry => entry.entry_key != selectedEntryDetails.entry_key)
-
-    setUpdatedEntriesList(_ => newEntriesList->Array.concat(formData))
+    let stagingEntry =
+      values
+      ->getArrayFromJson([])
+      ->getValueFromArray(0, JSON.Encode.null)
+      ->getDictFromJsonObject
+      ->exceptionTransactionEntryItemToItemMapper
+    let entry =
+      selectedRows
+      ->getValueFromArray(0, JSON.Encode.null)
+      ->getDictFromJsonObject
+      ->exceptionTransactionEntryItemToItemMapper
+    setChanges(changes => changes->recordReplacedEntry(~entry, ~stagingEntry))
     setExceptionStage(_ => ConfirmResolution(ReplaceStagingEntryToTransaction))
     setActiveModal(_ => None)
     setSelectedRows(_ => [])
@@ -1006,7 +1019,7 @@ let make = (
 
   let onLinkEntrySubmit = async (values, _form: ReactFinalForm.formApi) => {
     let formData = values->getArrayDataFromJson(exceptionTransactionEntryItemToItemMapper)
-    setUpdatedEntriesList(_ => updatedEntriesList->Array.concat(formData))
+    setChanges(changes => changes->recordLinkedEntries(formData))
     setExceptionStage(_ => ConfirmResolution(LinkStagingEntryToTransaction))
     setActiveModal(_ => None)
     setSelectedRows(_ => [])
@@ -1015,8 +1028,7 @@ let make = (
 
   let onCreateEntrySubmit = async (values, _form: ReactFinalForm.formApi) => {
     let formData = values->getDictFromJsonObject
-    let newEntry = getNewEntry(~formData, ~updatedEntriesList)
-    setUpdatedEntriesList(_ => updatedEntriesList->Array.concat([newEntry]))
+    setChanges(changes => changes->recordCreatedEntry(~formData))
     setExceptionStage(_ => ConfirmResolution(CreateNewEntry))
     Nullable.null
   }
@@ -1026,9 +1038,8 @@ let make = (
     selectedEntry->getDictFromJsonObject->exceptionTransactionEntryItemToItemMapper
   }, [selectedRows])
 
-  let showMarkAsReceivedButton =
-    currentExceptionDetails.transaction_status == Expected ||
-      updatedEntriesList->Array.some(entry => entry.status == Expected)
+  let transactionCurrency = currentExceptionDetails.credit_amount.currency
+  let linkedStagingEntryIds = React.useMemo(() => changes->getLinkedStagingEntryIds, [changes])
 
   let fixEntriesButtons = getFixEntriesButtons(
     ~isResolutionAvailable,
@@ -1048,7 +1059,7 @@ let make = (
   let onDiscardChanges = () => {
     setExceptionStage(_ => ShowResolutionOptions(NoResolutionOptionNeeded))
     setSelectedRows(_ => [])
-    setUpdatedEntriesList(_ => oldEntriesList)
+    setChanges(_ => Dict.make())
   }
 
   let isNewlyCreatedEntry = entryDetails.entry_id == "-"
@@ -1061,10 +1072,7 @@ let make = (
     customLoader={<Shimmer styleClass="h-24 w-full rounded-xl" />}>
     <div
       className="flex flex-row items-start justify-between gap-6 w-full bg-nd_gray-50 border border-nd_gray-150 rounded-lg p-4 mb-6">
-      <ExceptionDataDisplay
-        currentExceptionDetails
-        entryDetails={updatedEntriesList->Array.map(getEntryTypeFromExceptionEntryType)}
-      />
+      <ExceptionDataDisplay currentExceptionDetails />
       <RenderIf
         condition={exceptionStage == ShowResolutionOptions(FixEntries) ||
         exceptionStage == ConfirmResolution(EditEntry) ||
@@ -1162,25 +1170,21 @@ let make = (
           <EditEntryModalContent
             entryDetails
             isNewlyCreatedEntry
-            updatedEntriesList={isNewlyCreatedEntry
-              ? oldEntriesList->Array.map(getEntryTypeFromExceptionEntryType)
-              : updatedEntriesList->Array.map(getEntryTypeFromExceptionEntryType)}
+            transactionCurrency
+            ruleAccountIds
             onSubmit=onEditEntrySubmit
           />
         | ResolvingException(MarkAsReceived) =>
           <MarkAsReceivedModalContent
             entryDetails
             isNewlyCreatedEntry
-            updatedEntriesList={isNewlyCreatedEntry
-              ? oldEntriesList->Array.map(getEntryTypeFromExceptionEntryType)
-              : updatedEntriesList->Array.map(getEntryTypeFromExceptionEntryType)}
+            transactionCurrency
+            ruleAccountIds
             onSubmit=onMarkAsReceivedSubmit
           />
         | ResolvingException(CreateNewEntry) =>
           <CreateEntryModalContent
-            entriesList={oldEntriesList->Array.map(getEntryTypeFromExceptionEntryType)}
-            onSubmit=onCreateEntrySubmit
-            entryDetails
+            transactionCurrency ruleAccountIds onSubmit=onCreateEntrySubmit entryDetails
           />
         | ResolvingException(ReplaceStagingEntryToTransaction) =>
           <ReplaceStagingEntryModalContent
@@ -1190,7 +1194,7 @@ let make = (
             activeModal
             setActiveModal
             onSubmit={onReplaceEntrySubmit}
-            updatedEntriesList
+            linkedStagingEntryIds
           />
         | ResolvingException(LinkStagingEntryToTransaction) =>
           <LinkStagingEntryModalContent
@@ -1199,7 +1203,8 @@ let make = (
             setActiveModal
             setExceptionStage
             onSubmit={onLinkEntrySubmit}
-            updatedEntriesList
+            linkedStagingEntryIds
+            ruleAccountIds
           />
         | _ => React.null
         }}
