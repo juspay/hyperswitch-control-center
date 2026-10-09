@@ -9,6 +9,7 @@ let make = () => {
   let url = RescriptReactRouter.useUrl()
   let {globalUIConfig: {backgroundColor}} = React.useContext(ThemeProvider.themeContext)
   let contentRef = React.useRef(Js.Nullable.null)
+  let {isFrameExpanded, setModalRoot} = FullPageModalContext.useFullPageModal()
 
   let measureAndSendDimensions = rootElement => {
     // Get height dimensions - PRIORITIZING SCROLL HEIGHT
@@ -93,12 +94,22 @@ let make = () => {
     )
   }, [])
 
-  <div id="embeddable-app" className={backgroundColor} ref={ReactDOM.Ref.domRef(contentRef)}>
-    <ErrorBoundary>
-      {switch url.path->urlPath {
-      | list{"connectors", ..._} => <ConnectorEmbeddedContainer />
-      | _ => <NotFoundPage />
-      }}
-    </ErrorBoundary>
+  <div
+    id="embeddable-app"
+    className={isFrameExpanded ? "bg-transparent" : backgroundColor}
+    ref={ReactDOM.Ref.domRef(contentRef)}>
+    <div ref={ReactDOM.Ref.callbackDomRef(setModalRoot)} />
+    <div id="embeddable-content" className={isFrameExpanded ? "hidden" : ""}>
+      <ErrorBoundary>
+        <DisplayOptionsContext.Provider value=DisplayOptionsContext.embeddableDisplayOptions>
+          {switch url.path->urlPath {
+          | list{"connectors", ...remainingPath} => <ConnectorEmbeddedContainer remainingPath />
+          | list{"payments", ...remainingPath} => <PaymentsEmbeddedContainer remainingPath />
+          | list{"refunds", ...remainingPath} => <RefundsEmbeddedContainer remainingPath />
+          | _ => <NotFoundPage />
+          }}
+        </DisplayOptionsContext.Provider>
+      </ErrorBoundary>
+    </div>
   </div>
 }

@@ -58,7 +58,10 @@ const configMiddleware = (req, res, next) => {
 };
 
 const assetRewriteMiddleware = (req, _res, next) => {
-  if (req.path.startsWith("/embedded")) {
+  if (
+    req.path.startsWith("/embedded/assets/") ||
+    req.path.startsWith("/embedded/lottie-files/")
+  ) {
     req.url = req.path.replace(/^\/embedded/, "");
   } else if (
     req.path.startsWith("/assets/") ||

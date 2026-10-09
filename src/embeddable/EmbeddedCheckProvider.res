@@ -1,9 +1,13 @@
 type embeddedState = Success | NotInsideIframe | TokenFetchError | Loading
 
-type embeddedContextType = {setEmbeddedStateToError: unit => unit}
+type embeddedContextType = {
+  setEmbeddedStateToError: unit => unit,
+  isFullPageModalSupported: bool,
+}
 
 let embeddedProviderContext: embeddedContextType = {
   setEmbeddedStateToError: () => (),
+  isFullPageModalSupported: false,
 }
 
 let embeddedContext = React.createContext(embeddedProviderContext)
@@ -16,8 +20,8 @@ module Provider = {
 let make = (~children) => {
   open Typography
   open LogicUtils
-  open EmbeddableGlobalUtils
   open EmbeddedStorageUtils
+  open EmbeddedIframeUtils
 
   let isEmbedded = (): bool => {
     Window.self !== Window.top
@@ -25,37 +29,37 @@ let make = (~children) => {
 
   let (componentKey, setComponentKey) = React.useState(_ => "")
   let (embeddedState, setEmbeddedState) = React.useState(_ => Loading)
+  let (isFullPageModalSupported, setIsFullPageModalSupported) = React.useState(_ => false)
 
   let handleAuthMessage = (ev: Dom.event) => {
-    let objectdata = ev->HandlingEvents.convertToCustomEvent
-    switch objectdata.data->JSON.Decode.object {
-    | Some(dict) => {
-        let messageType = dict->getString("type", "")
-
-        if messageType->messageToTypeConversion == AUTH_TOKEN {
-          setEmbeddedState(_ => Loading)
-          setComponentKey(_ => "")
-          let tokenFromParent = dict->getOptionString("token")
-          switch tokenFromParent {
-          | Some(tokenStringFromParent) =>
-            if tokenStringFromParent->isNonEmptyString {
-              LocalStorage.setEmbeddedTokenToStorage(tokenStringFromParent)
-              setComponentKey(_ => randomString(~length=10))
-              setEmbeddedState(_ => Success)
-            } else {
-              LocalStorage.setEmbeddedTokenToStorage("")
-              setEmbeddedState(_ => TokenFetchError)
-            }
-          | None => setEmbeddedState(_ => TokenFetchError)
+    switch ev->decodeMessageFromParent {
+    | AUTH_TOKEN(tokenFromParent) => {
+        ev->pinParentOrigin
+        setEmbeddedState(_ => Loading)
+        setComponentKey(_ => "")
+        switch tokenFromParent {
+        | Some(tokenStringFromParent) =>
+          if tokenStringFromParent->isNonEmptyString {
+            LocalStorage.setEmbeddedTokenToStorage(tokenStringFromParent)
+            setComponentKey(_ => randomString(~length=10))
+            setEmbeddedState(_ => Success)
+          } else {
+            LocalStorage.setEmbeddedTokenToStorage("")
+            setEmbeddedState(_ => TokenFetchError)
           }
-        }
-
-        if messageType->messageToTypeConversion == AUTH_ERROR {
-          LocalStorage.setEmbeddedTokenToStorage("")
-          setEmbeddedState(_ => TokenFetchError)
+        | None => setEmbeddedState(_ => TokenFetchError)
         }
       }
-    | None => ()
+    | INIT_CONFIG({isFullPageModalSupported}) => {
+        ev->pinParentOrigin
+        setIsFullPageModalSupported(_ => isFullPageModalSupported)
+      }
+    | AUTH_ERROR => {
+        ev->pinParentOrigin
+        LocalStorage.setEmbeddedTokenToStorage("")
+        setEmbeddedState(_ => TokenFetchError)
+      }
+    | EMBEDDED_MODAL_OPENED | EMBEDDED_MODAL_CLOSED | Unknown(_) => ()
     }
   }
 
@@ -68,13 +72,13 @@ let make = (~children) => {
       setEmbeddedState(_ => NotInsideIframe)
       None
     } else {
-      EmbeddedIframeUtils.sendIframeReadyMessageToParent()
+      sendIframeReadyMessageToParent()
       Window.addEventListener("message", handleAuthMessage)
       Some(() => Window.removeEventListener("message", handleAuthMessage))
     }
   }, [])
 
-  <Provider value={setEmbeddedStateToError: setEmbeddedStateToError}>
+  <Provider value={setEmbeddedStateToError, isFullPageModalSupported}>
     {switch embeddedState {
     | NotInsideIframe =>
       <div className="h-screen w-screen flex justify-center items-center p-4">
