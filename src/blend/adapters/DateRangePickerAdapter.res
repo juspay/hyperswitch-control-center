@@ -22,8 +22,7 @@ let toBlendPreset = (
   | LastMonth => fromPreset(lastMonth)
   | LastSixMonths => {
       let now = Date.make()
-      let sixMonthsAgo = Date.make()
-      Date.setMonth(sixMonthsAgo, Date.getMonth(sixMonthsAgo) - 6)
+      let sixMonthsAgo = (now->DayJs.getDayJsForJsDate).subtract(6, "month").toDate()
       makeCustomPreset(
         ~id="last6Months",
         ~label="Last 6 months",
@@ -38,11 +37,7 @@ let toBlendPreset = (
         ~month=Date.getMonth(now) + 1,
         ~date=1,
       )
-      let lastOfNextMonth = Date.makeWithYMD(
-        ~year=Date.getFullYear(now),
-        ~month=Date.getMonth(now) + 2,
-        ~date=0,
-      )
+      let lastOfNextMonth = (firstOfNextMonth->DayJs.getDayJsForJsDate).endOf("month").toDate()
       makeCustomPreset(
         ~id="nextMonth",
         ~label="Next month",
@@ -79,20 +74,22 @@ let toBlendPreset = (
       )
     }
   | Day(x) =>
-    if x === 7.0 {
+    if disableFutureDates && x === 7.0 {
       fromPreset(last7Days)
-    } else if x === 30.0 {
+    } else if disableFutureDates && x === 30.0 {
       fromPreset(last30Days)
     } else {
       let now = Date.make()
-      let daysAgo = (now->DayJs.getDayJsForJsDate).subtract(x->Float.toInt, "day").toDate()
-      let label = `Last ${x->Float.toString->removeTrailingZero} days`
-      makeCustomPreset(
-        ~id=`last_${x->Float.toString}_days`,
-        ~label,
-        ~startDate=daysAgo,
-        ~endDate=now,
-      )
+      let today = now->DayJs.getDayJsForJsDate
+      let (startDate, endDate) = if disableFutureDates {
+        let day = today.subtract(x->Float.toInt - 1, "day").format("YYYY-MM-DD")
+        (Date.fromString(`${day}T00:00:00`), now)
+      } else {
+        (now, today.add(x->Float.toInt - 1, "day").endOf("day").toDate())
+      }
+      let direction = disableFutureDates ? "Last" : "Next"
+      let label = `${direction} ${x->Float.toString->removeTrailingZero} days`
+      makeCustomPreset(~id=`${direction}_${x->Float.toString}_days`, ~label, ~startDate, ~endDate)
     }
   }
 }
@@ -115,8 +112,7 @@ let presetSpanDays = (day: DateRangeUtils.customDateRange) => {
     ->Date.getDate
     ->Int.toFloat
   | LastSixMonths => {
-      let sixMonthsAgo = Date.make()
-      Date.setMonth(sixMonthsAgo, Date.getMonth(sixMonthsAgo) - 6)
+      let sixMonthsAgo = (now->DayJs.getDayJsForJsDate).subtract(6, "month").toDate()
       getDaysDiffForDates(~startDate=sixMonthsAgo->Date.getTime, ~endDate=now->Date.getTime)
     }
   | Hour(x) => x /. 24.

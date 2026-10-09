@@ -48,92 +48,75 @@ let getMins = (val: float) => {
 }
 let getPredefinedStartAndEndDate = (
   todayDayJsObj: DayJs.dayJs,
-  isoStringToCustomTimeZone: string => TimeZoneHook.dateTimeString,
+  _isoStringToCustomTimeZone: string => TimeZoneHook.dateTimeString,
   isoStringToCustomTimezoneInFloat: string => TimeZoneHook.dateTimeFloat,
-  customTimezoneToISOString,
+  _customTimezoneToISOString,
   value: customDateRange,
   disableFutureDates,
   disablePastDates,
-  todayDate,
-  todayTime,
+  _todayDate,
+  _todayTime,
 ) => {
-  let lastMonth = todayDayJsObj.subtract(1, "month").endOf("month").toDate()
-  let lastSixMonths = todayDayJsObj.toDate()
-  let nextMonth = todayDayJsObj.add(1, "month").endOf("month").toDate()
-  let yesterday = todayDayJsObj.subtract(1, "day").toDate()
-  let tomorrow = todayDayJsObj.add(1, "day").toDate()
-  let thisMonth = disableFutureDates
-    ? todayDayJsObj.toDate()
-    : todayDayJsObj.endOf("month").toDate()
-
-  let customDate = switch value {
-  | LastMonth => lastMonth
-  | LastSixMonths => lastSixMonths
-  | NextMonth => nextMonth
-  | Yesterday => yesterday
-  | Tomorrow => tomorrow
-  | ThisMonth => thisMonth
-  | _ => todayDayJsObj.toDate()
-  }
-
-  let daysInMonth =
-    (customDate->DayJs.getDayJsForJsDate).endOf("month").toString()
-    ->Date.fromString
-    ->Js.Date.getDate
-  let prevDate = (customDate->DayJs.getDayJsForJsDate).subtract(6, "month").toString()
-  let daysInSixMonth = (customDate->DayJs.getDayJsForJsDate).diff(prevDate, "day")->Int.toFloat
-  let count = switch value {
-  | Today => 1.0
-  | Yesterday => 1.0
-  | Tomorrow => 1.0
-  | LastMonth => daysInMonth
-  | LastSixMonths => daysInSixMonth
-  | ThisMonth => customDate->Js.Date.getDate
-  | NextMonth => daysInMonth
-  | Day(val) => val
-  | Hour(val) => val /. 24.0 +. 1.
-  }
-
-  let date =
-    customTimezoneToISOString(
-      String.make(customDate->Js.Date.getFullYear),
-      String.make(customDate->Js.Date.getMonth +. 1.0),
-      String.make(customDate->Js.Date.getDate),
-      String.make(customDate->Js.Date.getHours),
-      String.make(customDate->Js.Date.getMinutes),
-      String.make(customDate->Js.Date.getSeconds),
-    )->Date.fromString
-
-  let todayInitial = date
+  // Calendar arithmetic uses selected-zone wall time, without converting it a second time.
+  let now = todayDayJsObj.toDate()
   let today =
-    todayInitial
+    now
     ->Date.toISOString
     ->isoStringToCustomTimezoneInFloat
     ->TimeZoneHook.dateTimeObjectToDate
-  let msInADay = 24.0 *. 60.0 *. 60.0 *. 1000.0
-  let durationSecs: float = (count -. 1.0) *. msInADay
-  let dateBeforeDuration = today->Date.getTime->Js.Date.fromFloat
-  let msInterval = disableFutureDates
-    ? dateBeforeDuration->Date.getTime -. durationSecs
-    : dateBeforeDuration->Date.getTime +. durationSecs
-  let dateAfterDuration = msInterval->Js.Date.fromFloat
-
-  let (finalStartDate, finalEndDate) = disableFutureDates
-    ? (dateAfterDuration, dateBeforeDuration)
-    : (dateBeforeDuration, dateAfterDuration)
-  let startDate = getDateString(finalStartDate->Date.toString, isoStringToCustomTimeZone)
-  let endDate = getDateString(finalEndDate->Date.toString, isoStringToCustomTimeZone)
+    ->DayJs.getDayJsForJsDate
+  let todayDate = today.format("YYYY-MM-DD")
+  let todayTime = today.format("HH:mm:ss")
+  let (start, end) = switch value {
+  | Today => (today, today)
+  | Yesterday => {
+      let day = today.subtract(1, "day")
+      (day, day)
+    }
+  | Tomorrow => {
+      let day = today.add(1, "day")
+      (day, day)
+    }
+  | ThisMonth => (today.date(1), disableFutureDates ? today : today.endOf("month"))
+  | LastMonth => {
+      let month = today.subtract(1, "month")
+      (month.date(1), month.endOf("month"))
+    }
+  | NextMonth => {
+      let month = today.add(1, "month")
+      (month.date(1), month.endOf("month"))
+    }
+  | LastSixMonths => (today.subtract(6, "month"), today)
+  | Day(val) =>
+    disableFutureDates
+      ? (today.subtract(val->Float.toInt - 1, "day"), today)
+      : (today, today.add(val->Float.toInt - 1, "day"))
+  | Hour(val) => {
+      // Hour presets are elapsed time, including across daylight-saving transitions.
+      let duration = val *. 3600000.
+      let other = Date.fromTime(Date.getTime(now) +. (disableFutureDates ? -.duration : duration))
+      let other =
+        other
+        ->Date.toISOString
+        ->isoStringToCustomTimezoneInFloat
+        ->TimeZoneHook.dateTimeObjectToDate
+        ->DayJs.getDayJsForJsDate
+      disableFutureDates ? (other, today) : (today, other)
+    }
+  }
+  let startDate = start.format("YYYY-MM-DD")
+  let endDate = end.format("YYYY-MM-DD")
 
   let endTime = {
     let eTime = switch value {
-    | Hour(_) => getTimeString(finalEndDate->Date.toString, isoStringToCustomTimeZone)
+    | Hour(_) => end.format("HH:mm:ss")
     | _ => "23:59:59"
     }
     disableFutureDates && endDate == todayDate ? todayTime : eTime
   }
   let startTime = {
     let sTime = switch value {
-    | Hour(_) => getTimeString(finalStartDate->Date.toString, isoStringToCustomTimeZone)
+    | Hour(_) => start.format("HH:mm:ss")
     | _ => "00:00:00"
     }
     !disableFutureDates && (value !== Today || disablePastDates) && startDate == todayDate
