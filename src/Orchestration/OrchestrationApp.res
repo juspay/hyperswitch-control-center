@@ -54,7 +54,6 @@ let make = (~setScreenState) => {
           />
         </FilterContext>
       </AccessControl>
-    | list{"apm"} => <APMContainer />
     | list{"payments", ..._}
     | list{"refunds", ..._}
     | list{"disputes", ..._}

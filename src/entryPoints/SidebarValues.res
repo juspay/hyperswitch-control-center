@@ -124,17 +124,6 @@ let monitoringSection = (~isMonitoringEnabled) =>
       })
     : emptyComponent
 
-let alternatePaymentMethods = isApmEnabled =>
-  isApmEnabled
-    ? Link({
-        name: "Alt Payment Methods",
-        icon: "nd-apm",
-        link: "/apm",
-        access: Access,
-        selectedIcon: "nd-fill-apm",
-      })
-    : emptyComponent
-
 let operations = (
   isOperationsEnabled,
   ~userHasResourceAccess,
@@ -761,8 +750,9 @@ let paymentLinkTheme = {
 }
 
 let offers = userHasResourceAccess => {
-  SubLevelLink({
+  LinkWithTag({
     name: "Offers",
+    icon: "percentage",
     iconTag: "newTag",
     link: `/offers`,
     access: userHasResourceAccess(~resourceAccess=Offers),
@@ -781,7 +771,6 @@ let developers = (
   let apiKeys = apiKeys(userHasResourceAccess)
   let webhooks = webhooks(userHasResourceAccess)
   let paymentSettings = paymentSettings(userHasResourceAccess)
-  let offers = offers(userHasResourceAccess)
 
   let links = if isCurrentMerchantPlatform {
     [paymentSettings, apiKeys, webhooks]
@@ -799,7 +788,6 @@ let developers = (
     if paymentLinkThemeConfigurator {
       defaultDevelopersOptions->Array.push(paymentLinkTheme)
     }
-    defaultDevelopersOptions->Array.push(offers)
     defaultDevelopersOptions
   }
 

@@ -25,7 +25,6 @@ let useGetHsSidebarValues = () => {
     taxProcessor,
     newAnalytics,
     authenticationAnalytics,
-    devAltPaymentMethods,
     devWebhooks,
     threedsExemptionRules,
     routingAnalytics,
@@ -66,7 +65,7 @@ let useGetHsSidebarValues = () => {
           ~isEmbedDecisionEngineEnabled=showDecisionEngine,
         ),
         devVault->vault(~userHasResourceAccess),
-        devAltPaymentMethods->alternatePaymentMethods,
+        offers(userHasResourceAccess),
       ]
     : []
 
