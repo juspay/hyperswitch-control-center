@@ -213,14 +213,10 @@ module Details = {
 
 module FraudRiskBanner = {
   @react.component
-  let make = (
-    ~frmMessage: PaymentInterfaceTypes.frmMessage,
-    ~onReviewDetailsClick=?,
-    ~transactionLabel="payment",
-  ) => {
+  let make = (~frmName, ~onReviewDetailsClick=?, ~transactionLabel="payment") => {
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
     let frmDisplayName =
-      frmMessage.frm_name->ConnectorUtils.getDisplayNameForConnector(~connectorType=FRMPlayer)
+      frmName->ConnectorUtils.getDisplayNameForConnector(~connectorType=FRMPlayer)
     <div
       className="flex justify-between items-center w-full  p-4 rounded-md bg-white border border-[#C04141]/50 ">
       <div className="flex gap-2">
@@ -228,7 +224,7 @@ module FraudRiskBanner = {
         <p className="text-lightgray_background font-medium text-fs-16">
           {`This ${transactionLabel} is marked fraudulent by`->React.string}
         </p>
-        <GatewayIcon gateway={frmMessage.frm_name->String.toUpperCase} className="w-6 h-6" />
+        <GatewayIcon gateway={frmName->String.toUpperCase} className="w-6 h-6" />
         <p className="text-lightgray_background font-medium text-fs-16">
           {frmDisplayName->React.string}
         </p>

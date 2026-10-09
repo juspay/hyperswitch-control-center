@@ -1117,7 +1117,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     </div>
     <RenderIf condition={orderData.frm_message.frm_status === "fraud"}>
       <FraudRiskBanner
-        frmMessage={orderData.frm_message}
+        frmName={orderData.frm_message.frm_name}
         onReviewDetailsClick={() => selectTabByTitle("FRM Details")}
       />
     </RenderIf>
