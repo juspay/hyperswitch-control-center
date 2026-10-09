@@ -436,7 +436,9 @@ let getStartAndEndTime = (filterValueJson, version) => {
   filterValueJson->isEmptyDict
     ? ("", "")
     : {
-        let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
+        let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(
+          ~range=HSwitchRemoteFilter.last30DaysRange,
+        )
         (
           filterValueJson->getString(startTimeFilterKey(version), defaultDate.start_time),
           filterValueJson->getString(endTimeFilterKey(version), defaultDate.end_time),

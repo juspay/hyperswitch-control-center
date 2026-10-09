@@ -8,6 +8,19 @@ type customDateRange =
   | NextMonth
   | Hour(float)
   | Day(float)
+
+let standardPredefinedDays = [
+  Hour(0.5),
+  Hour(1.0),
+  Hour(6.0),
+  Today,
+  Yesterday,
+  Day(7.0),
+  Day(30.0),
+  ThisMonth,
+  LastMonth,
+]
+
 type compareOption =
   | No_Comparison
   | Previous_Period
