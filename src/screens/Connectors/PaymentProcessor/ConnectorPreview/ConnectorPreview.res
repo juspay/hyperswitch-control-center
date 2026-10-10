@@ -100,7 +100,7 @@ module ConnectorSummaryGrid = {
       ~connectorName={connectorInfo.connector_name},
       ~merchantId,
     )
-    let (processorType, _) =
+    let (processorType, connectorType) =
       connectorInfo.connector_type
       ->connectorTypeTypedValueToStringMapper
       ->connectorTypeTuple
@@ -317,7 +317,7 @@ module ConnectorSummaryGrid = {
       }}
       // TODO: Gate webhook details on the WASM value. Blocked: useGetFilterDictFromUrl is initially empty when the WASM value is called.
       <RenderIf
-        condition={connectorInfo.connector_name->getConnectorNameTypeFromString ==
+        condition={connectorInfo.connector_name->getConnectorNameTypeFromString(~connectorType) ==
           Processors(SANTANDER)}>
         <ConnectorPreviewHelper.RegisteredWebhooks
           connectorInfo connector setCurrentStep webhookStepValue isUpdateFlow
