@@ -149,6 +149,13 @@ type processorTypes =
   | WORLDPAYRAFT
   | ETISALAT
   | MERCHANTE
+  | SAFERPAY
+  | JPMORGAN_ORBITAL
+  | D24
+  | PAYNEARME
+  | PAYDOTCOM
+  | ELAVON_PG
+  | GLOBALPAYMENTS_HEARTLAND
 
 type payoutProcessorTypes =
   | ADYEN
