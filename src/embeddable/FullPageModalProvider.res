@@ -11,15 +11,16 @@ let make = (~children) => {
 
   let hasOpenModals = openModalCount > 0
 
+  let handleFrameMessage = (ev: Dom.event) => {
+    switch ev->decodeMessageFromParent {
+    | EMBEDDED_MODAL_OPENED => setIsFrameExpanded(_ => true)
+    | EMBEDDED_MODAL_CLOSED => setIsFrameExpanded(_ => false)
+    | _ => ()
+    }
+  }
+
   React.useEffect(() => {
     if isEnabled {
-      let handleFrameMessage = (ev: Dom.event) => {
-        switch ev->decodeMessageFromParent {
-        | EMBEDDED_MODAL_OPENED => setIsFrameExpanded(_ => true)
-        | EMBEDDED_MODAL_CLOSED => setIsFrameExpanded(_ => false)
-        | _ => ()
-        }
-      }
       Window.addEventListener("message", handleFrameMessage)
       Some(
         () => {
