@@ -1733,6 +1733,11 @@ let useGetURL = () => {
           | Post => Euler(`${offersBaseURL}/create`)
           | _ => Default("")
           }
+        | #OFFER_BIN_LIST_DOWNLOAD =>
+          switch methodType {
+          | Post => Euler(`${offersBaseURL}/csv-downloads`)
+          | _ => Default("")
+          }
         | #NONE => Default("")
         }
       | ALERTS =>

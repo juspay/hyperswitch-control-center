@@ -75,3 +75,32 @@ let useDeleteOffer = () => {
     }
   }
 }
+
+let useOfferBinList = () => {
+  let getURL = useGetURL()
+  let fetchApi = AuthHooks.useApiFetcher()
+  let {merchantId, profileId} = React.useContext(
+    UserInfoProvider.defaultContext,
+  ).getCommonSessionDetails()
+  let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+
+  async offerId => {
+    let url = getURL(~entityName=V1(OFFERS), ~methodType=Post, ~offersType=#OFFER_BIN_LIST_DOWNLOAD)
+    let res = await fetchApi(
+      url,
+      ~method_=Post,
+      ~bodyStr=buildBinListBody(offerId)->JSON.stringify,
+      ~xFeatureRoute,
+      ~forceCookies,
+      ~sendV1DummyApiKeyHeader,
+      ~merchantId,
+      ~profileId,
+    )
+    if res->Fetch.Response.status >= 300 {
+      Exn.raiseError("Failed to fetch the BIN list")
+    }
+    let content = await res->Fetch.Response.text
+    content->parseBinListCsv
+  }
+}

@@ -16,6 +16,13 @@ let descriptionField = FormRenderer.makeFieldInfo(
   ~customInput=InputFields.multiLineTextInput(~isDisabled=false, ~rows=Some(4), ~cols=None),
 )
 
+let termsAndConditionsField = FormRenderer.makeFieldInfo(
+  ~label="Terms and Conditions",
+  ~name="tnc",
+  ~placeholder="Eg. Offer valid once per customer during the offer period",
+  ~customInput=InputFields.multiLineTextInput(~isDisabled=false, ~rows=Some(4), ~cols=None),
+)
+
 let selectField = (~name, ~label, ~options, ~buttonText, ~isRequired=false) =>
   FormRenderer.makeFieldInfo(
     ~label,
@@ -82,7 +89,8 @@ let validityField = FormRenderer.makeMultiInputFieldInfo(
     ~endKey="end_time",
     ~format="YYYY-MM-DDTHH:mm:ss[Z]",
     ~disablePastDates=true,
-    ~predefinedDays=[Hour(24.0), Tomorrow, NextMonth],
+    ~showTime=true,
+    ~predefinedDays=[Today, Hour(24.0), Tomorrow, NextMonth],
     ~numMonths=2,
     ~isTooltipVisible=false,
   ),
@@ -123,25 +131,39 @@ let campaignCountField = countField(
   ~placeholder="Eg. 1000 - Maximum number of times the offer can be availed",
 )
 
-let currencyField = selectField(
-  ~name="currency",
-  ~label="Currency",
-  ~options=currencyOptions,
-  ~buttonText="Choose Currency",
+let currenciesField = FormRenderer.makeFieldInfo(
+  ~label="Currencies",
+  ~name="currencies",
+  ~customInput=InputFields.multiSelectInput(
+    ~options=currencyOptions,
+    ~buttonText="Choose Currencies",
+    ~fullLength=true,
+    ~searchable=true,
+    ~showSelectAll=false,
+    ~marginTop="mt-0",
+  ),
   ~isRequired=true,
 )
 
-let minOrderAmountField = amountField(
-  ~name="min_order_amount",
-  ~label="Minimum Transaction Amount",
-  ~placeholder="Eg. 1000 - Minimum cart value to make the offer eligible",
-  ~isRequired=true,
-)
+let minOrderAmountField = currency =>
+  amountField(
+    ~name=currency->minOrderAmountKey,
+    ~label=`Minimum Transaction Amount (${currency})`,
+    ~placeholder="Eg. 1000 - Minimum cart value to make the offer eligible",
+    ~isRequired=true,
+  )
 
-let maxOrderAmountField = amountField(
-  ~name="max_order_amount",
-  ~label="Maximum Transaction Amount",
-  ~placeholder="Eg. 10000 - Maximum cart value for the offer to be eligible",
+let maxOrderAmountField = currency =>
+  amountField(
+    ~name=currency->maxOrderAmountKey,
+    ~label=`Maximum Transaction Amount (${currency})`,
+    ~placeholder="Eg. 10000 - Maximum cart value for the offer to be eligible",
+  )
+
+let binListBlacklistField = FormRenderer.makeFieldInfo(
+  ~label="Upload BINs as blacklist",
+  ~name="bin_list_blacklist",
+  ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
 )
 
 let amountPerCardField = amountField(

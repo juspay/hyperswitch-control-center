@@ -12,6 +12,7 @@ let languageOptions = allLanguages->Array.map((language): SelectBox.dropdownOpti
 let calculationRuleOptions: array<SelectBox.dropdownOption> = [
   {label: "Percentage", value: (Percentage :> string)},
   {label: "Absolute", value: (Absolute :> string)},
+  {label: "Fixed Effective Amount", value: (FixedEffectiveAmount :> string)},
 ]
 
 let currencyOptions = CurrencyUtils.currencyList->Array.map((
@@ -21,25 +22,34 @@ let currencyOptions = CurrencyUtils.currencyList->Array.map((
   {label: code, value: code}
 })
 
+let minOrderAmountKey = currency => `min_order_amount_${currency}`
+let maxOrderAmountKey = currency => `max_order_amount_${currency}`
+
 let offerFormValuesMapper = (dict): offerFormValues => {
   offerCode: dict->getString("offer_code", ""),
   title: dict->getString("title", ""),
   displayTitle: dict->getString("display_title", ""),
   description: dict->getString("description", ""),
+  termsAndConditions: dict->getString("tnc", ""),
   language: dict->getString("language", "")->languageFromString,
   startTime: dict->getString("start_time", ""),
   endTime: dict->getString("end_time", ""),
   calculationRule: dict->getString("calculation_rule", "")->calculationRuleFromString,
   benefitValue: dict->getFloat("benefit_value", 0.0),
   maxAmount: dict->getOptionFloat("max_amount"),
-  currency: dict->getString("currency", ""),
-  minOrderAmount: dict->getFloat("min_order_amount", 0.0),
-  maxOrderAmount: dict->getOptionFloat("max_order_amount"),
+  currencies: dict
+  ->getStrArrayFromDict("currencies", [])
+  ->Array.map(name => {
+    name,
+    minOrderAmount: dict->getOptionFloat(name->minOrderAmountKey),
+    maxOrderAmount: dict->getOptionFloat(name->maxOrderAmountKey),
+  }),
   campaignAmount: dict->getOptionFloat("campaign_amount"),
   campaignCount: dict->getOptionInt("campaign_count"),
   amountPerCard: dict->getOptionFloat("amount_per_card"),
   countPerCard: dict->getOptionInt("count_per_card"),
   cardBins: dict->getStrArrayFromDict("card_bins", []),
+  binListMode: dict->getBool("bin_list_blacklist", false) ? Blacklist : Whitelist,
 }
 
 let maxBinRows = 10000
@@ -86,6 +96,28 @@ let optionalPositiveAmount = getAmount => formValues =>
 let optionalPositiveCount = getCount => formValues =>
   getCount(formValues)->Option.flatMap(count => count < 1 ? Some(positiveValueError) : None)
 
+let multiCurrencyError = "Not supported when the offer has more than one currency"
+
+let singleCurrencyOnly = getAmount => (formValues: offerFormValues) =>
+  formValues.currencies->Array.length > 1 && getAmount(formValues)->Option.isSome
+    ? Some(multiCurrencyError)
+    : None
+
+let amountLimitRule = getAmount => formValues =>
+  firstError([
+    optionalPositiveAmount(getAmount)(formValues),
+    singleCurrencyOnly(getAmount)(formValues),
+  ])
+
+let maxAmountRule = (formValues: offerFormValues) =>
+  firstError([
+    optionalPositiveAmount(values => values.maxAmount)(formValues),
+    switch formValues.calculationRule {
+    | Percentage => singleCurrencyOnly(values => values.maxAmount)(formValues)
+    | _ => None
+    },
+  ])
+
 let languageRule = (formValues: offerFormValues) =>
   switch formValues.language {
   | UnknownLanguage(_) => Some(requiredFieldError)
@@ -115,15 +147,19 @@ let endTimeRule = (formValues: offerFormValues) =>
       : None,
   ])
 
-let maxOrderAmountRule = (formValues: offerFormValues) =>
-  firstError([
-    optionalPositiveAmount(values => values.maxOrderAmount)(formValues),
-    switch formValues.maxOrderAmount {
-    | Some(maxAmount) if maxAmount < formValues.minOrderAmount =>
-      Some("Maximum amount must be greater than the minimum amount")
-    | _ => None
-    },
-  ])
+let currenciesRule = (formValues: offerFormValues) =>
+  formValues.currencies->isEmptyArray ? Some(requiredFieldError) : None
+
+let minOrderAmountRule = (currency: currencyConstraint) =>
+  currency.minOrderAmount->Option.getOr(0.0) <= 0.0 ? Some(positiveValueError) : None
+
+let maxOrderAmountRule = (currency: currencyConstraint) =>
+  switch (currency.maxOrderAmount, currency.minOrderAmount) {
+  | (Some(maxAmount), _) if maxAmount <= 0.0 => Some(positiveValueError)
+  | (Some(maxAmount), Some(minAmount)) if maxAmount < minAmount =>
+    Some("Maximum amount must be greater than the minimum amount")
+  | _ => None
+  }
 
 let offerDetailsRules: array<offerFormRule> = [
   ("offer_code", requiredString(values => values.offerCode)),
@@ -133,26 +169,28 @@ let offerDetailsRules: array<offerFormRule> = [
   ("end_time", endTimeRule),
   ("calculation_rule", discountTypeRule),
   ("benefit_value", benefitValueRule),
-  ("max_amount", optionalPositiveAmount(values => values.maxAmount)),
-  ("campaign_amount", optionalPositiveAmount(values => values.campaignAmount)),
+  ("max_amount", maxAmountRule),
+  ("campaign_amount", amountLimitRule(values => values.campaignAmount)),
   ("campaign_count", optionalPositiveCount(values => values.campaignCount)),
 ]
 
-let transactionDetailsRules: array<offerFormRule> = [
-  ("currency", requiredString(values => values.currency)),
-  ("min_order_amount", positiveAmount(values => values.minOrderAmount)),
-  ("max_order_amount", maxOrderAmountRule),
-]
+let transactionDetailsRules = (formValues: offerFormValues): array<offerFormRule> =>
+  [("currencies", currenciesRule)]->Array.concat(
+    formValues.currencies->Array.flatMap((currency): array<offerFormRule> => [
+      (currency.name->minOrderAmountKey, _ => currency->minOrderAmountRule),
+      (currency.name->maxOrderAmountKey, _ => currency->maxOrderAmountRule),
+    ]),
+  )
 
 let paymentDetailsRules: array<offerFormRule> = [
-  ("amount_per_card", optionalPositiveAmount(values => values.amountPerCard)),
+  ("amount_per_card", amountLimitRule(values => values.amountPerCard)),
   ("count_per_card", optionalPositiveCount(values => values.countPerCard)),
 ]
 
 let validateOfferForm = values => {
   let formValues = values->getDictFromJsonObject->offerFormValuesMapper
 
-  [offerDetailsRules, transactionDetailsRules, paymentDetailsRules]
+  [offerDetailsRules, formValues->transactionDetailsRules, paymentDetailsRules]
   ->Array.flat
   ->Array.filterMap(((fieldName, rule)) =>
     rule(formValues)->Option.map(error => (fieldName, error->JSON.Encode.string))
@@ -182,10 +220,16 @@ let offerDurationInSeconds = (~startTime, ~endTime) =>
 
 let cardInstrument = [("payment_method_type", "CARD"->JSON.Encode.string)]->getJsonFromArrayOfJson
 
-let cardBinFilters = bins =>
+let binListModeToFilterKey = binListMode =>
+  switch binListMode {
+  | Whitelist => "whitelist"
+  | Blacklist => "blacklist"
+  }
+
+let cardBinFilters = (~binListMode, bins) =>
   [
     (
-      "whitelist",
+      binListMode->binListModeToFilterKey,
       [
         [
           ("type", "CARD_BIN"->JSON.Encode.string),
@@ -214,15 +258,18 @@ let buildCreateBody = (~merchantId, formValues: offerFormValues) => {
       formValues.countPerCard->Option.map(buildCountCounter(~scope=PerCard, ~resetPeriod, _)),
     ]->Array.filterMap(counter => counter)
 
-  let currency =
-    [
-      ("name", formValues.currency->JSON.Encode.string),
-      ("min_order_amount", formValues.minOrderAmount->Float.toString->JSON.Encode.string),
-    ]->Dict.fromArray
-  currency->setOptionString(
-    "max_order_amount",
-    formValues.maxOrderAmount->Option.map(Float.toString),
-  )
+  let currencies = formValues.currencies->Array.map(currency => {
+    let currencyDict = [("name", currency.name->JSON.Encode.string)]->Dict.fromArray
+    currencyDict->setOptionString(
+      "min_order_amount",
+      currency.minOrderAmount->Option.map(Float.toString),
+    )
+    currencyDict->setOptionString(
+      "max_order_amount",
+      currency.maxOrderAmount->Option.map(Float.toString),
+    )
+    currencyDict->JSON.Encode.object
+  })
 
   let benefit =
     [
@@ -240,22 +287,22 @@ let buildCreateBody = (~merchantId, formValues: offerFormValues) => {
 
   let ruleDsl =
     [
-      (
-        "order",
-        [("currency", [currency->JSON.Encode.object]->JSON.Encode.array)]->getJsonFromArrayOfJson,
-      ),
+      ("order", [("currency", currencies->JSON.Encode.array)]->getJsonFromArrayOfJson),
       ("benefits", [benefit->JSON.Encode.object]->JSON.Encode.array),
     ]->Dict.fromArray
   ruleDsl->setOptionArray("counters", counters->getNonEmptyArray)
   ruleDsl->setOptionArray("payment_instrument", hasCardConfig ? Some([cardInstrument]) : None)
   ruleDsl->setOptionJson(
     "filters",
-    formValues.cardBins->getNonEmptyArray->Option.map(cardBinFilters),
+    formValues.cardBins
+    ->getNonEmptyArray
+    ->Option.map(cardBinFilters(~binListMode=formValues.binListMode, _)),
   )
 
   let description = [("title", formValues.title->JSON.Encode.string)]->Dict.fromArray
   description->setOptionString("display_title", formValues.displayTitle->getNonEmptyString)
   description->setOptionString("description", formValues.description->getNonEmptyString)
+  description->setOptionString("tnc", formValues.termsAndConditions->getNonEmptyString)
 
   [
     ("merchant_id", merchantId->JSON.Encode.string),

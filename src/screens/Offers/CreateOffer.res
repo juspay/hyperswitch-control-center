@@ -54,15 +54,15 @@ let make = () => {
           <FormSection title="Offer Details">
             <FieldRow fields=[offerCodeField, titleField] />
             <FieldRow fields=[displayTitleField, languageField] />
-            <FieldRow fields=[descriptionField] />
+            <FieldRow fields=[descriptionField, termsAndConditionsField] />
             <FieldRow fields=[validityField] />
             <FieldRow fields=[calculationRuleField, benefitValueField] />
             <FieldRow fields=[maxAmountField] />
             <FieldRow fields=[campaignAmountField, campaignCountField] />
           </FormSection>
           <FormSection title="Transaction Level Details">
-            <FieldRow fields=[currencyField] />
-            <FieldRow fields=[minOrderAmountField, maxOrderAmountField] />
+            <FieldRow fields=[currenciesField] />
+            <CurrencyAmountFields />
           </FormSection>
           <FormSection title="Payment Details">
             <FieldRow fields=[amountPerCardField, countPerCardField] />

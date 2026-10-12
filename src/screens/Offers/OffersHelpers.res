@@ -25,6 +25,26 @@ module FieldRow = {
   }
 }
 
+module CurrencyAmountFields = {
+  @react.component
+  let make = () => {
+    let currencies =
+      ReactFinalForm.useField("currencies").input.value->LogicUtils.getStrArrayFromJson
+
+    currencies
+    ->Array.map(currency =>
+      <FieldRow
+        key=currency
+        fields=[
+          currency->OffersFormFields.minOrderAmountField,
+          currency->OffersFormFields.maxOrderAmountField,
+        ]
+      />
+    )
+    ->React.array
+  }
+}
+
 module DemoModeBanner = {
   @react.component
   let make = () => {

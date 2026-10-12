@@ -40,6 +40,7 @@ type offerDescription = {
   title: string,
   displayTitle: string,
   description: string,
+  termsAndConditions: string,
   sponsoredBy: sponsor,
 }
 
@@ -123,6 +124,7 @@ type offerDetailsColType =
   | OfferTitle
   | DisplayTitle
   | Description
+  | TermsAndConditions
   | Language
   | Logo
   | ValidFrom
@@ -146,20 +148,20 @@ type offerFormValues = {
   title: string,
   displayTitle: string,
   description: string,
+  termsAndConditions: string,
   language: language,
   startTime: string,
   endTime: string,
   calculationRule: calculationRule,
   benefitValue: float,
   maxAmount: option<float>,
-  currency: string,
-  minOrderAmount: float,
-  maxOrderAmount: option<float>,
+  currencies: array<currencyConstraint>,
   campaignAmount: option<float>,
   campaignCount: option<int>,
   amountPerCard: option<float>,
   countPerCard: option<int>,
   cardBins: array<string>,
+  binListMode: binListMode,
 }
 
 type offerFormRule = (string, offerFormValues => option<string>)

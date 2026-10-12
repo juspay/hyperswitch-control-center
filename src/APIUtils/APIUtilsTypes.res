@@ -179,6 +179,7 @@ type offersType = [
   | #OFFER_CREATE
   | #OFFER_STATUS_UPDATE
   | #OFFER_DELETE
+  | #OFFER_BIN_LIST_DOWNLOAD
   | #NONE
 ]
 

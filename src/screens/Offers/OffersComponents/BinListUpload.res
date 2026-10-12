@@ -9,6 +9,11 @@ let make = () => {
   let inputRef = React.useRef(Nullable.null)
   let (fileName, setFileName) = React.useState(_ => "")
   let (binCount, setBinCount) = React.useState(_ => 0)
+  let isBlacklist =
+    ReactFinalForm.useField("bin_list_blacklist").input.value->getBoolFromJson(false)
+  let eligibilityText = isBlacklist
+    ? "The listed BINs will not be eligible for this offer."
+    : "Only the listed BINs will be eligible for this offer."
 
   let clearFileInput = () =>
     inputRef.current
@@ -63,8 +68,11 @@ let make = () => {
   <div className="flex flex-col gap-3">
     <div className={`text-nd_gray-700 ${body.md.medium}`}> {"Card BIN List"->React.string} </div>
     <p className={`text-nd_gray-500 ${body.sm.regular}`}>
-      {`Upload a CSV with a CARD_BIN header and one 6 to 9 digit BIN per row (up to ${maxBinRows->Int.toString}). Only the listed BINs will be eligible for this offer.`->React.string}
+      {`Upload a CSV with a CARD_BIN header and one 6 to 9 digit BIN per row (up to ${maxBinRows->Int.toString}). ${eligibilityText}`->React.string}
     </p>
+    <FormRenderer.FieldRenderer
+      field=OffersFormFields.binListBlacklistField fieldWrapperClass="w-full"
+    />
     <input
       type_="file"
       accept=".csv"

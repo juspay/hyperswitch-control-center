@@ -39,6 +39,7 @@ let getOfferDescription = dict => {
     title: descriptionDict->getString("title", ""),
     displayTitle: descriptionDict->getString("display_title", ""),
     description: descriptionDict->getString("description", ""),
+    termsAndConditions: descriptionDict->getString("tnc", ""),
     sponsoredBy: descriptionDict->getString("sponsored_by", "")->OffersSponsors.sponsorFromString,
   }
 }
@@ -213,6 +214,22 @@ let buildListBody = (
 let buildDetailBody = offerId =>
   [("offer_ids", [offerId]->getJsonFromArrayOfString)]->getJsonFromArrayOfJson
 
+let buildBinListBody = offerId =>
+  [
+    ("field", "CARD_BIN"->JSON.Encode.string),
+    ("offer_id", offerId->JSON.Encode.string),
+  ]->getJsonFromArrayOfJson
+
+let binListRowPattern = %re("/^\d+$/")
+
+let parseBinListCsv = content =>
+  content
+  ->String.split("\n")
+  ->Array.map(String.trim)
+  ->Array.filter(row => binListRowPattern->RegExp.test(row))
+
+let binListCsvContent = bins => ["CARD_BIN"]->Array.concat(bins)->Array.joinWith("\n")
+
 let buildStatusUpdateBody = (~status: offerStatus) =>
   [("status", (status :> string)->JSON.Encode.string)]->getJsonFromArrayOfJson
 
@@ -231,6 +248,7 @@ let offerTitle = (offer: offer) =>
 let formatBenefitValue = (benefit: benefit) =>
   switch benefit.calculationRule {
   | Percentage => `${benefit.value->Float.toString}% off`
+  | FixedEffectiveAmount => `Fixed at ${benefit.value->Float.toString}`
   | _ => `${benefit.value->Float.toString} off`
   }
 
