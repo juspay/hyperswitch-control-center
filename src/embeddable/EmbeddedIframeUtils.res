@@ -1,3 +1,6 @@
+open LogicUtils
+open EmbeddedTypes
+
 @get external getEventSource: Dom.event => IframeUtils.parent = "source"
 @get external getEventOrigin: Dom.event => string = "origin"
 
@@ -5,20 +8,17 @@ let parentOrigin = ref(None)
 
 let isTrustedParentMessage = (ev: Dom.event) => {
   ev->getEventSource === IframeUtils.iframeParent &&
-    parentOrigin.contents->Option.mapOr(true, origin => origin === ev->getEventOrigin)
+    parentOrigin.contents->mapOptionOrDefault(true, origin => origin === ev->getEventOrigin)
 }
 
 let pinParentOrigin = (ev: Dom.event) => {
   let origin = ev->getEventOrigin
-  if (
-    parentOrigin.contents->Option.isNone && origin->LogicUtils.isNonEmptyString && origin !== "null"
-  ) {
+  if parentOrigin.contents->Option.isNone && origin->isNonEmptyString && origin !== "null" {
     parentOrigin := Some(origin)
   }
 }
 
-let decodeMessageFromParent = (ev: Dom.event): EmbeddedTypes.messageFromParent => {
-  open LogicUtils
+let decodeMessageFromParent = (ev: Dom.event): messageFromParent => {
   let message =
     ev->isTrustedParentMessage
       ? (ev->HandlingEvents.convertToCustomEvent).data->JSON.Decode.object
@@ -37,13 +37,13 @@ let decodeMessageFromParent = (ev: Dom.event): EmbeddedTypes.messageFromParent =
       })
     | "embedded_modal_opened" => EMBEDDED_MODAL_OPENED
     | "embedded_modal_closed" => EMBEDDED_MODAL_CLOSED
-    | messageType => Unknown(messageType)
+    | messageType => UNKNOWN(messageType)
     }
-  | None => Unknown("")
+  | None => UNKNOWN("")
   }
 }
 
-let sendMessageToParent = (~payload=[], messageType: EmbeddedTypes.messageToParent) => {
+let sendMessageToParent = (~payload=[], messageType: messageToParent) => {
   IframeUtils.handlePostMessage(
     ~targetOrigin=parentOrigin.contents->Option.getOr("*"),
     [("type", (messageType :> string)->JSON.Encode.string)]->Array.concat(payload),
@@ -65,7 +65,7 @@ let sendComponentDimensionToParent = (finalHeight, finalWidth, urlPath) => {
 }
 
 let sendModalStateToParent = isOpen => {
-  (isOpen ? EmbeddedTypes.EMBEDDED_MODAL_OPEN : EMBEDDED_MODAL_CLOSE)->sendMessageToParent
+  (isOpen ? EMBEDDED_MODAL_OPEN : EMBEDDED_MODAL_CLOSE)->sendMessageToParent
 }
 
 let sendModalVisibleToParent = () => {

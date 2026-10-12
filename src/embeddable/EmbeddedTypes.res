@@ -9,7 +9,7 @@ type messageFromParent =
   | INIT_CONFIG(initConfigPayload)
   | EMBEDDED_MODAL_OPENED
   | EMBEDDED_MODAL_CLOSED
-  | Unknown(string)
+  | UNKNOWN(string)
 
 type messageToParent =
   | TOKEN_EXPIRED

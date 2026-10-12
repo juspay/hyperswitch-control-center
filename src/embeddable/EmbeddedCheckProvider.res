@@ -59,7 +59,7 @@ let make = (~children) => {
         LocalStorage.setEmbeddedTokenToStorage("")
         setEmbeddedState(_ => TokenFetchError)
       }
-    | EMBEDDED_MODAL_OPENED | EMBEDDED_MODAL_CLOSED | Unknown(_) => ()
+    | EMBEDDED_MODAL_OPENED | EMBEDDED_MODAL_CLOSED | UNKNOWN(_) => ()
     }
   }
 
