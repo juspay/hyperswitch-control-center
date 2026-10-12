@@ -110,13 +110,10 @@ let amountLimitRule = getAmount => formValues =>
   ])
 
 let maxAmountRule = (formValues: offerFormValues) =>
-  firstError([
-    optionalPositiveAmount(values => values.maxAmount)(formValues),
-    switch formValues.calculationRule {
-    | Percentage => singleCurrencyOnly(values => values.maxAmount)(formValues)
-    | _ => None
-    },
-  ])
+  switch formValues.calculationRule {
+  | Percentage => amountLimitRule(values => values.maxAmount)(formValues)
+  | _ => None
+  }
 
 let offerCodeRule = (formValues: offerFormValues) =>
   firstError([
@@ -314,7 +311,7 @@ let buildCreateBody = (~merchantId, formValues: offerFormValues) => {
     (
       "ui_configs",
       [
-        ("auto_apply", "false"->JSON.Encode.string),
+        ("auto_apply", "true"->JSON.Encode.string),
         ("should_validate", "true"->JSON.Encode.string),
         ("is_hidden", "false"->JSON.Encode.string),
       ]->getJsonFromArrayOfJson,
