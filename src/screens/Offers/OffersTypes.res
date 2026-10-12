@@ -1,6 +1,7 @@
 @unboxed
 type offerStatus =
   | @as("DRAFT") Draft
+  | @as("NEW") New
   | @as("ACTIVE") Active
   | @as("PAUSED") Paused
   | @as("EXPIRED") Expired
@@ -48,6 +49,7 @@ type benefit = {
   calculationRule: calculationRule,
   value: float,
   maxAmount: option<float>,
+  currencies: array<string>,
 }
 
 type offer = {

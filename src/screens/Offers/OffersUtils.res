@@ -4,6 +4,7 @@ open OffersTypes
 let statusFromString = status =>
   switch status {
   | "DRAFT" => Draft
+  | "NEW" => New
   | "ACTIVE" => Active
   | "PAUSED" => Paused
   | "EXPIRED" => Expired
@@ -17,13 +18,31 @@ let statusToLabelColor = (status): TableUtils.labelColor =>
   switch status {
   | Active => LabelGreen
   | Paused => LabelOrange
-  | Draft => LabelBlue
+  | Draft | New => LabelBlue
   | Expired => LabelGray
   | Discarded => LabelRed
   | UnknownStatus(_) => LabelLightGray
   }
 
 let allStatuses = [Draft, Active, Paused, Expired, Discarded]
+
+let statusFromValidity = (~status, ~startTime, ~endTime) => {
+  let now = Date.now()
+  let startsAt = startTime->Date.fromString->Date.getTime
+  let endsAt = endTime->Date.fromString->Date.getTime
+  switch status {
+  | New | Active =>
+    if now < startsAt {
+      New
+    } else if now <= endsAt {
+      Active
+    } else {
+      Expired
+    }
+  | Paused => now > endsAt ? Expired : Paused
+  | other => other
+  }
+}
 
 let calculationRuleFromString = calculationRule =>
   switch calculationRule {
@@ -55,18 +74,30 @@ let getBenefit = dict =>
       calculationRule: benefitDict->getString("calculation_rule", "")->calculationRuleFromString,
       value: benefitDict->getFloat("value", 0.0),
       maxAmount: benefitDict->getOptionFloat("max_amount"),
+      currencies: dict
+      ->getDictFromNestedDict("rule_dsl", "order")
+      ->getArrayFromDict("currency", [])
+      ->Array.map(currencyJson => currencyJson->getDictFromJsonObject->getString("name", "")),
     }
   })
 
 let itemToObjMapper = dict => {
-  offerId: dict->getString("offer_id", ""),
-  offerCode: dict->getString("offer_code", ""),
-  status: dict->getString("status", "")->statusFromString,
-  offerDescription: dict->getOfferDescription,
-  startTime: dict->getString("start_time", ""),
-  endTime: dict->getString("end_time", ""),
-  benefit: dict->getBenefit,
-  createdAt: dict->getString("created_at", ""),
+  let startTime = dict->getString("start_time", "")
+  let endTime = dict->getString("end_time", "")
+  {
+    offerId: dict->getString("offer_id", ""),
+    offerCode: dict->getString("offer_code", ""),
+    status: statusFromValidity(
+      ~status=dict->getString("status", "")->statusFromString,
+      ~startTime,
+      ~endTime,
+    ),
+    offerDescription: dict->getOfferDescription,
+    startTime,
+    endTime,
+    benefit: dict->getBenefit,
+    createdAt: dict->getString("created_at", ""),
+  }
 }
 
 let languageFromString = language =>
@@ -245,19 +276,22 @@ let offerTitle = (offer: offer) =>
     ? offer.offerDescription.title
     : offer.offerDescription.displayTitle
 
-let formatBenefitValue = (benefit: benefit) =>
+let formatBenefitValue = (benefit: benefit) => {
+  let amount =
+    `${benefit.value->Float.toString} ${benefit.currencies->Array.joinWith("/")}`->String.trim
   switch benefit.calculationRule {
   | Percentage => `${benefit.value->Float.toString}% off`
-  | FixedEffectiveAmount => `Fixed at ${benefit.value->Float.toString}`
-  | _ => `${benefit.value->Float.toString} off`
+  | FixedEffectiveAmount => `Fixed at ${amount}`
+  | _ => `${amount} off`
   }
+}
 
 let benefitLabel = (offer: offer) =>
   offer.benefit->mapOptionOrDefault(emptyValuePlaceholder, formatBenefitValue)
 
 let canPauseOrActivate = (offer: offer) =>
   switch offer.status {
-  | Active | Paused => true
+  | New | Active | Paused => true
   | _ => false
   }
 
@@ -269,7 +303,7 @@ let canDelete = (offer: offer) =>
 
 let nextStatusOnToggle = (offer: offer) =>
   switch offer.status {
-  | Active => Paused
+  | New | Active => Paused
   | _ => Active
   }
 

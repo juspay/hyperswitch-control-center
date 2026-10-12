@@ -15,12 +15,27 @@ let calculationRuleOptions: array<SelectBox.dropdownOption> = [
   {label: "Fixed Effective Amount", value: (FixedEffectiveAmount :> string)},
 ]
 
-let currencyOptions = CurrencyUtils.currencyList->Array.map((
-  currency
-): SelectBox.dropdownOption => {
-  let code = currency->CurrencyUtils.getCurrencyCodeStringFromVariant
-  {label: code, value: code}
-})
+let unsupportedCurrencies = [
+  "JPY",
+  "KRW",
+  "VND",
+  "UGX",
+  "GNF",
+  "KMF",
+  "DJF",
+  "PYG",
+  "RWF",
+  "VUV",
+  "BHD",
+  "JOD",
+  "KWD",
+]
+
+let currencyOptions =
+  CurrencyUtils.currencyList
+  ->Array.map(CurrencyUtils.getCurrencyCodeStringFromVariant)
+  ->Array.filter(code => !(unsupportedCurrencies->Array.includes(code)))
+  ->Array.map((code): SelectBox.dropdownOption => {label: code, value: code})
 
 let minOrderAmountKey = currency => `min_order_amount_${currency}`
 let maxOrderAmountKey = currency => `max_order_amount_${currency}`
@@ -118,6 +133,14 @@ let maxAmountRule = (formValues: offerFormValues) =>
     },
   ])
 
+let offerCodeRule = (formValues: offerFormValues) =>
+  firstError([
+    requiredString(values => values.offerCode)(formValues),
+    %re("/\s/")->RegExp.test(formValues.offerCode)
+      ? Some("Offer code cannot contain spaces")
+      : None,
+  ])
+
 let languageRule = (formValues: offerFormValues) =>
   switch formValues.language {
   | UnknownLanguage(_) => Some(requiredFieldError)
@@ -162,7 +185,7 @@ let maxOrderAmountRule = (currency: currencyConstraint) =>
   }
 
 let offerDetailsRules: array<offerFormRule> = [
-  ("offer_code", requiredString(values => values.offerCode)),
+  ("offer_code", offerCodeRule),
   ("title", requiredString(values => values.title)),
   ("language", languageRule),
   ("start_time", requiredString(values => values.startTime)),
