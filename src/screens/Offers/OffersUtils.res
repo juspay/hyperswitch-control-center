@@ -63,6 +63,16 @@ let getOfferDescription = dict => {
   }
 }
 
+let getCurrencies = dict =>
+  dict
+  ->getDictFromNestedDict("rule_dsl", "order")
+  ->getArrayFromDict("currency", [])
+  ->getMappedValueFromArrayOfJson(currencyDict => {
+    name: currencyDict->getString("name", ""),
+    minOrderAmount: currencyDict->getOptionFloat("min_order_amount"),
+    maxOrderAmount: currencyDict->getOptionFloat("max_order_amount"),
+  })
+
 let getBenefit = dict =>
   dict
   ->getDictfromDict("rule_dsl")
@@ -74,10 +84,7 @@ let getBenefit = dict =>
       calculationRule: benefitDict->getString("calculation_rule", "")->calculationRuleFromString,
       value: benefitDict->getFloat("value", 0.0),
       maxAmount: benefitDict->getOptionFloat("max_amount"),
-      currencies: dict
-      ->getDictFromNestedDict("rule_dsl", "order")
-      ->getArrayFromDict("currency", [])
-      ->Array.map(currencyJson => currencyJson->getDictFromJsonObject->getString("name", "")),
+      currencies: dict->getCurrencies->Array.map(currency => currency.name),
     }
   })
 
@@ -145,15 +152,7 @@ let getCounterAmount = (dict, ~scope) =>
 let getCounterCount = (dict, ~scope) =>
   dict->getCounter(~scope, ~valueType=CountLimit)->Option.flatMap(getOptionInt(_, "value"))
 
-let getCurrencies = dict =>
-  dict
-  ->getDictFromNestedDict("rule_dsl", "order")
-  ->getArrayFromDict("currency", [])
-  ->getMappedValueFromArrayOfJson(currencyDict => {
-    name: currencyDict->getString("name", ""),
-    minOrderAmount: currencyDict->getOptionFloat("min_order_amount"),
-    maxOrderAmount: currencyDict->getOptionFloat("max_order_amount"),
-  })
+let cardBinFilterType = "CARD_BIN"
 
 let getBinListMode = dict => {
   let filtersDict = dict->getDictfromDict("rule_dsl")->getDictfromDict("filters")
@@ -162,7 +161,7 @@ let getBinListMode = dict => {
     ->getArrayFromDict(key, [])
     ->Array.some(entryJson => {
       let entryDict = entryJson->getDictFromJsonObject
-      entryDict->getString("type", "") == "CARD_BIN" &&
+      entryDict->getString("type", "") == cardBinFilterType &&
         entryDict->getBool("is_value_uploaded", false)
     })
 
@@ -247,7 +246,7 @@ let buildDetailBody = offerId =>
 
 let buildBinListBody = offerId =>
   [
-    ("field", "CARD_BIN"->JSON.Encode.string),
+    ("field", cardBinFilterType->JSON.Encode.string),
     ("offer_id", offerId->JSON.Encode.string),
   ]->getJsonFromArrayOfJson
 
@@ -259,7 +258,7 @@ let parseBinListCsv = content =>
   ->Array.map(String.trim)
   ->Array.filter(row => binListRowPattern->RegExp.test(row))
 
-let binListCsvContent = bins => ["CARD_BIN"]->Array.concat(bins)->Array.joinWith("\n")
+let binListCsvContent = bins => [cardBinFilterType]->Array.concat(bins)->Array.joinWith("\n")
 
 let buildStatusUpdateBody = (~status: offerStatus) =>
   [("status", (status :> string)->JSON.Encode.string)]->getJsonFromArrayOfJson

@@ -15,26 +15,10 @@ let calculationRuleOptions: array<SelectBox.dropdownOption> = [
   {label: "Fixed Effective Amount", value: (FixedEffectiveAmount :> string)},
 ]
 
-let unsupportedCurrencies = [
-  "JPY",
-  "KRW",
-  "VND",
-  "UGX",
-  "GNF",
-  "KMF",
-  "DJF",
-  "PYG",
-  "RWF",
-  "VUV",
-  "BHD",
-  "JOD",
-  "KWD",
-]
-
 let currencyOptions =
   CurrencyUtils.currencyList
   ->Array.map(CurrencyUtils.getCurrencyCodeStringFromVariant)
-  ->Array.filter(code => !(unsupportedCurrencies->Array.includes(code)))
+  ->Array.filter(code => code->CurrencyUtils.getCurrencyTypeFromString == TwoDecimal)
   ->Array.map((code): SelectBox.dropdownOption => {label: code, value: code})
 
 let minOrderAmountKey = currency => `min_order_amount_${currency}`
@@ -77,7 +61,8 @@ let parseBinCsv = content => {
     ->Array.map(String.trim)
     ->Array.filter(isNonEmptyString)
   let bins = switch bins->Array.get(0) {
-  | Some(header) if header->String.toUpperCase == "CARD_BIN" => bins->Array.sliceToEnd(~start=1)
+  | Some(header) if header->String.toUpperCase == cardBinFilterType =>
+    bins->Array.sliceToEnd(~start=1)
   | _ => bins
   }
 
@@ -243,19 +228,13 @@ let offerDurationInSeconds = (~startTime, ~endTime) =>
 
 let cardInstrument = [("payment_method_type", "CARD"->JSON.Encode.string)]->getJsonFromArrayOfJson
 
-let binListModeToFilterKey = binListMode =>
-  switch binListMode {
-  | Whitelist => "whitelist"
-  | Blacklist => "blacklist"
-  }
-
-let cardBinFilters = (~binListMode, bins) =>
+let cardBinFilters = (~binListMode: binListMode, bins) =>
   [
     (
-      binListMode->binListModeToFilterKey,
+      (binListMode :> string)->String.toLowerCase,
       [
         [
-          ("type", "CARD_BIN"->JSON.Encode.string),
+          ("type", cardBinFilterType->JSON.Encode.string),
           ("list", bins->getJsonFromArrayOfString),
           ("is_value_uploaded", true->JSON.Encode.bool),
         ]->getJsonFromArrayOfJson,

@@ -11,6 +11,8 @@ let make = (~offerId, ~offerCode) => {
   let (showModal, setShowModal) = React.useState(_ => false)
   let (searchText, setSearchText) = React.useState(_ => "")
 
+  let noBinsMessage = "No BINs found for this offer"
+
   let withBins = async onLoaded => {
     switch bins {
     | Some(loadedBins) => onLoaded(loadedBins)
@@ -35,11 +37,15 @@ let make = (~offerId, ~offerCode) => {
 
   let downloadBins = _ =>
     withBins(loadedBins =>
-      DownloadUtils.download(
-        ~fileName=`${offerCode}_card_bins.csv`,
-        ~content=loadedBins->binListCsvContent,
-        ~fileType="text/csv",
-      )
+      if loadedBins->LogicUtils.isEmptyArray {
+        showToast(~message=noBinsMessage, ~toastType=ToastError)
+      } else {
+        DownloadUtils.download(
+          ~fileName=`${offerCode}_card_bins.csv`,
+          ~content=loadedBins->binListCsvContent,
+          ~fileType="text/csv",
+        )
+      }
     )->ignore
 
   let loadedBins = bins->Option.getOr([])
@@ -82,7 +88,9 @@ let make = (~offerId, ~offerCode) => {
           <RenderIf condition={visibleBins->LogicUtils.isEmptyArray}>
             <div
               className={`flex items-center justify-center h-full text-nd_gray-500 ${body.md.regular}`}>
-              {"No BINs match your search"->React.string}
+              {(
+                loadedBins->LogicUtils.isEmptyArray ? noBinsMessage : "No BINs match your search"
+              )->React.string}
             </div>
           </RenderIf>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
