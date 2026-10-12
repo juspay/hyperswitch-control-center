@@ -1,7 +1,5 @@
 open Typography
 
-let slackUrl = "https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
-
 module FormSection = {
   @react.component
   let make = (~title, ~children) => {
@@ -38,7 +36,7 @@ module DemoModeBanner = {
           <p className={body.md.regular}>
             {"You are viewing Offers in demo mode. To enable this feature for your merchant account, please reach out to us on "->React.string}
             <a
-              href=slackUrl
+              href=GlobalVars.hyperswitchSlackUrl
               className="text-nd_primary_blue-450 hover:underline cursor-pointer"
               target="_blank">
               {"Slack"->React.string}
@@ -49,45 +47,6 @@ module DemoModeBanner = {
     />
   }
 }
-
-type demoFeature = {
-  icon: string,
-  heading: string,
-  description: string,
-}
-
-let demoFeatures = [
-  {
-    icon: "nd-discount",
-    heading: "Flexible discount types",
-    description: "Offer a percentage off, a flat amount off, or a fixed effective price, with an optional cap on the maximum discount.",
-  },
-  {
-    icon: "nd-wallet",
-    heading: "Campaign budgets",
-    description: "Set a total budget or a maximum number of redemptions per campaign so offers stop automatically when the limit is reached.",
-  },
-  {
-    icon: "nd-shield",
-    heading: "Per-card limits",
-    description: "Limit how much each unique card can save, or how many times it can redeem an offer, to prevent abuse.",
-  },
-  {
-    icon: "nd-filter-horizontal",
-    heading: "BIN-level targeting",
-    description: "Upload a list of card BINs to include or exclude, and run offers for specific issuers or card programmes.",
-  },
-  {
-    icon: "nd-config-sliders",
-    heading: "Transaction rules",
-    description: "Restrict offers by currency and minimum or maximum order amount so they apply only to the transactions you want.",
-  },
-  {
-    icon: "nd-hour-glass-outline",
-    heading: "Scheduled validity",
-    description: "Choose when an offer starts and ends, and pause, resume or retire it at any time from the dashboard.",
-  },
-]
 
 module DemoFeatureCard = {
   @react.component
@@ -104,28 +63,15 @@ module DemoFeatureCard = {
   }
 }
 
-module DemoActionItem = {
-  @react.component
-  let make = (~icon, ~heading, ~onClick) => {
-    <div
-      className="border rounded-xl p-3 py-4 flex items-center gap-4 group cursor-pointer justify-between bg-white"
-      onClick>
-      <div className="flex items-center gap-3">
-        <Icon name=icon size=20 className="text-nd_primary_blue-450" />
-        <p className={`${body.md.semibold} text-nd_gray-600`}> {heading->React.string} </p>
-      </div>
-      <Icon name="nd-angle-right" size=16 className="group-hover:scale-125" />
-    </div>
-  }
-}
-
 module DemoLanding = {
   @react.component
   let make = () => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
 
-    let goToCreateOffer = () =>
+    let goToCreateOffer = (~eventName) => {
+      mixpanelEvent(~eventName)
       RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url="/offers/new"))
+    }
 
     <div className="flex flex-col gap-12">
       <div className="flex justify-between items-start">
@@ -138,23 +84,23 @@ module DemoLanding = {
           text="Create New Offer"
           buttonType=Primary
           leftIcon={CustomIcon(<Icon name="plus" size=13 />)}
-          onClick={_ => goToCreateOffer()}
+          onClick={_ => goToCreateOffer(~eventName="offers_demo_create_offer")}
         />
       </div>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <p className="text-xl font-semibold">
+          <p className={heading.md.semibold}>
             {"Run card offers and discounts at checkout"->React.string}
           </p>
-          <p className="text-base text-nd_gray-400">
+          <p className={`${body.lg.regular} text-nd_gray-400`}>
             {"Create targeted offers that are applied automatically at checkout, with full control over who is eligible, how much they save, and how much each campaign can spend."->React.string}
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {demoFeatures
-          ->Array.mapWithIndex((feature, index) =>
+          {OffersUtils.demoFeatures
+          ->Array.map(feature =>
             <DemoFeatureCard
-              key={index->Int.toString}
+              key=feature.heading
               icon=feature.icon
               heading=feature.heading
               description=feature.description
@@ -165,26 +111,27 @@ module DemoLanding = {
       </div>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <p className="text-xl font-semibold"> {"Get started with Offers"->React.string} </p>
-          <p className="text-base text-nd_gray-400">
+          <p className={heading.md.semibold}> {"Get started with Offers"->React.string} </p>
+          <p className={`${body.lg.regular} text-nd_gray-400`}>
             {"Offers isn't active for your merchant account yet. Preview the offer setup to see everything you can configure, and reach out to us to start creating offers."->React.string}
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
-          <DemoActionItem
-            icon="nd-eye-on"
+          <ActionItem
             heading="Preview the offer setup to see every option available"
-            onClick={_ => {
-              mixpanelEvent(~eventName="offers_demo_create_offer")
-              goToCreateOffer()
-            }}
+            leftElement={<Icon name="nd-eye-on" size=20 className="text-nd_primary_blue-450" />}
+            customClass="py-4 bg-white"
+            onClick={_ => goToCreateOffer(~eventName="offers_demo_preview_offer_setup")}
           />
-          <DemoActionItem
-            icon="nd-external-link-square"
+          <ActionItem
             heading="Reach out to us on Slack to activate Offers"
+            leftElement={<Icon
+              name="nd-external-link-square" size=20 className="text-nd_primary_blue-450"
+            />}
+            customClass="py-4 bg-white"
             onClick={_ => {
               mixpanelEvent(~eventName="offers_demo_contact_us")
-              slackUrl->Window._open
+              GlobalVars.hyperswitchSlackUrl->Window._open
             }}
           />
         </div>

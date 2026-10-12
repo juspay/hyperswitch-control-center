@@ -71,6 +71,8 @@ let getHostUrlWithBasePath = `${Window.Location.origin}${appendDashboardPath(~ur
 
 let getHostUrl = Window.Location.origin
 
+let hyperswitchSlackUrl = "https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
+
 let playgroundUserEmail = "dummyuser@dummymerchant.com"
 let playgroundUserPassword = "Dummy@1234"
 

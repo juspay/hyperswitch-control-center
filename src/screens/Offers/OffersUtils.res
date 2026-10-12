@@ -293,3 +293,36 @@ let isOfferEngineEnabled = (source: UserInfoTypes.offerEngineCredentialSource) =
   | #Merchant | #Application => true
   | #None => false
   }
+
+let demoFeatures = [
+  {
+    icon: "nd-discount",
+    heading: "Flexible discount types",
+    description: "Offer a percentage off, a flat amount off, or a fixed effective price, with an optional cap on the maximum discount.",
+  },
+  {
+    icon: "nd-wallet",
+    heading: "Campaign budgets",
+    description: "Set a total budget or a maximum number of redemptions per campaign so offers stop automatically when the limit is reached.",
+  },
+  {
+    icon: "nd-shield",
+    heading: "Per-card limits",
+    description: "Limit how much each unique card can save, or how many times it can redeem an offer, to prevent abuse.",
+  },
+  {
+    icon: "nd-filter-horizontal",
+    heading: "BIN-level targeting",
+    description: "Upload a list of card BINs to include or exclude, and run offers for specific issuers or card programmes.",
+  },
+  {
+    icon: "nd-config-sliders",
+    heading: "Transaction rules",
+    description: "Restrict offers by currency and minimum or maximum order amount so they apply only to the transactions you want.",
+  },
+  {
+    icon: "nd-hour-glass-outline",
+    heading: "Scheduled validity",
+    description: "Choose when an offer starts and ends, and pause, resume or retire it at any time from the dashboard.",
+  },
+]
