@@ -44,10 +44,19 @@ let decodeMessageFromParent = (ev: Dom.event): messageFromParent => {
 }
 
 let sendMessageToParent = (~payload=[], messageType: messageToParent) => {
-  IframeUtils.handlePostMessage(
-    ~targetOrigin=parentOrigin.contents->Option.getOr("*"),
-    [("type", (messageType :> string)->JSON.Encode.string)]->Array.concat(payload),
-  )
+  let targetOrigin = switch (parentOrigin.contents, messageType) {
+  | (Some(origin), _) => Some(origin)
+  | (None, EMBEDDED_IFRAME_READY) => Some("*")
+  | (None, _) => None
+  }
+  switch targetOrigin {
+  | Some(targetOrigin) =>
+    IframeUtils.handlePostMessage(
+      ~targetOrigin,
+      [("type", (messageType :> string)->JSON.Encode.string)]->Array.concat(payload),
+    )
+  | None => ()
+  }
 }
 
 let sendEventToParentForRefetchToken = () => {

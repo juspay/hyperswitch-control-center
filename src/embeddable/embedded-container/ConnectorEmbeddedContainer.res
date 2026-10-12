@@ -22,7 +22,7 @@ let make = (~remainingPath) => {
     None
   }, [])
 
-  <PageLoaderWrapper screenState sectionHeight="h-96" showLogoutButton=true>
+  <PageLoaderWrapper screenState showLogoutButton=true>
     <EntityScaffold
       entityName="Connectors"
       remainingPath

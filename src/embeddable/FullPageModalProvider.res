@@ -24,6 +24,7 @@ let make = (~children) => {
       Some(
         () => {
           Window.removeEventListener("message", handleFrameMessage)
+          setIsFrameExpanded(_ => false)
           sendModalStateToParent(false)
         },
       )
