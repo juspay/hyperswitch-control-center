@@ -97,12 +97,8 @@ let make = (~operation, ~title, ~description, ~buttonText, ~eventName) => {
     checked: true,
   }
 
-  <section
-    className="max-w-3xl border border-nd_gray-200 rounded-lg bg-white p-5 flex flex-col gap-4">
-    <div>
-      <h2 className={`text-nd_gray-700 ${body.lg.semibold}`}> {title->React.string} </h2>
-      <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}> {description->React.string} </p>
-    </div>
+  <BlocklistHelper.Panel>
+    <BlocklistHelper.PanelHeader title description />
     <div className="flex flex-col sm:flex-row gap-4 sm:items-end">
       <div className="w-full sm:w-44 min-w-0 sm:mb-6">
         <p className={`text-nd_gray-700 mb-1 ${body.sm.medium}`}> {"Type"->React.string} </p>
@@ -146,5 +142,5 @@ let make = (~operation, ~title, ~description, ~buttonText, ~eventName) => {
         />
       </div>
     </div>
-  </section>
+  </BlocklistHelper.Panel>
 }
