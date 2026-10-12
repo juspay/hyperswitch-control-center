@@ -1,11 +1,11 @@
 open OffersFormUtils
 
-let textField = (~name, ~label, ~placeholder, ~isRequired=false) =>
+let textField = (~name, ~label, ~placeholder, ~isRequired=false, ~maxLength=?) =>
   FormRenderer.makeFieldInfo(
     ~label,
     ~name,
     ~placeholder,
-    ~customInput=InputFields.textInput(~customStyle="rounded-xl"),
+    ~customInput=InputFields.textInput(~customStyle="rounded-xl", ~maxLength?),
     ~isRequired,
   )
 
@@ -59,6 +59,7 @@ let offerCodeField = textField(
   ~label="Offer Code",
   ~placeholder="Eg. PAYTM50, ICICI10, SWIGGYIT",
   ~isRequired=true,
+  ~maxLength=32,
 )
 
 let titleField = textField(

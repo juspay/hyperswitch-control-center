@@ -309,9 +309,6 @@ let nextStatusOnToggle = (offer: offer) =>
 let amountWithCurrency = (~amount: float, ~currency) =>
   `${amount->Float.toString} ${currency}`->String.trim
 
-let primaryCurrency = (detail: offerDetail) =>
-  detail.currencies->Array.get(0)->mapOptionOrDefault("", currency => currency.name)
-
 let currencyRangeLabel = (detail: offerDetail, ~getAmount) =>
   detail.currencies
   ->Array.filterMap(currency =>
@@ -322,7 +319,11 @@ let currencyRangeLabel = (detail: offerDetail, ~getAmount) =>
 
 let optionalAmountLabel = (detail: offerDetail, amount) =>
   amount->mapOptionOrDefault(emptyValuePlaceholder, amount =>
-    amountWithCurrency(~amount, ~currency=detail->primaryCurrency)
+    detail.currencies->isEmptyArray
+      ? amount->Float.toString
+      : detail.currencies
+        ->Array.map(currency => amountWithCurrency(~amount, ~currency=currency.name))
+        ->Array.joinWith(", ")
   )
 
 let optionalCountLabel = count => count->mapOptionOrDefault(emptyValuePlaceholder, Int.toString)

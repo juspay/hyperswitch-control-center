@@ -115,14 +115,6 @@ let maxAmountRule = (formValues: offerFormValues) =>
   | _ => None
   }
 
-let offerCodeRule = (formValues: offerFormValues) =>
-  firstError([
-    requiredString(values => values.offerCode)(formValues),
-    %re("/\s/")->RegExp.test(formValues.offerCode)
-      ? Some("Offer code cannot contain spaces")
-      : None,
-  ])
-
 let languageRule = (formValues: offerFormValues) =>
   switch formValues.language {
   | UnknownLanguage(_) => Some(requiredFieldError)
@@ -132,6 +124,8 @@ let languageRule = (formValues: offerFormValues) =>
 let discountTypeRule = (formValues: offerFormValues) =>
   switch formValues.calculationRule {
   | UnknownCalculationRule(_) => Some(requiredFieldError)
+  | Absolute | FixedEffectiveAmount if formValues.currencies->Array.length > 1 =>
+    Some(multiCurrencyError)
   | _ => None
   }
 
@@ -150,13 +144,21 @@ let endTimeRule = (formValues: offerFormValues) =>
     formValues.startTime->isNonEmptyString && formValues.endTime <= formValues.startTime
       ? Some("End time must be after the start time")
       : None,
+    formValues.endTime->Date.fromString->Date.getTime < Date.now()
+      ? Some("End time should be greater than or equal to now")
+      : None,
   ])
 
 let currenciesRule = (formValues: offerFormValues) =>
   formValues.currencies->isEmptyArray ? Some(requiredFieldError) : None
 
-let minOrderAmountRule = (currency: currencyConstraint) =>
-  currency.minOrderAmount->Option.getOr(0.0) <= 0.0 ? Some(positiveValueError) : None
+let minOrderAmountRule = (~hasMinimumOfOne, currency: currencyConstraint) =>
+  switch currency.minOrderAmount {
+  | None => Some(requiredFieldError)
+  | Some(amount) if amount <= 0.0 => Some(positiveValueError)
+  | Some(amount) if !hasMinimumOfOne && amount < 1.0 => Some("Cannot be less than 1")
+  | _ => None
+  }
 
 let maxOrderAmountRule = (currency: currencyConstraint) =>
   switch (currency.maxOrderAmount, currency.minOrderAmount) {
@@ -167,7 +169,7 @@ let maxOrderAmountRule = (currency: currencyConstraint) =>
   }
 
 let offerDetailsRules: array<offerFormRule> = [
-  ("offer_code", offerCodeRule),
+  ("offer_code", requiredString(values => values.offerCode)),
   ("title", requiredString(values => values.title)),
   ("language", languageRule),
   ("start_time", requiredString(values => values.startTime)),
@@ -179,13 +181,17 @@ let offerDetailsRules: array<offerFormRule> = [
   ("campaign_count", optionalPositiveCount(values => values.campaignCount)),
 ]
 
-let transactionDetailsRules = (formValues: offerFormValues): array<offerFormRule> =>
+let transactionDetailsRules = (formValues: offerFormValues): array<offerFormRule> => {
+  let hasMinimumOfOne =
+    formValues.currencies->Array.some(currency => currency.minOrderAmount->Option.getOr(0.0) >= 1.0)
+
   [("currencies", currenciesRule)]->Array.concat(
     formValues.currencies->Array.flatMap((currency): array<offerFormRule> => [
-      (currency.name->minOrderAmountKey, _ => currency->minOrderAmountRule),
+      (currency.name->minOrderAmountKey, _ => currency->minOrderAmountRule(~hasMinimumOfOne)),
       (currency.name->maxOrderAmountKey, _ => currency->maxOrderAmountRule),
     ]),
   )
+}
 
 let paymentDetailsRules: array<offerFormRule> = [
   ("amount_per_card", amountLimitRule(values => values.amountPerCard)),
