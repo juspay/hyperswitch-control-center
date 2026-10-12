@@ -110,7 +110,7 @@ let initialFixedFilterFields = (
             ~showTime=true,
             ~disablePastDates={false},
             ~disableFutureDates={true},
-            ~predefinedDays=[Today, Yesterday, Day(2.0), Day(7.0), Day(30.0), ThisMonth, LastMonth],
+            ~predefinedDays=standardPredefinedDays,
             ~numMonths=2,
             ~disableApply=false,
             ~compareWithStartTime,
