@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.10.12.0
+
+### Features
+
+- **connectors:** Add seven payment connectors and Playwright fixtures ([#5639](https://github.com/juspay/hyperswitch-control-center/pull/5639)) ([`c460389`](https://github.com/juspay/hyperswitch-control-center/commit/c460389d222aadffa6a1f606a3d22577fc4bea11))
+
+### Miscellaneous Tasks
+
+- Upgrade blend to 0.0.38 ([#5659](https://github.com/juspay/hyperswitch-control-center/pull/5659)) ([`d559d4e`](https://github.com/juspay/hyperswitch-control-center/commit/d559d4e1532bc4d580c9b69418dbbfba065e41fc))
+
+**Full Changelog:** [`2026.10.09.0...2026.10.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.09.0...2026.10.12.0)
+
+- - -
+
 ## 2026.10.09.0
 
 ### Bug Fixes
