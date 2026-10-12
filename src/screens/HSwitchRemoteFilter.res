@@ -25,7 +25,7 @@ let formatDateString = date => {
 let last7DaysRange = 6
 let last30DaysRange = 29
 
-let getDateFilteredObject = (~range=7) => {
+let getDateFilteredObject = (~range=last7DaysRange) => {
   let currentDate = Date.make()
 
   let end_time =
