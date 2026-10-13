@@ -162,3 +162,85 @@ module EnableDisableConnectorToggle = {
     </div>
   }
 }
+
+module RegisteredWebhooks = {
+  @react.component
+  let make = (
+    ~connectorInfo: ConnectorTypes.connectorPayload,
+    ~connector,
+    ~setCurrentStep,
+    ~webhookStepValue,
+    ~isUpdateFlow,
+  ) => {
+    open LogicUtils
+    open Typography
+    open PageLoaderWrapper
+    let getConnectorWebhooks = ConnectorWebhookRegistrationHooks.useGetConnectorWebhooks()
+
+    let (registeredWebhooks, setRegisteredWebhooks) = React.useState((_): array<string> => [])
+    let (screenState, setScreenState) = React.useState(_ => Success)
+
+    let getRegisteredWebhooks = async () => {
+      try {
+        setScreenState(_ => Loading)
+        let webhooks = await getConnectorWebhooks(connectorInfo.merchant_connector_id)
+        setRegisteredWebhooks(_ => webhooks)
+        setScreenState(_ => Success)
+      } catch {
+      | _ => setScreenState(_ => Custom)
+      }
+    }
+
+    React.useEffect(() => {
+      getRegisteredWebhooks()->ignore
+      None
+    }, [connectorInfo.merchant_connector_id])
+
+    <div className="grid grid-cols-4 border-b md:px-10 py-8">
+      <div className="flex items-start">
+        <h4 className={heading.sm.semibold}> {"Registered Webhooks"->React.string} </h4>
+      </div>
+      <div className="flex gap-12 col-span-3">
+        <div className="flex flex-col gap-3 w-5/6">
+          <PageLoaderWrapper
+            screenState
+            customLoader={<Shimmer styleClass="h-7 w-40 rounded-md" />}
+            customUI={<AlertV2Binding
+              description="Failed to fetch registered webhooks" alertType=Error
+            />}>
+            <RenderIf condition={registeredWebhooks->isEmptyArray}>
+              <p className={`${body.md.regular} text-nd_gray-400 flex items-center h-7`}>
+                {"No webhooks registered for this connector"->React.string}
+              </p>
+            </RenderIf>
+            <RenderIf condition={registeredWebhooks->isNonEmptyArray}>
+              {registeredWebhooks
+              ->Array.mapWithIndex((item, index) =>
+                <div key={index->Int.toString} className="flex items-center gap-2">
+                  <p className={body.md.medium}>
+                    {item->ConnectorUtils.getPaymentMethodDisplayName->React.string}
+                  </p>
+                  <TagBinding
+                    text="Registered" color=Success variant=Subtle shape=Squarical size=Xs
+                  />
+                </div>
+              )
+              ->React.array}
+            </RenderIf>
+          </PageLoaderWrapper>
+        </div>
+        <RenderIf condition={isUpdateFlow && webhookStepValue->Option.isSome}>
+          <div
+            className="cursor-pointer"
+            onClick={_ => webhookStepValue->Option.forEach(step => setCurrentStep(_ => step))}>
+            <ToolTip
+              description={`Update the ${connector} webhook registrations`}
+              toolTipFor={<Icon size=18 name="edit" className={` ml-2`} />}
+              toolTipPosition=Top
+            />
+          </div>
+        </RenderIf>
+      </div>
+    </div>
+  }
+}
