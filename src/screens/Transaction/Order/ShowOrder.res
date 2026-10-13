@@ -784,6 +784,13 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
 
   let breadCrumbLink = RouteUtils.getPath(~path="/payments", version)
   let (selectedTabIndex, setSelectedTabIndex) = React.useState(_ => 0)
+  let paymentDetailsTabsRef = React.useRef(Nullable.null)
+  let scrollToPaymentDetailsTabs = () =>
+    paymentDetailsTabsRef.current
+    ->Nullable.toOption
+    ->Option.forEach(element =>
+      element->DOMUtils.scrollIntoView({behavior: "smooth", block: "start", inline: "nearest"})
+    )
 
   let renderDetailsPanel = (~title, ~children) =>
     <div className="border border-nd_gray-200 rounded-lg overflow-hidden bg-nd_gray-0">
@@ -1118,7 +1125,10 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     <RenderIf condition={orderData.frm_message.frm_status === "fraud"}>
       <FraudRiskBanner
         frmName={orderData.frm_message.frm_name}
-        onReviewDetailsClick={() => selectTabByTitle("FRM Details")}
+        onReviewDetailsClick={() => {
+          selectTabByTitle("FRM Details")
+          scrollToPaymentDetailsTabs()
+        }}
       />
     </RenderIf>
     <RenderIf condition={showReviewStatusBanner}>
@@ -1138,13 +1148,15 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           openCaptureModal
           isNonRefundConnector={isNonRefundConnector(orderData.connector)}
         />
-        <Tabs
-          tabs=paymentDetailsTabs
-          initialIndex=selectedTabIndex
-          onTitleClick={index => setSelectedTabIndex(_ => index)}
-          variant=Underline
-          size=Md
-        />
+        <div ref={paymentDetailsTabsRef->ReactDOM.Ref.domRef}>
+          <Tabs
+            tabs=paymentDetailsTabs
+            initialIndex=selectedTabIndex
+            onTitleClick={index => setSelectedTabIndex(_ => index)}
+            variant=Underline
+            size=Md
+          />
+        </div>
       </div>
     </PageLoaderWrapper>
   </div>
