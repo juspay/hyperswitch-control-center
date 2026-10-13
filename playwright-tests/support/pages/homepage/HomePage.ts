@@ -292,7 +292,20 @@ export class HomePage {
   }
 
   get payButton(): Locator {
-    return this.page.locator('[data-button-for="payUSD100"]');
+    return this.page.getByTestId("sdk-pay-button");
+  }
+
+  // Button renders its label text verbatim into [data-button-text], so this is
+  // an exact, whitespace-free assertion target -- unlike the button's innerText,
+  // which also picks up icons and the loading-state label swap.
+  get payButtonLabel(): Locator {
+    return this.payButton.locator("[data-button-text]");
+  }
+
+  // Waits for the SDK preview to mount, then returns the Pay button's exact label.
+  async payButtonText(): Promise<string> {
+    await this.payButtonLabel.waitFor({ state: "attached", timeout: 60000 });
+    return (await this.payButtonLabel.getAttribute("data-button-text")) ?? "";
   }
 
   get paymentSuccessfulText(): Locator {

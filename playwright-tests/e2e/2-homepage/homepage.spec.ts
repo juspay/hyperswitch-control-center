@@ -1,4 +1,5 @@
 import { test, expect } from "../../support/test";
+import type { Page } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { ProductionAccessPage } from "../../support/pages/homepage/ProductionAccessPage";
 import { OrganizationChartPage } from "../../support/pages/settings/OrganizationChartPage";
@@ -13,6 +14,7 @@ import {
   createBusinessProfileAPI,
   createMerchantAPI,
   switchMerchantAPI,
+  createSurchargeAPI,
 } from "../../support/commands";
 import UsersPage from "../../support/pages/settings/UsersPage";
 
@@ -751,7 +753,8 @@ test.describe("SDK Payment", () => {
 
     await homePage.fillSdkTestCard();
 
-    await expect(homePage.payButtonByCurrency("INR")).toContainText(
+    await expect(homePage.payButtonLabel).toHaveAttribute(
+      "data-button-text",
       "Pay INR 123.45",
     );
     await homePage.payButtonByCurrency("INR").click();
@@ -787,8 +790,9 @@ test.describe("SDK Payment", () => {
 
     await homePage.fillSdkTestCard();
 
-    await expect(homePage.payButtonByCurrency("USD")).toContainText(
-      "Pay USD 100",
+    await expect(homePage.payButtonLabel).toHaveAttribute(
+      "data-button-text",
+      "Pay USD 100.00",
     );
     await homePage.payButtonByCurrency("USD").click();
     await expect(homePage.paymentFailedText).toBeVisible({ timeout: 10000 });
@@ -817,12 +821,201 @@ test.describe("SDK Payment", () => {
 
     await homePage.fillSdkTestCard();
 
-    await expect(homePage.payButtonByCurrency("USD")).toContainText(
-      "Pay USD 100",
+    await expect(homePage.payButtonLabel).toHaveAttribute(
+      "data-button-text",
+      "Pay USD 100.00",
     );
     await homePage.payButtonByCurrency("USD").click();
     await expect(homePage.paymentPendingText).toBeVisible({ timeout: 10000 });
     await expect(homePage.goToPaymentOperationsButton).toBeVisible();
+  });
+
+  // Pay button amount formatting. The button total is computed in CheckoutForm
+  // from the payment's minor-unit amount, the SDK's surcharge event and the
+  // applied-offer event, then rendered at the currency's precision.
+  //
+  // These need HyperLoader.js (config sdk_url, served by the hyperswitch-web
+  // container that start_hyperswitch.sh brings up on :9050) to load, so that
+  // <Elements> mounts and the Pay button renders. Unlike the payment-flow tests
+  // above they never reach into the SDK iframe, which is the part that is not
+  // reliable in CI.
+  const selectSdkCountryCurrency = async (
+    page: Page,
+    search: string,
+    optionLabel: string,
+  ) => {
+    await page
+      .getByRole("button", { name: "🇺🇸 United States Of America" })
+      .click();
+    await page
+      .getByRole("searchbox", { name: "Search options..." })
+      .type(search);
+    await page.getByText(optionLabel).click();
+  };
+
+  test("should render the Pay button amount at the currency's precision", async ({
+    page,
+  }) => {
+    const homePage = new HomePage(page);
+
+    await expect(homePage.showPreviewButton).toBeEnabled();
+    await homePage.showPreviewButton.click();
+
+    // 10000 minor units / USD -> 100 major, rendered with 2 decimals.
+    await expect(homePage.payButtonLabel).toHaveAttribute(
+      "data-button-text",
+      "Pay USD 100.00",
+      { timeout: 60000 },
+    );
+  });
+
+  test("should render the Pay button amount without decimals for a zero-decimal currency", async ({
+    page,
+  }) => {
+    const homePage = new HomePage(page);
+
+    await selectSdkCountryCurrency(page, "Japan", "🇯🇵 Japan - (JPY)");
+    // The amount field stores minor units, so refill it after the currency
+    // switch -- JPY's conversion factor is 1, not 100.
+    await homePage.sdkAmountInput.fill("100");
+
+    await expect(homePage.showPreviewButton).toBeEnabled();
+    await homePage.showPreviewButton.click();
+
+    await expect(homePage.payButtonLabel).toHaveAttribute(
+      "data-button-text",
+      "Pay JPY 100",
+      { timeout: 60000 },
+    );
+  });
+
+  test("should render the Pay button amount with three decimals for a three-decimal currency", async ({
+    page,
+  }) => {
+    const homePage = new HomePage(page);
+
+    await selectSdkCountryCurrency(page, "Bahrain", "🇧🇭 Bahrain - (BHD)");
+    await homePage.sdkAmountInput.fill("100");
+
+    await expect(homePage.showPreviewButton).toBeEnabled();
+    await homePage.showPreviewButton.click();
+
+    await expect(homePage.payButtonLabel).toHaveAttribute(
+      "data-button-text",
+      "Pay BHD 100.000",
+      { timeout: 60000 },
+    );
+  });
+
+  test("should update the Pay button amount when the preview is regenerated", async ({
+    page,
+  }) => {
+    const homePage = new HomePage(page);
+
+    await expect(homePage.showPreviewButton).toBeEnabled();
+    await homePage.showPreviewButton.click();
+    await expect(homePage.payButtonLabel).toHaveAttribute(
+      "data-button-text",
+      "Pay USD 100.00",
+      { timeout: 60000 },
+    );
+
+    // The checkout form stays mounted beside the preview, so edit the amount
+    // in place and regenerate. Note this asserts the end-to-end behaviour, not
+    // the `key=clientSecret` on <Elements> specifically: SDKPage already
+    // remounts <SDKPayment> via keyForReRenderingSDK on every submit, so the
+    // new key only matters when the client secret changes without a resubmit.
+    await homePage.sdkAmountInput.fill("250.50");
+    await homePage.showPreviewButton.click();
+
+    await expect(homePage.payButtonLabel).toHaveAttribute(
+      "data-button-text",
+      "Pay USD 250.50",
+      { timeout: 60000 },
+    );
+  });
+
+  // The remaining amount cases all depend on events the hosted SDK emits from
+  // inside its iframe (`surchargeInfo` / `appliedOffersInfo`, subscribed to via
+  // the new `subscriptionEvents` option). They only fire once a payment method
+  // is selected in the iframe, which is the same dependency that keeps the
+  // payment-flow tests above disabled -- and the offer cases additionally need
+  // an offer engine in the test environment.
+  test.fixme("should add the SDK surcharge to the Pay button total", async ({
+    page,
+    context,
+  }) => {
+    const homePage = new HomePage(page);
+
+    // Fixed surcharge of 100 minor units -> 1.00 USD on top of 100.00.
+    await createSurchargeAPI(page, context.request, {
+      surchargeType: "fixed",
+      fixedAmount: 100,
+    });
+
+    await homePage.showPreviewButton.click();
+    await homePage.waitForSdkCardForm();
+    await homePage.fillSdkTestCard();
+
+    await expect(homePage.payButtonLabel).toHaveAttribute(
+      "data-button-text",
+      "Pay USD 101.00",
+      { timeout: 60000 },
+    );
+  });
+
+  test.fixme("should subtract an applied offer from the Pay button total", async ({
+    page,
+  }) => {
+    const homePage = new HomePage(page);
+
+    await homePage.showPreviewButton.click();
+    await homePage.waitForSdkCardForm();
+    await homePage.fillSdkTestCard();
+
+    // appliedOffersInfo carries offer amounts in minor units: a 2500 minor
+    // unit discount on 10000 leaves 75.00.
+    await expect(homePage.payButtonLabel).toHaveAttribute(
+      "data-button-text",
+      "Pay USD 75.00",
+      { timeout: 60000 },
+    );
+  });
+
+  test.fixme("should ignore applied offers denominated in another currency", async ({
+    page,
+  }) => {
+    const homePage = new HomePage(page);
+
+    await homePage.showPreviewButton.click();
+    await homePage.waitForSdkCardForm();
+    await homePage.fillSdkTestCard();
+
+    // The reduce in CheckoutForm only sums offers whose currency matches the
+    // payment's, so an INR offer on a USD payment must not discount anything.
+    await expect(homePage.payButtonLabel).toHaveAttribute(
+      "data-button-text",
+      "Pay USD 100.00",
+      { timeout: 60000 },
+    );
+  });
+
+  test.fixme("should clamp the Pay button total at zero when the offer covers the amount", async ({
+    page,
+  }) => {
+    const homePage = new HomePage(page);
+
+    await homePage.showPreviewButton.click();
+    await homePage.waitForSdkCardForm();
+    await homePage.fillSdkTestCard();
+
+    // An offer at or above the payment amount must floor the total at zero
+    // rather than render a negative amount.
+    await expect(homePage.payButtonLabel).toHaveAttribute(
+      "data-button-text",
+      "Pay USD 0.00",
+      { timeout: 60000 },
+    );
   });
 
   test("should display error toast when SDK save (Show Preview) API fails", async ({

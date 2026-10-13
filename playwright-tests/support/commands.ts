@@ -1012,6 +1012,52 @@ export async function mockPaymentSummaryAmounts(
   );
 }
 
+// Shape of the `applied_offer` block the offer engine returns on a payment.
+// Every field is optional so tests can cover the partial responses the UI has
+// to tolerate (missing amount, blank ids).
+export type AppliedOfferMock = {
+  offer_engine_merchant_id?: string;
+  offer_engine_txn_id?: string;
+  offer_id?: string;
+  offer_amount?: number;
+  currency?: string;
+};
+
+// Inject an `applied_offer` block into the payment-detail response so the Offer
+// Details tab and the Summary "Offer Amount" field can be asserted without an
+// offer engine in the test environment.
+//
+// The mappers read `applied_offer` from the response ROOT in every API shape --
+// V1 (PaymentInterfaceUtilsV1), V2 (PaymentInterfaceUtilsV2) and the common
+// mapper (PaymentInterfaceUtils) all call `dict->getAppliedOffer` on the top
+// level dict, unlike net_amount/surcharge_amount which V2 nests inside
+// amount_details. So injecting at the root covers both shapes.
+//
+// Pass `null` to assert the absent-offer branch (no Offer Details tab).
+export async function mockPaymentAppliedOffer(
+  page: Page,
+  paymentId: string,
+  appliedOffer: AppliedOfferMock | null,
+): Promise<void> {
+  await page.route(
+    new RegExp(`/payments/${paymentId}(\\?|$)`),
+    async (route) => {
+      if (route.request().method() !== "GET") {
+        await route.continue();
+        return;
+      }
+
+      const response = await route.fetch();
+      const json = await response.json();
+
+      await route.fulfill({
+        response,
+        json: { ...json, applied_offer: appliedOffer },
+      });
+    },
+  );
+}
+
 export async function createRefundAPI(
   merchantId: string,
   paymentId: string,

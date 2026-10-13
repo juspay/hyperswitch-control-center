@@ -619,6 +619,7 @@ let getHeadingForSummary = summaryColType => {
   | Created => Table.makeHeaderInfo(~key="created", ~title="Created")
   | NetAmount => Table.makeHeaderInfo(~key="net_amount", ~title="Net Amount")
   | SurchargeAmount => Table.makeHeaderInfo(~key="surcharge_amount", ~title="Surcharge Amount")
+  | OfferAmount => Table.makeHeaderInfo(~key="offer_amount", ~title="Offer Amount")
   | LastUpdated => Table.makeHeaderInfo(~key="last_updated", ~title="Last Updated")
   | PaymentId => Table.makeHeaderInfo(~key="payment_id", ~title="Payment ID")
   | Currency => Table.makeHeaderInfo(~key="currency", ~title="Currency")
@@ -743,6 +744,26 @@ let getCellForSummary = (order: order, summaryColType): Table.cell => {
       )
     | None => Text("N/A")
     }
+  | OfferAmount =>
+    switch order.applied_offer {
+    | Some(offer) =>
+      switch offer.offer_amount {
+      | Some(amount) =>
+        let currency = offer.currency->Option.getOr(order.currency)
+        CustomCell(
+          <CurrencyCell
+            amount={CurrencyUtils.convertCurrencyFromLowestDenomination(
+              ~amount,
+              ~currency,
+            )->Float.toString}
+            currency
+          />,
+          "",
+        )
+      | None => Text("N/A")
+      }
+    | None => Text("N/A")
+    }
   | LastUpdated => Date(order.last_updated->Option.getOr(""))
   | PaymentId => DisplayCopyCell(order.payment_id)
   | Currency => Text(order.currency)
@@ -773,6 +794,46 @@ let getCellForSummary = (order: order, summaryColType): Table.cell => {
     }
   }
 }
+
+let getHeadingForOfferDetails = column =>
+  switch column {
+  | AppliedOfferAmount => getHeadingForSummary(OfferAmount)
+  | OfferEngineMerchantId =>
+    Table.makeHeaderInfo(~key="offer_engine_merchant_id", ~title="Offer Engine Merchant Id")
+  | OfferId => Table.makeHeaderInfo(~key="offer_id", ~title="Offer Id")
+  | OfferEngineTxnId =>
+    Table.makeHeaderInfo(~key="offer_engine_txn_id", ~title="Offer Engine Txn Id")
+  }
+
+let getCellForOfferDetails = (order: order, column: OrderTypes.offerDetailsColType): Table.cell =>
+  switch column {
+  | AppliedOfferAmount => getCellForSummary(order, OfferAmount)
+  | OfferEngineMerchantId | OfferId | OfferEngineTxnId =>
+    switch order.applied_offer {
+    | Some(offer) =>
+      let value = switch column {
+      | OfferEngineMerchantId => offer.offer_engine_merchant_id
+      | OfferId => offer.offer_id
+      | OfferEngineTxnId => offer.offer_engine_txn_id
+      | AppliedOfferAmount => ""
+      }
+      if value->isNonEmptyString {
+        CustomCell(
+          <HelperComponents.CopyTextCustomComp
+            displayValue=Some(value)
+            customParentClass="flex items-center gap-2 min-w-0"
+            customTextCss="w-36 truncate whitespace-nowrap"
+            customIconCss="h-7 opacity-70 shrink-0"
+            showTooltip=true
+          />,
+          value,
+        )
+      } else {
+        Text("N/A")
+      }
+    | None => Text("N/A")
+    }
+  }
 
 let getCellForAboutPayment = (
   order: order,

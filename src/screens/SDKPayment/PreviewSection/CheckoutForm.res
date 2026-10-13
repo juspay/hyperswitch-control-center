@@ -7,6 +7,7 @@ let getOptionReturnUrl = (~themeConfig, ~returnUrl, ~showSavedCards) => {
   {
     displaySavedPaymentMethods: showSavedCards,
     showCardFormByDefault: false,
+    subscriptionEvents: ["surchargeInfo", "appliedOffersInfo"],
     wallets: {
       walletReturnUrl: returnUrl,
       applePay: "auto",
@@ -45,11 +46,36 @@ let make = () => {
 
   let (error, setError) = React.useState(_ => None)
   let (btnState, setBtnState) = React.useState(_ => Button.Normal)
+  let (displaySurchargeAmount, setDisplaySurchargeAmount) = React.useState(_ => 0.0)
+  let (offerAmountMinor, setOfferAmountMinor) = React.useState(_ => 0.0)
   let hyper = useHyper()
   let elements = useWidgets()
   let paymentResponseDict = paymentResult->getDictFromJsonObject
   let currency = paymentResponseDict->getString("currency", "USD")
   let amount = paymentResponseDict->getInt("amount", 0)->Int.toFloat
+
+  let handlePaymentElementChange = event => {
+    let eventDict = event->getDictFromJsonObject
+    let payload = eventDict->getDictfromDict("payload")
+    switch eventDict->getString("eventName", "") {
+    | "surchargeInfo" =>
+      setDisplaySurchargeAmount(_ => payload->getFloat("displayTotalSurchargeAmount", 0.0))
+    | "appliedOffersInfo" =>
+      let discount =
+        payload
+        ->getArrayFromDict("offers", [])
+        ->Array.reduce(0.0, (total, offer) => {
+          let offerDict = offer->getDictFromJsonObject
+          if offerDict->getString("currency", "") === currency {
+            total +. offerDict->getFloat("offerAmount", 0.0)
+          } else {
+            total
+          }
+        })
+      setOfferAmountMinor(_ => discount)
+    | _ => ()
+    }
+  }
 
   let handleSubmit = async () => {
     setBtnState(_ => Button.Loading)
@@ -108,7 +134,19 @@ let make = () => {
     }
   }
 
-  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(currency)
+  // Offers use minor units; the SDK's display surcharge already uses major units.
+  let payableAmount = Math.max(
+    CurrencyUtils.convertCurrencyFromLowestDenomination(
+      ~amount=amount -. offerAmountMinor,
+      ~currency,
+    ) +.
+    displaySurchargeAmount,
+    0.0,
+  )
+  let displayAmount =
+    payableAmount->Float.toFixedWithPrecision(
+      ~digits=CurrencyUtils.getAmountPrecisionDigits(currency),
+    )
 
   <div>
     {switch paymentStatus {
@@ -116,9 +154,12 @@ let make = () => {
     | INCOMPLETE =>
       <>
         <div className="w-full">
-          <PaymentElement id="payment-element" options={paymentElementOptions} />
+          <PaymentElement
+            id="payment-element" options={paymentElementOptions} onChange=handlePaymentElementChange
+          />
           <Button
-            text={`Pay ${currency} ${(amount /. conversionFactor)->Float.toString}`}
+            text={`Pay ${currency} ${displayAmount}`}
+            dataTestId="sdk-pay-button"
             loadingText="Please wait..."
             buttonState=btnState
             buttonType={Primary}

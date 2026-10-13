@@ -262,6 +262,13 @@ export class PaymentOperations {
     return this.page.locator(`[data-label="${label}"]`);
   }
 
+  // Scope a [data-label] lookup to the selected payment-details tab panel.
+  // The Summary panel is a sibling of <Tabs> and is always rendered, so labels
+  // that appear in both (e.g. "Offer Amount") are ambiguous via dataLabel().
+  tabPanelDataLabel(label: string): Locator {
+    return this.page.getByRole("tabpanel").locator(`[data-label="${label}"]`);
+  }
+
   // Orders table cells: data-table-location="Orders_trX_tdY"
   orderCell(row: number, col: number): Locator {
     return this.page.locator(
