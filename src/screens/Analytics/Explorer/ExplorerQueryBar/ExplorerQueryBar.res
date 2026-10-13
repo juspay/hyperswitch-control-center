@@ -10,6 +10,9 @@ open ExplorerQueryBarUtils
 @react.component
 let make = (~selection: selection, ~dataset: dataset, ~onUpdate: Dict.t<string> => unit) => {
   let {source, splitOptions} = selection
+  let splitIds = selection.split->Array.map(key => (key :> string))
+  let thenByOptions =
+    splitOptions->Array.filter(key => (key :> string) != splitIds->getValueFromArray(0, ""))
   let setSelection = updates => updates->selectionUpdate->onUpdate
   let setSplitAt = (index, key) =>
     setSelection([
@@ -30,7 +33,7 @@ let make = (~selection: selection, ~dataset: dataset, ~onUpdate: Dict.t<string> 
       <QueryText text={`all ${sourceNoun(source)},`} strong=true />
       <QueryText text="split by" />
       <QuerySelect
-        value={selection.split->Array.get(0)->mapOptionOrDefault("", key => (key :> string))}
+        value={splitIds->getValueFromArray(0, "")}
         onChange={key => setSplitAt(0, key)}
         options={source->dimensionOptions(splitOptions)}
         placeholder="Select"
@@ -40,11 +43,9 @@ let make = (~selection: selection, ~dataset: dataset, ~onUpdate: Dict.t<string> 
       <RenderIf condition={selection.split->isNonEmptyArray}>
         <QueryText text="then by" />
         <QuerySelect
-          value={selection.split->Array.get(1)->mapOptionOrDefault("", key => (key :> string))}
+          value={splitIds->getValueFromArray(1, "")}
           onChange={key => setSplitAt(1, key)}
-          options={source->dimensionOptions(
-            splitOptions->Array.filter(key => selection.split->Array.get(0) != Some(key)),
-          )}
+          options={source->dimensionOptions(thenByOptions)}
           placeholder="Select"
           allowDeselect=true
           enableSearch=true

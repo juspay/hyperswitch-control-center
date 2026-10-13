@@ -11,10 +11,8 @@ let getUnmeasuredNote = (selection, dataset, ~labelFor) => {
     ->Array.slice(~start=0, ~end=maxUnmeasuredGroupsListed)
     ->Array.map(((values, counts)) => {
       let labels =
-        values
-        ->Array.mapWithIndex((value, index) =>
-          split->Array.get(index)->mapOptionOrDefault(value, key => labelFor(key, value))
-        )
+        split
+        ->Array.mapWithIndex((key, index) => labelFor(key, values->getValueFromArray(index, "")))
         ->Array.joinWith(" · ")
       `${labels} (${counts.total->formatNumberWithCommas} ${sourceNoun(
           source,

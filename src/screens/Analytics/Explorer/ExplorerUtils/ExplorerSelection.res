@@ -81,11 +81,13 @@ let splitValue = (split: array<dimension>) =>
   `[${split->Array.map(item => (item :> string))->Array.joinWith(",")}]`
 
 let splitAt = (selection, index, key: option<dimension>) =>
-  selection.split
-  ->Array.slice(~start=0, ~end=index)
-  ->Array.concat(key->mapOptionOrDefault([], key => [key]))
-  ->Array.concat(
-    key->Option.isSome
-      ? selection.split->Array.sliceToEnd(~start=index + 1)->Array.filter(item => Some(item) != key)
-      : [],
-  )
+  switch key {
+  | Some(key) =>
+    selection.split
+    ->Array.slice(~start=0, ~end=index)
+    ->Array.concat([key])
+    ->Array.concat(
+      selection.split->Array.sliceToEnd(~start=index + 1)->Array.filter(item => item != key),
+    )
+  | None => selection.split->Array.filterWithIndex((_, position) => position != index)
+  }

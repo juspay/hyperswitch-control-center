@@ -54,7 +54,7 @@ let getGroupColumns = selection =>
 let getGroupRows = (selection, dataset, ~labelFor) => {
   let {source, measure} = selection
   let (totals, _) = dataset->getMeasureCounts(measure)
-  dataset.sorted->Array.map(group => {
+  dataset.groups->Array.map(group => {
     let current = getMeasureValue(source, measure, group.current)
     let previous =
       group.previous->Option.map(previousCounts => getMeasureValue(source, measure, previousCounts))

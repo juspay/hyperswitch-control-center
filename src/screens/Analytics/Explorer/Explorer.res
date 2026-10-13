@@ -1,3 +1,4 @@
+open LogicUtils
 open ExplorerTypes
 open ExplorerCatalog
 open ExplorerUtils
@@ -18,7 +19,7 @@ let make = () => {
   let infoDomain = sourceConfig(filterValueJson->sourceFromFilters).infoDomain
   let selection =
     filterValueJson->selectionFromFilters(
-      ~backendDimensions=dimensionsByDomain->Dict.get(infoDomain),
+      ~backendDimensions=dimensionsByDomain->getOptionValFromDict(infoDomain),
     )
   let dataset = selection->ExplorerData.buildDataset(responses)
 
@@ -57,7 +58,7 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    if dimensionsByDomain->Dict.get(infoDomain)->Option.isNone {
+    if dimensionsByDomain->getOptionValFromDict(infoDomain)->Option.isNone {
       getBackendDimensions()->ignore
     }
     None

@@ -103,13 +103,13 @@ let getCurrenciesBySuccess = (source, rows) =>
     if currency->isNonEmptyString {
       acc->Dict.set(
         currency,
-        acc->Dict.get(currency)->Option.getOr(0.0) +. getRowCounts(source, dict).success,
+        acc->getValueFromDict(currency, 0.0) +. getRowCounts(source, dict).success,
       )
     }
     acc
   })
   ->Dict.toArray
-  ->Array.toSorted(((_, a), (_, b)) => b -. a)
+  ->Array.toSorted(((_, a), (_, b)) => compareLogic(a, b))
   ->Array.map(((currency, _)) => currency)
 
 let buildDataset = (selection, responses) => {
@@ -142,12 +142,11 @@ let buildDataset = (selection, responses) => {
     ->Array.reduce(Dict.make(), (acc, dict) => {
       let values = selection.split->Array.map(key => dict->getDimensionValue(key))
       let key = values->getRowKey
-      let (_, sum) = acc->Dict.get(key)->Option.getOr((values, emptyCounts))
+      let (_, sum) = acc->getValueFromDict(key, (values, emptyCounts))
       acc->Dict.set(key, (values, sum->addCounts(getRowCounts(source, dict))))
       acc
     })
 
-  let overall = responses.currentRows->totalOf
   let currentGroups = responses.currentRows->groupsOf
   let previousGroups = responses.previousRows->groupsOf
   let groups =
@@ -157,28 +156,24 @@ let buildDataset = (selection, responses) => {
       values,
       current,
       previous: previousGroups
-      ->Dict.get(key)
+      ->getOptionValFromDict(key)
       ->Option.map(((_, counts)) => counts)
-      ->Option.filter(counts => counts.total > 0.0 && measurable(source, measure, counts)),
+      ->Option.filter(counts => measurable(source, measure, counts)),
     })
-    ->Array.filter(group =>
-      isRate(measure)
-        ? measurable(source, measure, group.current)
-        : getMeasureValue(source, measure, group.current) > 0.0
-    )
+    ->Array.filter(group => measurable(source, measure, group.current))
 
   {
-    overall,
+    overall: responses.currentRows->totalOf,
     overallPrevious: responses.previousRows->totalOf,
     inCurrency: responses.currentRows->totalOf(~keep=isInCurrency),
     inCurrencyPrevious: responses.previousRows->totalOf(~keep=isInCurrency),
     amountCurrencies,
     amountCurrency,
-    sorted: groups->Array.toSorted((a, b) => b.current.total -. a.current.total),
+    groups: groups->Array.toSorted((a, b) => compareLogic(a.current.total, b.current.total)),
     unmeasured: isRate(measure)
       ? currentGroups
         ->Dict.valuesToArray
-        ->Array.filter(((_, counts)) => counts.total > 0.0 && !measurable(source, measure, counts))
+        ->Array.filter(((_, counts)) => !measurable(source, measure, counts))
       : [],
   }
 }

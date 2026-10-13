@@ -159,7 +159,7 @@ type dataset = {
   inCurrencyPrevious: counts,
   amountCurrencies: array<string>,
   amountCurrency: string,
-  sorted: array<group>,
+  groups: array<group>,
   unmeasured: array<(array<string>, counts)>,
 }
 
