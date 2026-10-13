@@ -298,18 +298,10 @@ let make = (
   }, [offset])
 
   let setLocalResultsPerPageOrig = localResultsPerPage => {
-    let value = switch pageDetailDict->Dict.get(title) {
-    | Some(val) =>
-      if totalResults > val.offset || tableDataLoading {
-        {offset: val.offset, resultsPerPage: localResultsPerPage(0)}
-      } else {
-        {offset: 0, resultsPerPage}
-      }
-    | None => {offset: defaultValue.offset, resultsPerPage: localResultsPerPage(0)}
-    }
     let newDict = pageDetailDict->Dict.toArray->Dict.fromArray
 
-    newDict->Dict.set(title, value)
+    newDict->Dict.set(title, {offset: 0, resultsPerPage: localResultsPerPage(0)})
+    setOffset(_ => 0)
     setPageDetails(_ => newDict)
   }
 
