@@ -127,48 +127,44 @@ let intentStatusOutcomes = (status: intentStatus) =>
 let attemptStatusOutcomes = (status: attemptStatus) =>
   switch status {
   | #charged => [Success]
-  | #authentication_failed => [Failed, AuthFailed]
-  | #failure
-  | #authorization_failed
-  | #router_declined
-  | #capture_failed
-  | #void_failed
-  | #expired => [Failed]
+  | #failure => [Failed]
+  | #authentication_failed => [Awaiting, AuthFailed]
+  | #payment_method_awaited
+  | #confirmation_awaited
+  | #device_data_collection_pending
+  | #unresolved => [Awaiting]
   | #started
+  | #router_declined
   | #authentication_pending
   | #authentication_successful
   | #authorized
+  | #authorization_failed
   | #authorizing
   | #cod_initiated
   | #voided
   | #voided_post_charge
   | #void_initiated
   | #capture_initiated
+  | #capture_failed
+  | #void_failed
   | #auto_refunded
   | #partial_charged
   | #partially_authorized
   | #partial_charged_and_chargeable
-  | #unresolved
   | #pending
-  | #payment_method_awaited
-  | #confirmation_awaited
-  | #device_data_collection_pending
   | #integrity_failure
+  | #expired
   | #capture_review => []
   }
 
-let getSourceOutcomes = (source: source) =>
-  switch source {
-  | #intent => [Success, Failed, Awaiting, Other]
-  | #attempt => [Success, Failed, Other]
-  }
+let outcomes = [Success, Failed, Awaiting, Other]
 
 let getMeasureFormula = (source: source, measure: measure) =>
   switch (measure, source) {
   | (#success_rate, #intent) => Rate(Success, CompletedRecords)
   | (#success_rate, #attempt) => Rate(Success, AllRecords)
   | (#failure_rate, #intent) => Rate(Failed, CompletedRecords)
-  | (#failure_rate, #attempt) => Rate(Failed, AllRecords)
+  | (#failure_rate, #attempt) => Rate(Failed, CompletedRecords)
   | (#three_ds_failure_rate, _) => Rate(AuthFailed, ThreeDsAttempts)
   | (#not_completed_rate, _) => Rate(Awaiting, AllRecords)
   | (#volume, _) => Count(Total)

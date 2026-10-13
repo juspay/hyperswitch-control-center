@@ -49,16 +49,16 @@ let measureDefinition = (source: source, measure: measure) =>
       #intent,
       #failure_rate,
     ) => "Share of payments that failed. Payments awaiting customer or merchant action are excluded."
-  | (#attempt, #failure_rate) => "Share of attempts that failed."
+  | (
+      #attempt,
+      #failure_rate,
+    ) => "Share of attempts with status failure. Attempts that failed authentication or are awaiting a payment method, confirmation, device data or resolution are excluded."
   | (#intent, #volume) => "Payments created, in any status."
   | (#attempt, #volume) => "Attempts made, in any status. Each retry counts as an attempt."
   | (#intent, #successful) => "Payments with status succeeded."
   | (#attempt, #successful) => "Attempts with status charged."
   | (#intent, #failed) => "Payments with status failed."
-  | (
-      #attempt,
-      #failed,
-    ) => "Attempts that failed, as the backend counts terminal failures: declined, authentication or authorization failed, router declined, capture or void failed, or expired."
+  | (#attempt, #failed) => "Attempts with status failure."
   | (_, #three_ds_failure_rate) => "Share of 3DS attempts that failed authentication."
   | (_, #not_completed_rate) => "Share of payments awaiting customer or merchant action."
   | (#intent, #processed_amount) => "Amount of succeeded payments, in one currency."
@@ -70,6 +70,7 @@ let measureDefinition = (source: source, measure: measure) =>
 let unmeasurableNote = (source: source, measure: measure) =>
   switch (source, measure) {
   | (#intent, #success_rate | #failure_rate) => "No completed payments in this period"
+  | (#attempt, #failure_rate) => "No eligible attempts in this period"
   | (_, #three_ds_failure_rate) => "No 3DS attempts in this period"
   | _ => "No data in this period"
   }
@@ -120,12 +121,12 @@ let dimensionDescription = (source: source, key: dimension) =>
 let outcomeLabel = (source: source, field) =>
   switch (source, field) {
   | (#attempt, Success) => "Charged"
-  | (#attempt, Other) => "Pending or other"
+  | (#attempt, Awaiting) => "Authentication failed or awaiting action"
+  | (#attempt, Other) => "Other (pending, authorized, voided…)"
   | (#intent, Awaiting) => "Waiting on customer or merchant"
   | (#intent, Other) => "Other (cancelled, processing, expired…)"
   | (_, Success) => "Succeeded"
   | (_, Failed) => "Failed"
-  | (_, Awaiting) => "Waiting"
   | (_, AuthFailed) => "Failed 3DS authentication"
   | (_, Total) => "All"
   }

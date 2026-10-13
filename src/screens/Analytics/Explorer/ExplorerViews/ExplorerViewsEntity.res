@@ -10,7 +10,7 @@ let outcomeColumns = [OutcomeName, OutcomeCount, OutcomeChange, OutcomeShare]
 
 let getOutcomeRows = (question, dataset) => {
   let hasPrevious = dataset.overallPrevious.total > 0.0
-  getSourceOutcomes(question.source)->Array.map(field => {
+  outcomes->Array.map(field => {
     let current = dataset.overall->getCount(field)
     let previous = hasPrevious ? Some(dataset.overallPrevious->getCount(field)) : None
     {
