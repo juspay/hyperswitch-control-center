@@ -9,8 +9,7 @@ open ExplorerQueryBarUtils
 
 @react.component
 let make = (~question: question, ~dataset: dataset, ~onUpdate: Dict.t<string> => unit) => {
-  let source = question.source
-  let splitOptions = question->splitOptions
+  let {source, splitOptions} = question
   let setSelection = updates => updates->selectionUpdate->onUpdate
   let setSplitAt = (index, key) =>
     setSelection([(#split, question->splitAt(index, splitOptions->findDimension(key))->splitValue)])

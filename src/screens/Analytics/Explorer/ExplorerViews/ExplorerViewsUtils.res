@@ -2,10 +2,13 @@ open LogicUtils
 open ExplorerTypes
 open ExplorerDescriptions
 
+let maxUnmeasuredGroupsListed = 5
+
 let getUnmeasuredNote = (question, dataset, ~labelFor) => {
   let {source, measure, split} = question
   let names =
     dataset.unmeasured
+    ->Array.slice(~start=0, ~end=maxUnmeasuredGroupsListed)
     ->Array.map(((values, counts)) => {
       let labels =
         values
@@ -18,5 +21,7 @@ let getUnmeasuredNote = (question, dataset, ~labelFor) => {
         )}, ${unmeasurableReason(source, measure)})`
     })
     ->Array.joinWith("; ")
-  `Excluded from the ${measureLabel(source, measure)->String.toLowerCase}: ${names}.`
+  let remaining = dataset.unmeasured->Array.length - maxUnmeasuredGroupsListed
+  let more = remaining > 0 ? ` and ${remaining->Int.toString} more` : ""
+  `Excluded from the ${measureLabel(source, measure)->String.toLowerCase}: ${names}${more}.`
 }

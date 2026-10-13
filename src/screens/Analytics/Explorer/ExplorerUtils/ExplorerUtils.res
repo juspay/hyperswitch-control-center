@@ -27,8 +27,6 @@ let isAmount = (measure: measure) =>
   | #failed => false
   }
 
-let isRankedByVolume = measure => isRate(measure) && !isLowerBetter(measure)
-
 let getOfferedDimensions = (source, ~backendDimensions: option<array<string>>) =>
   sourceConfig(source).dimensions->Array.filter(key =>
     backendDimensions->mapOptionOrDefault(true, names => names->Array.includes((key :> string)))
@@ -128,5 +126,6 @@ let getDimensionValueLabel = (
     ->Array.find(profile => profile.id == value)
     ->mapOptionOrDefault(value, profile => profile.name)
   | (#status, _) => value->snakeToTitle
+  | (#connector, _) => value->ConnectorUtils.getDisplayNameForConnector
   | _ => value
   }

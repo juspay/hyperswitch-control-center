@@ -65,7 +65,7 @@ let getGroupRows = (question, dataset, ~labelFor) => {
         labelFor(key, group.values->getValueFromArray(index, "")),
       )),
       value: formatValue(source, measure, group.current, ~currency=dataset.amountCurrency),
-      isLowVolume: question->isSmall(~minimumRateBase=dataset.minimumRateBase, group),
+      isLowVolume: question->isLowVolume(~minimumRateBase=dataset.minimumRateBase, group),
       change: formatChange(measure, current, previous),
       impact: getChangeImpact(measure, current, previous),
       volume: group.current.total,
@@ -74,14 +74,19 @@ let getGroupRows = (question, dataset, ~labelFor) => {
   })
 }
 
-let getGroupHeading = (question, colType) => {
+let getGroupHeading = (question, colType, ~currency) => {
   let {source, measure} = question
+  let records = isAmount(measure) ? `${currency} ${sourceNoun(source)}` : sourceNoun(source)
   switch colType {
   | SplitColumn(key) => Table.makeHeaderInfo(~key=(key :> string), ~title=dimensionLabel(key))
   | MeasureColumn => Table.makeHeaderInfo(~key="value", ~title=measureLabel(source, measure))
   | ChangeColumn => Table.makeHeaderInfo(~key="change", ~title="Change")
-  | VolumeColumn => Table.makeHeaderInfo(~key="volume", ~title=measureLabel(source, #volume))
-  | ShareColumn => Table.makeHeaderInfo(~key="share", ~title=`Share of ${sourceNoun(source)}`)
+  | VolumeColumn =>
+    Table.makeHeaderInfo(
+      ~key="volume",
+      ~title=isAmount(measure) ? records : measureLabel(source, #volume),
+    )
+  | ShareColumn => Table.makeHeaderInfo(~key="share", ~title=`Share of ${records}`)
   }
 }
 
@@ -121,11 +126,11 @@ let getGroupCell = (row: groupRow, colType): Table.cell =>
   | ShareColumn => Text(row.share->formatPercentage)
   }
 
-let getGroupTableEntity = question =>
+let getGroupTableEntity = (question, ~currency) =>
   EntityType.makeEntity(
     ~uri="",
     ~getObjects=_ => [],
     ~defaultColumns=getGroupColumns(question),
-    ~getHeading=colType => getGroupHeading(question, colType),
+    ~getHeading=colType => getGroupHeading(question, colType, ~currency),
     ~getCell=getGroupCell,
   )

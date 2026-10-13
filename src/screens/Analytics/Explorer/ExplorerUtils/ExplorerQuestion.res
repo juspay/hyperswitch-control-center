@@ -9,8 +9,10 @@ let sourceFromFilters = filterValueJson =>
 let questionFromFilters = (filterValueJson, ~backendDimensions) => {
   let source = filterValueJson->sourceFromFilters
   let measure = source->measureFromString(filterValueJson->getString(urlKey(#measure), ""))
-  let dimensions = source->getOfferedDimensions(~backendDimensions)
-  let splitOptions = getSplitDimensions(measure, ~dimensions)
+  let splitOptions = getSplitDimensions(
+    measure,
+    ~dimensions=source->getOfferedDimensions(~backendDimensions),
+  )
   {
     source,
     measure,
@@ -18,7 +20,7 @@ let questionFromFilters = (filterValueJson, ~backendDimensions) => {
     ->getStrArrayFromDict(urlKey(#split), [])
     ->Array.filterMap(id => splitOptions->findDimension(id))
     ->Array.slice(~start=0, ~end=2),
-    dimensions,
+    splitOptions,
     currency: filterValueJson->getString(urlKey(#currency), ""),
     startTime: filterValueJson->getString(HSAnalyticsUtils.startTimeFilterKey, ""),
     endTime: filterValueJson->getString(HSAnalyticsUtils.endTimeFilterKey, ""),
@@ -27,8 +29,6 @@ let questionFromFilters = (filterValueJson, ~backendDimensions) => {
 
 let hasDates = question =>
   question.startTime->isNonEmptyString && question.endTime->isNonEmptyString
-
-let splitOptions = question => getSplitDimensions(question.measure, ~dimensions=question.dimensions)
 
 let needsCurrency = question => isAmount(question.measure)
 

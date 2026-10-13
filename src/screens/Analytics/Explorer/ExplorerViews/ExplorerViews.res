@@ -28,7 +28,7 @@ let make = (~question: question, ~dataset: dataset) => {
         <ViewTable
           title
           rows={getGroupRows(question, dataset, ~labelFor)}
-          entity={question->getGroupTableEntity}
+          entity={question->getGroupTableEntity(~currency=dataset.amountCurrency)}
           visibleColumns={question->getGroupColumns}
         />
       </RenderIf>

@@ -110,7 +110,7 @@ let intentStatusOutcomes = (status: intentStatus) =>
   | #requires_customer_action
   | #requires_payment_method
   | #requires_merchant_action
-  | #requires_confirmation => [Awaiting]
+  | #requires_confirmation => [Excluded]
   | #cancelled
   | #cancelled_post_capture
   | #processing
@@ -128,11 +128,11 @@ let attemptStatusOutcomes = (status: attemptStatus) =>
   switch status {
   | #charged => [Success]
   | #failure => [Failed]
-  | #authentication_failed => [Awaiting, AuthFailed]
+  | #authentication_failed => [Excluded, AuthFailed]
   | #payment_method_awaited
   | #confirmation_awaited
   | #device_data_collection_pending
-  | #unresolved => [Awaiting]
+  | #unresolved => [Excluded]
   | #started
   | #router_declined
   | #authentication_pending
@@ -157,16 +157,15 @@ let attemptStatusOutcomes = (status: attemptStatus) =>
   | #capture_review => []
   }
 
-let outcomes = [Success, Failed, Awaiting, Other]
+let outcomes = [Success, Failed, Excluded, Other]
 
 let getMeasureFormula = (source: source, measure: measure) =>
   switch (measure, source) {
-  | (#success_rate, #intent) => Rate(Success, CompletedRecords)
+  | (#success_rate, #intent) => Rate(Success, EligibleRecords)
   | (#success_rate, #attempt) => Rate(Success, AllRecords)
-  | (#failure_rate, #intent) => Rate(Failed, CompletedRecords)
-  | (#failure_rate, #attempt) => Rate(Failed, CompletedRecords)
+  | (#failure_rate, _) => Rate(Failed, EligibleRecords)
   | (#three_ds_failure_rate, _) => Rate(AuthFailed, ThreeDsAttempts)
-  | (#not_completed_rate, _) => Rate(Awaiting, AllRecords)
+  | (#not_completed_rate, _) => Rate(Excluded, AllRecords)
   | (#volume, _) => Count(Total)
   | (#successful, _) => Count(Success)
   | (#failed, _) => Count(Failed)

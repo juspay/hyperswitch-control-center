@@ -98,13 +98,13 @@ type countField =
   | Total
   | Success
   | Failed
-  | Awaiting
+  | Excluded
   | AuthFailed
   | Other
 
 type denominator =
   | AllRecords
-  | CompletedRecords
+  | EligibleRecords
   | ThreeDsAttempts
 
 type formula =
@@ -126,7 +126,7 @@ type counts = {
   success: float,
   failed: float,
   authFailed: float,
-  awaiting: float,
+  excluded: float,
   threeDsAttempts: float,
   amount: float,
 }
@@ -141,7 +141,7 @@ type question = {
   source: source,
   measure: measure,
   split: array<dimension>,
-  dimensions: array<dimension>,
+  splitOptions: array<dimension>,
   currency: string,
   startTime: string,
   endTime: string,

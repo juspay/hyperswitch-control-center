@@ -9,7 +9,7 @@ let emptyCounts = {
   success: 0.0,
   failed: 0.0,
   authFailed: 0.0,
-  awaiting: 0.0,
+  excluded: 0.0,
   threeDsAttempts: 0.0,
   amount: 0.0,
 }
@@ -19,7 +19,7 @@ let addCounts = (a, b) => {
   success: a.success +. b.success,
   failed: a.failed +. b.failed,
   authFailed: a.authFailed +. b.authFailed,
-  awaiting: a.awaiting +. b.awaiting,
+  excluded: a.excluded +. b.excluded,
   threeDsAttempts: a.threeDsAttempts +. b.threeDsAttempts,
   amount: a.amount +. b.amount,
 }
@@ -31,15 +31,15 @@ let getCount = (counts, field) =>
   | Total => counts.total
   | Success => counts.success
   | Failed => counts.failed
-  | Awaiting => counts.awaiting
+  | Excluded => counts.excluded
   | AuthFailed => counts.authFailed
-  | Other => Math.max(0.0, counts.total -. counts.success -. counts.failed -. counts.awaiting)
+  | Other => counts.total -. counts.success -. counts.failed -. counts.excluded
   }
 
 let getDenominator = (counts, base) =>
   switch base {
   | AllRecords => counts.total
-  | CompletedRecords => counts.total -. counts.awaiting
+  | EligibleRecords => counts.total -. counts.excluded
   | ThreeDsAttempts => counts.threeDsAttempts
   }
 
@@ -54,7 +54,7 @@ let getRowCounts = (source, dict) => {
     total: records,
     success: countIf(Success),
     failed: countIf(Failed),
-    awaiting: countIf(Awaiting),
+    excluded: countIf(Excluded),
     authFailed: isThreeDs ? countIf(AuthFailed) : 0.0,
     threeDsAttempts: isThreeDs ? records : 0.0,
     amount: dict->getFloat((config.amountMetric :> string), 0.0),
@@ -115,20 +115,21 @@ let getCurrenciesBySuccess = (source, rows) =>
 let lowVolumeMinimumBase = 10.0
 let lowVolumeShareOfBase = 0.02
 
-let isSmall = (question, ~minimumRateBase, group) =>
+let isLowVolume = (question, ~minimumRateBase, group) =>
   isRate(question.measure) &&
   getRateDenominator(question.source, question.measure, group.current) < minimumRateBase
 
 let rankGroups = (question, groups, ~minimumRateBase) =>
   groups->Array.toSorted((a, b) =>
-    switch (question->isSmall(~minimumRateBase, a), question->isSmall(~minimumRateBase, b)) {
+    switch (
+      question->isLowVolume(~minimumRateBase, a),
+      question->isLowVolume(~minimumRateBase, b),
+    ) {
     | (true, false) => 1.0
     | (false, true) => -1.0
     | _ =>
-      isRankedByVolume(question.measure)
-        ? b.current.total -. a.current.total
-        : getMeasureValue(question.source, question.measure, b.current) -.
-          getMeasureValue(question.source, question.measure, a.current)
+      getMeasureValue(question.source, question.measure, b.current) -.
+      getMeasureValue(question.source, question.measure, a.current)
     }
   )
 

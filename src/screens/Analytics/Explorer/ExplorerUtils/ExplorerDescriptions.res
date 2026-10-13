@@ -121,9 +121,9 @@ let dimensionDescription = (source: source, key: dimension) =>
 let outcomeLabel = (source: source, field) =>
   switch (source, field) {
   | (#attempt, Success) => "Charged"
-  | (#attempt, Awaiting) => "Authentication failed or awaiting action"
+  | (#attempt, Excluded) => "Authentication failed or awaiting action"
   | (#attempt, Other) => "Other (pending, authorized, voided…)"
-  | (#intent, Awaiting) => "Waiting on customer or merchant"
+  | (#intent, Excluded) => "Waiting on customer or merchant"
   | (#intent, Other) => "Other (cancelled, processing, expired…)"
   | (_, Success) => "Succeeded"
   | (_, Failed) => "Failed"
@@ -132,13 +132,9 @@ let outcomeLabel = (source: source, field) =>
   }
 
 let viewNote = (question: question) =>
-  if question.split->isEmptyArray {
-    "Outcomes in these dates. Add a split to compare groups."
-  } else if ExplorerUtils.isRankedByVolume(question.measure) {
-    "Groups ranked by volume; low-volume groups are ranked last."
-  } else {
-    "Groups ranked by the measure; low-volume groups are ranked last."
-  }
+  question.split->isNonEmptyArray
+    ? "Groups ranked by the measure; low-volume groups are ranked last."
+    : "Outcomes in these dates. Add a split to compare groups."
 
 let viewTitle = (question: question) => {
   let {source, measure, split} = question
