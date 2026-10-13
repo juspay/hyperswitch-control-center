@@ -152,6 +152,27 @@ let getCounterAmount = (dict, ~scope) =>
 let getCounterCount = (dict, ~scope) =>
   dict->getCounter(~scope, ~valueType=CountLimit)->Option.flatMap(getOptionInt(_, "value"))
 
+let resetPeriodUnitFromString = unit =>
+  switch unit {
+  | "hour" => Hour
+  | "day" => Day
+  | "week" => Week
+  | "month" => Month
+  | "CALENDAR_DAY" => CalendarDay
+  | "CALENDAR_MONTH" => CalendarMonth
+  | _ => OfferPeriod
+  }
+
+let getCardResetPeriod = dict => {
+  let metadataDict = dict->getDictfromDict("metadata")
+  metadataDict
+  ->getOptionString("cardResetPeriodType")
+  ->Option.map(unit => {
+    unit: unit->resetPeriodUnitFromString,
+    value: metadataDict->getOptionInt("cardResetPeriod"),
+  })
+}
+
 let cardBinFilterType = "CARD_BIN"
 
 let getBinListMode = dict => {
@@ -182,6 +203,7 @@ let detailItemToObjMapper = dict => {
   campaignCount: dict->getCounterCount(~scope=Campaign),
   amountPerCard: dict->getCounterAmount(~scope=PerCard),
   countPerCard: dict->getCounterCount(~scope=PerCard),
+  cardResetPeriod: dict->getCardResetPeriod,
   binListMode: dict->getBinListMode,
 }
 
@@ -327,6 +349,30 @@ let optionalAmountLabel = (detail: offerDetail, amount) =>
   )
 
 let optionalCountLabel = count => count->mapOptionOrDefault(emptyValuePlaceholder, Int.toString)
+
+let resetPeriodUnitToDisplayName = unit =>
+  switch unit {
+  | OfferPeriod => "offer period"
+  | Hour => "hour"
+  | Day => "day"
+  | Week => "week"
+  | Month => "month"
+  | CalendarDay => "calendar day"
+  | CalendarMonth => "calendar month"
+  }
+
+let resetPeriodLabel = ({unit, value}: resetPeriod) =>
+  switch (unit, value) {
+  | (OfferPeriod, _) | (_, None) | (_, Some(1)) => unit->resetPeriodUnitToDisplayName
+  | (_, Some(value)) => `${value->Int.toString} ${unit->resetPeriodUnitToDisplayName}s`
+  }
+
+let countPerCardLabel = (detail: offerDetail) =>
+  switch (detail.countPerCard, detail.cardResetPeriod) {
+  | (Some(count), Some(resetPeriod)) =>
+    `${count->Int.toString} ${count == 1 ? "time" : "times"} per ${resetPeriod->resetPeriodLabel}`
+  | (count, _) => count->optionalCountLabel
+  }
 
 let offerAmountLabel = (detail: offerDetail) =>
   switch detail.offer.benefit {

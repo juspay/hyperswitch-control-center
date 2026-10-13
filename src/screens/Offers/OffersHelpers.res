@@ -1,4 +1,6 @@
 open Typography
+open OffersFormUtils
+open OffersFormFields
 
 module FormSection = {
   @react.component
@@ -14,7 +16,7 @@ module FormSection = {
 
 module FieldRow = {
   @react.component
-  let make = (~fields) => {
+  let make = (~fields, ~children=React.null) => {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
       {fields
       ->Array.mapWithIndex((field, index) =>
@@ -23,6 +25,7 @@ module FieldRow = {
         />
       )
       ->React.array}
+      children
     </div>
   }
 }
@@ -36,14 +39,39 @@ module CurrencyAmountFields = {
     currencies
     ->Array.map(currency =>
       <FieldRow
-        key=currency
-        fields=[
-          currency->OffersFormFields.minOrderAmountField,
-          currency->OffersFormFields.maxOrderAmountField,
-        ]
+        key=currency fields=[currency->minOrderAmountField, currency->maxOrderAmountField]
       />
     )
     ->React.array
+  }
+}
+
+module MaxAmountRow = {
+  @react.component
+  let make = () => {
+    let {calculationRule} = OffersHooks.useOfferFormValues()
+
+    <RenderIf condition={calculationRule == OffersTypes.Percentage}>
+      <FieldRow fields=[maxAmountField] />
+    </RenderIf>
+  }
+}
+
+module CountPerCardFields = {
+  @react.component
+  let make = () => {
+    let {startTime, endTime} = OffersHooks.useOfferFormValues()
+    let options = offerDurationInSeconds(~startTime, ~endTime)->resetPeriodUnitOptionsForDuration
+
+    <div className="flex items-end gap-3">
+      <FormRenderer.FieldRenderer
+        field=countPerCardField fieldWrapperClass="flex-1" showErrorOnChange=true
+      />
+      <span className={`pb-3 text-nd_gray-600 ${body.md.medium}`}> {"Per"->React.string} </span>
+      <FormRenderer.FieldRenderer
+        field={cardResetPeriodTypeField(~options)} fieldWrapperClass="w-56"
+      />
+    </div>
   }
 }
 

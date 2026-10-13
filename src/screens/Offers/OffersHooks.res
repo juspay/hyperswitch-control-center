@@ -104,3 +104,10 @@ let useOfferBinList = () => {
     content->parseBinListCsv
   }
 }
+
+let useOfferFormValues = () => {
+  let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+    ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+  )
+  formState.values->getDictFromJsonObject->OffersFormUtils.offerFormValuesMapper
+}

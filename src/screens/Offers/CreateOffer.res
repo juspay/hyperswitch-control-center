@@ -4,20 +4,6 @@ open OffersFormFields
 open OffersFormUtils
 open OffersHelpers
 
-module MaxAmountRow = {
-  @react.component
-  let make = () => {
-    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
-      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
-    )
-    let {calculationRule} = formState.values->getDictFromJsonObject->offerFormValuesMapper
-
-    <RenderIf condition={calculationRule == OffersTypes.Percentage}>
-      <FieldRow fields=[maxAmountField] />
-    </RenderIf>
-  }
-}
-
 @react.component
 let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
@@ -50,6 +36,7 @@ let make = () => {
     [
       ("language", (OffersTypes.English :> string)->JSON.Encode.string),
       ("calculation_rule", (OffersTypes.Percentage :> string)->JSON.Encode.string),
+      ("card_reset_period_type", (OffersTypes.OfferPeriod :> string)->JSON.Encode.string),
     ]->getJsonFromArrayOfJson
 
   <AccessControl authorization={userHasAccess(~groupAccess=OffersManage)}>
@@ -79,7 +66,9 @@ let make = () => {
             <CurrencyAmountFields />
           </FormSection>
           <FormSection title="Payment Details">
-            <FieldRow fields=[amountPerCardField, countPerCardField] />
+            <FieldRow fields=[amountPerCardField]>
+              <CountPerCardFields />
+            </FieldRow>
             <BinListUpload />
           </FormSection>
           <FormRenderer.SubmitButton

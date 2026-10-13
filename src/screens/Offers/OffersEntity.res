@@ -157,7 +157,7 @@ let getPaymentDetailsHeading = (colType: paymentDetailsColType) =>
 let getPaymentDetailsCell = (detail: offerDetail, colType: paymentDetailsColType): Table.cell =>
   switch colType {
   | AmountPerCard => Text(detail->optionalAmountLabel(detail.amountPerCard))
-  | CountPerCard => Text(detail.countPerCard->optionalCountLabel)
+  | CountPerCard => Text(detail->countPerCardLabel)
   | BinList =>
     detail.binListMode->Option.isSome
       ? CustomCell(

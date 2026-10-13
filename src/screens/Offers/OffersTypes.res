@@ -109,6 +109,21 @@ type binListMode =
   | @as("Whitelist") Whitelist
   | @as("Blacklist") Blacklist
 
+@unboxed
+type resetPeriodUnit =
+  | @as("offerPeriod") OfferPeriod
+  | @as("hour") Hour
+  | @as("day") Day
+  | @as("week") Week
+  | @as("month") Month
+  | @as("CALENDAR_DAY") CalendarDay
+  | @as("CALENDAR_MONTH") CalendarMonth
+
+type resetPeriod = {
+  unit: resetPeriodUnit,
+  value: option<int>,
+}
+
 type offerDetail = {
   offer: offer,
   language: language,
@@ -117,6 +132,7 @@ type offerDetail = {
   campaignCount: option<int>,
   amountPerCard: option<float>,
   countPerCard: option<int>,
+  cardResetPeriod: option<resetPeriod>,
   binListMode: option<binListMode>,
 }
 
@@ -162,6 +178,7 @@ type offerFormValues = {
   campaignCount: option<int>,
   amountPerCard: option<float>,
   countPerCard: option<int>,
+  cardResetPeriodUnit: resetPeriodUnit,
   cardBins: array<string>,
   binListMode: binListMode,
 }

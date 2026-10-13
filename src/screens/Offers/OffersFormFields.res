@@ -161,8 +161,22 @@ let maxOrderAmountField = currency =>
     ~placeholder="Eg. 10000 - Maximum cart value for the offer to be eligible",
   )
 
+let cardResetPeriodTypeField = (~options) =>
+  FormRenderer.makeFieldInfo(
+    ~label="",
+    ~name="card_reset_period_type",
+    ~customInput=InputFields.selectInput(
+      ~options,
+      ~buttonText="Select Period",
+      ~fullLength=true,
+      ~deselectDisable=true,
+    ),
+  )
+
 let binListBlacklistField = FormRenderer.makeFieldInfo(
-  ~label="Upload BINs as blacklist",
+  ~label="Upload BIN as blacklist",
+  ~description="By default uploaded list is whitelisted",
+  ~toolTipPosition=Right,
   ~name="bin_list_blacklist",
   ~customInput=InputFields.boolInput(~isDisabled=false, ~boolCustomClass="rounded-lg"),
 )

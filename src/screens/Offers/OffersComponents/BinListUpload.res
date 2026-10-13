@@ -9,11 +9,6 @@ let make = () => {
   let inputRef = React.useRef(Nullable.null)
   let (fileName, setFileName) = React.useState(_ => "")
   let (binCount, setBinCount) = React.useState(_ => 0)
-  let isBlacklist =
-    ReactFinalForm.useField("bin_list_blacklist").input.value->getBoolFromJson(false)
-  let eligibilityText = isBlacklist
-    ? "The listed BINs will not be eligible for this offer."
-    : "Only the listed BINs will be eligible for this offer."
 
   let clearFileInput = () =>
     inputRef.current
@@ -28,6 +23,7 @@ let make = () => {
 
   let removeFile = _ => {
     setBins(~name="", ~bins=[])
+    form.change("bin_list_blacklist", false->JSON.Encode.bool)
     clearFileInput()
   }
 
@@ -68,11 +64,8 @@ let make = () => {
   <div className="flex flex-col gap-3">
     <div className={`text-nd_gray-700 ${body.md.medium}`}> {"Card BIN List"->React.string} </div>
     <p className={`text-nd_gray-500 ${body.sm.regular}`}>
-      {`Upload a CSV with a ${OffersUtils.cardBinFilterType} header and one 6 to 9 digit BIN per row (up to ${maxBinRows->Int.toString}). ${eligibilityText}`->React.string}
+      {"Upload 6 to 9 digit BIN only"->React.string}
     </p>
-    <FormRenderer.FieldRenderer
-      field=OffersFormFields.binListBlacklistField fieldWrapperClass="w-full"
-    />
     <input
       type_="file"
       accept=".csv"
@@ -94,6 +87,9 @@ let make = () => {
         </div>
         <Button text="Remove" buttonType=Secondary buttonSize=Small onClick=removeFile />
       </div>
+      <FormRenderer.FieldRenderer
+        field=OffersFormFields.binListBlacklistField fieldWrapperClass="w-full"
+      />
     </RenderIf>
   </div>
 }
