@@ -1,17 +1,18 @@
-type source =
-  | Intent
-  | Attempt
+type source = [#intent | #attempt]
 
-type measure =
-  | SuccessRate
-  | FailureRate
-  | Volume
-  | Successful
-  | Failed
-  | ThreeDsFailureRate
-  | NotCompletedRate
-  | ProcessedAmount
-  | AvgTicket
+type measure = [
+  | #success_rate
+  | #failure_rate
+  | #volume
+  | #successful
+  | #failed
+  | #three_ds_failure_rate
+  | #not_completed_rate
+  | #processed_amount
+  | #avg_ticket
+]
+
+type selectionKey = [#source | #measure | #currency | #split]
 
 type changeImpact =
   | Favorable
@@ -22,8 +23,6 @@ type metric = [
   | #payment_intent_count
   | #payment_count
   | #payment_processed_amount
-  | #payment_success_rate
-  | #payments_success_rate
 ]
 
 type dimension = [
@@ -117,7 +116,6 @@ type formula =
 type sourceConfig = {
   countMetric: metric,
   amountMetric: metric,
-  successRateMetric: metric,
   infoDomain: string,
   dimensions: array<dimension>,
   measures: array<measure>,
@@ -131,7 +129,6 @@ type counts = {
   awaiting: float,
   threeDsAttempts: float,
   amount: float,
-  backendRate: option<float>,
 }
 
 type group = {
@@ -153,20 +150,18 @@ type question = {
 type responses = {
   currentRows: array<JSON.t>,
   previousRows: array<JSON.t>,
-  rateCurrent: array<JSON.t>,
-  ratePrevious: array<JSON.t>,
-  rateOverallCurrent: array<JSON.t>,
-  rateOverallPrevious: array<JSON.t>,
 }
 
 type dataset = {
-  sorted: array<group>,
-  unmeasured: array<(array<string>, counts)>,
   overall: counts,
   overallPrevious: counts,
-  minimumRateBase: float,
+  inCurrency: counts,
+  inCurrencyPrevious: counts,
   amountCurrencies: array<string>,
   amountCurrency: string,
+  sorted: array<group>,
+  unmeasured: array<(array<string>, counts)>,
+  minimumRateBase: float,
 }
 
 type outcomeRow = {
@@ -198,10 +193,3 @@ type groupColumn =
   | ChangeColumn
   | VolumeColumn
   | ShareColumn
-
-type viewContext = {
-  question: question,
-  dataset: dataset,
-  hasPrevious: bool,
-  labelFor: (dimension, string) => string,
-}

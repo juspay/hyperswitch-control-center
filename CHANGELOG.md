@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.10.08.0
+
+### Features
+
+- **offers:** Use offer engine credential source from user info to gate demo mode ([#5609](https://github.com/juspay/hyperswitch-control-center/pull/5609)) ([`c0dad16`](https://github.com/juspay/hyperswitch-control-center/commit/c0dad1640195c8d2adc4d77060e8d255fedeb72d))
+
+### Bug Fixes
+
+- **offers:** Use future validity presets and remove logo field from create offer ([#5631](https://github.com/juspay/hyperswitch-control-center/pull/5631)) ([`ecca16a`](https://github.com/juspay/hyperswitch-control-center/commit/ecca16a27cb6acb336569ea30714fa05d867c765))
+- **revenue-recovery:** Fix chargebee auth fields bug ([#5527](https://github.com/juspay/hyperswitch-control-center/pull/5527)) ([`719e57c`](https://github.com/juspay/hyperswitch-control-center/commit/719e57cdb2912f4a89913b3e3625e81cca0e55bf))
+
+**Full Changelog:** [`2026.10.07.0...2026.10.08.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.07.0...2026.10.08.0)
+
+- - -
+
 ## 2026.10.07.0
 
 ### Bug Fixes

@@ -8,15 +8,15 @@ open ExplorerDescriptions
 
 let outcomeColumns = [OutcomeName, OutcomeCount, OutcomeChange, OutcomeShare]
 
-let getOutcomeRows = (viewContext: viewContext) => {
-  let {question, dataset, hasPrevious} = viewContext
+let getOutcomeRows = (question, dataset) => {
+  let hasPrevious = dataset.overallPrevious.total > 0.0
   getSourceOutcomes(question.source)->Array.map(field => {
     let current = dataset.overall->getCount(field)
     let previous = hasPrevious ? Some(dataset.overallPrevious->getCount(field)) : None
     {
       outcome: outcomeLabel(question.source, field),
       count: current,
-      change: hasPrevious ? formatChange(Volume, current, previous) : "",
+      change: formatChange(#volume, current, previous),
       share: calculatePercentage(current, dataset.overall.total),
     }
   })
@@ -25,7 +25,7 @@ let getOutcomeRows = (viewContext: viewContext) => {
 let getOutcomeHeading = (source, colType) =>
   switch colType {
   | OutcomeName => Table.makeHeaderInfo(~key="outcome", ~title="Outcome")
-  | OutcomeCount => Table.makeHeaderInfo(~key="count", ~title=measureLabel(source, Volume))
+  | OutcomeCount => Table.makeHeaderInfo(~key="count", ~title=measureLabel(source, #volume))
   | OutcomeChange => Table.makeHeaderInfo(~key="change", ~title="Change")
   | OutcomeShare => Table.makeHeaderInfo(~key="share", ~title=`Share of ${sourceNoun(source)}`)
   }
@@ -52,9 +52,9 @@ let getGroupColumns = question =>
   ->Array.map(key => SplitColumn(key))
   ->Array.concat([MeasureColumn, ChangeColumn, VolumeColumn, ShareColumn])
 
-let getGroupRows = (viewContext: viewContext) => {
-  let {question, dataset, hasPrevious} = viewContext
+let getGroupRows = (question, dataset, ~labelFor) => {
   let {source, measure} = question
+  let (totals, _) = dataset->getMeasureCounts(measure)
   dataset.sorted->Array.map(group => {
     let current = getMeasureValue(source, measure, group.current)
     let previous =
@@ -62,14 +62,14 @@ let getGroupRows = (viewContext: viewContext) => {
     {
       labels: question.split->Array.mapWithIndex((key, index) => (
         key,
-        viewContext.labelFor(key, group.values->getValueFromArray(index, "")),
+        labelFor(key, group.values->getValueFromArray(index, "")),
       )),
       value: formatValue(source, measure, group.current, ~currency=dataset.amountCurrency),
       isLowVolume: question->isSmall(~minimumRateBase=dataset.minimumRateBase, group),
-      change: hasPrevious ? formatChange(measure, current, previous) : "",
+      change: formatChange(measure, current, previous),
       impact: getChangeImpact(measure, current, previous),
       volume: group.current.total,
-      share: calculatePercentage(group.current.total, dataset.overall.total),
+      share: calculatePercentage(group.current.total, totals.total),
     }
   })
 }
@@ -80,7 +80,7 @@ let getGroupHeading = (question, colType) => {
   | SplitColumn(key) => Table.makeHeaderInfo(~key=(key :> string), ~title=dimensionLabel(key))
   | MeasureColumn => Table.makeHeaderInfo(~key="value", ~title=measureLabel(source, measure))
   | ChangeColumn => Table.makeHeaderInfo(~key="change", ~title="Change")
-  | VolumeColumn => Table.makeHeaderInfo(~key="volume", ~title=measureLabel(source, Volume))
+  | VolumeColumn => Table.makeHeaderInfo(~key="volume", ~title=measureLabel(source, #volume))
   | ShareColumn => Table.makeHeaderInfo(~key="share", ~title=`Share of ${sourceNoun(source)}`)
   }
 }
@@ -91,7 +91,7 @@ let getGroupCell = (row: groupRow, colType): Table.cell =>
     Text(
       row.labels
       ->Array.find(((column, _)) => column == key)
-      ->Option.mapOr("", ((_, label)) => label),
+      ->mapOptionOrDefault("", ((_, label)) => label),
     )
   | MeasureColumn =>
     row.isLowVolume
