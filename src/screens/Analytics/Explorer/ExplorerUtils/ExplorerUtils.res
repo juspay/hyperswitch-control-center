@@ -27,6 +27,8 @@ let isAmount = (measure: measure) =>
   | #failed => false
   }
 
+let isRankedByVolume = measure => isRate(measure) && !isLowerBetter(measure)
+
 let getOfferedDimensions = (source, ~backendDimensions: option<array<string>>) =>
   sourceConfig(source).dimensions->Array.filter(key =>
     backendDimensions->mapOptionOrDefault(true, names => names->Array.includes((key :> string)))
@@ -55,7 +57,7 @@ let getOutcomesOfStatus = (source: source, status) =>
     ->mapOptionOrDefault([], attemptStatusOutcomes)
   }
 
-let getRowKey = values => values->Array.joinWith("|")
+let getRowKey = values => values->getJsonFromArrayOfString->JSON.stringify
 
 let sourceFromString = id =>
   sources->Array.find(source => (source :> string) == id)->Option.getOr(#intent)

@@ -1,7 +1,6 @@
 open Typography
-open LogicUtils
 open ExplorerTypes
-open ExplorerDescriptions
+open ExplorerViewsUtils
 open InsightsHelper
 
 module ViewTable = {
@@ -33,27 +32,8 @@ module ViewTable = {
 
 module UnmeasuredNote = {
   @react.component
-  let make = (~question: question, ~dataset: dataset, ~labelFor) => {
-    let {source, measure} = question
-    let names =
-      dataset.unmeasured
-      ->Array.map(((values, counts)) =>
-        `${values
-          ->Array.mapWithIndex((value, index) =>
-            question.split
-            ->Array.get(index)
-            ->mapOptionOrDefault(value, key => labelFor(key, value))
-          )
-          ->Array.joinWith(" · ")} (${counts.total->formatNumberWithCommas} ${sourceNoun(
-            source,
-          )}, ${unmeasurableReason(source, measure)})`
-      )
-      ->Array.joinWith("; ")
+  let make = (~question: question, ~dataset: dataset, ~labelFor) =>
     <div className={`px-5 pb-4 ${body.sm.regular} text-nd_gray-500`}>
-      {`Excluded from the ${measureLabel(
-          source,
-          measure,
-        )->String.toLowerCase}: ${names}.`->React.string}
+      {getUnmeasuredNote(question, dataset, ~labelFor)->React.string}
     </div>
-  }
 }

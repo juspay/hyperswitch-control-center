@@ -72,7 +72,7 @@ let make = () => {
 
   let setSource = source =>
     if source != question.source {
-      [(#source, (source :> string)), (#split, "[]")]->selectionUpdate->updateExistingKeys
+      [(#source, (source :> string))]->selectionUpdate->updateExistingKeys
     }
 
   <div className="flex flex-col gap-4">

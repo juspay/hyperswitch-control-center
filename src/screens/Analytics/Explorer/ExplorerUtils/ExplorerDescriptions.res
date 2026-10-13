@@ -131,9 +131,13 @@ let outcomeLabel = (source: source, field) =>
   }
 
 let viewNote = (question: question) =>
-  question.split->isNonEmptyArray
-    ? "Groups ranked by the measure; low-volume groups are ranked last."
-    : "Outcomes in these dates. Add a split to compare groups."
+  if question.split->isEmptyArray {
+    "Outcomes in these dates. Add a split to compare groups."
+  } else if ExplorerUtils.isRankedByVolume(question.measure) {
+    "Groups ranked by volume; low-volume groups are ranked last."
+  } else {
+    "Groups ranked by the measure; low-volume groups are ranked last."
+  }
 
 let viewTitle = (question: question) => {
   let {source, measure, split} = question

@@ -112,6 +112,9 @@ let getCurrenciesBySuccess = (source, rows) =>
   ->Array.toSorted(((_, a), (_, b)) => b -. a)
   ->Array.map(((currency, _)) => currency)
 
+let lowVolumeMinimumBase = 10.0
+let lowVolumeShareOfBase = 0.02
+
 let isSmall = (question, ~minimumRateBase, group) =>
   isRate(question.measure) &&
   getRateDenominator(question.source, question.measure, group.current) < minimumRateBase
@@ -122,7 +125,7 @@ let rankGroups = (question, groups, ~minimumRateBase) =>
     | (true, false) => 1.0
     | (false, true) => -1.0
     | _ =>
-      isRate(question.measure) && !isLowerBetter(question.measure)
+      isRankedByVolume(question.measure)
         ? b.current.total -. a.current.total
         : getMeasureValue(question.source, question.measure, b.current) -.
           getMeasureValue(question.source, question.measure, a.current)
@@ -183,7 +186,10 @@ let buildDataset = (question, responses) => {
         ? measurable(source, measure, group.current)
         : getMeasureValue(source, measure, group.current) > 0.0
     )
-  let minimumRateBase = Math.max(10.0, getRateDenominator(source, measure, overall) *. 0.02)
+  let minimumRateBase = Math.max(
+    lowVolumeMinimumBase,
+    getRateDenominator(source, measure, overall) *. lowVolumeShareOfBase,
+  )
 
   {
     overall,

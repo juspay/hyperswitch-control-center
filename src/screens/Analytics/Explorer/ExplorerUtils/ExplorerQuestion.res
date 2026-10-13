@@ -81,7 +81,6 @@ let splitValue = (split: array<dimension>) =>
 let splitAt = (question, index, key: option<dimension>) =>
   question.split
   ->Array.slice(~start=0, ~end=index)
-  ->Array.filter(item => Some(item) != key)
   ->Array.concat(key->mapOptionOrDefault([], key => [key]))
   ->Array.concat(
     key->Option.isSome
