@@ -2,7 +2,7 @@ open LogicUtils
 open ExplorerTypes
 open ExplorerCatalog
 open ExplorerUtils
-open ExplorerQuestion
+open ExplorerSelection
 
 let emptyCounts = {
   total: 0.0,
@@ -112,41 +112,20 @@ let getCurrenciesBySuccess = (source, rows) =>
   ->Array.toSorted(((_, a), (_, b)) => b -. a)
   ->Array.map(((currency, _)) => currency)
 
-let lowVolumeMinimumBase = 10.0
-let lowVolumeShareOfBase = 0.02
-
-let isLowVolume = (question, ~minimumRateBase, group) =>
-  isRate(question.measure) &&
-  getRateDenominator(question.source, question.measure, group.current) < minimumRateBase
-
-let rankGroups = (question, groups, ~minimumRateBase) =>
-  groups->Array.toSorted((a, b) =>
-    switch (
-      question->isLowVolume(~minimumRateBase, a),
-      question->isLowVolume(~minimumRateBase, b),
-    ) {
-    | (true, false) => 1.0
-    | (false, true) => -1.0
-    | _ =>
-      getMeasureValue(question.source, question.measure, b.current) -.
-      getMeasureValue(question.source, question.measure, a.current)
-    }
-  )
-
-let buildDataset = (question, responses) => {
-  let {source, measure} = question
-  let needsCurrency = question->needsCurrency
+let buildDataset = (selection, responses) => {
+  let {source, measure} = selection
+  let needsCurrency = selection->needsCurrency
 
   let amountCurrencies = needsCurrency
     ? getCurrenciesBySuccess(source, responses.currentRows)
       ->Array.concat(getCurrenciesBySuccess(source, responses.previousRows))
-      ->Array.concat([question.currency])
+      ->Array.concat([selection.currency])
       ->Array.filter(isNonEmptyString)
       ->ArrayUtils.getUniqueStrArray
     : []
   let amountCurrency =
-    question.currency->isNonEmptyString
-      ? question.currency
+    selection.currency->isNonEmptyString
+      ? selection.currency
       : amountCurrencies->getValueFromArray(0, "")
 
   let isInCurrency = dict => !needsCurrency || dict->getDimensionValue(#currency) == amountCurrency
@@ -161,7 +140,7 @@ let buildDataset = (question, responses) => {
     ->Array.map(getDictFromJsonObject)
     ->Array.filter(isInCurrency)
     ->Array.reduce(Dict.make(), (acc, dict) => {
-      let values = question.split->Array.map(key => dict->getDimensionValue(key))
+      let values = selection.split->Array.map(key => dict->getDimensionValue(key))
       let key = values->getRowKey
       let (_, sum) = acc->Dict.get(key)->Option.getOr((values, emptyCounts))
       acc->Dict.set(key, (values, sum->addCounts(getRowCounts(source, dict))))
@@ -187,10 +166,6 @@ let buildDataset = (question, responses) => {
         ? measurable(source, measure, group.current)
         : getMeasureValue(source, measure, group.current) > 0.0
     )
-  let minimumRateBase = Math.max(
-    lowVolumeMinimumBase,
-    getRateDenominator(source, measure, overall) *. lowVolumeShareOfBase,
-  )
 
   {
     overall,
@@ -199,12 +174,11 @@ let buildDataset = (question, responses) => {
     inCurrencyPrevious: responses.previousRows->totalOf(~keep=isInCurrency),
     amountCurrencies,
     amountCurrency,
-    sorted: question->rankGroups(groups, ~minimumRateBase),
+    sorted: groups->Array.toSorted((a, b) => b.current.total -. a.current.total),
     unmeasured: isRate(measure)
       ? currentGroups
         ->Dict.valuesToArray
         ->Array.filter(((_, counts)) => counts.total > 0.0 && !measurable(source, measure, counts))
       : [],
-    minimumRateBase,
   }
 }

@@ -1,7 +1,7 @@
 open ExplorerTypes
 open ExplorerCatalog
 open ExplorerUtils
-open ExplorerQuestion
+open ExplorerSelection
 open ExplorerHelper
 open NewAnalyticsHelper
 
@@ -16,11 +16,11 @@ let make = () => {
   let (dimensionsByDomain, setDimensionsByDomain) = React.useState(_ => Dict.make())
 
   let infoDomain = sourceConfig(filterValueJson->sourceFromFilters).infoDomain
-  let question =
-    filterValueJson->questionFromFilters(
+  let selection =
+    filterValueJson->selectionFromFilters(
       ~backendDimensions=dimensionsByDomain->Dict.get(infoDomain),
     )
-  let dataset = question->ExplorerData.buildDataset(responses)
+  let dataset = selection->ExplorerData.buildDataset(responses)
 
   let getBackendDimensions = async () => {
     try {
@@ -39,11 +39,11 @@ let make = () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let signal = getSignal()
-      let source = question.source
-      let current = question->currentWindow
-      let previous = question->previousWindow
+      let source = selection.source
+      let current = selection->currentWindow
+      let previous = selection->previousWindow
       let fetchCounts = window =>
-        fetchMetrics(~source, ~body=question->getCountRequestBody(~window), ~signal)
+        fetchMetrics(~source, ~body=selection->getCountRequestBody(~window), ~signal)
       let (currentRows, previousRows) = await Promise.all2((
         fetchCounts(current),
         fetchCounts(previous),
@@ -64,29 +64,29 @@ let make = () => {
   }, [infoDomain])
 
   React.useEffect(() => {
-    if question->hasDates {
+    if selection->hasDates {
       getExplorerData()->ignore
     }
     None
-  }, [question->requestKey])
+  }, [selection->requestKey])
 
   let setSource = source =>
-    if source != question.source {
+    if source != selection.source {
       [(#source, (source :> string))]->selectionUpdate->updateExistingKeys
     }
 
   <div className="flex flex-col gap-4">
-    <SourceTabs question onSource=setSource />
-    <ExplorerQueryBar question dataset onUpdate=updateExistingKeys />
-    <RenderIf condition={question->hasDates}>
+    <SourceTabs selection onSource=setSource />
+    <ExplorerQueryBar selection dataset onUpdate=updateExistingKeys />
+    <RenderIf condition={selection->hasDates}>
       <PageLoaderWrapper
         screenState
         customLoader={<Shimmer styleClass="w-full h-80 rounded-xl" />}
         sectionHeight="h-80">
         <RenderIf condition={dataset.overall.total > 0.0}>
           <div className="flex flex-col gap-4">
-            <ExplorerMetricCards question dataset />
-            <ExplorerViews question dataset />
+            <ExplorerMetricCards selection dataset />
+            <ExplorerViews selection dataset />
           </div>
         </RenderIf>
         <RenderIf condition={dataset.overall.total == 0.0}>
@@ -94,7 +94,7 @@ let make = () => {
         </RenderIf>
       </PageLoaderWrapper>
     </RenderIf>
-    <RenderIf condition={!(question->hasDates)}>
+    <RenderIf condition={!(selection->hasDates)}>
       <NoData height="h-32" message="Select a date range to load the data." />
     </RenderIf>
   </div>

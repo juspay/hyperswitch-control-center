@@ -1,4 +1,3 @@
-open Typography
 open LogicUtils
 open ExplorerTypes
 open ExplorerCatalog
@@ -8,13 +7,13 @@ open ExplorerDescriptions
 
 let outcomeColumns = [OutcomeName, OutcomeCount, OutcomeChange, OutcomeShare]
 
-let getOutcomeRows = (question, dataset) => {
+let getOutcomeRows = (selection, dataset) => {
   let hasPrevious = dataset.overallPrevious.total > 0.0
   outcomes->Array.map(field => {
     let current = dataset.overall->getCount(field)
     let previous = hasPrevious ? Some(dataset.overallPrevious->getCount(field)) : None
     {
-      outcome: outcomeLabel(question.source, field),
+      outcome: outcomeLabel(selection.source, field),
       count: current,
       change: formatChange(#volume, current, previous),
       share: calculatePercentage(current, dataset.overall.total),
@@ -47,25 +46,24 @@ let getOutcomeTableEntity = source =>
     ~getCell=getOutcomeCell,
   )
 
-let getGroupColumns = question =>
-  question.split
+let getGroupColumns = selection =>
+  selection.split
   ->Array.map(key => SplitColumn(key))
   ->Array.concat([MeasureColumn, ChangeColumn, VolumeColumn, ShareColumn])
 
-let getGroupRows = (question, dataset, ~labelFor) => {
-  let {source, measure} = question
+let getGroupRows = (selection, dataset, ~labelFor) => {
+  let {source, measure} = selection
   let (totals, _) = dataset->getMeasureCounts(measure)
   dataset.sorted->Array.map(group => {
     let current = getMeasureValue(source, measure, group.current)
     let previous =
       group.previous->Option.map(previousCounts => getMeasureValue(source, measure, previousCounts))
     {
-      labels: question.split->Array.mapWithIndex((key, index) => (
+      labels: selection.split->Array.mapWithIndex((key, index) => (
         key,
         labelFor(key, group.values->getValueFromArray(index, "")),
       )),
       value: formatValue(source, measure, group.current, ~currency=dataset.amountCurrency),
-      isLowVolume: question->isLowVolume(~minimumRateBase=dataset.minimumRateBase, group),
       change: formatChange(measure, current, previous),
       impact: getChangeImpact(measure, current, previous),
       volume: group.current.total,
@@ -74,8 +72,8 @@ let getGroupRows = (question, dataset, ~labelFor) => {
   })
 }
 
-let getGroupHeading = (question, colType, ~currency) => {
-  let {source, measure} = question
+let getGroupHeading = (selection, colType, ~currency) => {
+  let {source, measure} = selection
   let records = isAmount(measure) ? `${currency} ${sourceNoun(source)}` : sourceNoun(source)
   switch colType {
   | SplitColumn(key) => Table.makeHeaderInfo(~key=(key :> string), ~title=dimensionLabel(key))
@@ -98,18 +96,7 @@ let getGroupCell = (row: groupRow, colType): Table.cell =>
       ->Array.find(((column, _)) => column == key)
       ->mapOptionOrDefault("", ((_, label)) => label),
     )
-  | MeasureColumn =>
-    row.isLowVolume
-      ? CustomCell(
-          <span>
-            {row.value->React.string}
-            <span className={`ml-1 ${body.sm.regular} text-nd_gray-400`}>
-              {"low volume"->React.string}
-            </span>
-          </span>,
-          "",
-        )
-      : Text(row.value)
+  | MeasureColumn => Text(row.value)
   | ChangeColumn =>
     CustomCell(
       <span
@@ -126,11 +113,11 @@ let getGroupCell = (row: groupRow, colType): Table.cell =>
   | ShareColumn => Text(row.share->formatPercentage)
   }
 
-let getGroupTableEntity = (question, ~currency) =>
+let getGroupTableEntity = (selection, ~currency) =>
   EntityType.makeEntity(
     ~uri="",
     ~getObjects=_ => [],
-    ~defaultColumns=getGroupColumns(question),
-    ~getHeading=colType => getGroupHeading(question, colType, ~currency),
+    ~defaultColumns=getGroupColumns(selection),
+    ~getHeading=colType => getGroupHeading(selection, colType, ~currency),
     ~getCell=getGroupCell,
   )

@@ -7,7 +7,7 @@ let emptyResponses = {
   previousRows: [],
 }
 
-let urlKey = (key: selectionKey) => `explore.${(key :> string)}`
+let filterKey = (key: selectionKey) => `explore.${(key :> string)}`
 
 let isRate = (measure: measure) =>
   switch measure {

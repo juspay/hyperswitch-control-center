@@ -137,7 +137,7 @@ type group = {
   previous: option<counts>,
 }
 
-type question = {
+type selection = {
   source: source,
   measure: measure,
   split: array<dimension>,
@@ -161,7 +161,6 @@ type dataset = {
   amountCurrency: string,
   sorted: array<group>,
   unmeasured: array<(array<string>, counts)>,
-  minimumRateBase: float,
 }
 
 type outcomeRow = {
@@ -180,7 +179,6 @@ type outcomeColumn =
 type groupRow = {
   labels: array<(dimension, string)>,
   value: string,
-  isLowVolume: bool,
   change: string,
   impact: changeImpact,
   volume: float,

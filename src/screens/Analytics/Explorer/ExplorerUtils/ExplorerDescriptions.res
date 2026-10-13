@@ -131,13 +131,13 @@ let outcomeLabel = (source: source, field) =>
   | (_, Total) => "All"
   }
 
-let viewNote = (question: question) =>
-  question.split->isNonEmptyArray
-    ? "Groups ranked by the measure; low-volume groups are ranked last."
+let viewNote = (selection: selection) =>
+  selection.split->isNonEmptyArray
+    ? `Sorted by number of ${sourceNoun(selection.source)}, highest first.`
     : "Outcomes in these dates. Add a split to compare groups."
 
-let viewTitle = (question: question) => {
-  let {source, measure, split} = question
+let viewTitle = (selection: selection) => {
+  let {source, measure, split} = selection
   split->isNonEmptyArray
     ? `${measureLabel(source, measure)} by ${split
         ->Array.map(dimensionLabel)

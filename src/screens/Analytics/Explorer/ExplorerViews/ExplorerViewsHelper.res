@@ -32,8 +32,8 @@ module ViewTable = {
 
 module UnmeasuredNote = {
   @react.component
-  let make = (~question: question, ~dataset: dataset, ~labelFor) =>
+  let make = (~selection: selection, ~dataset: dataset, ~labelFor) =>
     <div className={`px-5 pb-4 ${body.sm.regular} text-nd_gray-500`}>
-      {getUnmeasuredNote(question, dataset, ~labelFor)->React.string}
+      {getUnmeasuredNote(selection, dataset, ~labelFor)->React.string}
     </div>
 }

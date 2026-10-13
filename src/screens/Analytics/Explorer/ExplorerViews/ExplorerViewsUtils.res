@@ -4,8 +4,8 @@ open ExplorerDescriptions
 
 let maxUnmeasuredGroupsListed = 5
 
-let getUnmeasuredNote = (question, dataset, ~labelFor) => {
-  let {source, measure, split} = question
+let getUnmeasuredNote = (selection, dataset, ~labelFor) => {
+  let {source, measure, split} = selection
   let names =
     dataset.unmeasured
     ->Array.slice(~start=0, ~end=maxUnmeasuredGroupsListed)
