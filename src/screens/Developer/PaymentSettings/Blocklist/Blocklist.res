@@ -1,8 +1,9 @@
 open BlocklistUtils
-open FormDataUtils
+open BlocklistTypes
 open LogicUtils
 open APIUtils
 open Typography
+open BlocklistHelper
 
 @react.component
 let make = () => {
@@ -22,23 +23,9 @@ let make = () => {
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (selectedFile, setSelectedFile) = React.useState(_ => None)
-  let (uploadButtonState, setUploadButtonState) = React.useState(_ => Button.Normal)
   let (exportButtonState, setExportButtonState) = React.useState(_ => Button.Normal)
-  let inputRef = React.useRef(Nullable.null)
-  let fileSelectionTokenRef = React.useRef(0)
-
-  let clearFileInput = () => {
-    inputRef.current
-    ->getOptionalFromNullable
-    ->Option.forEach(elem => elem->DOMUtils.toInputElement->DOMUtils.setInputValue(""))
-  }
-
-  let rejectFile = message => {
-    clearFileInput()
-    setSelectedFile(_ => None)
-    showToast(~message, ~toastType=ToastError)
-  }
+  let (isBlockingGuardEnabled, setIsBlockingGuardEnabled) = React.useState(_ => false)
+  let (blockingGuardDraft, setBlockingGuardDraft) = React.useState(_ => false)
 
   let fetchJobs = async () => {
     try {
@@ -59,7 +46,7 @@ let make = () => {
       }
       setJobs(_ => jobs)
       setTotalCount(_ => total)
-      setScreenState(_ => PageLoaderWrapper.Success)
+      setScreenState(_ => total > 0 ? PageLoaderWrapper.Success : PageLoaderWrapper.Custom)
     } catch {
     | Exn.Error(e) =>
       let errorMessage = Exn.message(e)->Option.getOr("Failed to fetch blocklist jobs")
@@ -110,101 +97,14 @@ let make = () => {
     None
   }, (offset, profileId))
 
-  let validateFileContents = (~file, ~selectionToken, event) => {
-    if fileSelectionTokenRef.current === selectionToken {
-      let fileContents = ReactEvent.Form.target(event)["result"]
-      switch fileContents->getBlocklistCsvDataRowCountError {
-      | Some(errorMessage) => rejectFile(errorMessage)
-      | None => setSelectedFile(_ => Some(file))
-      }
-    }
-  }
-
-  let readFileContents = (~file, ~selectionToken) => {
-    let fileReader = FileReader.reader
-    fileReader.onload = event => validateFileContents(~file, ~selectionToken, event)
-    fileReader.onerror = _ => {
-      if fileSelectionTokenRef.current === selectionToken {
-        rejectFile("Unable to read the CSV file.")
-      }
-    }
-    fileReader->FileReader.readFileAsText(file)
-  }
-
-  let handleFileChange = ev => {
-    fileSelectionTokenRef.current = fileSelectionTokenRef.current + 1
-    let selectionToken = fileSelectionTokenRef.current
-    let files = ReactEvent.Form.target(ev)["files"]
-    switch files[0] {
-    | None => setSelectedFile(_ => None)
-    | Some(file) =>
-      switch file->getBlocklistCsvFileError {
-      | Some(errorMessage) => rejectFile(errorMessage)
-      | None => readFileContents(~file, ~selectionToken)
-      }
-    }
-  }
-
-  let triggerFilePicker = _ => {
-    inputRef.current->getOptionalFromNullable->Option.forEach(elem => elem->DOMUtils.click())
-  }
-
-  let resetSelectedFile = _ => {
-    fileSelectionTokenRef.current = fileSelectionTokenRef.current + 1
-    setSelectedFile(_ => None)
-    clearFileInput()
-  }
-
-  let downloadSampleFile = _ => {
-    DownloadUtils.download(
-      ~fileName="blocklist_sample.csv",
-      ~content=sampleCsv,
-      ~fileType="text/csv",
-    )
-  }
-
-  let uploadFile = async () => {
-    switch selectedFile {
-    | None => showToast(~message="Please select a CSV file to upload.", ~toastType=ToastError)
-    | Some(file) =>
-      try {
-        setUploadButtonState(_ => Button.Loading)
-        let formData = formData()
-        append(formData, "file", file)
-        let url = getURL(~entityName=V1(BLOCKLIST_BATCH), ~methodType=Post)
-        let response = await updateDetails(
-          ~bodyFormData=formData,
-          url,
-          Dict.make()->JSON.Encode.object,
-          Post,
-          ~contentType=AuthHooks.Unknown,
-        )
-        let responseDict = response->getDictFromJsonObject
-        let jobId = responseDict->getString("job_id", "")
-        let message =
-          jobId->isNonEmptyString
-            ? `Blocklist CSV uploaded. Job ID: ${jobId}`
-            : "Blocklist CSV uploaded."
-        showToast(~message, ~toastType=ToastSuccess)
-        setSelectedFile(_ => None)
-        clearFileInput()
-        offset === 0 ? await fetchJobs() : setOffset(_ => 0)
-      } catch {
-      | Exn.Error(e) =>
-        let errorMessage =
-          Exn.message(e)
-          ->Option.getOr("Failed to upload blocklist CSV")
-          ->parseBlocklistErrorMessage
-        showToast(~message=errorMessage, ~toastType=ToastError)
-      }
-      setUploadButtonState(_ => Button.Normal)
-    }
-  }
-
-  let generateExport = async () => {
+  let generateExport = async transactionType => {
     try {
       setExportButtonState(_ => Button.Loading)
-      let url = getURL(~entityName=V1(BLOCKLIST_EXPORT), ~methodType=Post)
+      let url = getURL(
+        ~entityName=V1(BLOCKLIST_EXPORT),
+        ~methodType=Post,
+        ~queryParameters=Some(transactionType->blocklistTransactionTypeQueryParam),
+      )
       let response = await updateDetails(url, Dict.make()->JSON.Encode.object, Post)
       let fileName = response->getDictFromJsonObject->getString("file_name", "")
       let message =
@@ -224,177 +124,214 @@ let make = () => {
     setExportButtonState(_ => Button.Normal)
   }
 
-  let selectedFileName = selectedFile->getFileName
-  let selectedFileSize = selectedFile->getFileSize->formatFileSize
-
-  let onUploadClick = _ => {
-    mixpanelEvent(~eventName="blocklist_upload_csv")
-    uploadFile()->ignore
+  let onGenerateExportClick = transactionType => {
+    mixpanelEvent(
+      ~eventName="blocklist_generate_export",
+      ~metadata=[
+        ("transaction_type", transactionType->blocklistTransactionTypeToString->JSON.Encode.string),
+      ]->getJsonFromArrayOfJson,
+    )
+    generateExport(transactionType)->ignore
   }
 
-  let onGenerateExportClick = _ => {
-    mixpanelEvent(~eventName="blocklist_generate_export")
-    generateExport()->ignore
+  let onBlockingGuardUpdate = _ => {
+    setIsBlockingGuardEnabled(_ => blockingGuardDraft)
   }
 
-  let onCloneStarted = () => {
+  let showLatestJobs = () => {
     offset === 0 ? fetchJobs()->ignore : setOffset(_ => 0)
   }
+
+  let checkOrUnblockTabs = transactionType => {
+    let tabs: array<Tabs.tab> = [
+      {
+        title: "Check",
+        renderContent: () =>
+          <div className="pt-4">
+            <BlocklistLookupCard transactionType />
+          </div>,
+      },
+      {
+        title: "Unblock",
+        renderContent: () =>
+          <div className="pt-4">
+            <BlocklistEntryCard
+              operation=DeleteBlocklistEntry
+              transactionType
+              title="Unblock a single entry"
+              description="Transactions using this card BIN or fingerprint will no longer be declined by this blocklist."
+              buttonText="Unblock"
+              eventName="blocklist_delete_entry"
+            />
+          </div>,
+      },
+    ]
+    tabs
+  }
+
+  let paymentBlocklistGuard =
+    <div className="flex flex-col gap-4">
+      <Panel>
+        <PanelHeader
+          title="Payment blocklist"
+          description="When on, payments that match an entry in this list are declined."
+          action={<div className="flex items-center gap-4">
+            <SwitchAdapter
+              isSelected=blockingGuardDraft
+              setIsSelected={value => setBlockingGuardDraft(_ => value)}
+              boolCustomClass="rounded-lg"
+            />
+            <ACLButton
+              text="Update"
+              buttonType=Primary
+              buttonSize=Small
+              buttonState={blockingGuardDraft === isBlockingGuardEnabled
+                ? Button.Disabled
+                : Button.Normal}
+              onClick=onBlockingGuardUpdate
+              authorization={userHasAccess(~groupAccess=AccountManage)}
+            />
+          </div>}
+        />
+      </Panel>
+      <RenderIf condition={!isBlockingGuardEnabled}>
+        <AlertV2Binding
+          alertType=Neutral
+          slot={{
+            slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />,
+          }}
+          heading="Payment blocklist is off"
+          description="Entries are saved but not applied to payments until you turn it on."
+        />
+      </RenderIf>
+    </div>
+
+  let blocklistSection = (transactionType: blocklistTransactionType) => {
+    let transactionLabel = transactionType->blocklistTransactionTypeToLabel->String.toLowerCase
+    <div className="flex flex-col gap-8 mt-6">
+      <RenderIf condition={transactionType === Payment}>
+        <div className="max-w-3xl"> {paymentBlocklistGuard} </div>
+      </RenderIf>
+      <BlocklistCountSummary transactionType />
+      <div className="max-w-3xl flex flex-col">
+        <Step
+          stepNumber=1
+          title="Add an entry"
+          description={`Blocks a single card BIN or fingerprint for ${transactionLabel}. To add many at once, use Bulk upload below.`}>
+          <BlocklistEntryCard
+            operation=AddBlocklistEntry
+            transactionType
+            title="Block a single entry"
+            description="Best for a few entries. Blocked immediately."
+            buttonText="Block"
+            eventName="blocklist_add_entry"
+          />
+        </Step>
+        <Step
+          stepNumber=2
+          title="Check or unblock"
+          description="Confirm whether a value is blocked, or remove an entry you no longer want to block.">
+          <Tabs tabs={checkOrUnblockTabs(transactionType)} variant=Boxed size=Md fitContent=true />
+        </Step>
+        <Step
+          stepNumber=3
+          title="Export"
+          description={`Download this profile's ${transactionLabel} blocklist.`}
+          isLast=true>
+          <Panel>
+            <PanelHeader
+              title="Export as CSV"
+              description={`Generates a CSV of every ${transactionLabel} entry on this profile. Download it from Background jobs once it completes.`}
+              action={<ACLButton
+                text="Generate Export"
+                buttonType=Secondary
+                onClick={_ => onGenerateExportClick(transactionType)}
+                buttonState=exportButtonState
+                authorization={userHasAccess(~groupAccess=AccountManage)}
+              />}
+            />
+          </Panel>
+        </Step>
+      </div>
+    </div>
+  }
+
+  let sharedBlocklistSection =
+    <div className="max-w-3xl flex flex-col gap-4">
+      <div>
+        <h2 className={`text-nd_gray-700 ${body.lg.semibold}`}>
+          {"Bulk upload and copy"->React.string}
+        </h2>
+        <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}>
+          {"These apply to both payment and payout blocklists."->React.string}
+        </p>
+      </div>
+      <BlocklistBulkUpload onUploaded=showLatestJobs />
+      <Panel>
+        <BlocklistCloneCard onCloneStarted=showLatestJobs />
+        <BackgroundJobNote
+          description="Clones run in the background. Track them under Background jobs below."
+        />
+      </Panel>
+    </div>
+
+  let backgroundJobsSection =
+    <div className="flex flex-col gap-4">
+      <div>
+        <h2 className={`text-nd_gray-700 ${body.lg.semibold}`}>
+          {"Background jobs"->React.string}
+        </h2>
+        <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}>
+          {"CSV uploads, exports and clones appear here. Refresh a job to see its latest status, and download exports once they complete."->React.string}
+        </p>
+      </div>
+      <PageLoaderWrapper
+        screenState
+        sectionHeight="h-40"
+        customUI={<NewAnalyticsHelper.NoData
+          height="h-40"
+          message="No background jobs yet. Bulk uploads, exports and clones will show up here."
+        />}>
+        <LoadedTable
+          title="Blocklist"
+          hideTitle=true
+          actualData={jobs->Array.map(Nullable.make)}
+          totalResults=totalCount
+          resultsPerPage
+          offset
+          setOffset
+          currentFetchCount={jobs->Array.length}
+          entity={BlocklistTableEntity.blocklistEntity(
+            ~onRefreshJob=refreshJob,
+            ~onDownloadExport=downloadExport,
+          )}
+          showSerialNumber=true
+          showAutoScroll=true
+          showResultsPerPageSelector=false
+        />
+      </PageLoaderWrapper>
+    </div>
+
+  let blockingTabs: array<Tabs.tab> = [Payment, Payout]->Array.map((transactionType): Tabs.tab => {
+    title: transactionType->blocklistTransactionTypeToLabel,
+    renderContent: () => blocklistSection(transactionType),
+  })
 
   <>
     <PaymentMethodBlocking />
     <RenderIf condition={featureFlagDetails.devBlocklist}>
       <hr className="my-8 border-nd_gray-150" />
-      <PageUtils.PageHeading
-        title="Blocklist"
-        customTitleStyle={`!${body.lg.semibold} text-nd_gray-700`}
-        customSubTitleStyle={`${body.md.medium} text-nd_gray-500`}
-        showPermLink=false
-      />
-      <div className="flex flex-col gap-6">
-        <BlocklistCountSummary />
-        <BlocklistLookupCard />
-        <BlocklistEntryCard
-          operation=AddBlocklistEntry
-          title="Add to Blocklist"
-          description="Block a single card BIN or fingerprint."
-          buttonText="Add Entry"
-          eventName="blocklist_add_entry"
-        />
-        <BlocklistEntryCard
-          operation=DeleteBlocklistEntry
-          title="Remove from Blocklist"
-          description="Unblock a single card BIN or fingerprint."
-          buttonText="Remove Entry"
-          eventName="blocklist_delete_entry"
-        />
-        <section
-          className="max-w-3xl border border-nd_gray-200 rounded-lg bg-white p-5 flex flex-col gap-4">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h2 className={`text-nd_gray-700 ${body.lg.semibold}`}>
-                {"Upload CSV"->React.string}
-              </h2>
-              <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}>
-                {"Block multiple card BINs or fingerprints at once. Track progress in the jobs table below."->React.string}
-              </p>
-            </div>
-            <Button
-              text="Download Sample File"
-              buttonType=Secondary
-              onClick=downloadSampleFile
-              leftIcon={CustomIcon(<Icon name="nd-download-bar-down" size=15 />)}
-            />
-          </div>
-          <input
-            type_="file"
-            accept=".csv"
-            className="hidden"
-            ref={inputRef->ReactDOM.Ref.domRef}
-            onChange=handleFileChange
-          />
-          <RenderIf condition={selectedFile->Option.isSome}>
-            <div
-              className="border border-nd_gray-200 rounded-lg bg-nd_gray-25 p-4 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3 min-w-0">
-                <Icon name="nd-file" size=28 className="text-nd_gray-600" />
-                <div className="min-w-0">
-                  <p className={`text-nd_gray-700 truncate ${body.md.medium}`}>
-                    {selectedFileName->React.string}
-                  </p>
-                  <p className={`text-nd_gray-400 ${body.sm.medium}`}>
-                    {selectedFileSize->React.string}
-                  </p>
-                </div>
-              </div>
-              <Icon
-                name="trash-alt"
-                className="cursor-pointer text-nd_gray-500"
-                onClick=resetSelectedFile
-              />
-            </div>
-          </RenderIf>
-          <RenderIf condition={selectedFile->Option.isNone}>
-            <div
-              className="border border-dashed border-nd_gray-300 rounded-lg bg-nd_gray-25 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-4 min-w-0">
-                <div
-                  className="h-11 w-11 shrink-0 rounded-lg border border-nd_gray-200 bg-white flex items-center justify-center">
-                  <Icon name="nd-upload" size=22 className="text-nd_gray-600" />
-                </div>
-                <div className="min-w-0">
-                  <p className={`text-nd_gray-700 ${body.md.medium}`}>
-                    {`Upload a CSV file with up to ${maxBlocklistCsvDataRowsLabel} rows and a maximum size of ${maxBlocklistCsvFileSizeLabel}`->React.string}
-                  </p>
-                  <p className={`text-nd_gray-500 mt-1 ${body.sm.medium}`}>
-                    {"CSV files above either limit cannot be processed. Only .csv files are supported."->React.string}
-                  </p>
-                </div>
-              </div>
-              <ACLButton
-                text="Choose File"
-                buttonType=Secondary
-                onClick=triggerFilePicker
-                authorization={userHasAccess(~groupAccess=AccountManage)}
-              />
-            </div>
-          </RenderIf>
-          <RenderIf condition={selectedFile->Option.isSome}>
-            <div className="flex justify-end">
-              <ACLButton
-                text="Upload"
-                buttonType=Primary
-                onClick=onUploadClick
-                buttonState=uploadButtonState
-                authorization={userHasAccess(~groupAccess=AccountManage)}
-                leftIcon={CustomIcon(<Icon name="nd-upload" size=15 className="text-white" />)}
-              />
-            </div>
-          </RenderIf>
-        </section>
-        <section
-          className="max-w-3xl border border-nd_gray-200 rounded-lg bg-white p-5 flex flex-col gap-4">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h2 className={`text-nd_gray-700 ${body.lg.semibold}`}>
-                {"Generate Export"->React.string}
-              </h2>
-              <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}>
-                {"Export this profile's blocklist as a CSV file. Download it from the jobs table once the export completes."->React.string}
-              </p>
-            </div>
-            <ACLButton
-              text="Generate Export"
-              buttonType=Primary
-              onClick=onGenerateExportClick
-              buttonState=exportButtonState
-              authorization={userHasAccess(~groupAccess=AccountManage)}
-            />
-          </div>
-        </section>
-        <BlocklistCloneCard onCloneStarted />
-        <PageLoaderWrapper screenState sectionHeight="h-60-vh">
-          <RenderIf condition={jobs->isNonEmptyArray}>
-            <LoadedTable
-              title="Blocklist"
-              hideTitle=true
-              actualData={jobs->Array.map(Nullable.make)}
-              totalResults=totalCount
-              resultsPerPage
-              offset
-              setOffset
-              currentFetchCount={jobs->Array.length}
-              entity={BlocklistTableEntity.blocklistEntity(
-                ~onRefreshJob=refreshJob,
-                ~onDownloadExport=downloadExport,
-              )}
-              showSerialNumber=true
-              showAutoScroll=true
-              showResultsPerPageSelector=false
-            />
-          </RenderIf>
-        </PageLoaderWrapper>
+      <div className="mb-4">
+        <h2 className={`text-nd_gray-700 ${body.lg.semibold}`}> {"Blocklist"->React.string} </h2>
+        <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}>
+          {"Block card BINs and card fingerprints for this profile. Payments and payouts keep separate lists."->React.string}
+        </p>
       </div>
+      <Tabs tabs=blockingTabs size=Md />
+      <hr className="my-8 border-nd_gray-150" />
+      {sharedBlocklistSection}
+      <hr className="my-8 border-nd_gray-150" />
+      {backgroundJobsSection}
     </RenderIf>
   </>
 }

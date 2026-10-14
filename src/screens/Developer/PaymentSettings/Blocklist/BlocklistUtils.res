@@ -1,10 +1,10 @@
 open BlocklistTypes
 open LogicUtils
 
-let sampleCsv = `type,data,metadata
-generic_card_bin,411111,source=fraud_team;reason=chargeback
-generic_card_bin,4111111100,
-fingerprint,fp_abc123,`
+let sampleCsv = `type,data,metadata,transaction_type
+generic_card_bin,411111,source=fraud_team;reason=chargeback,payment
+generic_card_bin,4111111100,,payment
+fingerprint,fp_abc123,,payout`
 
 let maxCardBinLength = 10
 let maxBlocklistLookupLength = 20
@@ -160,10 +160,28 @@ let blocklistEntryItemToObjMapper = dict => {
   }
 }
 
-let blocklistEntryBody = (~dataKind, ~data) => {
+let blocklistTransactionTypeToString = transactionType => {
+  switch transactionType {
+  | Payment => "payment"
+  | Payout => "payout"
+  }
+}
+
+let blocklistTransactionTypeToLabel = transactionType => {
+  switch transactionType {
+  | Payment => "Payments"
+  | Payout => "Payouts"
+  }
+}
+
+let blocklistTransactionTypeQueryParam = transactionType =>
+  `transaction_type=${transactionType->blocklistTransactionTypeToString}`
+
+let blocklistEntryBody = (~dataKind, ~data, ~transactionType) => {
   [
     ("type", dataKind->blocklistDataKindToString->JSON.Encode.string),
     ("data", data->JSON.Encode.string),
+    ("transaction_type", transactionType->blocklistTransactionTypeToString->JSON.Encode.string),
   ]->getJsonFromArrayOfJson
 }
 

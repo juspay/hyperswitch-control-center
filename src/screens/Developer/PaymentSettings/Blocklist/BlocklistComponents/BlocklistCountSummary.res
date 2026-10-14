@@ -5,7 +5,7 @@ open APIUtils
 open Typography
 
 @react.component
-let make = () => {
+let make = (~transactionType) => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod(~showErrorToast=false)
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
@@ -16,7 +16,9 @@ let make = () => {
     let url = getURL(
       ~entityName=V1(BLOCKLIST_COUNT),
       ~methodType=Get,
-      ~queryParameters=Some(`data_kind=${dataKind->blocklistDataKindToQueryParam}`),
+      ~queryParameters=Some(
+        `data_kind=${dataKind->blocklistDataKindToQueryParam}&${transactionType->blocklistTransactionTypeQueryParam}`,
+      ),
     )
     let response = await fetchDetails(url)
     response->getBlocklistCountFromResponse
@@ -39,7 +41,7 @@ let make = () => {
   React.useEffect(() => {
     fetchAllCounts()->ignore
     None
-  }, [profileId])
+  }, (profileId, transactionType))
 
   let blocklistCountsData: array<blocklistCountCard> = {
     let binCounts =
