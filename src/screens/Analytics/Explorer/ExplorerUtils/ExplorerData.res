@@ -153,12 +153,11 @@ let buildDataset = (selection, responses) => {
     ->Array.reduce(Dict.make(), (acc, dict) => {
       let groupKey = selection.split->Array.map(key => dict->getDimensionValue(key))->getRowKey
       let day = dict->getRowDay
-      let key = [groupKey, day]->getRowKey
+      let key = getDailyKey(~groupKey, ~day)
       let point = acc->getValueFromDict(key, {groupKey, day, counts: emptyCounts})
       acc->Dict.set(key, {...point, counts: point.counts->addCounts(getRowCounts(source, dict))})
       acc
     })
-    ->Dict.valuesToArray
 
   let currentGroups = responses.currentRows->groupsOf
   let previousGroups = responses.previousRows->groupsOf
@@ -199,9 +198,8 @@ let buildDataset = (selection, responses) => {
 
 let getCountsOn = (points, ~groupKey, ~day) =>
   points
-  ->Array.filter(point => point.groupKey == groupKey && point.day == day)
-  ->Array.map(point => point.counts)
-  ->sumCounts
+  ->getOptionValFromDict(getDailyKey(~groupKey, ~day))
+  ->Option.mapOr(emptyCounts, point => point.counts)
 
 let getPointValue = (selection, counts, ~currency) =>
   measurable(selection.source, selection.measure, counts)

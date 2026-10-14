@@ -173,8 +173,8 @@ type dataset = {
   groups: array<group>,
   topByVolume: array<group>,
   unmeasured: array<(array<string>, counts)>,
-  currentDaily: array<dailyPoint>,
-  previousDaily: array<dailyPoint>,
+  currentDaily: Dict.t<dailyPoint>,
+  previousDaily: Dict.t<dailyPoint>,
 }
 
 type chartContext = {

@@ -63,7 +63,10 @@ let getTooltip = (~title, ~rows) =>
     ~tableItems=rows->Array.joinWith(""),
   )
 
-let hasPrevious = (context: chartContext) => context.dataset.overallPrevious.total > 0.0
+let hasPrevious = (context: chartContext, ~measure) => {
+  let (_, previousCounts) = context.dataset->getMeasureCounts(measure)
+  previousCounts.total > 0.0
+}
 
 let currentLabel = (context: chartContext) =>
   periodLabel(context.selection.startTime, context.selection.endTime)
@@ -73,7 +76,7 @@ let groupLabel = (context: chartContext, group: group) =>
 
 let wholeKey = []->getRowKey
 
-let trendTooltipFormatter = (~measure, ~currency, ~previousDays: array<string>) =>
+let trendTooltipFormatter = (~title, ~measure, ~currency, ~previousDays: array<string>) =>
   (
     @this
     (this: LineGraphTypes.pointFormatter) => {
@@ -99,7 +102,8 @@ let trendTooltipFormatter = (~measure, ~currency, ~previousDays: array<string>) 
           )
         }
       )
-      getTooltip(~title=this.points->Array.get(0)->Option.mapOr("", point => point.x), ~rows)
+      let day = this.points->Array.get(0)->Option.mapOr("", point => point.x)
+      getTooltip(~title=previousDays->isEmptyArray ? day : title, ~rows)
     }
   )->LineGraphTypes.asTooltipPointFormatter
 
@@ -193,7 +197,7 @@ let getTrendSeries = (context: chartContext, ~days, ~previousDays) => {
       ),
       ~color=mutedColor,
     )
-    context->hasPrevious ? [current, previous] : [current]
+    context->hasPrevious(~measure=selection.measure) ? [current, previous] : [current]
   } else {
     dataset.topByVolume->Array.mapWithIndex((group, index) =>
       getLineSeries(
@@ -225,6 +229,7 @@ let getTrendChartOptions = (context: chartContext) => {
     yAxisMaxValue: isRate(measure) ? Some(100) : None,
     yAxisMinValue: Some(0),
     tooltipFormatter: trendTooltipFormatter(
+      ~title=measureLabel(selection.source, measure),
       ~measure,
       ~currency,
       ~previousDays=selection.split->isEmptyArray ? previousDays->Array.map(getDayLabel) : [],
@@ -274,7 +279,7 @@ let getBreakdownChartOptions = (context: chartContext) => {
     ~color=mutedColor,
   )
   getHorizontalBarOptions(
-    ~series=context->hasPrevious ? [current, previous] : [current],
+    ~series=context->hasPrevious(~measure=selection.measure) ? [current, previous] : [current],
     ~measure=selection.measure,
     ~currency,
     ~barCount=groups->Array.length,
@@ -296,7 +301,7 @@ let getOutcomeChartOptions = (context: chartContext) => {
     ~color=mutedColor,
   )
   getHorizontalBarOptions(
-    ~series=context->hasPrevious ? [current, previous] : [current],
+    ~series=context->hasPrevious(~measure=#volume) ? [current, previous] : [current],
     ~measure=#volume,
     ~currency="",
     ~barCount=outcomes->Array.length,
@@ -324,6 +329,7 @@ let getMixSeries = (context: chartContext, ~days) => {
       ~name="Other",
       ~points=perDay(day =>
         dataset.currentDaily
+        ->Dict.valuesToArray
         ->Array.filter(point => point.day == day && !(topKeys->Array.includes(point.groupKey)))
         ->Array.reduce(0.0, (acc, point) => acc +. point.counts.total)
       ),

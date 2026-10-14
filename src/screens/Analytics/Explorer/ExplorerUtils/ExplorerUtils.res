@@ -61,6 +61,8 @@ let getOutcomesOfStatus = (source: source, status) =>
 
 let getRowKey = values => values->getJsonFromArrayOfString->JSON.stringify
 
+let getDailyKey = (~groupKey, ~day) => [groupKey, day]->getRowKey
+
 let getRowDay = dict => dict->getString("time_bucket", "")->String.replace(" ", "T") ++ "Z"
 
 let getValuesLabel = (values, ~split: array<dimension>, ~labelFor) =>
