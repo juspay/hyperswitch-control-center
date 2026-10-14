@@ -145,9 +145,8 @@ let viewNote = (selection: selection) => {
   switch (selection.view, selection.split->isNonEmptyArray) {
   | (#trend, true) => "Daily in UTC, for the five largest groups."
   | (#trend, false) => "Daily in UTC, against the same days of the previous period."
-  | (#breakdown, true) =>
-    `Largest groups by number of ${noun}, up to twelve. Grey is the previous period.`
-  | (#breakdown, false) => "Outcomes in these dates. Grey is the previous period."
+  | (#breakdown, true) => `Largest groups by number of ${noun}, up to twelve.`
+  | (#breakdown, false) => "Outcomes in these dates."
   | (#mix, true) => "Share of each UTC day's volume by group, for the five largest groups."
   | (#mix, false) => "Share of each UTC day's volume by outcome."
   | (#table, true) => `Sorted by number of ${noun}, highest first.`

@@ -237,7 +237,7 @@ let getTrendChartOptions = (context: chartContext) => {
       labelFormatter: LineGraphUtils.valueFormatter,
     },
   })
-  {...base, plotOptions: {...base.plotOptions, line: {marker: {enabled: true}}}}
+  {...base, plotOptions: {...base.plotOptions, line: {marker: {enabled: true}, connectNulls: true}}}
 }
 
 let getHorizontalBarOptions = (~series, ~measure, ~currency, ~barCount) => {
