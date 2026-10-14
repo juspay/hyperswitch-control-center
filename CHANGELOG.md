@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.10.14.0
+
+### Features
+
+- **embeddable:** Add embeddable component framework with payments and refunds ([#5660](https://github.com/juspay/hyperswitch-control-center/pull/5660)) ([`1921a12`](https://github.com/juspay/hyperswitch-control-center/commit/1921a12d3e91008068888d3cbccc392e0175c241))
+- Webhook registration ui for specific connectors ([#5249](https://github.com/juspay/hyperswitch-control-center/pull/5249)) ([`eafb78f`](https://github.com/juspay/hyperswitch-control-center/commit/eafb78f78c3bbd7cec35179724748c59d7bbea47))
+
+### Miscellaneous Tasks
+
+- Enable virtualization for selectboxadapter ([#5626](https://github.com/juspay/hyperswitch-control-center/pull/5626)) ([`95cb403`](https://github.com/juspay/hyperswitch-control-center/commit/95cb403d0f139a2a9ef97d792e69506d7bc6bc73))
+
+**Full Changelog:** [`2026.10.12.0...2026.10.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.12.0...2026.10.14.0)
+
+- - -
+
 ## 2026.10.12.0
 
 ### Features
