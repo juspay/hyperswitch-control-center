@@ -24,8 +24,6 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (exportButtonState, setExportButtonState) = React.useState(_ => Button.Normal)
-  let (isBlockingGuardEnabled, setIsBlockingGuardEnabled) = React.useState(_ => false)
-  let (blockingGuardDraft, setBlockingGuardDraft) = React.useState(_ => false)
 
   let fetchJobs = async () => {
     try {
@@ -134,10 +132,6 @@ let make = () => {
     generateExport(transactionType)->ignore
   }
 
-  let onBlockingGuardUpdate = _ => {
-    setIsBlockingGuardEnabled(_ => blockingGuardDraft)
-  }
-
   let showLatestJobs = () => {
     offset === 0 ? fetchJobs()->ignore : setOffset(_ => 0)
   }
@@ -169,49 +163,9 @@ let make = () => {
     tabs
   }
 
-  let paymentBlocklistGuard =
-    <div className="flex flex-col gap-4">
-      <Panel>
-        <PanelHeader
-          title="Payment blocklist"
-          description="When on, payments that match an entry in this list are declined."
-          action={<div className="flex items-center gap-4">
-            <SwitchAdapter
-              isSelected=blockingGuardDraft
-              setIsSelected={value => setBlockingGuardDraft(_ => value)}
-              boolCustomClass="rounded-lg"
-            />
-            <ACLButton
-              text="Update"
-              buttonType=Primary
-              buttonSize=Small
-              buttonState={blockingGuardDraft === isBlockingGuardEnabled
-                ? Button.Disabled
-                : Button.Normal}
-              onClick=onBlockingGuardUpdate
-              authorization={userHasAccess(~groupAccess=AccountManage)}
-            />
-          </div>}
-        />
-      </Panel>
-      <RenderIf condition={!isBlockingGuardEnabled}>
-        <AlertV2Binding
-          alertType=Neutral
-          slot={{
-            slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />,
-          }}
-          heading="Payment blocklist is off"
-          description="Entries are saved but not applied to payments until you turn it on."
-        />
-      </RenderIf>
-    </div>
-
   let blocklistSection = (transactionType: blocklistTransactionType) => {
     let transactionLabel = transactionType->blocklistTransactionTypeToLabel->String.toLowerCase
     <div className="flex flex-col gap-8 mt-6">
-      <RenderIf condition={transactionType === Payment}>
-        <div className="max-w-3xl"> {paymentBlocklistGuard} </div>
-      </RenderIf>
       <BlocklistCountSummary transactionType />
       <div className="max-w-3xl flex flex-col">
         <Step
