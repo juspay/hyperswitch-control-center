@@ -122,11 +122,11 @@ let make = () => {
     setExportButtonState(_ => Button.Normal)
   }
 
-  let onGenerateExportClick = transactionType => {
+  let onGenerateExportClick = (transactionType: blocklistTransactionType) => {
     mixpanelEvent(
       ~eventName="blocklist_generate_export",
       ~metadata=[
-        ("transaction_type", transactionType->blocklistTransactionTypeToString->JSON.Encode.string),
+        ("transaction_type", (transactionType :> string)->JSON.Encode.string),
       ]->getJsonFromArrayOfJson,
     )
     generateExport(transactionType)->ignore

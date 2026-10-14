@@ -42,8 +42,8 @@ type blocklistDataKind =
   | Fingerprint
 
 type blocklistTransactionType =
-  | Payment
-  | Payout
+  | @as("payment") Payment
+  | @as("payout") Payout
 
 type blocklistEntryOperation =
   | AddBlocklistEntry

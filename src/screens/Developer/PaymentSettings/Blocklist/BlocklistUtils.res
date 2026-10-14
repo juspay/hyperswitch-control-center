@@ -160,13 +160,6 @@ let blocklistEntryItemToObjMapper = dict => {
   }
 }
 
-let blocklistTransactionTypeToString = transactionType => {
-  switch transactionType {
-  | Payment => "payment"
-  | Payout => "payout"
-  }
-}
-
 let blocklistTransactionTypeToLabel = transactionType => {
   switch transactionType {
   | Payment => "Payments"
@@ -174,14 +167,14 @@ let blocklistTransactionTypeToLabel = transactionType => {
   }
 }
 
-let blocklistTransactionTypeQueryParam = transactionType =>
-  `transaction_type=${transactionType->blocklistTransactionTypeToString}`
+let blocklistTransactionTypeQueryParam = (transactionType: blocklistTransactionType) =>
+  `transaction_type=${(transactionType :> string)}`
 
-let blocklistEntryBody = (~dataKind, ~data, ~transactionType) => {
+let blocklistEntryBody = (~dataKind, ~data, ~transactionType: blocklistTransactionType) => {
   [
     ("type", dataKind->blocklistDataKindToString->JSON.Encode.string),
     ("data", data->JSON.Encode.string),
-    ("transaction_type", transactionType->blocklistTransactionTypeToString->JSON.Encode.string),
+    ("transaction_type", (transactionType :> string)->JSON.Encode.string),
   ]->getJsonFromArrayOfJson
 }
 
