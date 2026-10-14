@@ -277,7 +277,7 @@ module BillingConnectorDetails = {
         <div className="flex justify-between border-b pb-4 px-2 items-end">
           <p className={heading.md.semibold}> {"Billing Platform Details"->React.string} </p>
         </div>
-        <div className="grid grid-cols-3 px-2">
+        <div className="grid grid-cols-3 gap-y-6 px-2">
           <div className="flex flex-col gap-2 ">
             <h4 className="text-nd_gray-400 "> {"Biller Platform "->React.string} </h4>
             <div className="flex gap-2 align-center">
@@ -286,6 +286,10 @@ module BillingConnectorDetails = {
               />
               {connectorName->React.string}
             </div>
+          </div>
+          <div className="flex flex-col gap-2 min-w-0">
+            <h4 className="text-nd_gray-400 "> {"Connector label"->React.string} </h4>
+            <p className="break-all"> {connectorInfodict.connector_label->React.string} </p>
           </div>
           <div className="flex flex-col gap-2 ">
             <h4 className="text-nd_gray-400 "> {"Merchant Connector ID"->React.string} </h4>
@@ -542,6 +546,10 @@ module PaymentConnectorDetails = {
                 <div className="flex flex-row gap-2 items-center ">
                   <ConnectorHelperV2.ProcessorStatus connectorInfo=connectorInfodict />
                 </div>
+              </div>
+              <div className="flex flex-col gap-2 min-w-0">
+                <h4 className="text-nd_gray-400 "> {"Connector label"->React.string} </h4>
+                <p className="break-all"> {connectorInfodict.connector_label->React.string} </p>
               </div>
             </div>
             <div className="flex flex-col gap-12 mt-7">
