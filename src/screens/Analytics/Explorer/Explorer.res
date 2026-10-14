@@ -43,13 +43,15 @@ let make = () => {
       let source = selection.source
       let current = selection->currentWindow
       let previous = selection->previousWindow
-      let fetchCounts = window =>
-        fetchMetrics(~source, ~body=selection->getCountRequestBody(~window), ~signal)
-      let (currentRows, previousRows) = await Promise.all2((
+      let fetchCounts = (~daily=false, window) =>
+        fetchMetrics(~source, ~body=selection->getCountRequestBody(~window, ~daily), ~signal)
+      let (currentRows, previousRows, currentDaily, previousDaily) = await Promise.all4((
         fetchCounts(current),
         fetchCounts(previous),
+        fetchCounts(~daily=true, current),
+        selection.split->isNonEmptyArray ? Promise.resolve([]) : fetchCounts(~daily=true, previous),
       ))
-      setResponses(_ => {currentRows, previousRows})
+      setResponses(_ => {currentRows, previousRows, currentDaily, previousDaily})
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | AbortControllerHook.AbortError => ()
@@ -87,7 +89,7 @@ let make = () => {
         <RenderIf condition={dataset.overall.total > 0.0}>
           <div className="flex flex-col gap-4">
             <ExplorerMetricCards selection dataset />
-            <ExplorerViews selection dataset />
+            <ExplorerViews selection dataset onUpdate=updateExistingKeys />
           </div>
         </RenderIf>
         <RenderIf condition={dataset.overall.total == 0.0}>

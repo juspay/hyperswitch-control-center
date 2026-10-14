@@ -98,17 +98,8 @@ let getGroupCell = (row: groupRow, colType): Table.cell =>
     )
   | MeasureColumn => Text(row.value)
   | ChangeColumn =>
-    CustomCell(
-      <span
-        className={switch row.impact {
-        | Favorable => "text-nd_green-600"
-        | Unfavorable => "text-nd_red-600"
-        | Neutral => "text-nd_gray-500"
-        }}>
-        {row.change->React.string}
-      </span>,
-      "",
-    )
+    let (impactTextClass, _) = row.impact->getImpactClasses
+    CustomCell(<span className=impactTextClass> {row.change->React.string} </span>, "")
   | VolumeColumn => Text(row.volume->formatNumberWithCommas)
   | ShareColumn => Text(row.share->formatPercentage)
   }
