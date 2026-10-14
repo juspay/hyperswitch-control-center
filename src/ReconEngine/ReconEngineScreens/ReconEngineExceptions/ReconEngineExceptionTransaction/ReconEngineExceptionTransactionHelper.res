@@ -171,40 +171,28 @@ module ResolutionModal = {
 
 module ExceptionDataDisplay = {
   @react.component
-  let make = (
-    ~currentExceptionDetails: ReconEngineTypes.transactionType,
-    ~entryDetails: array<ReconEngineTypes.entryType>,
-  ) => {
-    let mismatchData = React.useMemo(() => {
-      switch currentExceptionDetails.transaction_status {
-      | DataMismatch
-      | CurrencyMismatch
-      | SplitMismatch
-      | OverAmount(Mismatch)
-      | UnderAmount(Mismatch) =>
-        entryDetails
-        ->Array.filter(entry => entry.status == Mismatched)
-        ->Array.map(entry => entry.data)
-        ->LogicUtils.getValueFromArray(0, JSON.Encode.null)
-      | Posted(Manual)
-      | Matched(Force)
-      | Matched(Manual)
-      | Matched(Auto)
-      | Matched(WithTolerance)
-      | OverAmount(Expected)
-      | UnderAmount(Expected)
-      | Archived
-      | Void
-      | Missing
-      | Expected
-      | PartiallyReconciled
-      | Posted(UnknownDomainTransactionPostedStatus)
-      | Matched(UnknownDomainTransactionMatchedStatus)
-      | OverAmount(UnknownDomainTransactionAmountMismatchStatus)
-      | UnderAmount(UnknownDomainTransactionAmountMismatchStatus)
-      | UnknownDomainTransactionStatus => JSON.Encode.null
+  let make = (~currentExceptionDetails: ReconEngineTypes.transactionType) => {
+    let getTransactionEntryWithStatus = ReconEngineHooks.useGetTransactionEntryWithStatus()
+    let (mismatchData, setMismatchData) = React.useState(_ => JSON.Encode.null)
+
+    let fetchMismatchData = async () => {
+      try {
+        let entry = await getTransactionEntryWithStatus(
+          ~primaryTransactionId=currentExceptionDetails.id,
+          ~status=Mismatched,
+        )
+        setMismatchData(_ => entry->mapOptionOrDefault(JSON.Encode.null, entry => entry.data))
+      } catch {
+      | _ => setMismatchData(_ => JSON.Encode.null)
       }
-    }, [currentExceptionDetails.transaction_status])
+    }
+
+    React.useEffect(() => {
+      if currentExceptionDetails.transaction_status->isMismatchedTransaction {
+        fetchMismatchData()->ignore
+      }
+      None
+    }, [currentExceptionDetails.id])
 
     let (heading, subHeading) = switch currentExceptionDetails.transaction_status {
     | DataMismatch
@@ -341,7 +329,7 @@ let entryTypeSelectInputField = (~disabled: bool=false) => {
 }
 
 let currencySelectInputField = (
-  ~entriesList: array<ReconEngineTypes.entryType>,
+  ~transactionCurrency: string,
   ~isNewlyCreatedEntry: bool,
   ~entryDetails: ReconEngineTypes.entryType,
   ~disabled: bool=false,
@@ -354,14 +342,8 @@ let currencySelectInputField = (
       ~placeholder="Select currency",
       ~customInput=InputFields.selectInput(
         ~options={
-          isNewlyCreatedEntry
-            ? getUniqueCurrencyOptionsFromEntries(entriesList)
-            : [
-                {
-                  label: entryDetails.currency,
-                  value: entryDetails.currency,
-                },
-              ]
+          let currency = isNewlyCreatedEntry ? transactionCurrency : entryDetails.currency
+          [{label: currency, value: currency}]
         },
         ~fullLength=true,
         ~buttonText="Select currency",
@@ -489,7 +471,11 @@ module AccountComboSelectInput = {
   }
 }
 
-let accountTransformationSelectInputField = (~accountsList, ~setTransformationsList) => {
+let accountTransformationSelectInputField = (
+  ~accountsList,
+  ~setTransformationsList,
+  ~disabled: bool=false,
+) => {
   <FormRenderer.FieldRenderer
     labelClass="font-semibold"
     field={FormRenderer.makeMultiInputFieldInfo(
@@ -497,9 +483,7 @@ let accountTransformationSelectInputField = (~accountsList, ~setTransformationsL
       ~comboCustomInput={
         {
           fn: (fieldsArray: array<ReactFinalForm.fieldRenderProps>) => {
-            <AccountComboSelectInput
-              accountsList disabled=false fieldsArray setTransformationsList
-            />
+            <AccountComboSelectInput accountsList disabled fieldsArray setTransformationsList />
           },
           names: ["account", "account_name"],
         }

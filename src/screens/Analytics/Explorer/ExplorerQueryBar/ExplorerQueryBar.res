@@ -3,26 +3,29 @@ open LogicUtils
 open ExplorerTypes
 open ExplorerUtils
 open ExplorerDescriptions
-open ExplorerQuery
-open ExplorerHelper
+open ExplorerSelection
+open ExplorerQueryBarHelper
+open ExplorerQueryBarUtils
 
 @react.component
-let make = (~viewContext: viewContext, ~onUpdate: Dict.t<string> => unit) => {
-  let {question, dataset} = viewContext
-  let source = question.source
-  let splitOptions = question->splitOptions
+let make = (~selection: selection, ~dataset: dataset, ~onUpdate: Dict.t<string> => unit) => {
+  let {source, splitOptions} = selection
+  let splitIds = selection.split->Array.map(key => (key :> string))
+  let thenByOptions =
+    splitOptions->Array.filter(key => (key :> string) != splitIds->getValueFromArray(0, ""))
   let setSelection = updates => updates->selectionUpdate->onUpdate
   let setSplitAt = (index, key) =>
     setSelection([
-      ("split", question->splitAt(index, splitOptions->findDimension(key))->splitValue),
+      (#split, selection->splitAt(index, splitOptions->findDimension(key))->splitValue),
     ])
 
-  <ExplorerCard className="flex flex-col gap-4 px-6 py-5">
-    <div className="flex flex-wrap items-center gap-2">
+  <div
+    className="flex flex-col gap-4 rounded-xl border border-nd_br_gray-200 bg-nd_gray-0 px-6 py-5">
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
       <QueryText text="Show" />
       <QuerySelect
-        value={question.measure->measureToString}
-        onChange={id => setSelection([("measure", id)])}
+        value={(selection.measure :> string)}
+        onChange={id => setSelection([(#measure, id)])}
         options={source->measureOptions}
         placeholder="Measure"
       />
@@ -30,31 +33,29 @@ let make = (~viewContext: viewContext, ~onUpdate: Dict.t<string> => unit) => {
       <QueryText text={`all ${sourceNoun(source)},`} strong=true />
       <QueryText text="split by" />
       <QuerySelect
-        value={question.split->Array.get(0)->Option.mapOr("", key => (key :> string))}
+        value={splitIds->getValueFromArray(0, "")}
         onChange={key => setSplitAt(0, key)}
         options={source->dimensionOptions(splitOptions)}
         placeholder="Select"
         allowDeselect=true
         enableSearch=true
       />
-      <RenderIf condition={question.split->isNonEmptyArray}>
+      <RenderIf condition={selection.split->isNonEmptyArray}>
         <QueryText text="then by" />
         <QuerySelect
-          value={question.split->Array.get(1)->Option.mapOr("", key => (key :> string))}
+          value={splitIds->getValueFromArray(1, "")}
           onChange={key => setSplitAt(1, key)}
-          options={source->dimensionOptions(
-            splitOptions->Array.filter(key => question.split->Array.get(0) != Some(key)),
-          )}
+          options={source->dimensionOptions(thenByOptions)}
           placeholder="Select"
           allowDeselect=true
           enableSearch=true
         />
       </RenderIf>
-      <RenderIf condition={question->needsCurrency && dataset.amountCurrencies->isNonEmptyArray}>
+      <RenderIf condition={selection->needsCurrency && dataset.amountCurrencies->isNonEmptyArray}>
         <QueryText text="in" />
         <QuerySelect
           value=dataset.amountCurrency
-          onChange={currency => setSelection([("currency", currency)])}
+          onChange={currency => setSelection([(#currency, currency)])}
           options={dataset.amountCurrencies->Array.map((
             currency
           ): MultiSelectBindings.selectMenuItemType => {label: currency, value: currency})}
@@ -64,9 +65,9 @@ let make = (~viewContext: viewContext, ~onUpdate: Dict.t<string> => unit) => {
     </div>
     <div className={`flex items-center gap-1.5 ${body.sm.regular} text-nd_gray-500`}>
       <span className={body.sm.medium}>
-        {`${measureLabel(source, question.measure)}:`->React.string}
+        {`${measureLabel(source, selection.measure)}:`->React.string}
       </span>
-      {measureDefinition(source, question.measure)->React.string}
+      {measureDefinition(source, selection.measure)->React.string}
     </div>
-  </ExplorerCard>
+  </div>
 }
