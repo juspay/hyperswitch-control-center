@@ -12,7 +12,9 @@ type measure = [
   | #avg_ticket
 ]
 
-type selectionKey = [#source | #measure | #currency | #split]
+type selectionKey = [#source | #measure | #currency | #split | #view]
+
+type view = [#trend | #breakdown | #mix | #table]
 
 type changeImpact =
   | Favorable
@@ -137,11 +139,18 @@ type group = {
   previous: option<counts>,
 }
 
+type dailyPoint = {
+  groupKey: string,
+  day: string,
+  counts: counts,
+}
+
 type selection = {
   source: source,
   measure: measure,
   split: array<dimension>,
   splitOptions: array<dimension>,
+  view: view,
   currency: string,
   startTime: string,
   endTime: string,
@@ -150,6 +159,8 @@ type selection = {
 type responses = {
   currentRows: array<JSON.t>,
   previousRows: array<JSON.t>,
+  currentDaily: array<JSON.t>,
+  previousDaily: array<JSON.t>,
 }
 
 type dataset = {
@@ -160,7 +171,16 @@ type dataset = {
   amountCurrencies: array<string>,
   amountCurrency: string,
   groups: array<group>,
+  topByVolume: array<group>,
   unmeasured: array<(array<string>, counts)>,
+  currentDaily: Dict.t<dailyPoint>,
+  previousDaily: Dict.t<dailyPoint>,
+}
+
+type chartContext = {
+  selection: selection,
+  dataset: dataset,
+  labelFor: (dimension, string) => string,
 }
 
 type outcomeRow = {

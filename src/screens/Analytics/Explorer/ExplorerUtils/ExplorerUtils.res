@@ -5,9 +5,13 @@ open ExplorerCatalog
 let emptyResponses = {
   currentRows: [],
   previousRows: [],
+  currentDaily: [],
+  previousDaily: [],
 }
 
 let filterKey = (key: selectionKey) => `explore.${(key :> string)}`
+
+let topGroupCount = 5
 
 let isRate = (measure: measure) =>
   switch measure {
@@ -57,8 +61,19 @@ let getOutcomesOfStatus = (source: source, status) =>
 
 let getRowKey = values => values->getJsonFromArrayOfString->JSON.stringify
 
+let getDailyKey = (~groupKey, ~day) => [groupKey, day]->getRowKey
+
+let getRowDay = dict => dict->getString("time_bucket", "")->String.replace(" ", "T") ++ "Z"
+
+let getValuesLabel = (values, ~split: array<dimension>, ~labelFor) =>
+  split
+  ->Array.mapWithIndex((key, index) => labelFor(key, values->getValueFromArray(index, "")))
+  ->Array.joinWith(" · ")
+
 let sourceFromString = id =>
   sources->Array.find(source => (source :> string) == id)->Option.getOr(#intent)
+
+let viewFromString = id => views->Array.find(view => (view :> string) == id)->Option.getOr(#trend)
 
 let measureFromString = (source, id) =>
   sourceConfig(source).measures
@@ -102,6 +117,13 @@ let getChangeImpact = (measure, current, previous) =>
   | Some(change) => change > 0.0 != isLowerBetter(measure) ? Favorable : Unfavorable
   }
 
+let getImpactClasses = (impact: changeImpact) =>
+  switch impact {
+  | Favorable => ("text-nd_green-600", "bg-nd_green-50")
+  | Unfavorable => ("text-nd_red-600", "bg-nd_red-50")
+  | Neutral => ("text-nd_gray-500", "bg-nd_gray-50")
+  }
+
 let periodLabel = (startTime, endTime) => {
   let first = startTime->DayJs.getDayJsForString
   let last = (endTime->DayJs.getDayJsForString).subtract(1, "millisecond")
@@ -112,6 +134,18 @@ let periodLabel = (startTime, endTime) => {
   } else {
     `${first.format("MMM D")} – ${last.format("MMM D")}`
   }
+}
+
+let toIso = ms =>
+  ms->Js.Date.fromFloat->Js.Date.toISOString->String.replaceRegExp(%re("/\.\d{3}Z$/"), "Z")
+
+let getWindowDays = (startTime, endTime) => {
+  let dayMs = 86400000.0
+  let startMs = startTime->Js.Date.fromString->Js.Date.getTime
+  let endMs = endTime->Js.Date.fromString->Js.Date.getTime
+  let first = Math.floor(startMs /. dayMs) *. dayMs
+  let count = Math.Int.max(1, Math.ceil((endMs -. first) /. dayMs)->Float.toInt)
+  Array.fromInitializer(~length=count, index => toIso(first +. index->Int.toFloat *. dayMs))
 }
 
 let getDimensionValueLabel = (

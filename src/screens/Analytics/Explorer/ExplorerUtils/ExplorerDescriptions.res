@@ -1,5 +1,6 @@
 open LogicUtils
 open ExplorerTypes
+open ExplorerUtils
 
 let sourceLabel = (source: source) =>
   switch source {
@@ -122,7 +123,7 @@ let outcomeLabel = (source: source, field) =>
   switch (source, field) {
   | (#attempt, Success) => "Charged"
   | (#attempt, Excluded) => "Authentication failed or awaiting action"
-  | (#attempt, Other) => "Other (pending, authorized, voided…)"
+  | (#attempt, Other) => "Other (pending, authorized, declined, voided, expired…)"
   | (#intent, Excluded) => "Waiting on customer or merchant"
   | (#intent, Other) => "Other (cancelled, processing, expired…)"
   | (_, Success) => "Succeeded"
@@ -131,16 +132,39 @@ let outcomeLabel = (source: source, field) =>
   | (_, Total) => "All"
   }
 
-let viewNote = (selection: selection) =>
-  selection.split->isNonEmptyArray
-    ? `Sorted by number of ${sourceNoun(selection.source)}, highest first.`
-    : "Outcomes in these dates. Add a split to compare groups."
+let viewLabel = (view: view) =>
+  switch view {
+  | #trend => "Trend"
+  | #breakdown => "Breakdown"
+  | #mix => "Mix"
+  | #table => "Table"
+  }
 
-let viewTitle = (selection: selection) => {
-  let {source, measure, split} = selection
-  split->isNonEmptyArray
-    ? `${measureLabel(source, measure)} by ${split
-        ->Array.map(dimensionLabel)
-        ->Array.joinWith(" and ")}`
-    : `${measureLabel(source, #volume)} by outcome`
+let viewNote = (selection: selection) => {
+  let noun = sourceNoun(selection.source)
+  switch (selection.view, selection.split->isNonEmptyArray) {
+  | (#trend, true) => "Daily in UTC, for the five largest groups."
+  | (#trend, false) => "Daily in UTC, against the same days of the previous period."
+  | (#breakdown, true) => `Largest groups by number of ${noun}, up to twelve.`
+  | (#breakdown, false) => "Outcomes in these dates."
+  | (#mix, true) => "Share of each UTC day's volume by group, for the five largest groups."
+  | (#mix, false) => "Share of each UTC day's volume by outcome."
+  | (#table, true) => `Sorted by number of ${noun}, highest first.`
+  | (#table, false) => "Outcomes in these dates. Add a split to compare groups."
+  }
+}
+
+let viewTitle = (selection: selection, ~currency) => {
+  let {source, measure, split, view} = selection
+  let splitText = split->Array.map(dimensionLabel)->Array.joinWith(" and ")
+  let mixRecords = isAmount(measure)
+    ? `${currency} ${sourceNoun(source)}`
+    : measureLabel(source, #volume)
+  switch (split->isNonEmptyArray, view) {
+  | (true, #mix) => `${mixRecords} by ${splitText}`
+  | (false, #mix) => `${mixRecords} by outcome`
+  | (true, #trend | #breakdown | #table) => `${measureLabel(source, measure)} by ${splitText}`
+  | (false, #trend) => measureLabel(source, measure)
+  | (false, #breakdown | #table) => `${measureLabel(source, #volume)} by outcome`
+  }
 }
