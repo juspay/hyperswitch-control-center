@@ -3,6 +3,61 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.10.14.0
+
+### Features
+
+- **embeddable:** Add embeddable component framework with payments and refunds ([#5660](https://github.com/juspay/hyperswitch-control-center/pull/5660)) ([`1921a12`](https://github.com/juspay/hyperswitch-control-center/commit/1921a12d3e91008068888d3cbccc392e0175c241))
+- Webhook registration ui for specific connectors ([#5249](https://github.com/juspay/hyperswitch-control-center/pull/5249)) ([`eafb78f`](https://github.com/juspay/hyperswitch-control-center/commit/eafb78f78c3bbd7cec35179724748c59d7bbea47))
+
+### Miscellaneous Tasks
+
+- Enable virtualization for selectboxadapter ([#5626](https://github.com/juspay/hyperswitch-control-center/pull/5626)) ([`95cb403`](https://github.com/juspay/hyperswitch-control-center/commit/95cb403d0f139a2a9ef97d792e69506d7bc6bc73))
+
+**Full Changelog:** [`2026.10.12.0...2026.10.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.12.0...2026.10.14.0)
+
+- - -
+
+## 2026.10.12.0
+
+### Features
+
+- **connectors:** Add seven payment connectors and Playwright fixtures ([#5639](https://github.com/juspay/hyperswitch-control-center/pull/5639)) ([`c460389`](https://github.com/juspay/hyperswitch-control-center/commit/c460389d222aadffa6a1f606a3d22577fc4bea11))
+
+### Miscellaneous Tasks
+
+- Upgrade blend to 0.0.38 ([#5659](https://github.com/juspay/hyperswitch-control-center/pull/5659)) ([`d559d4e`](https://github.com/juspay/hyperswitch-control-center/commit/d559d4e1532bc4d580c9b69418dbbfba065e41fc))
+
+**Full Changelog:** [`2026.10.09.0...2026.10.12.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.09.0...2026.10.12.0)
+
+- - -
+
+## 2026.10.09.0
+
+### Bug Fixes
+
+- **routing:** Include disabled connectors in Decision Engine handoff ([#5654](https://github.com/juspay/hyperswitch-control-center/pull/5654)) ([`b41188e`](https://github.com/juspay/hyperswitch-control-center/commit/b41188e23d4b01d4654576d354bd343dc47f463e))
+
+**Full Changelog:** [`2026.10.08.1...2026.10.09.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.08.1...2026.10.09.0)
+
+- - -
+
+## 2026.10.08.1
+
+### Features
+
+- **analytics:** Scaffold explorer section ([#5633](https://github.com/juspay/hyperswitch-control-center/pull/5633)) ([`f40f254`](https://github.com/juspay/hyperswitch-control-center/commit/f40f2541ccf97024798a6b42e9af590df30026bb))
+- **recon:** Use delta-based manual reconciliation v2 for exception resolution ([#5612](https://github.com/juspay/hyperswitch-control-center/pull/5612)) ([`5b56fa0`](https://github.com/juspay/hyperswitch-control-center/commit/5b56fa0cc5b4dc9882b9af0d79b3625c924e0a1d))
+- Add conflicted payment status update modal ([#5629](https://github.com/juspay/hyperswitch-control-center/pull/5629)) ([`9ba6427`](https://github.com/juspay/hyperswitch-control-center/commit/9ba64279e504737ea03667b436d10b342bd9018a))
+
+### Miscellaneous Tasks
+
+- Updated default configs type for superposition in config file ([#5636](https://github.com/juspay/hyperswitch-control-center/pull/5636)) ([`6cfcf2f`](https://github.com/juspay/hyperswitch-control-center/commit/6cfcf2f233425f8daee25e25002b6a64dd4923fe))
+
+**Full Changelog:** [`2026.10.08.0...2026.10.08.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.08.0...2026.10.08.1)
+
+- - -
+
 ## 2026.10.08.0
 
 ### Features

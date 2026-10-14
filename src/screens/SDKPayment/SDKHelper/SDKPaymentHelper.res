@@ -16,7 +16,7 @@ let enterAmountField = (initialValues: SDKPaymentTypes.paymentType) => {
     let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(currency)
 
     let majorUnit = initialValues.amount /. conversionFactor
-    let minorUnit = amt => amt *. conversionFactor
+    let minorUnit = amt => Math.round(amt *. conversionFactor)
 
     InputFields.numericTextInput(
       ~isDisabled=false,

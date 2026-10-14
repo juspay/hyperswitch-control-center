@@ -62,8 +62,7 @@ let getSuperpositionConfigMapper: Dict.t<
     organization_id: dict->getString("organization_id", ""),
     workspace: dict->getString("workspace", ""),
     display_configs: dict
-    ->getString("display_configs", "")
-    ->String.split(",")
+    ->getStrArrayFromDict("display_configs", [])
     ->Array.filterMap(configKey => configKey->String.trim->getNonEmptyString)
     ->Array.map(getSuperpositionDisplayConfig),
   }

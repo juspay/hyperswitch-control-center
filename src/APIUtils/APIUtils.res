@@ -239,7 +239,7 @@ let useGetURL = () => {
         userInfo.analyticsEntity,
         userInfo.userEntity,
       )
-    | EmbeddableSession(_) => (#Merchant, #Merchant, #Merchant)
+    | EmbeddableSession(_) => (#Profile, #Merchant, #Merchant)
     }
 
     let connectorBaseURL = `account/${merchantId}/connectors`
@@ -389,6 +389,11 @@ let useGetURL = () => {
             }
           }
         | _ => Default("")
+        }
+      | CONNECTOR_WEBHOOK =>
+        switch id {
+        | Some(mcaId) => Default(`${connectorBaseURL}/webhooks/${mcaId}`)
+        | None => Default(connectorBaseURL)
         }
 
       /* OPERATIONS */
@@ -1335,7 +1340,7 @@ let useGetURL = () => {
             switch id {
             | Some(transactionId) =>
               Default(
-                `${reconBaseURL}/exception_management/transactions/${transactionId}/manual_reconciliation`,
+                `${reconBaseURL}/exception_management/transactions/${transactionId}/manual_reconciliation/v2`,
               )
             | None => Default(``)
             }

@@ -1,5 +1,11 @@
 type steps =
-  IntegFields | PaymentMethods | CustomMetadata | SummaryAndTest | Preview | AutomaticFlow
+  | IntegFields
+  | PaymentMethods
+  | CustomMetadata
+  | SummaryAndTest
+  | Preview
+  | AutomaticFlow
+  | WebhookRegistration
 type connectorIntegrationField = {
   placeholder?: string,
   label?: string,
@@ -149,6 +155,13 @@ type processorTypes =
   | WORLDPAYRAFT
   | ETISALAT
   | MERCHANTE
+  | SAFERPAY
+  | JPMORGAN_ORBITAL
+  | D24
+  | PAYNEARME
+  | PAYDOTCOM
+  | ELAVON_PG
+  | GLOBALPAYMENTS_HEARTLAND
 
 type payoutProcessorTypes =
   | ADYEN
