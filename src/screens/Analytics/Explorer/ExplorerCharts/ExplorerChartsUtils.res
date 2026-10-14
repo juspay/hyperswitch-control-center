@@ -13,6 +13,22 @@ let maxBreakdownGroups = 12
 let mutedColor = "#CACFD8"
 let previousPeriodName = "Previous period"
 
+let defaultLinePoint: LineGraphTypes.point = {
+  color: "",
+  x: "",
+  y: 0.0,
+  point: {index: 0},
+  series: {name: ""},
+}
+
+let defaultColumnPoint: ColumnGraphTypes.point = {
+  color: "",
+  x: "",
+  y: 0.0,
+  point: {index: 0},
+  key: "",
+}
+
 let getOutcomeColor = field =>
   switch field {
   | Success => green
@@ -56,6 +72,9 @@ let getTooltipRow = (~color, ~label, ~value, ~change="") =>
     <div style="margin-left: 8px;">${label}${change}</div>
     <div style="flex: 1; text-align: right; font-weight: bold; margin-left: 25px;">${value}</div>
   </div>`
+
+let getSeriesName = (point: ColumnGraphTypes.point) =>
+  point.series->Option.mapOr("", series => series.name)
 
 let getTooltip = (~title, ~rows) =>
   InsightsUtils.getContentsUI(
@@ -102,7 +121,7 @@ let trendTooltipFormatter = (~title, ~measure, ~currency, ~previousDays: array<s
           )
         }
       )
-      let day = this.points->Array.get(0)->Option.mapOr("", point => point.x)
+      let day = (this.points->getValueFromArray(0, defaultLinePoint)).x
       getTooltip(~title=previousDays->isEmptyArray ? day : title, ~rows)
     }
   )->LineGraphTypes.asTooltipPointFormatter
@@ -112,22 +131,20 @@ let barTooltipFormatter = (~measure, ~currency) =>
     @this
     (this: ColumnGraphTypes.pointFormatter) => {
       let format = value => formatDisplay(measure, value, ~currency)
-      let seriesName = (point: ColumnGraphTypes.point) =>
-        point.series->Option.mapOr("", series => series.name)
-      let previous = this.points->Array.find(point => point->seriesName == previousPeriodName)
+      let previous = this.points->Array.find(point => point->getSeriesName == previousPeriodName)
       let rows = this.points->Array.map(point =>
         getTooltipRow(
           ~color=point.color,
-          ~label=point->seriesName,
+          ~label=point->getSeriesName,
           ~value=point.y->format,
           ~change=switch previous {
-          | Some(previousPoint) if point->seriesName != previousPeriodName =>
+          | Some(previousPoint) if point->getSeriesName != previousPeriodName =>
             getChangeHtml(~measure, ~current=point.y, ~previous=previousPoint.y)
           | _ => ""
           },
         )
       )
-      getTooltip(~title=this.points->Array.get(0)->Option.mapOr("", point => point.key), ~rows)
+      getTooltip(~title=(this.points->getValueFromArray(0, defaultColumnPoint)).key, ~rows)
     }
   )->ColumnGraphTypes.asTooltipPointFormatter
 
@@ -141,14 +158,14 @@ let mixTooltipFormatter = (
       ->Array.map(point =>
         getTooltipRow(
           ~color=point.color,
-          ~label=point.series->Option.mapOr("", series => series.name),
+          ~label=point->getSeriesName,
           ~value=`${point.y->formatNumberWithCommas} · ${calculatePercentage(
               point.y,
               total,
             )->formatPercentage}`,
         )
       )
-    getTooltip(~title=this.points->Array.get(0)->Option.mapOr("", point => point.key), ~rows)
+    getTooltip(~title=(this.points->getValueFromArray(0, defaultColumnPoint)).key, ~rows)
   }
 )->ColumnGraphTypes.asTooltipPointFormatter
 
