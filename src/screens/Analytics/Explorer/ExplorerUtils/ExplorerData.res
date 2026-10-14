@@ -184,7 +184,6 @@ let buildDataset = (selection, responses) => {
     amountCurrency,
     groups: groups->Array.toSorted((a, b) => compareLogic(a.current.total, b.current.total)),
     topByVolume: allGroups
-    ->Array.filter(group => group.current.total > 0.0)
     ->Array.toSorted((a, b) => compareLogic(a.current.total, b.current.total))
     ->Array.slice(~start=0, ~end=topGroupCount),
     unmeasured: isRate(measure)
@@ -205,6 +204,6 @@ let getCountsOn = (points, ~groupKey, ~day) =>
   ->sumCounts
 
 let getPointValue = (selection, counts, ~currency) =>
-  measurable(selection.source, selection.measure, counts) && counts.total > 0.0
+  measurable(selection.source, selection.measure, counts)
     ? Nullable.make(displayValue(selection.source, selection.measure, counts, ~currency))
     : Nullable.null

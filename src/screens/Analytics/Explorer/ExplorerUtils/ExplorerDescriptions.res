@@ -1,5 +1,6 @@
 open LogicUtils
 open ExplorerTypes
+open ExplorerUtils
 
 let sourceLabel = (source: source) =>
   switch source {
@@ -154,13 +155,17 @@ let viewNote = (selection: selection) => {
   }
 }
 
-let viewTitle = (selection: selection) => {
+let viewTitle = (selection: selection, ~currency) => {
   let {source, measure, split, view} = selection
   let splitText = split->Array.map(dimensionLabel)->Array.joinWith(" and ")
+  let mixRecords = isAmount(measure)
+    ? `${currency} ${sourceNoun(source)}`
+    : measureLabel(source, #volume)
   switch (split->isNonEmptyArray, view) {
-  | (true, #mix) => `${measureLabel(source, #volume)} by ${splitText}`
+  | (true, #mix) => `${mixRecords} by ${splitText}`
+  | (false, #mix) => `${mixRecords} by outcome`
   | (true, #trend | #breakdown | #table) => `${measureLabel(source, measure)} by ${splitText}`
   | (false, #trend) => measureLabel(source, measure)
-  | (false, #breakdown | #mix | #table) => `${measureLabel(source, #volume)} by outcome`
+  | (false, #breakdown | #table) => `${measureLabel(source, #volume)} by outcome`
   }
 }

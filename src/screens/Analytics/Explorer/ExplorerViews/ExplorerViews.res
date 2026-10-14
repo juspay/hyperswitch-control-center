@@ -4,7 +4,6 @@ open ExplorerTypes
 open ExplorerUtils
 open ExplorerSelection
 open ExplorerDescriptions
-open ExplorerCharts
 open ExplorerViewsEntity
 open ExplorerViewsHelper
 open NewAnalyticsHelper
@@ -14,15 +13,7 @@ let make = (~selection: selection, ~dataset: dataset, ~onUpdate: Dict.t<string> 
   let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
   let labelFor = (key, value) => getDimensionValueLabel(key, value, ~profileList)
   let isSplit = selection.split->isNonEmptyArray
-  let title = selection->viewTitle
-  let context = {selection, dataset, labelFor}
-  let chartKey =
-    [
-      (selection.view :> string),
-      selection->requestKey,
-      (selection.measure :> string),
-      dataset.amountCurrency,
-    ]->Array.joinWith("|")
+  let title = selection->viewTitle(~currency=dataset.amountCurrency)
   let setView = view => [(#view, view)]->selectionUpdate->onUpdate
 
   <div className="rounded-xl border border-nd_br_gray-200 bg-nd_gray-0">
@@ -41,16 +32,10 @@ let make = (~selection: selection, ~dataset: dataset, ~onUpdate: Dict.t<string> 
     </div>
     <div className="px-3 py-4">
       {switch (selection.view, isSplit) {
-      | (#trend, _) => <LineGraph key=chartKey options={context->getTrendChartOptions} />
-      | (#mix, _) => <ColumnGraph key=chartKey options={context->getMixChartOptions} />
       | (#breakdown | #table, true) if dataset.groups->isEmptyArray =>
         <NoData
           height="h-32" message="No groups have a value for this measure in the selected dates."
         />
-      | (#breakdown, true) =>
-        <ColumnGraph key=chartKey options={context->getBreakdownChartOptions} />
-      | (#breakdown, false) =>
-        <ColumnGraph key=chartKey options={context->getOutcomeChartOptions} />
       | (#table, true) =>
         <ViewTable
           title
@@ -65,6 +50,7 @@ let make = (~selection: selection, ~dataset: dataset, ~onUpdate: Dict.t<string> 
           entity={selection.source->getOutcomeTableEntity}
           visibleColumns=outcomeColumns
         />
+      | (#trend | #mix | #breakdown, _) => <ExplorerCharts selection dataset labelFor />
       }}
     </div>
     <RenderIf condition={isSplit && dataset.unmeasured->isNonEmptyArray}>

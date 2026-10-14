@@ -137,9 +137,6 @@ let periodLabel = (startTime, endTime) => {
 let toIso = ms =>
   ms->Js.Date.fromFloat->Js.Date.toISOString->String.replaceRegExp(%re("/\.\d{3}Z$/"), "Z")
 
-let formatShortDate = iso =>
-  (iso->String.slice(~start=0, ~end=10)->DayJs.getDayJsForString).format("MMM D")
-
 let getWindowDays = (startTime, endTime) => {
   let dayMs = 86400000.0
   let startMs = startTime->Js.Date.fromString->Js.Date.getTime
