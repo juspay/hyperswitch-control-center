@@ -224,6 +224,9 @@ module AutoSubmitter = {
     React.useEffect(() => {
       if !hasSkippedInitialSubmitRef.current {
         hasSkippedInitialSubmitRef.current = true
+      } else if formState.hasValidationErrors {
+        // Hold the auto-apply back; the field renders the reason inline.
+        ()
       } else if formState.dirty || submitWhenPristine {
         let defaultFieldsHaveChanged = defaultFilterKeys->Array.some(key => {
           formState.dirtyFields->Dict.get(key)->Option.getOr(false)
