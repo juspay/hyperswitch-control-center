@@ -111,7 +111,12 @@ let make = () => {
           {"Block card BINs and card fingerprints for this profile. Payments and payouts keep separate lists."->React.string}
         </p>
       </div>
-      <Tabs tabs=blockingTabs size=Md />
+      <RenderIf condition={featureFlagDetails.devPayoutBlocklist}>
+        <Tabs tabs=blockingTabs size=Md />
+      </RenderIf>
+      <RenderIf condition={!featureFlagDetails.devPayoutBlocklist}>
+        <BlocklistTransactionSection transactionType=Payment onExportStarted=showLatestJobs />
+      </RenderIf>
       <hr className="my-8 border-nd_gray-150" />
       <div className="max-w-3xl flex flex-col gap-4">
         <div>
