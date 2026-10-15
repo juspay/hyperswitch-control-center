@@ -160,13 +160,6 @@ let blocklistEntryItemToObjMapper = dict => {
   }
 }
 
-let blocklistTransactionTypeToLabel = transactionType => {
-  switch transactionType {
-  | Payment => "Payments"
-  | Payout => "Payouts"
-  }
-}
-
 let blocklistTransactionTypeQueryParam = (transactionType: blocklistTransactionType) =>
   `transaction_type=${(transactionType :> string)}`
 
