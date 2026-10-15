@@ -194,7 +194,12 @@ module BillingConnectorDetails = {
     let connectorDetails = React.useMemo(() => {
       try {
         if connectorName->LogicUtils.isNonEmptyString {
-          let dict = BillingProcessorsUtils.getConnectorConfig(connectorName)
+          let dict = BillingProcessorsUtils.getConnectorConfig(
+            connectorName,
+            ~wasmConfig=Window.getBillingConnectorConfig(
+              connectorName->LogicUtils.capitalizeString,
+            ),
+          )
 
           let revenueRecovery =
             connectorInfodict.feature_metadata

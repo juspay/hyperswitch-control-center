@@ -77,12 +77,8 @@ let getFallbackConnectorConfig = connector => {
   }
 }
 
-let getConnectorConfig = connector => {
-  let wasmConfig =
-    Window.getBillingConnectorConfig(connector->LogicUtils.capitalizeString)
-    ->toNullableJson
-    ->Nullable.toOption
-  switch wasmConfig {
+let getConnectorConfig = (connector, ~wasmConfig) => {
+  switch wasmConfig->toNullableJson->Nullable.toOption {
   | Some(config) => config
   | None => getFallbackConnectorConfig(connector)
   }
