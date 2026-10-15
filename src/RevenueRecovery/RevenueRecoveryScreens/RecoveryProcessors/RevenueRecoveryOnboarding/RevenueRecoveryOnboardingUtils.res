@@ -156,17 +156,17 @@ module PageWrapper = {
 
 open ConnectorTypes
 let billingConnectorList: array<connectorTypes> = [
+  BillingProcessor(CUSTOMBILLING),
   BillingProcessor(CHARGEBEE),
   BillingProcessor(RECURLY),
   BillingProcessor(STRIPE_BILLING),
-  BillingProcessor(CUSTOMBILLING),
 ]
 
 let prodBillingConnectorList: array<connectorTypes> = [
+  BillingProcessor(CUSTOMBILLING),
   BillingProcessor(CHARGEBEE),
   BillingProcessor(RECURLY),
   BillingProcessor(STRIPE_BILLING),
-  BillingProcessor(CUSTOMBILLING),
 ]
 
 let billingConnectorProdList: array<BillingProcessorsUtils.optionType> = [
