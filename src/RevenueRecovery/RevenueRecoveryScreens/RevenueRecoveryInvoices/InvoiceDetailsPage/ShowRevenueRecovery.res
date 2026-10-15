@@ -87,6 +87,20 @@ module RecoveryAmountStatus = {
         heading="Fully recovered"
         description="This invoice was successfully recovered."
       />
+    | Succeeded =>
+      <AlertV2Binding
+        alertType=Success
+        slot={{slot: <Icon name="nd-toast-success" size=20 className="text-nd_green-400" />}}
+        heading="Payment succeeded"
+        description="This invoice was paid successfully."
+      />
+    | Cancelled =>
+      <AlertV2Binding
+        alertType=Neutral
+        slot={{slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />}}
+        heading="Invoice cancelled"
+        description="This invoice was cancelled."
+      />
     | Scheduled | Processing | PartiallyCapturedAndProcessing =>
       <div className="bg-white border border-nd_gray-200 rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">

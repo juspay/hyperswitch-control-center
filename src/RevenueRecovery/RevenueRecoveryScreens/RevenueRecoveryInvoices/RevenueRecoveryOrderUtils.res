@@ -1,8 +1,10 @@
 let statusVariantMapper: string => RevenueRecoveryOrderTypes.recoveryInvoiceStatus = statusLabel =>
   switch statusLabel->String.toUpperCase {
-  | "SUCCEEDED" | "RECOVERED" => Recovered
+  | "RECOVERED" => Recovered
+  | "SUCCEEDED" => Succeeded
+  | "CANCELLED" => Cancelled
   | "SCHEDULED" => Scheduled
-  | "FAILED" | "TERMINATED" | "CANCELLED" => Terminated
+  | "FAILED" | "TERMINATED" => Terminated
   | "PROCESSING" => Processing
   | "QUEUED" => Queued
   | "NOPICKED" => NoPicked
@@ -15,6 +17,8 @@ let statusVariantMapper: string => RevenueRecoveryOrderTypes.recoveryInvoiceStat
 let statusStringMapper: RevenueRecoveryOrderTypes.recoveryInvoiceStatus => string = statusLabel =>
   switch statusLabel {
   | Recovered => "Recovered"
+  | Succeeded => "Succeeded"
+  | Cancelled => "Cancelled"
   | Scheduled => "Scheduled"
   | NoPicked => "NoPicked"
   | Processing => "Processing"
@@ -59,3 +63,19 @@ let convertScheduleTimeToUTC = (scheduleTime: string) => {
     scheduleTime
   }
 }
+
+let recoveryStatusFilterKey = "recovery_status"
+
+let recoveryStatusFilterOptions = [
+  "succeeded",
+  "scheduled",
+  "processing",
+  "queued",
+  "monitoring",
+  "terminated",
+  "cancelled",
+  "partially_recovered",
+  "partially_captured_and_processing",
+  "no_picked",
+  "pending",
+]

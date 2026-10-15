@@ -64,6 +64,8 @@ type attemptGroup = {
 
 type recoveryInvoiceStatus =
   | Recovered
+  | Succeeded
+  | Cancelled
   | Scheduled
   | Terminated
   | Processing

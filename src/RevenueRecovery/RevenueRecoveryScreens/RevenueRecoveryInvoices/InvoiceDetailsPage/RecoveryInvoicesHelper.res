@@ -146,7 +146,11 @@ module AttemptsHistory = {
         </div>
       </div>
       <RenderIf condition={showInternalRetries}>
-        <RenderIf condition={status != Recovered && status != Terminated}>
+        <RenderIf
+          condition={status != Recovered &&
+          status != Succeeded &&
+          status != Cancelled &&
+          status != Terminated}>
           <div className="pt-7">
             <div className="flex items-center justify-between relative">
               <div
