@@ -218,7 +218,14 @@ let itemToObjMapperForIntents: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.order
     ->getDictfromDict("amount_details")
     ->getFloat("amount_captured", 0.0) /. 100.0,
     connector: revenueRecoveryMetadata->getString("connector", ""),
-    created: dict->getString("created", ""),
+    created: [
+      revenueRecoveryMetadata->getString("invoice_billing_started_at_time", ""),
+      dict->getDictfromDict("payment_intent")->getString("created_at", ""),
+      dict->getString("created_at", ""),
+      dict->getString("created", ""),
+    ]
+    ->Array.find(isNonEmptyString)
+    ->Option.getOr(""),
     payment_method_type: revenueRecoveryMetadata->getString("payment_method_type", ""),
     payment_method_subtype: revenueRecoveryMetadata->getString("payment_method_subtype", ""),
     modified_at: dict->getString("modified_at", ""),
