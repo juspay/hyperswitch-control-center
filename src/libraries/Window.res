@@ -110,7 +110,7 @@ external getPMAuthenticationProcessorConfig: string => JSON.t = "getPMAuthentica
 external getTaxProcessorConfig: string => JSON.t = "getTaxProcessorConfig"
 
 @val @scope("window")
-external getBillingConnectorConfig: string => JSON.t = "getBillingConnectorConfig"
+external getBillingConnectorConfig: string => option<JSON.t> = "getBillingConnectorConfig"
 
 @val @scope("window")
 external getSurchargeProcessorConfig: string => JSON.t = "getSurchargeProcessorConfig"

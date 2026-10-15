@@ -17,8 +17,6 @@ let getConnectorDetails = (connectorList: array<ConnectorTypes.connectorPayloadC
   (mca, name)
 }
 
-external toNullableJson: JSON.t => Nullable.t<JSON.t> = "%identity"
-
 // used for billing connectors the wasm has no config for yet
 let getFallbackConnectorConfig = connector => {
   switch connector {
@@ -78,7 +76,7 @@ let getFallbackConnectorConfig = connector => {
 }
 
 let getConnectorConfig = (connector, ~wasmConfig) => {
-  switch wasmConfig->toNullableJson->Nullable.toOption {
+  switch wasmConfig {
   | Some(config) => config
   | None => getFallbackConnectorConfig(connector)
   }
