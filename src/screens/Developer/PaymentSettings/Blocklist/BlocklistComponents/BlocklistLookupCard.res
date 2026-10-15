@@ -49,16 +49,11 @@ let make = () => {
     checked: true,
   }
 
-  <section
-    className="max-w-3xl border border-nd_gray-200 rounded-lg bg-white p-5 flex flex-col gap-4">
-    <div>
-      <h2 className={`text-nd_gray-700 ${body.lg.semibold}`}>
-        {"Check Blocklist"->React.string}
-      </h2>
-      <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}>
-        {"Check whether a card BIN or fingerprint is currently blocked."->React.string}
-      </p>
-    </div>
+  <BlocklistHelper.Panel>
+    <BlocklistHelper.PanelHeader
+      title="Check an entry"
+      description="Look up a card BIN or fingerprint to see if it is currently blocked."
+    />
     <div className="flex flex-col sm:flex-row gap-4 sm:items-end">
       <div className="w-full sm:w-80 min-w-0">
         <p className={`text-nd_gray-700 mb-1 ${body.sm.medium}`}> {"Data"->React.string} </p>
@@ -99,5 +94,5 @@ let make = () => {
         )}
       </div>
     </div>
-  </section>
+  </BlocklistHelper.Panel>
 }
