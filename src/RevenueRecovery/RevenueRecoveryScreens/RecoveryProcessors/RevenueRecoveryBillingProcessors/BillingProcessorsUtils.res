@@ -75,12 +75,8 @@ let getFallbackConnectorConfig = connector => {
   }
 }
 
-let getConnectorConfig = (connector, ~wasmConfig) => {
-  switch wasmConfig {
-  | Some(config) => config
-  | None => getFallbackConnectorConfig(connector)
-  }
-}
+let getConnectorConfig = (connector, ~wasmConfig) =>
+  wasmConfig->LogicUtils.mapOptionOrDefault(getFallbackConnectorConfig(connector), config => config)
 
 type optionType = {
   name: string,
