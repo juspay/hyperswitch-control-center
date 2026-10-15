@@ -17,7 +17,10 @@ let getConnectorDetails = (connectorList: array<ConnectorTypes.connectorPayloadC
   (mca, name)
 }
 
-let getConnectorConfig = connector => {
+external toNullableJson: JSON.t => Nullable.t<JSON.t> = "%identity"
+
+// used for billing connectors the wasm has no config for yet
+let getFallbackConnectorConfig = connector => {
   switch connector {
   | "chargebee" =>
     {
@@ -71,6 +74,17 @@ let getConnectorConfig = connector => {
       },
     }->Identity.genericTypeToJson
   | _ => JSON.Encode.null
+  }
+}
+
+let getConnectorConfig = connector => {
+  let wasmConfig =
+    Window.getBillingConnectorConfig(connector->LogicUtils.capitalizeString)
+    ->toNullableJson
+    ->Nullable.toOption
+  switch wasmConfig {
+  | Some(config) => config
+  | None => getFallbackConnectorConfig(connector)
   }
 }
 

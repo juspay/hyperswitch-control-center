@@ -9,6 +9,7 @@ let make = (
   ~isCustomBilling=false,
 ) => {
   open RevenueRecoveryOnboardingUtils
+  open Typography
   let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   <PageWrapper
     title="Authenticate Platform"
@@ -21,7 +22,7 @@ let make = (
               <div
                 className="flex gap-2 items-start p-4 rounded-xl border border-nd_gray-200 bg-nd_gray-50">
                 <Icon name="info-vacant" size=16 className="mt-0.5" />
-                <p className="text-sm text-nd_gray-600">
+                <p className={`${body.sm.regular} text-nd_gray-600`}>
                   {"Note: Custom Billing doesn't require any credentials. Click Next to continue."->React.string}
                 </p>
               </div>
