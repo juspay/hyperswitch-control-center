@@ -44,6 +44,7 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(SANTANDER),
   PayoutProcessor(DEUTSCHEBANK),
   PayoutProcessor(GOTYME),
+  PayoutProcessor(MIFINITY),
 ]
 
 let payoutConnectorListForLive: array<connectorTypes> = [
@@ -1153,6 +1154,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | SANTANDER => "santander"
   | DEUTSCHEBANK => "deutschebank"
   | GOTYME => "gotyme_sanlam"
+  | MIFINITY => "mifinity"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -1381,6 +1383,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "santander" => PayoutProcessor(SANTANDER)
     | "deutschebank" => PayoutProcessor(DEUTSCHEBANK)
     | "gotyme_sanlam" => PayoutProcessor(GOTYME)
+    | "mifinity" => PayoutProcessor(MIFINITY)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -1586,6 +1589,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | SANTANDER => santanderInfo
   | DEUTSCHEBANK => deutscheBankInfo
   | GOTYME => gotymeInfo
+  | MIFINITY => mifinityInfo
   }
 }
 
@@ -2607,6 +2611,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | SANTANDER => "Santander"
   | DEUTSCHEBANK => "Deutsche Bank"
   | GOTYME => "GoTyme"
+  | MIFINITY => "MiFinity"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>

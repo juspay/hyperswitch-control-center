@@ -184,6 +184,7 @@ type payoutProcessorTypes =
   | SANTANDER
   | DEUTSCHEBANK
   | GOTYME
+  | MIFINITY
 
 type threeDsAuthenticatorTypes =
   | THREEDSECUREIO
