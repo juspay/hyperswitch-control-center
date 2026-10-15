@@ -1424,7 +1424,10 @@ export async function mockSdkEligibilityAPI(
       contentType: "application/json",
       body: JSON.stringify({
         payment_id: "pay_playwright_eligibility",
-        sdk_next_action: { next_action: "confirm", should_block_confirm: false },
+        sdk_next_action: {
+          next_action: "confirm",
+          should_block_confirm: false,
+        },
         surcharge_details:
           surchargeAmount === undefined
             ? null
@@ -1464,9 +1467,9 @@ export async function waitForSdkEvent(
 ): Promise<void> {
   await page.waitForFunction(
     (name) =>
-      ((window as unknown as { __sdkEvents?: string[] }).__sdkEvents ?? []).includes(
-        name,
-      ),
+      (
+        (window as unknown as { __sdkEvents?: string[] }).__sdkEvents ?? []
+      ).includes(name),
     eventName,
     { timeout },
   );

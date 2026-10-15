@@ -767,9 +767,7 @@ test.describe("SDK Payment", () => {
     expect(page.url()).toContain("/dashboard/payments/pay_");
   });
 
-  test("should display failed payment status using SDK", async ({
-    page,
-  }) => {
+  test("should display failed payment status using SDK", async ({ page }) => {
     const homePage = new HomePage(page);
 
     await page.route("**/payments/*/confirm", async (route) => {
