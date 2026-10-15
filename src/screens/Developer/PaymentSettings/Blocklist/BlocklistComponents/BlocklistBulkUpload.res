@@ -131,7 +131,7 @@ let make = (~onUploaded) => {
   <Panel>
     <PanelHeader
       title="Upload a CSV"
-      description="Each row is one entry: a type (generic_card_bin or fingerprint), its value, and a transaction_type (payment or payout). Rows without a transaction_type are added to payments. Start from the sample file to get the format right."
+      description="One entry per row. Rows without a transaction_type go to payments. See the sample file for the format."
       action={<Button
         text="Download Sample File"
         buttonType=Secondary

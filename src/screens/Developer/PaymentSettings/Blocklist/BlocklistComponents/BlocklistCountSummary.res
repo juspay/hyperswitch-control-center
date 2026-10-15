@@ -41,7 +41,7 @@ let make = (~transactionType) => {
   React.useEffect(() => {
     fetchAllCounts()->ignore
     None
-  }, (profileId, transactionType))
+  }, [profileId])
 
   let blocklistCountsData: array<blocklistCountCard> = {
     let binCounts =

@@ -45,9 +45,9 @@ module Step = {
 module Panel = {
   @react.component
   let make = (~children) => {
-    <section className="border border-nd_gray-200 rounded-lg bg-white p-5 flex flex-col gap-4">
+    <div className="border border-nd_gray-200 rounded-lg bg-white p-5 flex flex-col gap-4">
       {children}
-    </section>
+    </div>
   }
 }
 
