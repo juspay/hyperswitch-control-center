@@ -43,16 +43,17 @@ module WebhooksConfiguration = {
     let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
     let (paymentResponseHashKey, setPaymentResponseHashKey) = React.useState(_ => "")
 
-    React.useEffect(() => {
-      let getHashKey = async () => {
-        try {
-          let profile = await fetchBusinessProfileFromId(~profileId=Some(profileId))
-          let info = profile->BusinessProfileInterfaceUtilsV2.mapJsonToBusinessProfileV2
-          setPaymentResponseHashKey(_ => info.payment_response_hash_key->Option.getOr(""))
-        } catch {
-        | _ => ()
-        }
+    let getHashKey = async () => {
+      try {
+        let profile = await fetchBusinessProfileFromId(~profileId=Some(profileId))
+        let info = profile->BusinessProfileInterfaceUtilsV2.mapJsonToBusinessProfileV2
+        setPaymentResponseHashKey(_ => info.payment_response_hash_key->Option.getOr(""))
+      } catch {
+      | _ => ()
       }
+    }
+
+    React.useEffect(() => {
       getHashKey()->ignore
       None
     }, [])
@@ -60,14 +61,14 @@ module WebhooksConfiguration = {
     <div className="flex flex-col gap-4">
       <div className="px-2">
         <WebhookConfiguration allowedApiFields=["payment_statuses_enabled"] />
-        <RenderIf condition={paymentResponseHashKey->String.length !== 0}>
+        <RenderIf condition={paymentResponseHashKey->LogicUtils.isNonEmptyString}>
           <div className="flex flex-col gap-2 mt-6">
             <h4 className="text-nd_gray-400"> {"Payment Response Hash Key"->React.string} </h4>
             <HelperComponents.CopyTextCustomComp
               displayValue={Some(paymentResponseHashKey)}
               customTextCss={`break-all truncate md:whitespace-normal ${body.md.regular} text-nd_gray-800`}
               customParentClass="flex items-center gap-5"
-              customIconCss="text-jp-gray-700"
+              customIconCss="text-nd_gray-700"
             />
           </div>
         </RenderIf>
@@ -88,7 +89,7 @@ module WebhookDetailsView = {
       ->Dict.toArray
       ->Array.filter(((_, value)) => value->JSON.Decode.string->Option.getOr("")->isNonEmptyString)
     <>
-      <RenderIf condition={entries->Array.length > 0}>
+      <RenderIf condition={entries->isNonEmptyArray}>
         <div className="grid grid-cols-2 gap-10 max-w-3xl px-2">
           {entries
           ->Array.map(((key, value)) =>
@@ -102,21 +103,11 @@ module WebhookDetailsView = {
           ->React.array}
         </div>
       </RenderIf>
-      <RenderIf condition={entries->Array.length === 0}>
+      <RenderIf condition={!(entries->isNonEmptyArray)}>
         <p className="text-nd_gray-400 px-2"> {"No webhook details configured"->React.string} </p>
       </RenderIf>
     </>
   }
-}
-
-/* ConnectorAuthKeys and ConnectorWebhookDetails read the connector from the
- url's name param, so entering edit mode has to put it there */
-let setConnectorNameInUrl = connectorName => {
-  let url =
-    connectorName->LogicUtils.isNonEmptyString
-      ? `/v2/recovery/summary?name=${connectorName}`
-      : `/v2/recovery/summary`
-  RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url))
 }
 
 module BillingConnectorDetails = {
@@ -214,9 +205,9 @@ module BillingConnectorDetails = {
     let handleClick = (section: option<connectorSummarySection>) => {
       if section->Option.isNone {
         setInitialValues(_ => JSON.stringify(initialValues)->safeParse)
-        setConnectorNameInUrl("")
+        RecoveryConnectorUtils.setConnectorNameInUrl("")
       } else {
-        setConnectorNameInUrl(connectorName)
+        RecoveryConnectorUtils.setConnectorNameInUrl(connectorName)
       }
       setCurrentActiveSection(_ => section)
     }
@@ -241,7 +232,7 @@ module BillingConnectorDetails = {
         dict->Dict.set("merchant_id", merchantId->JSON.Encode.string)
         let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put, ~version=V2)
         setCurrentActiveSection(_ => None)
-        setConnectorNameInUrl("")
+        RecoveryConnectorUtils.setConnectorNameInUrl("")
         setInitialValues(_ => response->removeFieldsFromResponse)
         setScreenState(_ => Success)
         showToast(~message="Billing platform details updated", ~toastType=ToastState.ToastSuccess)
@@ -337,20 +328,21 @@ module BillingConnectorDetails = {
                   onEdit={() => handleClick(Some(AuthenticationKeys))}
                   onCancel={() => handleClick(None)}
                 />
-                {if isEditing(AuthenticationKeys) {
+                <RenderIf condition={isEditing(AuthenticationKeys)}>
                   <ConnectorAuthKeys
                     initialValues showVertically=false processorType=BillingProcessor
                   />
-                } else {
+                </RenderIf>
+                <RenderIf condition={!isEditing(AuthenticationKeys)}>
                   <ConnectorHelperV2.PreviewCreds
                     connectorInfo=connectorInfodict
                     connectorAccountFields
                     customContainerStyle="grid grid-cols-2 gap-12 flex-wrap max-w-3xl "
                     customElementStyle="px-2 "
                   />
-                }}
+                </RenderIf>
               </div>
-              <RenderIf condition={connectorWebHookDetails->Dict.keysToArray->Array.length > 0}>
+              <RenderIf condition={connectorWebHookDetails->Dict.keysToArray->isNonEmptyArray}>
                 <div className="flex flex-col gap-4">
                   <EditSectionHeader
                     title="Webhook details"
@@ -358,19 +350,22 @@ module BillingConnectorDetails = {
                     onEdit={() => handleClick(Some(Metadata))}
                     onCancel={() => handleClick(None)}
                   />
-                  {isEditing(Metadata)
-                    ? <div className="grid grid-cols-2 gap-10 flex-wrap max-w-3xl px-2">
-                        <ConnectorWebhookDetails
-                          labelTextStyleClass="text-nd_gray-400"
-                          labelClass="font-normal"
-                          isInEditState=true
-                          connectorInfo=connectorInfodict
-                          processorType=BillingProcessor
-                        />
-                      </div>
-                    : <WebhookDetailsView
-                        webhookDetails=connectorInfodict.connector_webhook_details
-                      />}
+                  <RenderIf condition={isEditing(Metadata)}>
+                    <div className="grid grid-cols-2 gap-10 flex-wrap max-w-3xl px-2">
+                      <ConnectorWebhookDetails
+                        labelTextStyleClass="text-nd_gray-400"
+                        labelClass="font-normal"
+                        isInEditState=true
+                        connectorInfo=connectorInfodict
+                        processorType=BillingProcessor
+                      />
+                    </div>
+                  </RenderIf>
+                  <RenderIf condition={!isEditing(Metadata)}>
+                    <WebhookDetailsView
+                      webhookDetails=connectorInfodict.connector_webhook_details
+                    />
+                  </RenderIf>
                 </div>
               </RenderIf>
             </div>
@@ -458,9 +453,9 @@ module PaymentConnectorDetails = {
     let handleClick = (section: option<connectorSummarySection>) => {
       if section->Option.isNone {
         setInitialValues(_ => JSON.stringify(initialValues)->safeParse)
-        setConnectorNameInUrl("")
+        RecoveryConnectorUtils.setConnectorNameInUrl("")
       } else {
-        setConnectorNameInUrl(connector_name)
+        RecoveryConnectorUtils.setConnectorNameInUrl(connector_name)
       }
       setCurrentActiveSection(_ => section)
     }
@@ -495,7 +490,7 @@ module PaymentConnectorDetails = {
          to pick up the new disabled state */
         let _ = await fetchConnectorListResponse()
         setCurrentActiveSection(_ => None)
-        setConnectorNameInUrl("")
+        RecoveryConnectorUtils.setConnectorNameInUrl("")
         setInitialValues(_ => response->removeFieldsFromResponse)
         setScreenState(_ => Success)
       } catch {
@@ -583,18 +578,19 @@ module PaymentConnectorDetails = {
                   onEdit={() => handleClick(Some(AuthenticationKeys))}
                   onCancel={() => handleClick(None)}
                 />
-                {if isEditing(AuthenticationKeys) {
+                <RenderIf condition={isEditing(AuthenticationKeys)}>
                   <ConnectorAuthKeys initialValues showVertically=false />
-                } else {
+                </RenderIf>
+                <RenderIf condition={!isEditing(AuthenticationKeys)}>
                   <ConnectorHelperV2.PreviewCreds
                     connectorInfo=connectorInfodict
                     connectorAccountFields={connectorAccountFields}
                     customContainerStyle="grid grid-cols-2 gap-12 flex-wrap max-w-3xl "
                     customElementStyle="px-2 "
                   />
-                }}
+                </RenderIf>
               </div>
-              <RenderIf condition={connectorWebHookDetails->Dict.keysToArray->Array.length > 0}>
+              <RenderIf condition={connectorWebHookDetails->Dict.keysToArray->isNonEmptyArray}>
                 <div className="flex flex-col gap-4">
                   <EditSectionHeader
                     title="Webhook details"
@@ -602,18 +598,21 @@ module PaymentConnectorDetails = {
                     onEdit={() => handleClick(Some(Metadata))}
                     onCancel={() => handleClick(None)}
                   />
-                  {isEditing(Metadata)
-                    ? <div className="grid grid-cols-2 gap-10 flex-wrap max-w-3xl px-2">
-                        <ConnectorWebhookDetails
-                          labelTextStyleClass="text-nd_gray-400"
-                          labelClass="font-normal"
-                          isInEditState=true
-                          connectorInfo=connectorInfodict
-                        />
-                      </div>
-                    : <WebhookDetailsView
-                        webhookDetails=connectorInfodict.connector_webhook_details
-                      />}
+                  <RenderIf condition={isEditing(Metadata)}>
+                    <div className="grid grid-cols-2 gap-10 flex-wrap max-w-3xl px-2">
+                      <ConnectorWebhookDetails
+                        labelTextStyleClass="text-nd_gray-400"
+                        labelClass="font-normal"
+                        isInEditState=true
+                        connectorInfo=connectorInfodict
+                      />
+                    </div>
+                  </RenderIf>
+                  <RenderIf condition={!isEditing(Metadata)}>
+                    <WebhookDetailsView
+                      webhookDetails=connectorInfodict.connector_webhook_details
+                    />
+                  </RenderIf>
                 </div>
               </RenderIf>
             </div>
@@ -678,6 +677,8 @@ module RetriesConfiguration = {
     let max_retry_count = revenueRecovery->getInt("max_retry_count", 0)
     let billing_connector_retry_threshold =
       revenueRecovery->getInt("billing_connector_retry_threshold", 0)
+    /* the backend defaults the grace period to 30 days when none is stored */
+    let grace_period_days = revenueRecovery->getInt("grace_period_days", 30)
 
     let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
       try {
@@ -804,7 +805,7 @@ module RetriesConfiguration = {
               </RenderIf>
               <RenderIf condition={isEditMode}>
                 <FormRenderer.FieldRenderer
-                  labelClass="!font-normal !text-nd_gray-400"
+                  labelClass={`!text-nd_gray-400 ${body.md.regular}`}
                   field={retryField(
                     ~label="Start of recovery",
                     ~customLabelIcon=startOfRecoveryInfo,
@@ -826,7 +827,7 @@ module RetriesConfiguration = {
               </RenderIf>
               <RenderIf condition={isEditMode}>
                 <FormRenderer.FieldRenderer
-                  labelClass="!font-normal !text-nd_gray-400"
+                  labelClass={`!text-nd_gray-400 ${body.md.regular}`}
                   field={retryField(
                     ~label="Total retries",
                     ~customLabelIcon=totalRetriesInfo,
@@ -845,7 +846,7 @@ module RetriesConfiguration = {
               <FormRenderer.FieldRenderer
                 field={FormRenderer.makeFieldInfo(
                   ~label="",
-                  ~name="feature_metadata.revenue_recovery.partial_auth_enabled",
+                  ~name="feature_metadata.revenue_recovery.enable_partial_authorization",
                   ~customInput=InputFields.switchInput(~isDisabled=true),
                   ~isRequired=false,
                 )}
@@ -853,7 +854,7 @@ module RetriesConfiguration = {
             </div>
             <div className="flex flex-col gap-2 ">
               <h4 className="text-nd_gray-400 "> {"Grace Period"->React.string} </h4>
-              <p> {"30 days"->React.string} </p>
+              <p> {`${grace_period_days->Int.toString} days`->React.string} </p>
             </div>
           </div>
         </div>

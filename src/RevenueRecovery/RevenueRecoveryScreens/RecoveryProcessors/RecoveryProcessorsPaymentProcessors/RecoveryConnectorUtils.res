@@ -179,3 +179,13 @@ let getUpdatableConnectorBody = (~valuesDict, ~merchantId) => {
   body->Dict.set("merchant_id", merchantId->JSON.Encode.string)
   body
 }
+
+/* ConnectorAuthKeys and ConnectorWebhookDetails read the connector from the
+ url's name param, so entering edit mode has to put it there */
+let setConnectorNameInUrl = connectorName => {
+  let url =
+    connectorName->LogicUtils.isNonEmptyString
+      ? `/v2/recovery/summary?name=${connectorName}`
+      : `/v2/recovery/summary`
+  RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url))
+}

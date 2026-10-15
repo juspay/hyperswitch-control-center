@@ -38,10 +38,9 @@ let make = (~allowedApiFields: option<array<string>>=?) => {
         Window.getWebhookStatusConfig()
         ->Array.map(WebhookConfigurationUtils.eventClassConfigMapper)
         ->Array.filter(config =>
-          switch allowedApiFields {
-          | Some(fields) => fields->Array.includes(config.apiField)
-          | None => true
-          }
+          allowedApiFields->LogicUtils.mapOptionOrDefault(true, fields =>
+            fields->Array.includes(config.apiField)
+          )
         )
       setEventClassConfigs(_ => configs)
     } catch {
