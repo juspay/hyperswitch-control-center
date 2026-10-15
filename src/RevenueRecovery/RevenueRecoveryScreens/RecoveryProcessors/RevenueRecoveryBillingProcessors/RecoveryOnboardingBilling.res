@@ -254,6 +254,7 @@ let make = (
           updatedInitialVal
           connectorInfoDict
           screenState
+          isCustomBilling={connectorTypeFromName == BillingProcessor(CUSTOMBILLING)}
         />
       | (#addAPlatform, #processorSetUp) =>
         <BillingProcessorsSetUp

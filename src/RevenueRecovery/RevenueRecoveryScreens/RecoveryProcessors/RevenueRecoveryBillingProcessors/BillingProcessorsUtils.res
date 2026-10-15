@@ -52,6 +52,18 @@ let getConnectorConfig = connector => {
         "additional_secret": "Password",
       },
     }->Identity.genericTypeToJson
+  | "recurly" =>
+    {
+      "connector_auth": {
+        "HeaderKey": {
+          "api_key": "Recurly API Key",
+        },
+      },
+      "connector_webhook_details": {
+        "merchant_secret": "Username",
+        "additional_secret": "Password",
+      },
+    }->Identity.genericTypeToJson
   | "custombilling" =>
     {
       "connector_auth": {

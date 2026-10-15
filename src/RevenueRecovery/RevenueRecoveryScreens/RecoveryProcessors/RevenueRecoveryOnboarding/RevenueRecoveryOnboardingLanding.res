@@ -43,9 +43,6 @@ let make = (~createMerchant) => {
         buttonSize=Large
         buttonState=Normal
       />
-      <p className={`${body.sm.regular} text-nd_gray-400`}>
-        {"Experience Hasslefree Demo, No Credentials Required !"->React.string}
-      </p>
     </div>
     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6 w-full max-w-2xl mt-2">
       {RevenueRecoveryOnboardingUtils.features
