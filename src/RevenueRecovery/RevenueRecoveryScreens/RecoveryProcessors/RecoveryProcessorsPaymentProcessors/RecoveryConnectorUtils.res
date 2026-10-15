@@ -183,8 +183,7 @@ let getUpdatableConnectorBody = (~valuesDict, ~merchantId, ~includeAccountDetail
   body
 }
 
-/* ConnectorAuthKeys and ConnectorWebhookDetails read the connector from the
- url's name param, so entering edit mode has to put it there */
+// ConnectorAuthKeys and ConnectorWebhookDetails read the connector name from the url
 let setConnectorNameInUrl = connectorName => {
   let url =
     connectorName->LogicUtils.isNonEmptyString

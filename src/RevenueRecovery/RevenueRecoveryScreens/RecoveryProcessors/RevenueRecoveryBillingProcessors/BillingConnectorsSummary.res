@@ -30,9 +30,7 @@ module EditSectionHeader = {
   }
 }
 
-/* custom billing has no external platform to hold webhook settings, so the
-   payment webhook url and the events it fires for live here, reusing the payment
-   settings form limited to payment events */
+// Custom billing has no external platform, so payment webhooks are configured here
 module WebhooksConfiguration = {
   @react.component
   let make = () => {
@@ -76,8 +74,7 @@ module WebhooksConfiguration = {
   }
 }
 
-/* view mode can't use ConnectorWebhookDetails, it needs the url's name param,
- so the saved values are listed directly */
+// ConnectorWebhookDetails needs the url name param, so saved values are listed directly
 module WebhookDetailsView = {
   @react.component
   let make = (~webhookDetails) => {
@@ -472,8 +469,7 @@ module PaymentConnectorDetails = {
           ~includeAccountDetails={currentActiveSection == Some(AuthenticationKeys)},
         )
         let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put, ~version=V2)
-        /* the processors list above reads the shared connector list, so refresh it
-         to pick up the new disabled state */
+        // Refresh the shared connector list so the processors list shows the new status
         let _ = await fetchConnectorListResponse()
         setCurrentActiveSection(_ => None)
         RecoveryConnectorUtils.setConnectorNameInUrl("")
@@ -663,7 +659,7 @@ module RetriesConfiguration = {
     let max_retry_count = revenueRecovery->getInt("max_retry_count", 0)
     let billing_connector_retry_threshold =
       revenueRecovery->getInt("billing_connector_retry_threshold", 0)
-    /* the backend defaults the grace period to 30 days when none is stored */
+    // Backend defaults grace period to 30 days
     let grace_period_days = revenueRecovery->getInt("grace_period_days", 30)
 
     let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
@@ -692,7 +688,6 @@ module RetriesConfiguration = {
       Nullable.null
     }
 
-    /* mirrors the bounds the onboarding retry step enforces */
     let validateRetryFields = values => {
       let errors = Dict.make()
       let retryValues =
@@ -826,7 +821,7 @@ module RetriesConfiguration = {
                 {max_retry_count->Int.toString->React.string}
               </RenderIf>
             </div>
-            /* not editable until the backend accepts updates for these two */
+            // Read-only until the backend supports updates
             <div className="flex flex-col gap-2 ">
               <h4 className="text-nd_gray-400 "> {"Partial Authorization"->React.string} </h4>
               <FormRenderer.FieldRenderer
@@ -908,8 +903,7 @@ let make = () => {
     })
   }
 
-  /* other billers keep their webhook setup on their own platform, only custom
-   billing has nothing external to hold it */
+  // Only custom billing has no external platform to hold webhook setup
   if (
     billingConnectorName->ConnectorUtils.getConnectorNameTypeFromString(
       ~connectorType=BillingProcessor,
