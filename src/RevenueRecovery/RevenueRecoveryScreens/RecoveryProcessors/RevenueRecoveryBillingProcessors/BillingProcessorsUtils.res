@@ -76,7 +76,10 @@ let getFallbackConnectorConfig = connector => {
 }
 
 let getConnectorConfig = (connector, ~wasmConfig) =>
-  wasmConfig->LogicUtils.mapOptionOrDefault(getFallbackConnectorConfig(connector), config => config)
+  // the wasm returns undefined for billing connectors it has no config for
+  wasmConfig
+  ->JSON.Decode.object
+  ->LogicUtils.mapOptionOrDefault(getFallbackConnectorConfig(connector), _ => wasmConfig)
 
 type optionType = {
   name: string,

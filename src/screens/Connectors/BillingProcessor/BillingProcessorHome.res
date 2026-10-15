@@ -77,9 +77,7 @@ let make = () => {
   let connectorDetails = React.useMemo(() => {
     try {
       if connectorName->isNonEmptyString {
-        Window.getBillingConnectorConfig(connectorName->capitalizeString)->Option.getOr(
-          JSON.Encode.null,
-        )
+        Window.getBillingConnectorConfig(connectorName->capitalizeString)
       } else {
         Dict.make()->JSON.Encode.object
       }
