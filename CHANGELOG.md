@@ -3,6 +3,24 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.10.15.0
+
+### Features
+
+- **analytics:** Add explorer metric cards for payments ([#5635](https://github.com/juspay/hyperswitch-control-center/pull/5635)) ([`c74ab2e`](https://github.com/juspay/hyperswitch-control-center/commit/c74ab2ec700dc278f88bca4f2ef45a7324c9dbfe))
+
+### Bug Fixes
+
+- **sdk-payment:** Round amount to whole minor units ([#5677](https://github.com/juspay/hyperswitch-control-center/pull/5677)) ([`98c3097`](https://github.com/juspay/hyperswitch-control-center/commit/98c3097c4eda9d712342df75da28ec4437044795))
+
+### Miscellaneous Tasks
+
+- Scope x-cug-user header to blocklist apis ([#5688](https://github.com/juspay/hyperswitch-control-center/pull/5688)) ([`6997e05`](https://github.com/juspay/hyperswitch-control-center/commit/6997e059c01d3c463f1b29cd80ba25abcd458075))
+
+**Full Changelog:** [`2026.10.14.0...2026.10.15.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.14.0...2026.10.15.0)
+
+- - -
+
 ## 2026.10.14.0
 
 ### Features
