@@ -1,4 +1,4 @@
-import { Page, Locator, expect } from "@playwright/test";
+import { Page, Locator, FrameLocator, expect } from "@playwright/test";
 
 export class HomePage {
   readonly page: Page;
@@ -355,19 +355,33 @@ export class HomePage {
   }
 
   get sdkCardButton(): Locator {
-    return this.sdkIframe.contentFrame().getByRole("button", { name: "Card" });
+    return this.sdkIframe
+      .contentFrame()
+      .getByRole("button", { name: "Card" })
+      .first();
+  }
+
+  get sdkCardIframe(): Locator {
+    return this.sdkIframe
+      .contentFrame()
+      .locator('iframe[name*="card-inner-iframe-container"]');
+  }
+
+  // Frame that actually holds cardNoInput / expiryInput / cvvInput.
+  get sdkCardFrame(): FrameLocator {
+    return this.sdkCardIframe.contentFrame();
   }
 
   get sdkCardNoInput(): Locator {
-    return this.sdkIframe.contentFrame().locator("[data-testid=cardNoInput]");
+    return this.sdkCardFrame.locator("[data-testid=cardNoInput]");
   }
 
   get sdkExpiryInput(): Locator {
-    return this.sdkIframe.contentFrame().locator("[data-testid=expiryInput]");
+    return this.sdkCardFrame.locator("[data-testid=expiryInput]");
   }
 
   get sdkCvvInput(): Locator {
-    return this.sdkIframe.contentFrame().locator("[data-testid=cvvInput]");
+    return this.sdkCardFrame.locator("[data-testid=cvvInput]");
   }
 
   get paymentFailedText(): Locator {
@@ -388,6 +402,7 @@ export class HomePage {
 
   async waitForSdkCardForm(): Promise<void> {
     await this.sdkCardButton.waitFor({ state: "visible", timeout: 10000 });
+    await this.sdkCardIframe.waitFor({ state: "attached", timeout: 15000 });
     await this.sdkCardNoInput.waitFor({ state: "visible", timeout: 15000 });
   }
 

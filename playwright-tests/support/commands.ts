@@ -9,6 +9,7 @@ import { generateMerchantName } from "./helper";
 import { SignInPage } from "./pages/auth/SignInPage";
 import { SignUpPage } from "./pages/auth/SignUpPage";
 import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
+import { HomePage } from "./pages/homepage/HomePage";
 import { execFileSync } from "child_process";
 import fs from "fs";
 import path from "path";
@@ -1348,6 +1349,129 @@ export async function createSurchargeAPI(
   return { name };
 }
 
+// Makes the hosted SDK emit the `surchargeInfo` / `appliedOffersInfo` events
+// that the Pay button total is derived from (CheckoutForm.res).
+//
+// Those events come from `POST /payments/{id}/eligibility`, the only response
+// carrying surcharge and offer details. The SDK asks for it only when the
+// payment method list tells it to, and `GET /payments/{id}/client` returns
+// `sdk_next_action.next_action: "confirm"` by default -- so the surcharge and
+// offer paths are unreachable without flipping that to `eligibility_check`
+// first. Both routes are needed: one to make the SDK ask, one to answer.
+//
+// `surchargeAmount` is in major units, matching the SDK's
+// displayTotalSurchargeAmount; offer amounts are in minor units, matching
+// MinorUnit on EligibleOffer. Register before the SDK iframe mounts (i.e.
+// before clicking Show preview).
+export async function mockSdkEligibilityAPI(
+  page: Page,
+  options: {
+    surchargeAmount?: number;
+    offers?: Array<{ amountMinor: number; currency: string; code?: string }>;
+  } = {},
+): Promise<void> {
+  const { surchargeAmount, offers = [] } = options;
+
+  // Record the events the SDK posts up to the dashboard so a test can wait for
+  // one to have been delivered. Needed when the expected total is the
+  // undiscounted amount: toHaveAttribute would match that on its first poll,
+  // before the event arrived, and so could never fail. Installed by evaluate
+  // rather than addInitScript because the SDK mounts into the page the tests
+  // are already on, without a navigation.
+  await page.evaluate(() => {
+    const store = window as unknown as { __sdkEvents?: string[] };
+    if (store.__sdkEvents) return;
+    store.__sdkEvents = [];
+    window.addEventListener("message", (event) => {
+      let data: unknown = event.data;
+      if (typeof data === "string") {
+        try {
+          data = JSON.parse(data);
+        } catch {
+          return;
+        }
+      }
+      const eventName =
+        data && typeof data === "object"
+          ? (data as { eventName?: string }).eventName
+          : undefined;
+      if (eventName) store.__sdkEvents?.push(eventName);
+    });
+  });
+
+  await page.route("**/payments/*/client?*", async (route) => {
+    const response = await route.fetch();
+    const json = await response.json();
+    json.sdk_next_action = {
+      next_action: "eligibility_check",
+      should_block_confirm: false,
+    };
+    await route.fulfill({ response, json });
+  });
+
+  const eligibleOffers = offers.map((offer, index) => ({
+    offer_quote_id: `playwright_quote_${index + 1}`,
+    offer_amount: offer.amountMinor,
+    currency: offer.currency,
+    code: offer.code ?? `PLAYWRIGHT_OFFER_${index + 1}`,
+    title: "Playwright offer",
+    description: "Offer injected by the Playwright eligibility mock",
+  }));
+
+  await page.route("**/payments/*/eligibility", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        payment_id: "pay_playwright_eligibility",
+        sdk_next_action: { next_action: "confirm", should_block_confirm: false },
+        surcharge_details:
+          surchargeAmount === undefined
+            ? null
+            : {
+                surcharge: {
+                  type: "fixed",
+                  value: Math.round(surchargeAmount * 100),
+                },
+                tax_on_surcharge: null,
+                display_surcharge_amount: surchargeAmount,
+                display_tax_on_surcharge_amount: 0,
+                display_total_surcharge_amount: surchargeAmount,
+                surcharge_percentage: null,
+              },
+        // The SDK narrows the event to the uplifted quotes, so every offer the
+        // caller wants emitted has to be listed as uplifted as well as eligible.
+        ...(eligibleOffers.length > 0 && {
+          offer_details: {
+            uplifted_offer_quote_ids: eligibleOffers.map(
+              (offer) => offer.offer_quote_id,
+            ),
+            eligible_offers: eligibleOffers,
+          },
+        }),
+      }),
+    });
+  });
+}
+
+// Waits until the SDK has posted `eventName` up to the dashboard, so an
+// assertion that follows is checked against a state the event has reached.
+// Requires mockSdkEligibilityAPI to have installed the recorder.
+export async function waitForSdkEvent(
+  page: Page,
+  eventName: string,
+  timeout = 20000,
+): Promise<void> {
+  await page.waitForFunction(
+    (name) =>
+      ((window as unknown as { __sdkEvents?: string[] }).__sdkEvents ?? []).includes(
+        name,
+      ),
+    eventName,
+    { timeout },
+  );
+}
+
 // Seeds an active 3DS exemption rule via the routing API so spec tests can
 // assert against real backend data without driving the form UI.
 //
@@ -2149,15 +2273,16 @@ export async function processPaymentSdkUI(page: Page): Promise<void> {
 
   await page.waitForTimeout(2000);
 
-  const iframe = page.frameLocator("iframe").first();
-  const cardInput = iframe.locator("[data-testid=cardNoInput]");
-  await cardInput.waitFor({ state: "visible", timeout: 20000 });
-  await cardInput.fill("4242424242424242");
-  await iframe.locator("[data-testid=expiryInput]").fill("0127");
-  const cvvInput = iframe.locator("[data-testid=cvvInput]");
-  await cvvInput.waitFor({ state: "attached", timeout: 10000 });
-  await cvvInput.scrollIntoViewIfNeeded();
-  await cvvInput.fill("492");
+  // Card fields live in a frame nested inside the payment element frame, so
+  // go through the page object rather than the first iframe on the page.
+  const homePage = new HomePage(page);
+  await homePage.sdkCardIframe.waitFor({ state: "attached", timeout: 20000 });
+  await homePage.sdkCardNoInput.waitFor({ state: "visible", timeout: 20000 });
+  await homePage.sdkCardNoInput.fill("4242424242424242");
+  await homePage.sdkExpiryInput.fill("0127");
+  await homePage.sdkCvvInput.waitFor({ state: "attached", timeout: 10000 });
+  await homePage.sdkCvvInput.scrollIntoViewIfNeeded();
+  await homePage.sdkCvvInput.fill("492");
 
   await page.locator("[data-button-for=payUSD77]").click();
   await expect(page.getByText("Payment Successful")).toBeAttached();

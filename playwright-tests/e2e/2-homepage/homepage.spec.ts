@@ -14,7 +14,8 @@ import {
   createBusinessProfileAPI,
   createMerchantAPI,
   switchMerchantAPI,
-  createSurchargeAPI,
+  mockSdkEligibilityAPI,
+  waitForSdkEvent,
 } from "../../support/commands";
 import UsersPage from "../../support/pages/settings/UsersPage";
 
@@ -730,7 +731,7 @@ test.describe("SDK Payment", () => {
     await expect(homePage.sdkAmountInput).toHaveValue("250.50");
   });
 
-  test.fixme("should make a successful payment using SDK", async ({
+  test("should make a successful payment using SDK", async ({
     page,
     context: _context,
   }) => {
@@ -766,7 +767,7 @@ test.describe("SDK Payment", () => {
     expect(page.url()).toContain("/dashboard/payments/pay_");
   });
 
-  test.fixme("should display failed payment status using SDK", async ({
+  test("should display failed payment status using SDK", async ({
     page,
   }) => {
     const homePage = new HomePage(page);
@@ -799,7 +800,7 @@ test.describe("SDK Payment", () => {
     await expect(homePage.goToPaymentOperationsButton).toBeVisible();
   });
 
-  test.fixme("should display processing payment status using SDK", async ({
+  test("should display processing payment status using SDK", async ({
     page,
   }) => {
     const homePage = new HomePage(page);
@@ -830,15 +831,6 @@ test.describe("SDK Payment", () => {
     await expect(homePage.goToPaymentOperationsButton).toBeVisible();
   });
 
-  // Pay button amount formatting. The button total is computed in CheckoutForm
-  // from the payment's minor-unit amount, the SDK's surcharge event and the
-  // applied-offer event, then rendered at the currency's precision.
-  //
-  // These need HyperLoader.js (config sdk_url, served by the hyperswitch-web
-  // container that start_hyperswitch.sh brings up on :9050) to load, so that
-  // <Elements> mounts and the Pay button renders. Unlike the payment-flow tests
-  // above they never reach into the SDK iframe, which is the part that is not
-  // reliable in CI.
   const selectSdkCountryCurrency = async (
     page: Page,
     search: string,
@@ -935,23 +927,13 @@ test.describe("SDK Payment", () => {
     );
   });
 
-  // The remaining amount cases all depend on events the hosted SDK emits from
-  // inside its iframe (`surchargeInfo` / `appliedOffersInfo`, subscribed to via
-  // the new `subscriptionEvents` option). They only fire once a payment method
-  // is selected in the iframe, which is the same dependency that keeps the
-  // payment-flow tests above disabled -- and the offer cases additionally need
-  // an offer engine in the test environment.
-  test.fixme("should add the SDK surcharge to the Pay button total", async ({
+  test("should add the SDK surcharge to the Pay button total", async ({
     page,
-    context,
   }) => {
     const homePage = new HomePage(page);
 
-    // Fixed surcharge of 100 minor units -> 1.00 USD on top of 100.00.
-    await createSurchargeAPI(page, context.request, {
-      surchargeType: "fixed",
-      fixedAmount: 100,
-    });
+    // 1.00 USD surcharge on top of the default 100.00.
+    await mockSdkEligibilityAPI(page, { surchargeAmount: 1.0 });
 
     await homePage.showPreviewButton.click();
     await homePage.waitForSdkCardForm();
@@ -960,61 +942,79 @@ test.describe("SDK Payment", () => {
     await expect(homePage.payButtonLabel).toHaveAttribute(
       "data-button-text",
       "Pay USD 101.00",
-      { timeout: 60000 },
+      { timeout: 20000 },
     );
   });
 
-  test.fixme("should subtract an applied offer from the Pay button total", async ({
+  test("should subtract an applied offer from the Pay button total", async ({
     page,
   }) => {
     const homePage = new HomePage(page);
-
-    await homePage.showPreviewButton.click();
-    await homePage.waitForSdkCardForm();
-    await homePage.fillSdkTestCard();
 
     // appliedOffersInfo carries offer amounts in minor units: a 2500 minor
     // unit discount on 10000 leaves 75.00.
+    await mockSdkEligibilityAPI(page, {
+      offers: [{ amountMinor: 2500, currency: "USD" }],
+    });
+
+    await homePage.showPreviewButton.click();
+    await homePage.waitForSdkCardForm();
+    await homePage.fillSdkTestCard();
+
     await expect(homePage.payButtonLabel).toHaveAttribute(
       "data-button-text",
       "Pay USD 75.00",
-      { timeout: 60000 },
+      { timeout: 20000 },
     );
   });
 
-  test.fixme("should ignore applied offers denominated in another currency", async ({
+  test("should ignore applied offers denominated in another currency", async ({
     page,
   }) => {
     const homePage = new HomePage(page);
-
-    await homePage.showPreviewButton.click();
-    await homePage.waitForSdkCardForm();
-    await homePage.fillSdkTestCard();
 
     // The reduce in CheckoutForm only sums offers whose currency matches the
     // payment's, so an INR offer on a USD payment must not discount anything.
-    await expect(homePage.payButtonLabel).toHaveAttribute(
-      "data-button-text",
-      "Pay USD 100.00",
-      { timeout: 60000 },
-    );
-  });
-
-  test.fixme("should clamp the Pay button total at zero when the offer covers the amount", async ({
-    page,
-  }) => {
-    const homePage = new HomePage(page);
+    await mockSdkEligibilityAPI(page, {
+      offers: [{ amountMinor: 2500, currency: "INR" }],
+    });
 
     await homePage.showPreviewButton.click();
     await homePage.waitForSdkCardForm();
     await homePage.fillSdkTestCard();
 
-    // An offer at or above the payment amount must floor the total at zero
-    // rather than render a negative amount.
+    // The expected total is the undiscounted amount, so wait for the offer to
+    // have actually reached the dashboard first -- otherwise this passes on
+    // the initial render and would still pass if the currency check were
+    // dropped (which would show 75.00).
+    await waitForSdkEvent(page, "appliedOffersInfo");
+
+    await expect(homePage.payButtonLabel).toHaveAttribute(
+      "data-button-text",
+      "Pay USD 100.00",
+      { timeout: 20000 },
+    );
+  });
+
+  test("should clamp the Pay button total at zero when the offer covers the amount", async ({
+    page,
+  }) => {
+    const homePage = new HomePage(page);
+
+    // An offer above the payment amount must floor the total at zero rather
+    // than render a negative amount: 10000 - 12000 would be -20.00.
+    await mockSdkEligibilityAPI(page, {
+      offers: [{ amountMinor: 12000, currency: "USD" }],
+    });
+
+    await homePage.showPreviewButton.click();
+    await homePage.waitForSdkCardForm();
+    await homePage.fillSdkTestCard();
+
     await expect(homePage.payButtonLabel).toHaveAttribute(
       "data-button-text",
       "Pay USD 0.00",
-      { timeout: 60000 },
+      { timeout: 20000 },
     );
   });
 
