@@ -168,14 +168,26 @@ let updatableConnectorFields = [
   "feature_metadata",
 ]
 
-let getUpdatableConnectorBody = (~valuesDict, ~merchantId) => {
+let getUpdatableConnectorBody = (~valuesDict, ~merchantId, ~includeAccountDetails=false) => {
   open LogicUtils
   let body = Dict.make()
-  updatableConnectorFields->Array.forEach(field => {
+  let fields = includeAccountDetails
+    ? updatableConnectorFields->Array.concat(["connector_account_details"])
+    : updatableConnectorFields
+  fields->Array.forEach(field => {
     valuesDict
     ->getOptionValFromDict(field)
     ->mapOptionOrDefault((), value => body->Dict.set(field, value))
   })
   body->Dict.set("merchant_id", merchantId->JSON.Encode.string)
   body
+}
+
+// ConnectorAuthKeys and ConnectorWebhookDetails read the connector name from the url
+let setConnectorNameInUrl = connectorName => {
+  let url =
+    connectorName->LogicUtils.isNonEmptyString
+      ? `/v2/recovery/summary?name=${connectorName}`
+      : `/v2/recovery/summary`
+  RescriptReactRouter.replace(GlobalVars.appendDashboardPath(~url))
 }
