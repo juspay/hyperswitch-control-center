@@ -168,10 +168,13 @@ let updatableConnectorFields = [
   "feature_metadata",
 ]
 
-let getUpdatableConnectorBody = (~valuesDict, ~merchantId) => {
+let getUpdatableConnectorBody = (~valuesDict, ~merchantId, ~includeAccountDetails=false) => {
   open LogicUtils
   let body = Dict.make()
-  updatableConnectorFields->Array.forEach(field => {
+  let fields = includeAccountDetails
+    ? updatableConnectorFields->Array.concat(["connector_account_details"])
+    : updatableConnectorFields
+  fields->Array.forEach(field => {
     valuesDict
     ->getOptionValFromDict(field)
     ->mapOptionOrDefault((), value => body->Dict.set(field, value))

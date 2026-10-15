@@ -7,25 +7,24 @@ module EditSectionHeader = {
     <div className="flex justify-between border-b pb-4 px-2 items-end">
       <p className={`${heading.sm.semibold} text-nd_gray-600`}> {title->React.string} </p>
       <div className="flex gap-4">
-        {if isEditing {
-          <>
-            <Button
-              text="Cancel"
-              onClick={_ => onCancel()}
-              buttonType={Secondary}
-              buttonSize={Small}
-              customButtonStyle="w-fit"
-            />
-            <FormRenderer.SubmitButton
-              text="Save" buttonSize={Small} customSubmitButtonStyle="w-fit"
-            />
-          </>
-        } else {
+        <RenderIf condition={isEditing}>
+          <Button
+            text="Cancel"
+            onClick={_ => onCancel()}
+            buttonType={Secondary}
+            buttonSize={Small}
+            customButtonStyle="w-fit"
+          />
+          <FormRenderer.SubmitButton
+            text="Save" buttonSize={Small} customSubmitButtonStyle="w-fit"
+          />
+        </RenderIf>
+        <RenderIf condition={!isEditing}>
           <div className="flex gap-2 items-center cursor-pointer" onClick={_ => onEdit()}>
             <Icon name="nd-edit" size=14 />
             <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
           </div>
-        }}
+        </RenderIf>
       </div>
     </div>
   }
@@ -222,14 +221,11 @@ module BillingConnectorDetails = {
           ~methodType=Put,
           ~id=Some(connectorID),
         )
-        let dict = values->getDictFromJsonObject
-        dict->Dict.delete("profile_id")
-        dict->Dict.delete("id")
-        dict->Dict.delete("connector_name")
-        if currentActiveSection != Some(AuthenticationKeys) {
-          dict->Dict.delete("connector_account_details")
-        }
-        dict->Dict.set("merchant_id", merchantId->JSON.Encode.string)
+        let dict = RecoveryConnectorUtils.getUpdatableConnectorBody(
+          ~valuesDict=values->getDictFromJsonObject,
+          ~merchantId,
+          ~includeAccountDetails={currentActiveSection == Some(AuthenticationKeys)},
+        )
         let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put, ~version=V2)
         setCurrentActiveSection(_ => None)
         RecoveryConnectorUtils.setConnectorNameInUrl("")
@@ -470,21 +466,11 @@ module PaymentConnectorDetails = {
           ~methodType=Get,
           ~id=Some(connectorId),
         )
-        let dict = values->getDictFromJsonObject
-        switch currentActiveSection {
-        | Some(AuthenticationKeys) => {
-            dict->Dict.delete("profile_id")
-            dict->Dict.delete("id")
-            dict->Dict.delete("connector_name")
-          }
-        | _ => {
-            dict->Dict.delete("profile_id")
-            dict->Dict.delete("id")
-            dict->Dict.delete("connector_name")
-            dict->Dict.delete("connector_account_details")
-          }
-        }
-        dict->Dict.set("merchant_id", merchantId->JSON.Encode.string)
+        let dict = RecoveryConnectorUtils.getUpdatableConnectorBody(
+          ~valuesDict=values->getDictFromJsonObject,
+          ~merchantId,
+          ~includeAccountDetails={currentActiveSection == Some(AuthenticationKeys)},
+        )
         let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put, ~version=V2)
         /* the processors list above reads the shared connector list, so refresh it
          to pick up the new disabled state */
