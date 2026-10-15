@@ -225,6 +225,7 @@ let make = (
             configuredConnectors=[]
             showRequestConnector=false
             showDummyConnector=false
+            sortConnectors=false
             connectorType=ConnectorTypes.BillingProcessor
             heading="Choose a platform"
             mixpanelEventPrefix="recovery_billing_connector_click"

@@ -68,6 +68,7 @@ let make = (
   ~heading="Connect a new processor",
   ~showRequestConnector=true,
   ~showDummyConnector=true,
+  ~sortConnectors=true,
 ) => {
   open ConnectorUtils
 
@@ -111,7 +112,7 @@ let make = (
     ~isPrimaryList=false,
     (),
   ) => {
-    if connectorList->Array.length > 0 {
+    if sortConnectors && connectorList->Array.length > 0 {
       connectorList->Array.sort(sortByName)
     }
 
