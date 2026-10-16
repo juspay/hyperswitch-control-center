@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.10.16.0
+
+### Features
+
+- **recovery:**
+  - Edit processor credentials and webhooks, refresh status, add webhooks and retry fields ([#5685](https://github.com/juspay/hyperswitch-control-center/pull/5685)) ([`040abcb`](https://github.com/juspay/hyperswitch-control-center/commit/040abcb19d6e68cce5d05283718fc15475b874a7))
+  - Add Recurly and Stripe Billing, simplify onboarding ([#5693](https://github.com/juspay/hyperswitch-control-center/pull/5693)) ([`e8596db`](https://github.com/juspay/hyperswitch-control-center/commit/e8596db1f61816cafa8f1bd032bba9a5c230cb6a))
+
+**Full Changelog:** [`2026.10.15.0...2026.10.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.15.0...2026.10.16.0)
+
+- - -
+
 ## 2026.10.15.0
 
 ### Features
