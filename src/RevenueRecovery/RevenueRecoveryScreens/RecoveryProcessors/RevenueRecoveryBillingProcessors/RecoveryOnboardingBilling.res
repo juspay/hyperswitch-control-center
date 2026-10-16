@@ -123,7 +123,10 @@ let make = (
   let connectorDetails = React.useMemo(() => {
     try {
       if connector->isNonEmptyString {
-        let dict = BillingProcessorsUtils.getConnectorConfig(connector)
+        let dict = BillingProcessorsUtils.getConnectorConfig(
+          connector,
+          ~wasmConfig=Window.getBillingConnectorConfig(connector->LogicUtils.capitalizeString),
+        )
         dict
       } else {
         Dict.make()->JSON.Encode.object
@@ -254,6 +257,7 @@ let make = (
           updatedInitialVal
           connectorInfoDict
           screenState
+          isCustomBilling={connectorTypeFromName == BillingProcessor(CUSTOMBILLING)}
         />
       | (#addAPlatform, #processorSetUp) =>
         <BillingProcessorsSetUp

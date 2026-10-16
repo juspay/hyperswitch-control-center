@@ -3,9 +3,10 @@ open BlocklistTypes
 open LogicUtils
 open APIUtils
 open Typography
+open BlocklistHelper
 
 @react.component
-let make = (~operation, ~title, ~description, ~buttonText, ~eventName) => {
+let make = (~operation, ~transactionType, ~title, ~description, ~buttonText, ~eventName) => {
   let getURL = useGetURL()
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let showToast = ToastAdapter.useShowToast()
@@ -32,7 +33,7 @@ let make = (~operation, ~title, ~description, ~buttonText, ~eventName) => {
         setButtonState(_ => Button.Loading)
         let methodType = operation->getBlocklistEntryMethod
         let url = getURL(~entityName=V1(BLOCKLIST), ~methodType)
-        let body = blocklistEntryBody(~dataKind, ~data=trimmedData)
+        let body = blocklistEntryBody(~dataKind, ~data=trimmedData, ~transactionType)
         let response = await updateDetails(url, body, methodType)
         let entry = response->getDictFromJsonObject->blocklistEntryItemToObjMapper
         let fingerprintId = entry.fingerprint_id
@@ -97,12 +98,8 @@ let make = (~operation, ~title, ~description, ~buttonText, ~eventName) => {
     checked: true,
   }
 
-  <section
-    className="max-w-3xl border border-nd_gray-200 rounded-lg bg-white p-5 flex flex-col gap-4">
-    <div>
-      <h2 className={`text-nd_gray-700 ${body.lg.semibold}`}> {title->React.string} </h2>
-      <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}> {description->React.string} </p>
-    </div>
+  <Panel>
+    <PanelHeader title description />
     <div className="flex flex-col sm:flex-row gap-4 sm:items-end">
       <div className="w-full sm:w-44 min-w-0 sm:mb-6">
         <p className={`text-nd_gray-700 mb-1 ${body.sm.medium}`}> {"Type"->React.string} </p>
@@ -146,5 +143,5 @@ let make = (~operation, ~title, ~description, ~buttonText, ~eventName) => {
         />
       </div>
     </div>
-  </section>
+  </Panel>
 }
