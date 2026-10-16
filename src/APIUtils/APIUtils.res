@@ -293,8 +293,9 @@ let useGetURL = () => {
         | _ => Default("")
         }
       | BLOCKLIST_EXPORT =>
-        switch methodType {
-        | Post => Default(`blocklist/export`)
+        switch (methodType, queryParameters) {
+        | (Post, Some(queryParams)) => Default(`blocklist/export?${queryParams}`)
+        | (Post, None) => Default(`blocklist/export`)
         | _ => Default("")
         }
       | BLOCKLIST_CLONE =>

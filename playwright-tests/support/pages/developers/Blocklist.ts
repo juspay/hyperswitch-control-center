@@ -16,7 +16,7 @@ export class Blocklist {
   }
 
   get uploadCsvHeading(): Locator {
-    return this.page.getByRole("heading", { name: "Upload CSV" });
+    return this.page.getByText("Upload a CSV", { exact: true });
   }
 
   get fileInput(): Locator {
@@ -32,14 +32,12 @@ export class Blocklist {
   }
 
   get uploadFileText(): Locator {
-    return this.page.getByText(
-      "Upload a CSV file with up to 100,000 rows and a maximum size of 5 MB",
-    );
+    return this.page.getByText("Up to 100,000 rows, 5 MB max");
   }
 
   get supportedFileText(): Locator {
     return this.page.getByText(
-      "CSV files above either limit cannot be processed. Only .csv files are supported.",
+      "Only .csv files are supported. Larger files cannot be processed.",
     );
   }
 
