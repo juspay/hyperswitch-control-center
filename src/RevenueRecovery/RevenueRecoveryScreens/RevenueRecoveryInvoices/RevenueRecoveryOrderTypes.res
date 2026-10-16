@@ -70,7 +70,6 @@ type recoveryInvoiceStatus =
   | Terminated
   | Processing
   | Queued
-  | NoPicked
   | Monitoring
   | PartiallyRecovered
   | PartiallyCapturedAndProcessing

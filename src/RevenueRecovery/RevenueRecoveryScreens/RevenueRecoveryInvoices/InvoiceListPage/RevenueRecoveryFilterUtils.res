@@ -35,14 +35,7 @@ let initialFilters = (_json, _filterValues, _removeKeys, _filterKeys, _setfilter
 let initialFixedFilter = (~disable=false) => OrderUIUtils.initialFixedFilter(V2, ~disable)
 
 // Builds the query params for `recovery-list` from the applied filters
-let buildQuery = (
-  ~filters: Dict.t<JSON.t>,
-  ~offset,
-  ~limit,
-  ~searchText,
-  ~profileId,
-  ~isProfileView,
-) => {
+let buildQuery = (~filters: Dict.t<JSON.t>, ~offset, ~limit, ~searchText) => {
   let query = Dict.make()
 
   filters
@@ -65,10 +58,6 @@ let buildQuery = (
   let trimmedSearchText = searchText->String.trim
   if trimmedSearchText->isNonEmptyString {
     query->Dict.set("payment_id", trimmedSearchText)
-  }
-
-  if isProfileView {
-    query->Dict.set("profile_id", profileId)
   }
 
   query

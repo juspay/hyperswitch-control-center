@@ -74,9 +74,13 @@ let getV2Url = (
         | None => Default(`${paymentsBaseURL}/${key_id}/get-revenue-recovery-intent`)
         }
       | None =>
+        let recoveryListPath = switch transactionEntity {
+        | #Profile => `${paymentsBaseURL}/profile/recovery-list`
+        | _ => `${paymentsBaseURL}/recovery-list`
+        }
         switch queryParameters {
-        | Some(queryParams) => Default(`${paymentsBaseURL}/recovery-list?${queryParams}`)
-        | None => Default(`${paymentsBaseURL}/recovery-list?limit=100`)
+        | Some(queryParams) => Default(`${recoveryListPath}?${queryParams}`)
+        | None => Default(`${recoveryListPath}?limit=100`)
         }
       }
     | _ => Default("")

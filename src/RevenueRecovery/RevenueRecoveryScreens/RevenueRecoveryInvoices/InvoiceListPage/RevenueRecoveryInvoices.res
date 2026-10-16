@@ -29,7 +29,6 @@ let make = () => {
   let startTimeKey = OrderUIUtils.startTimeFilterKey(V2)
   let endTimeKey = OrderUIUtils.endTimeFilterKey(V2)
   let startTime = filterValueJson->getString(startTimeKey, "")
-  let isProfileView = transactionEntity === #Profile
 
   let portalNodes = PortalState.portalNodes->Recoil.useRecoilValueFromAtom
   let hasOmpViewPortal = portalNodes->getOptionValFromDict(`${tableTitle}OMPView`)->Option.isSome
@@ -98,14 +97,7 @@ let make = () => {
   React.useEffect(() => {
     switch filters {
     | Some(dict) =>
-      buildQuery(
-        ~filters=dict,
-        ~offset,
-        ~limit=resultsPerPage,
-        ~searchText,
-        ~profileId,
-        ~isProfileView,
-      )
+      buildQuery(~filters=dict, ~offset, ~limit=resultsPerPage, ~searchText)
       ->getPaymentsList
       ->ignore
     | None => ()

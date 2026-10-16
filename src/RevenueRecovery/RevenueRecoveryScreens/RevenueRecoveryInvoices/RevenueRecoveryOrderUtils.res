@@ -7,7 +7,6 @@ let statusVariantMapper: string => RevenueRecoveryOrderTypes.recoveryInvoiceStat
   | "FAILED" | "TERMINATED" => Terminated
   | "PROCESSING" => Processing
   | "QUEUED" => Queued
-  | "NOPICKED" => NoPicked
   | "MONITORING" => Monitoring
   | "PARTIALLYCAPTURED" => PartiallyRecovered
   | "PARTIALLYCAPTUREDANDPROCESSING" => PartiallyCapturedAndProcessing
@@ -20,7 +19,6 @@ let statusStringMapper: RevenueRecoveryOrderTypes.recoveryInvoiceStatus => strin
   | Succeeded => "Succeeded"
   | Cancelled => "Cancelled"
   | Scheduled => "Scheduled"
-  | NoPicked => "NoPicked"
   | Processing => "Processing"
   | Terminated => "Terminated"
   | Monitoring => "Monitoring"
@@ -76,6 +74,4 @@ let recoveryStatusFilterOptions = [
   "cancelled",
   "partially_recovered",
   "partially_captured_and_processing",
-  "no_picked",
-  "pending",
 ]

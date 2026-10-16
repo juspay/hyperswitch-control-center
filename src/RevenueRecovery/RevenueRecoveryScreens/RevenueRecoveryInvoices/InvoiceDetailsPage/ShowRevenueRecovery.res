@@ -129,7 +129,7 @@ module RecoveryAmountStatus = {
         | None => React.null
         }}
       </div>
-    | Queued | NoPicked =>
+    | Queued =>
       <AlertV2Binding
         alertType=Neutral
         slot={{slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />}}
