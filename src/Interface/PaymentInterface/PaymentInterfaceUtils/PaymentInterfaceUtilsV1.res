@@ -93,6 +93,7 @@ let mapDictToPaymentPayload: dict<JSON.t> => order_v1 = dict => {
     surcharge_amount: dict
     ->getDictfromDict("surcharge_details")
     ->getOptionFloat("surcharge_amount"),
+    applied_offer: dict->getAppliedOffer,
     connector: dict->getString("connector", ""),
     status: dict->getString("status", ""),
     amount: dict->getFloat("amount", 0.0),
@@ -281,6 +282,7 @@ let mapPaymentV1ToCommonType: order_v1 => PaymentInterfaceTypes.order = order =>
     merchant_id: order.merchant_id,
     net_amount: order.net_amount,
     surcharge_amount: order.surcharge_amount,
+    applied_offer: order.applied_offer,
     connector: order.connector,
     status: order.status,
     amount: order.amount,

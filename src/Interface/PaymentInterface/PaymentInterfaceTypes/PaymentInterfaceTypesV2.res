@@ -62,6 +62,7 @@ type order_v2 = {
   merchant_id: string,
   net_amount: float,
   surcharge_amount: option<float>,
+  applied_offer: option<PaymentInterfaceTypes.appliedOffer>,
   status: string,
   amount: float,
   amount_capturable: float,

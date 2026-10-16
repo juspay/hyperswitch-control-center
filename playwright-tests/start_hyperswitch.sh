@@ -93,13 +93,6 @@ try_tag() {
   sed "s|${IMAGE_REPO}:standalone|${IMAGE_REPO}:${tag}|g" \
     docker-compose.yml > docker-compose.tmp && mv docker-compose.tmp docker-compose.yml
 
-  # Remap host ports that clash with other services on a shared host.
-  sed -e 's|"5432:5432"|"25432:5432"|g' \
-      -e 's|"6379:6379"|"26379:6379"|g' \
-      -e 's|"8081:8080"|"28081:8080"|g' \
-      -e 's|"9050:9050"|"29050:9050"|g' \
-    docker-compose.yml > docker-compose.tmp && mv docker-compose.tmp docker-compose.yml
-
   sed 's|apk add --no-cache curl jq yq && sh /seed_superposition.sh|apk add --no-cache curl jq yq bash \&\& bash /seed_superposition.sh|g' \
     docker-compose.yml > docker-compose.tmp && mv docker-compose.tmp docker-compose.yml
 
