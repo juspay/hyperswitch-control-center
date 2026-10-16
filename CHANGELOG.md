@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.10.16.1
+
+### Features
+
+- Add payout blocklist support in blocklist settings ([#5690](https://github.com/juspay/hyperswitch-control-center/pull/5690)) ([`80412cb`](https://github.com/juspay/hyperswitch-control-center/commit/80412cbfcc959194e8140f82d02a69ded6623987))
+
+**Full Changelog:** [`2026.10.16.0...2026.10.16.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.16.0...2026.10.16.1)
+
+- - -
+
 ## 2026.10.16.0
 
 ### Features
