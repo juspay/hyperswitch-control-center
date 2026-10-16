@@ -221,6 +221,52 @@ test.describe("Volume based routing", () => {
     await expect(volumeBasedConfiguration.configureRuleButton).toBeDisabled();
   });
 
+  test("should update only the edited split when two connectors share a processor", async ({
+    page,
+    context,
+  }) => {
+    const homePage = new HomePage(page);
+    const paymentRouting = new PaymentRouting(page);
+    const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
+
+    // Both dummy connectors are stripe_test accounts, so only their
+    // merchant connector ids tell them apart
+    const merchantId = await homePage.merchantID.nth(0).textContent();
+    if (merchantId) {
+      await createDummyConnectorAPI(
+        merchantId,
+        "stripe_test_1",
+        context.request,
+        page,
+      );
+      await createDummyConnectorAPI(
+        merchantId,
+        "stripe_test_2",
+        context.request,
+        page,
+      );
+    }
+
+    await homePage.workflow.click();
+    await homePage.routing.click();
+    await paymentRouting.volumeBasedRoutingSetupButton.click();
+
+    await expect(page).toHaveURL(/.*routing\/volume/);
+
+    await volumeBasedConfiguration.connectorDropdown.click();
+    await volumeBasedConfiguration.connectorOption("stripe_test_1").click();
+    await volumeBasedConfiguration.connectorOption("stripe_test_2").click();
+
+    await volumeBasedConfiguration.percentageInput(1).clear();
+    await volumeBasedConfiguration.percentageInput(1).fill("70");
+    await expect(volumeBasedConfiguration.percentageInput(2)).toHaveValue("50");
+
+    await volumeBasedConfiguration.percentageInput(2).clear();
+    await volumeBasedConfiguration.percentageInput(2).fill("30");
+    await expect(volumeBasedConfiguration.percentageInput(1)).toHaveValue("70");
+    await expect(volumeBasedConfiguration.configureRuleButton).toBeEnabled();
+  });
+
   test("should validate name and description fields", async ({
     page,
     context,
@@ -1212,6 +1258,72 @@ test.describe("Advanced rule connector selection modes", () => {
     expect(Number(await input1.inputValue())).toBe(40);
 
     await expect(ruleBasedConfiguration.configureRuleButton).not.toBeEnabled();
+  });
+
+  test("should not allow a split above 100% when one connector is set to 100%", async ({
+    page,
+    context,
+  }) => {
+    await navigateToRuleBasedRouting(page, context);
+    const ruleBasedConfiguration = new RuleBasedConfiguration(page);
+
+    // Complete the condition so the split is the only thing left to validate
+    await ruleBasedConfiguration.selectFieldButton.click();
+    await page.getByText("currency", { exact: true }).click();
+
+    await ruleBasedConfiguration.selectOperatorButton.click();
+    await page.getByText("IS", { exact: true }).click();
+
+    await ruleBasedConfiguration.selectValueButton.click();
+    await page.getByText("USD", { exact: true }).click();
+
+    await ruleBasedConfiguration.addProcessorsButton.click();
+    await page.getByRole("option", { name: "stripe_rule_test_a" }).click();
+    await page.getByRole("option", { name: "stripe_rule_test_b" }).click();
+
+    await ruleBasedConfiguration.distributeCheckboxNotSelected.click();
+    await page.waitForTimeout(300);
+
+    await expect(ruleBasedConfiguration.configureRuleButton).toBeEnabled();
+
+    // 100 + 50 would be saved as weights and route 67/33, not 100/50
+    const input1 = ruleBasedConfiguration.percentageInput(1);
+    await input1.clear();
+    await input1.fill("100");
+    await input1.blur();
+
+    await expect(ruleBasedConfiguration.percentageInput(2)).toHaveValue("50");
+    await expect(ruleBasedConfiguration.configureRuleButton).not.toBeEnabled();
+  });
+
+  test("should keep splits at 100% when a connector is added with distribute ON", async ({
+    page,
+    context,
+  }) => {
+    await navigateToRuleBasedRouting(page, context);
+    const ruleBasedConfiguration = new RuleBasedConfiguration(page);
+
+    await ruleBasedConfiguration.addProcessorsButton.click();
+    await page.getByRole("option", { name: "stripe_rule_test_a" }).click();
+    await page.getByRole("option", { name: "stripe_rule_test_b" }).click();
+
+    await ruleBasedConfiguration.distributeCheckboxNotSelected.click();
+    await page.waitForTimeout(300);
+
+    const thirdConnectorOption = page.getByRole("option", {
+      name: "stripe_rule_test_c",
+    });
+    if (!(await thirdConnectorOption.isVisible())) {
+      await ruleBasedConfiguration.addProcessorsButton.click();
+    }
+    await thirdConnectorOption.click();
+
+    await expect(
+      page.locator('input[name="1"], input[name="2"], input[name="3"]'),
+    ).toHaveCount(3);
+    await expect(ruleBasedConfiguration.percentageInput(1)).toHaveValue("33");
+    await expect(ruleBasedConfiguration.percentageInput(2)).toHaveValue("33");
+    await expect(ruleBasedConfiguration.percentageInput(3)).toHaveValue("34");
   });
 
   test("should recalculate split percentages when removing a connector", async ({
