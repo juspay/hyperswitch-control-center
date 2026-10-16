@@ -228,7 +228,7 @@ module BasicDetailsSection = {
       switch token {
       | Some(jwt) if jwt->LogicUtils.isNonEmptyString => {
           Clipboard.writeText(jwt)
-          showToast(~message="JWT copied to clipboard!", ~toastType=ToastSuccess)
+showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
         }
       | _ => showToast(~message="JWT not available", ~toastType=ToastError)
       }
