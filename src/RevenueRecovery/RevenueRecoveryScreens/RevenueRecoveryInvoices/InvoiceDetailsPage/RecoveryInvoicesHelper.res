@@ -132,14 +132,14 @@ module AttemptsHistory = {
     let status = order.status->statusVariantMapper
     let totalRetryCount = order.total_retry_count
     let isRecoveryStarted =
-      totalRetryCount >= startRetryThreshold || internalAttempts->Array.length > 0
+      totalRetryCount >= startRetryThreshold || internalAttempts->isNonEmptyArray
     let totalAttempts = attempts->Array.length
     let getAttemptNumber = (attempt: attempts) =>
       totalAttempts - attempts->Array.findIndex(item => item.id == attempt.id)
     let firstAttempt = attempts->Array.get(totalAttempts - 1)->Option.filter(isExternalAttempt)
     let merchantRetries =
       merchantAttempts->Array.filter(attempt =>
-        firstAttempt->Option.mapOr(true, first => first.id != attempt.id)
+        firstAttempt->mapOptionOrDefault(true, first => first.id != attempt.id)
       )
     let nextAttemptLabel =
       totalAttempts == 0 ? "Initial Attempt" : `Retry ${totalAttempts->Int.toString}`
@@ -239,7 +239,7 @@ module AttemptsHistory = {
             }
           | _ => React.null
           }}
-          <RenderIf condition={internalAttempts->Array.length > 0}>
+          <RenderIf condition={internalAttempts->isNonEmptyArray}>
             {internalAttempts
             ->Array.map(attempt => {
               <AttemptItem
@@ -265,7 +265,7 @@ module AttemptsHistory = {
           </div>
         </RenderIf>
       </RenderIf>
-      <RenderIf condition={merchantAttempts->Array.length > 0 || !isRecoveryStarted}>
+      <RenderIf condition={merchantAttempts->isNonEmptyArray || !isRecoveryStarted}>
         <div className="pt-7">
           <div className="cursor-pointer relative">
             <RenderIf condition={showExternalRetries}>
@@ -308,7 +308,7 @@ module AttemptsHistory = {
           </div>
         </div>
         <RenderIf condition={showExternalRetries}>
-          <RenderIf condition={merchantRetries->Array.length > 0}>
+          <RenderIf condition={merchantRetries->isNonEmptyArray}>
             {merchantRetries
             ->Array.map(attempt => {
               <AttemptItem
