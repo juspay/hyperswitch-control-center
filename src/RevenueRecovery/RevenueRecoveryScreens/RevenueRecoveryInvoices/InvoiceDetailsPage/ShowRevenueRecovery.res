@@ -247,7 +247,6 @@ let make = (~id) => {
     } catch {
     | _ => ()
     }
-    setScreenState(_ => Success)
   }
 
   let fetchOrderDetails = async _ => {
@@ -268,14 +267,11 @@ let make = (~id) => {
         setRevenueRecoveryData(_ => orderData)
       }
 
-      let billingConnectorId =
-        data
-        ->getDictFromJsonObject
-        ->getDictfromDict("feature_metadata")
-        ->getDictfromDict("revenue_recovery")
-        ->getString("billing_connector_id", "")
-      await fetchStartRetryThreshold(~billingConnectorId)
-      fetchOrderAttemptListDetails()->ignore
+      let _ = await Promise.all2((
+        fetchStartRetryThreshold(~billingConnectorId=orderData.billing_connector_id),
+        fetchOrderAttemptListDetails(),
+      ))
+      setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
       switch Exn.message(e) {

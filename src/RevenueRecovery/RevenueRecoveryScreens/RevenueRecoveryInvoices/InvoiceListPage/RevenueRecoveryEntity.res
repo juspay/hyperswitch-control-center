@@ -119,7 +119,6 @@ let getHeading = (colType: RevenueRecoveryOrderTypes.colType) => {
   | PaymentMethodType => Table.makeHeaderInfo(~key="PaymentMethodType", ~title="Payment Method")
   | ModifiedAt => Table.makeHeaderInfo(~key="ModifiedAt", ~title="Last Attempted")
   | RecoveryProgress => Table.makeHeaderInfo(~key="RecoveryProgress", ~title="Recovery Progress")
-  | CardAttached => Table.makeHeaderInfo(~key="CardsAttached", ~title="Cards Attached")
   }
 }
 
@@ -170,7 +169,6 @@ let getCell = (
       />,
       "",
     )
-  | CardAttached => Text(order.card_attached->Int.toString)
   }
 }
 
@@ -220,8 +218,6 @@ let itemToObjMapperForIntents: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.order
     connector: revenueRecoveryMetadata->getString("connector", ""),
     created: [
       revenueRecoveryMetadata->getString("invoice_billing_started_at_time", ""),
-      dict->getDictfromDict("payment_intent")->getString("created_at", ""),
-      dict->getString("created_at", ""),
       dict->getString("created", ""),
     ]
     ->Array.find(isNonEmptyString)
@@ -230,6 +226,8 @@ let itemToObjMapperForIntents: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.order
     payment_method_subtype: revenueRecoveryMetadata->getString("payment_method_subtype", ""),
     modified_at: dict->getString("modified_at", ""),
     card_attached: dict->getInt("card_attached", 0),
+    billing_connector_id: revenueRecoveryMetadata->getString("billing_connector_id", ""),
+    total_retry_count: revenueRecoveryMetadata->getInt("total_retry_count", 0),
     attempts,
   }
 }
@@ -253,6 +251,8 @@ let itemToObjMapper: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.order = dict =>
     payment_method_subtype: dict->getString("payment_method_subtype", ""),
     modified_at: dict->getString("modified_at", ""),
     card_attached: dict->getInt("card_attached", 0),
+    billing_connector_id: "",
+    total_retry_count: 0,
     attempts,
   }
 }

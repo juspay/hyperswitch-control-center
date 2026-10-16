@@ -130,15 +130,12 @@ module AttemptsHistory = {
     }
 
     let status = order.status->statusVariantMapper
-    let merchantRetriesDone = merchantAttempts->Array.length
-    // recovery only starts once the merchant's own retries reach the configured threshold
+    let totalRetryCount = order.total_retry_count
     let isRecoveryStarted =
-      merchantRetriesDone >= startRetryThreshold || internalAttempts->Array.length > 0
-    // attempts are newest first; only the first attempt of the intent is an "Initial Attempt", the rest are retries
+      totalRetryCount >= startRetryThreshold || internalAttempts->Array.length > 0
     let totalAttempts = attempts->Array.length
     let getAttemptNumber = (attempt: attempts) =>
       totalAttempts - attempts->Array.findIndex(item => item.id == attempt.id)
-    // the oldest attempt of the intent, when made by the merchant, sits at the start of the timeline
     let firstAttempt = attempts->Array.get(totalAttempts - 1)->Option.filter(isExternalAttempt)
     let merchantRetries =
       merchantAttempts->Array.filter(attempt =>
@@ -295,7 +292,7 @@ module AttemptsHistory = {
                   {(
                     isRecoveryStarted
                       ? `${merchantRetries->Array.length->Int.toString} Retries`
-                      : `${merchantRetriesDone->Int.toString} of ${startRetryThreshold->Int.toString} Retries`
+                      : `${totalRetryCount->Int.toString} of ${startRetryThreshold->Int.toString} Retries`
                   )->React.string}
                 </span>
               </div>
