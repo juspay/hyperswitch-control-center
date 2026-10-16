@@ -142,7 +142,8 @@ let getCell = (
     Label({
       title: orderStatus,
       color: switch order.status->statusVariantMapper {
-      | Recovered | PartiallyRecovered => LabelGreen
+      | Recovered | Succeeded | PartiallyRecovered => LabelGreen
+      | Cancelled => LabelGray
       | Scheduled => LabelOrange
       | Terminated => LabelRed
       | Processing => LabelBlue
