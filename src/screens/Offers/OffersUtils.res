@@ -4,6 +4,7 @@ open OffersTypes
 let statusFromString = status =>
   switch status {
   | "DRAFT" => Draft
+  | "NEW" => New
   | "ACTIVE" => Active
   | "PAUSED" => Paused
   | "EXPIRED" => Expired
@@ -17,13 +18,31 @@ let statusToLabelColor = (status): TableUtils.labelColor =>
   switch status {
   | Active => LabelGreen
   | Paused => LabelOrange
-  | Draft => LabelBlue
+  | Draft | New => LabelBlue
   | Expired => LabelGray
   | Discarded => LabelRed
   | UnknownStatus(_) => LabelLightGray
   }
 
 let allStatuses = [Draft, Active, Paused, Expired, Discarded]
+
+let statusFromValidity = (~status, ~startTime, ~endTime) => {
+  let now = Date.now()
+  let startsAt = startTime->Date.fromString->Date.getTime
+  let endsAt = endTime->Date.fromString->Date.getTime
+  switch status {
+  | New | Active =>
+    if now < startsAt {
+      New
+    } else if now <= endsAt {
+      Active
+    } else {
+      Expired
+    }
+  | Paused => now > endsAt ? Expired : Paused
+  | other => other
+  }
+}
 
 let calculationRuleFromString = calculationRule =>
   switch calculationRule {
@@ -39,9 +58,20 @@ let getOfferDescription = dict => {
     title: descriptionDict->getString("title", ""),
     displayTitle: descriptionDict->getString("display_title", ""),
     description: descriptionDict->getString("description", ""),
+    termsAndConditions: descriptionDict->getString("tnc", ""),
     sponsoredBy: descriptionDict->getString("sponsored_by", "")->OffersSponsors.sponsorFromString,
   }
 }
+
+let getCurrencies = dict =>
+  dict
+  ->getDictFromNestedDict("rule_dsl", "order")
+  ->getArrayFromDict("currency", [])
+  ->getMappedValueFromArrayOfJson(currencyDict => {
+    name: currencyDict->getString("name", ""),
+    minOrderAmount: currencyDict->getOptionFloat("min_order_amount"),
+    maxOrderAmount: currencyDict->getOptionFloat("max_order_amount"),
+  })
 
 let getBenefit = dict =>
   dict
@@ -54,18 +84,27 @@ let getBenefit = dict =>
       calculationRule: benefitDict->getString("calculation_rule", "")->calculationRuleFromString,
       value: benefitDict->getFloat("value", 0.0),
       maxAmount: benefitDict->getOptionFloat("max_amount"),
+      currencies: dict->getCurrencies->Array.map(currency => currency.name),
     }
   })
 
 let itemToObjMapper = dict => {
-  offerId: dict->getString("offer_id", ""),
-  offerCode: dict->getString("offer_code", ""),
-  status: dict->getString("status", "")->statusFromString,
-  offerDescription: dict->getOfferDescription,
-  startTime: dict->getString("start_time", ""),
-  endTime: dict->getString("end_time", ""),
-  benefit: dict->getBenefit,
-  createdAt: dict->getString("created_at", ""),
+  let startTime = dict->getString("start_time", "")
+  let endTime = dict->getString("end_time", "")
+  {
+    offerId: dict->getString("offer_id", ""),
+    offerCode: dict->getString("offer_code", ""),
+    status: statusFromValidity(
+      ~status=dict->getString("status", "")->statusFromString,
+      ~startTime,
+      ~endTime,
+    ),
+    offerDescription: dict->getOfferDescription,
+    startTime,
+    endTime,
+    benefit: dict->getBenefit,
+    createdAt: dict->getString("created_at", ""),
+  }
 }
 
 let languageFromString = language =>
@@ -113,15 +152,28 @@ let getCounterAmount = (dict, ~scope) =>
 let getCounterCount = (dict, ~scope) =>
   dict->getCounter(~scope, ~valueType=CountLimit)->Option.flatMap(getOptionInt(_, "value"))
 
-let getCurrencies = dict =>
-  dict
-  ->getDictFromNestedDict("rule_dsl", "order")
-  ->getArrayFromDict("currency", [])
-  ->getMappedValueFromArrayOfJson(currencyDict => {
-    name: currencyDict->getString("name", ""),
-    minOrderAmount: currencyDict->getOptionFloat("min_order_amount"),
-    maxOrderAmount: currencyDict->getOptionFloat("max_order_amount"),
+let resetPeriodUnitFromString = unit =>
+  switch unit {
+  | "hour" => Hour
+  | "day" => Day
+  | "week" => Week
+  | "month" => Month
+  | "CALENDAR_DAY" => CalendarDay
+  | "CALENDAR_MONTH" => CalendarMonth
+  | _ => OfferPeriod
+  }
+
+let getCardResetPeriod = dict => {
+  let metadataDict = dict->getDictfromDict("metadata")
+  metadataDict
+  ->getOptionString("cardResetPeriodType")
+  ->Option.map(unit => {
+    unit: unit->resetPeriodUnitFromString,
+    value: metadataDict->getOptionInt("cardResetPeriod"),
   })
+}
+
+let cardBinFilterType = "CARD_BIN"
 
 let getBinListMode = dict => {
   let filtersDict = dict->getDictfromDict("rule_dsl")->getDictfromDict("filters")
@@ -130,7 +182,7 @@ let getBinListMode = dict => {
     ->getArrayFromDict(key, [])
     ->Array.some(entryJson => {
       let entryDict = entryJson->getDictFromJsonObject
-      entryDict->getString("type", "") == "CARD_BIN" &&
+      entryDict->getString("type", "") == cardBinFilterType &&
         entryDict->getBool("is_value_uploaded", false)
     })
 
@@ -151,6 +203,7 @@ let detailItemToObjMapper = dict => {
   campaignCount: dict->getCounterCount(~scope=Campaign),
   amountPerCard: dict->getCounterAmount(~scope=PerCard),
   countPerCard: dict->getCounterCount(~scope=PerCard),
+  cardResetPeriod: dict->getCardResetPeriod,
   binListMode: dict->getBinListMode,
 }
 
@@ -213,6 +266,22 @@ let buildListBody = (
 let buildDetailBody = offerId =>
   [("offer_ids", [offerId]->getJsonFromArrayOfString)]->getJsonFromArrayOfJson
 
+let buildBinListBody = offerId =>
+  [
+    ("field", cardBinFilterType->JSON.Encode.string),
+    ("offer_id", offerId->JSON.Encode.string),
+  ]->getJsonFromArrayOfJson
+
+let binListRowPattern = %re("/^\d+$/")
+
+let parseBinListCsv = content =>
+  content
+  ->String.split("\n")
+  ->Array.map(String.trim)
+  ->Array.filter(row => binListRowPattern->RegExp.test(row))
+
+let binListCsvContent = bins => [cardBinFilterType]->Array.concat(bins)->Array.joinWith("\n")
+
 let buildStatusUpdateBody = (~status: offerStatus) =>
   [("status", (status :> string)->JSON.Encode.string)]->getJsonFromArrayOfJson
 
@@ -228,18 +297,22 @@ let offerTitle = (offer: offer) =>
     ? offer.offerDescription.title
     : offer.offerDescription.displayTitle
 
-let formatBenefitValue = (benefit: benefit) =>
+let formatBenefitValue = (benefit: benefit) => {
+  let amount =
+    `${benefit.value->Float.toString} ${benefit.currencies->Array.joinWith("/")}`->String.trim
   switch benefit.calculationRule {
   | Percentage => `${benefit.value->Float.toString}% off`
-  | _ => `${benefit.value->Float.toString} off`
+  | FixedEffectiveAmount => `Fixed at ${amount}`
+  | _ => `${amount} off`
   }
+}
 
 let benefitLabel = (offer: offer) =>
   offer.benefit->mapOptionOrDefault(emptyValuePlaceholder, formatBenefitValue)
 
 let canPauseOrActivate = (offer: offer) =>
   switch offer.status {
-  | Active | Paused => true
+  | New | Active | Paused => true
   | _ => false
   }
 
@@ -251,15 +324,12 @@ let canDelete = (offer: offer) =>
 
 let nextStatusOnToggle = (offer: offer) =>
   switch offer.status {
-  | Active => Paused
+  | New | Active => Paused
   | _ => Active
   }
 
 let amountWithCurrency = (~amount: float, ~currency) =>
   `${amount->Float.toString} ${currency}`->String.trim
-
-let primaryCurrency = (detail: offerDetail) =>
-  detail.currencies->Array.get(0)->mapOptionOrDefault("", currency => currency.name)
 
 let currencyRangeLabel = (detail: offerDetail, ~getAmount) =>
   detail.currencies
@@ -271,10 +341,38 @@ let currencyRangeLabel = (detail: offerDetail, ~getAmount) =>
 
 let optionalAmountLabel = (detail: offerDetail, amount) =>
   amount->mapOptionOrDefault(emptyValuePlaceholder, amount =>
-    amountWithCurrency(~amount, ~currency=detail->primaryCurrency)
+    detail.currencies->isEmptyArray
+      ? amount->Float.toString
+      : detail.currencies
+        ->Array.map(currency => amountWithCurrency(~amount, ~currency=currency.name))
+        ->Array.joinWith(", ")
   )
 
 let optionalCountLabel = count => count->mapOptionOrDefault(emptyValuePlaceholder, Int.toString)
+
+let resetPeriodUnitToDisplayName = unit =>
+  switch unit {
+  | OfferPeriod => "offer period"
+  | Hour => "hour"
+  | Day => "day"
+  | Week => "week"
+  | Month => "month"
+  | CalendarDay => "calendar day"
+  | CalendarMonth => "calendar month"
+  }
+
+let resetPeriodLabel = ({unit, value}: resetPeriod) =>
+  switch (unit, value) {
+  | (OfferPeriod, _) | (_, None) | (_, Some(1)) => unit->resetPeriodUnitToDisplayName
+  | (_, Some(value)) => `${value->Int.toString} ${unit->resetPeriodUnitToDisplayName}s`
+  }
+
+let countPerCardLabel = (detail: offerDetail) =>
+  switch (detail.countPerCard, detail.cardResetPeriod) {
+  | (Some(count), Some(resetPeriod)) =>
+    `${count->Int.toString} ${count == 1 ? "time" : "times"} per ${resetPeriod->resetPeriodLabel}`
+  | (count, _) => count->optionalCountLabel
+  }
 
 let offerAmountLabel = (detail: offerDetail) =>
   switch detail.offer.benefit {

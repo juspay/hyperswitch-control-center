@@ -1,6 +1,7 @@
 @unboxed
 type offerStatus =
   | @as("DRAFT") Draft
+  | @as("NEW") New
   | @as("ACTIVE") Active
   | @as("PAUSED") Paused
   | @as("EXPIRED") Expired
@@ -40,6 +41,7 @@ type offerDescription = {
   title: string,
   displayTitle: string,
   description: string,
+  termsAndConditions: string,
   sponsoredBy: sponsor,
 }
 
@@ -47,6 +49,7 @@ type benefit = {
   calculationRule: calculationRule,
   value: float,
   maxAmount: option<float>,
+  currencies: array<string>,
 }
 
 type offer = {
@@ -106,6 +109,21 @@ type binListMode =
   | @as("Whitelist") Whitelist
   | @as("Blacklist") Blacklist
 
+@unboxed
+type resetPeriodUnit =
+  | @as("offerPeriod") OfferPeriod
+  | @as("hour") Hour
+  | @as("day") Day
+  | @as("week") Week
+  | @as("month") Month
+  | @as("CALENDAR_DAY") CalendarDay
+  | @as("CALENDAR_MONTH") CalendarMonth
+
+type resetPeriod = {
+  unit: resetPeriodUnit,
+  value: option<int>,
+}
+
 type offerDetail = {
   offer: offer,
   language: language,
@@ -114,6 +132,7 @@ type offerDetail = {
   campaignCount: option<int>,
   amountPerCard: option<float>,
   countPerCard: option<int>,
+  cardResetPeriod: option<resetPeriod>,
   binListMode: option<binListMode>,
 }
 
@@ -123,6 +142,7 @@ type offerDetailsColType =
   | OfferTitle
   | DisplayTitle
   | Description
+  | TermsAndConditions
   | Language
   | Logo
   | ValidFrom
@@ -146,20 +166,21 @@ type offerFormValues = {
   title: string,
   displayTitle: string,
   description: string,
+  termsAndConditions: string,
   language: language,
   startTime: string,
   endTime: string,
   calculationRule: calculationRule,
   benefitValue: float,
   maxAmount: option<float>,
-  currency: string,
-  minOrderAmount: float,
-  maxOrderAmount: option<float>,
+  currencies: array<currencyConstraint>,
   campaignAmount: option<float>,
   campaignCount: option<int>,
   amountPerCard: option<float>,
   countPerCard: option<int>,
+  cardResetPeriodUnit: resetPeriodUnit,
   cardBins: array<string>,
+  binListMode: binListMode,
 }
 
 type offerFormRule = (string, offerFormValues => option<string>)

@@ -12,34 +12,62 @@ let languageOptions = allLanguages->Array.map((language): SelectBox.dropdownOpti
 let calculationRuleOptions: array<SelectBox.dropdownOption> = [
   {label: "Percentage", value: (Percentage :> string)},
   {label: "Absolute", value: (Absolute :> string)},
+  {label: "Fixed Effective Amount", value: (FixedEffectiveAmount :> string)},
 ]
 
-let currencyOptions = CurrencyUtils.currencyList->Array.map((
-  currency
-): SelectBox.dropdownOption => {
-  let code = currency->CurrencyUtils.getCurrencyCodeStringFromVariant
-  {label: code, value: code}
-})
+let currencyOptions =
+  CurrencyUtils.currencyList
+  ->Array.map(CurrencyUtils.getCurrencyCodeStringFromVariant)
+  ->Array.filter(code => code->CurrencyUtils.getCurrencyTypeFromString == TwoDecimal)
+  ->Array.map((code): SelectBox.dropdownOption => {label: code, value: code})
+
+let allResetPeriodUnits = [OfferPeriod, Hour, Day, Week, Month, CalendarDay, CalendarMonth]
+
+let resetPeriodUnitToOptionLabel = unit =>
+  switch unit {
+  | OfferPeriod => "Offer Period"
+  | Hour => "Hour (60 Minutes)"
+  | Day => "Day (24 Hours)"
+  | Week => "Week (7 Days)"
+  | Month => "Month (30 Days)"
+  | CalendarDay => "Calendar Day"
+  | CalendarMonth => "Calendar Month"
+  }
+
+let secondsPerHour = 3600
+let secondsPerDay = 24 * secondsPerHour
+let secondsPerWeek = 7 * secondsPerDay
+let secondsPerMonth = 30 * secondsPerDay
+
+let minOrderAmountKey = currency => `min_order_amount_${currency}`
+let maxOrderAmountKey = currency => `max_order_amount_${currency}`
 
 let offerFormValuesMapper = (dict): offerFormValues => {
   offerCode: dict->getString("offer_code", ""),
   title: dict->getString("title", ""),
   displayTitle: dict->getString("display_title", ""),
   description: dict->getString("description", ""),
+  termsAndConditions: dict->getString("tnc", ""),
   language: dict->getString("language", "")->languageFromString,
   startTime: dict->getString("start_time", ""),
   endTime: dict->getString("end_time", ""),
   calculationRule: dict->getString("calculation_rule", "")->calculationRuleFromString,
   benefitValue: dict->getFloat("benefit_value", 0.0),
   maxAmount: dict->getOptionFloat("max_amount"),
-  currency: dict->getString("currency", ""),
-  minOrderAmount: dict->getFloat("min_order_amount", 0.0),
-  maxOrderAmount: dict->getOptionFloat("max_order_amount"),
+  currencies: dict
+  ->getStrArrayFromDict("currencies", [])
+  ->Array.map(name => {
+    name,
+    minOrderAmount: dict->getOptionFloat(name->minOrderAmountKey),
+    maxOrderAmount: dict->getOptionFloat(name->maxOrderAmountKey),
+  }),
   campaignAmount: dict->getOptionFloat("campaign_amount"),
   campaignCount: dict->getOptionInt("campaign_count"),
   amountPerCard: dict->getOptionFloat("amount_per_card"),
   countPerCard: dict->getOptionInt("count_per_card"),
+  cardResetPeriodUnit: dict->getString("card_reset_period_type", "")->resetPeriodUnitFromString,
   cardBins: dict->getStrArrayFromDict("card_bins", []),
+  binListMode: dict->getBool("bin_list_blacklist", false) ? Blacklist : Whitelist,
 }
 
 let maxBinRows = 10000
@@ -52,7 +80,8 @@ let parseBinCsv = content => {
     ->Array.map(String.trim)
     ->Array.filter(isNonEmptyString)
   let bins = switch bins->Array.get(0) {
-  | Some(header) if header->String.toUpperCase == "CARD_BIN" => bins->Array.sliceToEnd(~start=1)
+  | Some(header) if header->String.toUpperCase == cardBinFilterType =>
+    bins->Array.sliceToEnd(~start=1)
   | _ => bins
   }
 
@@ -86,6 +115,25 @@ let optionalPositiveAmount = getAmount => formValues =>
 let optionalPositiveCount = getCount => formValues =>
   getCount(formValues)->Option.flatMap(count => count < 1 ? Some(positiveValueError) : None)
 
+let multiCurrencyError = "Not supported when the offer has more than one currency"
+
+let singleCurrencyOnly = getAmount => (formValues: offerFormValues) =>
+  formValues.currencies->Array.length > 1 && getAmount(formValues)->Option.isSome
+    ? Some(multiCurrencyError)
+    : None
+
+let amountLimitRule = getAmount => formValues =>
+  firstError([
+    optionalPositiveAmount(getAmount)(formValues),
+    singleCurrencyOnly(getAmount)(formValues),
+  ])
+
+let maxAmountRule = (formValues: offerFormValues) =>
+  switch formValues.calculationRule {
+  | Percentage => amountLimitRule(values => values.maxAmount)(formValues)
+  | _ => None
+  }
+
 let languageRule = (formValues: offerFormValues) =>
   switch formValues.language {
   | UnknownLanguage(_) => Some(requiredFieldError)
@@ -95,6 +143,8 @@ let languageRule = (formValues: offerFormValues) =>
 let discountTypeRule = (formValues: offerFormValues) =>
   switch formValues.calculationRule {
   | UnknownCalculationRule(_) => Some(requiredFieldError)
+  | Absolute | FixedEffectiveAmount if formValues.currencies->Array.length > 1 =>
+    Some(multiCurrencyError)
   | _ => None
   }
 
@@ -113,17 +163,29 @@ let endTimeRule = (formValues: offerFormValues) =>
     formValues.startTime->isNonEmptyString && formValues.endTime <= formValues.startTime
       ? Some("End time must be after the start time")
       : None,
+    formValues.endTime->Date.fromString->Date.getTime < Date.now()
+      ? Some("End time should be greater than or equal to now")
+      : None,
   ])
 
-let maxOrderAmountRule = (formValues: offerFormValues) =>
-  firstError([
-    optionalPositiveAmount(values => values.maxOrderAmount)(formValues),
-    switch formValues.maxOrderAmount {
-    | Some(maxAmount) if maxAmount < formValues.minOrderAmount =>
-      Some("Maximum amount must be greater than the minimum amount")
-    | _ => None
-    },
-  ])
+let currenciesRule = (formValues: offerFormValues) =>
+  formValues.currencies->isEmptyArray ? Some(requiredFieldError) : None
+
+let minOrderAmountRule = (~hasMinimumOfOne, currency: currencyConstraint) =>
+  switch currency.minOrderAmount {
+  | None => Some(requiredFieldError)
+  | Some(amount) if amount <= 0.0 => Some(positiveValueError)
+  | Some(amount) if !hasMinimumOfOne && amount < 1.0 => Some("Cannot be less than 1")
+  | _ => None
+  }
+
+let maxOrderAmountRule = (currency: currencyConstraint) =>
+  switch (currency.maxOrderAmount, currency.minOrderAmount) {
+  | (Some(maxAmount), _) if maxAmount <= 0.0 => Some(positiveValueError)
+  | (Some(maxAmount), Some(minAmount)) if maxAmount < minAmount =>
+    Some("Maximum amount must be greater than the minimum amount")
+  | _ => None
+  }
 
 let offerDetailsRules: array<offerFormRule> = [
   ("offer_code", requiredString(values => values.offerCode)),
@@ -133,26 +195,50 @@ let offerDetailsRules: array<offerFormRule> = [
   ("end_time", endTimeRule),
   ("calculation_rule", discountTypeRule),
   ("benefit_value", benefitValueRule),
-  ("max_amount", optionalPositiveAmount(values => values.maxAmount)),
-  ("campaign_amount", optionalPositiveAmount(values => values.campaignAmount)),
+  ("max_amount", maxAmountRule),
+  ("campaign_amount", amountLimitRule(values => values.campaignAmount)),
   ("campaign_count", optionalPositiveCount(values => values.campaignCount)),
 ]
 
-let transactionDetailsRules: array<offerFormRule> = [
-  ("currency", requiredString(values => values.currency)),
-  ("min_order_amount", positiveAmount(values => values.minOrderAmount)),
-  ("max_order_amount", maxOrderAmountRule),
-]
+let transactionDetailsRules = (formValues: offerFormValues): array<offerFormRule> => {
+  let hasMinimumOfOne =
+    formValues.currencies->Array.some(currency => currency.minOrderAmount->Option.getOr(0.0) >= 1.0)
+
+  [("currencies", currenciesRule)]->Array.concat(
+    formValues.currencies->Array.flatMap((currency): array<offerFormRule> => [
+      (currency.name->minOrderAmountKey, _ => currency->minOrderAmountRule(~hasMinimumOfOne)),
+      (currency.name->maxOrderAmountKey, _ => currency->maxOrderAmountRule),
+    ]),
+  )
+}
+
+let offerDurationInSeconds = (~startTime, ~endTime) =>
+  ((endTime->Date.fromString->Date.getTime -. startTime->Date.fromString->Date.getTime) /. 1000.0)
+    ->Float.toInt
+
+let resetPeriodUnitOptionsForDuration = durationInSeconds =>
+  allResetPeriodUnits
+  ->Array.filter(unit =>
+    switch unit {
+    | Week => durationInSeconds >= 6 * secondsPerDay
+    | Month => durationInSeconds >= 29 * secondsPerDay
+    | _ => true
+    }
+  )
+  ->Array.map((unit): SelectBox.dropdownOption => {
+    label: unit->resetPeriodUnitToOptionLabel,
+    value: (unit :> string),
+  })
 
 let paymentDetailsRules: array<offerFormRule> = [
-  ("amount_per_card", optionalPositiveAmount(values => values.amountPerCard)),
+  ("amount_per_card", amountLimitRule(values => values.amountPerCard)),
   ("count_per_card", optionalPositiveCount(values => values.countPerCard)),
 ]
 
 let validateOfferForm = values => {
   let formValues = values->getDictFromJsonObject->offerFormValuesMapper
 
-  [offerDetailsRules, transactionDetailsRules, paymentDetailsRules]
+  [offerDetailsRules, formValues->transactionDetailsRules, paymentDetailsRules]
   ->Array.flat
   ->Array.filterMap(((fieldName, rule)) =>
     rule(formValues)->Option.map(error => (fieldName, error->JSON.Encode.string))
@@ -160,35 +246,71 @@ let validateOfferForm = values => {
   ->getJsonFromArrayOfJson
 }
 
-let buildCounter = (~scope, ~valueType: counterValueType, ~value, ~resetPeriod) =>
+let buildCounter = (
+  ~scope,
+  ~valueType: counterValueType,
+  ~value,
+  ~resetPeriod,
+  ~resetFrequencyUnit="SECOND",
+) =>
   [
     ("type", scope->counterDimensions->getJsonFromArrayOfString),
     ("value_type", (valueType :> string)->JSON.Encode.string),
     ("operator", "MAX"->JSON.Encode.string),
     ("value", value->JSON.Encode.string),
     ("reset_period", resetPeriod->Int.toString->JSON.Encode.string),
-    ("reset_frequency_unit", "SECOND"->JSON.Encode.string),
+    ("reset_frequency_unit", resetFrequencyUnit->JSON.Encode.string),
   ]->getJsonFromArrayOfJson
 
 let buildAmountCounter = (~scope, ~resetPeriod, amount) =>
   buildCounter(~scope, ~valueType=AmountLimit, ~value=amount->Float.toString, ~resetPeriod)
 
-let buildCountCounter = (~scope, ~resetPeriod, count) =>
-  buildCounter(~scope, ~valueType=CountLimit, ~value=count->Int.toString, ~resetPeriod)
+let buildCountCounter = (~scope, ~resetPeriod, ~resetFrequencyUnit=?, count) =>
+  buildCounter(
+    ~scope,
+    ~valueType=CountLimit,
+    ~value=count->Int.toString,
+    ~resetPeriod,
+    ~resetFrequencyUnit?,
+  )
 
-let offerDurationInSeconds = (~startTime, ~endTime) =>
-  ((endTime->Date.fromString->Date.getTime -. startTime->Date.fromString->Date.getTime) /. 1000.0)
-    ->Float.toInt
+let resetPeriodInSeconds = (unit, ~offerDuration) =>
+  switch unit {
+  | OfferPeriod => offerDuration
+  | Hour => secondsPerHour
+  | Day => secondsPerDay
+  | Week => secondsPerWeek
+  | Month => secondsPerMonth
+  | CalendarDay | CalendarMonth => 1
+  }
+
+let resetFrequencyUnit = unit =>
+  switch unit {
+  | CalendarDay | CalendarMonth => (unit :> string)
+  | _ => "SECOND"
+  }
+
+let cardResetPeriodMetadata = (unit: resetPeriodUnit) => {
+  let metadata = [("cardResetPeriodType", (unit :> string)->JSON.Encode.string)]->Dict.fromArray
+  metadata->setOptionInt(
+    "cardResetPeriod",
+    switch unit {
+    | OfferPeriod => None
+    | _ => Some(1)
+    },
+  )
+  metadata->JSON.Encode.object
+}
 
 let cardInstrument = [("payment_method_type", "CARD"->JSON.Encode.string)]->getJsonFromArrayOfJson
 
-let cardBinFilters = bins =>
+let cardBinFilters = (~binListMode: binListMode, bins) =>
   [
     (
-      "whitelist",
+      (binListMode :> string)->String.toLowerCase,
       [
         [
-          ("type", "CARD_BIN"->JSON.Encode.string),
+          ("type", cardBinFilterType->JSON.Encode.string),
           ("list", bins->getJsonFromArrayOfString),
           ("is_value_uploaded", true->JSON.Encode.bool),
         ]->getJsonFromArrayOfJson,
@@ -211,18 +333,30 @@ let buildCreateBody = (~merchantId, formValues: offerFormValues) => {
       formValues.campaignAmount->Option.map(buildAmountCounter(~scope=Campaign, ~resetPeriod, _)),
       formValues.campaignCount->Option.map(buildCountCounter(~scope=Campaign, ~resetPeriod, _)),
       formValues.amountPerCard->Option.map(buildAmountCounter(~scope=PerCard, ~resetPeriod, _)),
-      formValues.countPerCard->Option.map(buildCountCounter(~scope=PerCard, ~resetPeriod, _)),
+      formValues.countPerCard->Option.map(
+        buildCountCounter(
+          ~scope=PerCard,
+          ~resetPeriod=formValues.cardResetPeriodUnit->resetPeriodInSeconds(
+            ~offerDuration=resetPeriod,
+          ),
+          ~resetFrequencyUnit=formValues.cardResetPeriodUnit->resetFrequencyUnit,
+          _,
+        ),
+      ),
     ]->Array.filterMap(counter => counter)
 
-  let currency =
-    [
-      ("name", formValues.currency->JSON.Encode.string),
-      ("min_order_amount", formValues.minOrderAmount->Float.toString->JSON.Encode.string),
-    ]->Dict.fromArray
-  currency->setOptionString(
-    "max_order_amount",
-    formValues.maxOrderAmount->Option.map(Float.toString),
-  )
+  let currencies = formValues.currencies->Array.map(currency => {
+    let currencyDict = [("name", currency.name->JSON.Encode.string)]->Dict.fromArray
+    currencyDict->setOptionString(
+      "min_order_amount",
+      currency.minOrderAmount->Option.map(Float.toString),
+    )
+    currencyDict->setOptionString(
+      "max_order_amount",
+      currency.maxOrderAmount->Option.map(Float.toString),
+    )
+    currencyDict->JSON.Encode.object
+  })
 
   let benefit =
     [
@@ -240,39 +374,47 @@ let buildCreateBody = (~merchantId, formValues: offerFormValues) => {
 
   let ruleDsl =
     [
-      (
-        "order",
-        [("currency", [currency->JSON.Encode.object]->JSON.Encode.array)]->getJsonFromArrayOfJson,
-      ),
+      ("order", [("currency", currencies->JSON.Encode.array)]->getJsonFromArrayOfJson),
       ("benefits", [benefit->JSON.Encode.object]->JSON.Encode.array),
     ]->Dict.fromArray
   ruleDsl->setOptionArray("counters", counters->getNonEmptyArray)
   ruleDsl->setOptionArray("payment_instrument", hasCardConfig ? Some([cardInstrument]) : None)
   ruleDsl->setOptionJson(
     "filters",
-    formValues.cardBins->getNonEmptyArray->Option.map(cardBinFilters),
+    formValues.cardBins
+    ->getNonEmptyArray
+    ->Option.map(cardBinFilters(~binListMode=formValues.binListMode, _)),
   )
 
   let description = [("title", formValues.title->JSON.Encode.string)]->Dict.fromArray
   description->setOptionString("display_title", formValues.displayTitle->getNonEmptyString)
   description->setOptionString("description", formValues.description->getNonEmptyString)
+  description->setOptionString("tnc", formValues.termsAndConditions->getNonEmptyString)
 
-  [
-    ("merchant_id", merchantId->JSON.Encode.string),
-    ("offer_code", formValues.offerCode->JSON.Encode.string),
-    ("offer_description", description->JSON.Encode.object),
-    ("language", (formValues.language :> string)->JSON.Encode.string),
-    (
-      "ui_configs",
-      [
-        ("auto_apply", "false"->JSON.Encode.string),
-        ("should_validate", "true"->JSON.Encode.string),
-        ("is_hidden", "false"->JSON.Encode.string),
-      ]->getJsonFromArrayOfJson,
+  let body =
+    [
+      ("merchant_id", merchantId->JSON.Encode.string),
+      ("offer_code", formValues.offerCode->JSON.Encode.string),
+      ("offer_description", description->JSON.Encode.object),
+      ("language", (formValues.language :> string)->JSON.Encode.string),
+      (
+        "ui_configs",
+        [
+          ("auto_apply", "true"->JSON.Encode.string),
+          ("should_validate", "true"->JSON.Encode.string),
+          ("is_hidden", "false"->JSON.Encode.string),
+        ]->getJsonFromArrayOfJson,
+      ),
+      ("start_time", formValues.startTime->JSON.Encode.string),
+      ("end_time", formValues.endTime->JSON.Encode.string),
+      ("application_mode", "ORDER"->JSON.Encode.string),
+      ("rule_dsl", ruleDsl->JSON.Encode.object),
+    ]->Dict.fromArray
+  body->setOptionJson(
+    "metadata",
+    formValues.countPerCard->Option.map(_ =>
+      formValues.cardResetPeriodUnit->cardResetPeriodMetadata
     ),
-    ("start_time", formValues.startTime->JSON.Encode.string),
-    ("end_time", formValues.endTime->JSON.Encode.string),
-    ("application_mode", "ORDER"->JSON.Encode.string),
-    ("rule_dsl", ruleDsl->JSON.Encode.object),
-  ]->getJsonFromArrayOfJson
+  )
+  body->JSON.Encode.object
 }
