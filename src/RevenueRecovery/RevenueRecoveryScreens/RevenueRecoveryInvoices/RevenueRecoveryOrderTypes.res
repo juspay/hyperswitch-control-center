@@ -7,7 +7,6 @@ type colType =
   | PaymentMethodType
   | ModifiedAt
   | RecoveryProgress
-  | CardAttached
 
 type attemptColType =
   | Id
@@ -44,6 +43,8 @@ type order = {
   attempts: array<attempts>,
   modified_at: string,
   card_attached: int,
+  billing_connector_id: string,
+  total_retry_count: int,
 }
 
 type optionObj = {
@@ -64,11 +65,12 @@ type attemptGroup = {
 
 type recoveryInvoiceStatus =
   | Recovered
+  | Succeeded
+  | Cancelled
   | Scheduled
   | Terminated
   | Processing
   | Queued
-  | NoPicked
   | Monitoring
   | PartiallyRecovered
   | PartiallyCapturedAndProcessing

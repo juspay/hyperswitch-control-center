@@ -36,10 +36,12 @@ module AttemptItem = {
   open Typography
   open InvoiceDetailsPageUtils
   @react.component
-  let make = (~attempt: attempts, ~index: int, ~totalAttempts: int, ~isLast: bool) => {
+  let make = (~attempt: attempts, ~attemptNumber: int, ~isLast: bool) => {
     let (badgeClass, badgeText) = getStatusBadgeColor(attempt.status)
     let dotColor = getTimelineDotColor(attempt.status)
-    let attemptNumber = totalAttempts - index
+    let attemptLabel =
+      attemptNumber == 1 ? "Initial Attempt" : `Retry ${(attemptNumber - 1)->Int.toString}`
+    let isInternal = attempt->isInternalAttempt
 
     <div className="pt-7">
       <div className="flex items-center justify-between relative">
@@ -53,13 +55,23 @@ module AttemptItem = {
             <div className={`w-2 h-2 rounded-full ${dotColor} z-10`} />
           </div>
           <div className="pt-2">
-            <div className={`${body.sm.regular} flex gap-2 text-nd_gray-500 mb-2`}>
-              {`#${attemptNumber->Int.toString}`->React.string}
-              {<Table.DateCell
+            <div className="flex items-center gap-2 mb-2">
+              <span className={`${body.md.semibold} text-nd_gray-800`}>
+                {attemptLabel->React.string}
+              </span>
+              <span className="text-nd_gray-300"> {"•"->React.string} </span>
+              <Table.DateCell
                 textStyle={`${body.sm.regular} text-nd_gray-500`}
                 timestamp={attempt.created}
                 isCard=true
-              />}
+                customDateStyle="MMM DD, YYYY hh:mm A"
+              />
+              <span
+                className={`px-1.5 py-0.5 rounded-md border ${body.sm.medium} ${isInternal
+                    ? "bg-nd_primary_blue-50 text-nd_primary_blue-500 border-nd_primary_blue-100"
+                    : "bg-nd_gray-50 text-nd_gray-600 border-nd_gray-200"}`}>
+                {(isInternal ? "Internal" : "External")->React.string}
+              </span>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
               <span className={`px-1.5 py-0.5 rounded-md ${body.sm.semibold} ${badgeClass}`}>
@@ -98,7 +110,12 @@ module AttemptsHistory = {
   open Typography
   open LogicUtils
   @react.component
-  let make = (~order, ~attemptsList, ~processTracker: option<Dict.t<JSON.t>>) => {
+  let make = (
+    ~order,
+    ~attemptsList,
+    ~processTracker: option<Dict.t<JSON.t>>,
+    ~startRetryThreshold: int,
+  ) => {
     let attempts = attemptsList
     let internalAttempts = attempts->Array.filter(isInternalAttempt)
     let merchantAttempts = attempts->Array.filter(isExternalAttempt)
@@ -113,131 +130,146 @@ module AttemptsHistory = {
     }
 
     let status = order.status->statusVariantMapper
+    let totalRetryCount = order.total_retry_count
+    let isRecoveryStarted =
+      totalRetryCount >= startRetryThreshold || internalAttempts->isNonEmptyArray
+    let totalAttempts = attempts->Array.length
+    let getAttemptNumber = (attempt: attempts) =>
+      totalAttempts - attempts->Array.findIndex(item => item.id == attempt.id)
+    let firstAttempt = attempts->Array.get(totalAttempts - 1)->Option.filter(isExternalAttempt)
+    let merchantRetries =
+      merchantAttempts->Array.filter(attempt =>
+        firstAttempt->mapOptionOrDefault(true, first => first.id != attempt.id)
+      )
+    let nextAttemptLabel =
+      totalAttempts == 0 ? "Initial Attempt" : `Retry ${totalAttempts->Int.toString}`
 
     <div className="bg-white p-1">
       <div className={`${heading.md.semibold} text-nd_gray-900 mb-6`}>
         {"Attempts History"->React.string}
       </div>
-      <div className="pt-4">
-        <div className=" cursor-pointer relative">
-          <div
-            className="border-l-2 border-nd_gray-300 border-dashed absolute left-4 top-8 h-full w-1"
-          />
-          <div
-            className="flex items-center justify-between"
-            onClick={_ => setShowInternalRetries(_ => !showInternalRetries)}>
-            <div className="flex items-center gap-3 z-10">
-              <div className="bg-nd_gray-100 p-2 rounded-full border">
-                <Icon name="juspay-logo" size=20 className="text-gray-600" />
-              </div>
-              <div className={`${body.md.semibold} text-nd_gray-600 uppercase`}>
-                {"REVENUE RECOVERY IS ATTEMPTING RETRIES"->React.string}
-              </div>
-            </div>
-            <div className="flex-1 border-t-1.5 mx-4" />
-            <Icon
-              name="nd-chevron-arrow-down"
-              size=16
-              className={`text-gray-600 ${showInternalRetries
-                  ? "rotate-180"
-                  : "-rotate-0"} transition duration-[250ms]`}
+      <RenderIf condition={isRecoveryStarted}>
+        <div className="pt-4">
+          <div className=" cursor-pointer relative">
+            <div
+              className="border-l-2 border-nd_gray-300 border-dashed absolute left-4 top-8 h-full w-1"
             />
+            <div
+              className="flex items-center justify-between"
+              onClick={_ => setShowInternalRetries(_ => !showInternalRetries)}>
+              <div className="flex items-center gap-3 z-10">
+                <div className="bg-nd_gray-100 p-2 rounded-full border">
+                  <Icon name="juspay-logo" size=20 className="text-gray-600" />
+                </div>
+                <div className={`${body.md.semibold} text-nd_gray-600 uppercase`}>
+                  {"REVENUE RECOVERY RETRIES"->React.string}
+                </div>
+              </div>
+              <div className="flex-1 border-t-1.5 mx-4" />
+              <Icon
+                name="nd-chevron-arrow-down"
+                size=16
+                className={`text-gray-600 ${showInternalRetries
+                    ? "rotate-180"
+                    : "-rotate-0"} transition duration-[250ms]`}
+              />
+            </div>
           </div>
         </div>
-      </div>
-      <RenderIf condition={showInternalRetries}>
-        <RenderIf condition={status != Recovered && status != Terminated}>
-          <div className="pt-7">
-            <div className="flex items-center justify-between relative">
-              <div
-                className="border-l-2 border-nd_gray-300 border-dashed absolute left-4 top-8 h-full w-1"
-              />
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9  relative flex justify-center items-center bg-white">
-                  <div className={"w-2 h-2 bg-nd_orange-300 rounded-full"} />
-                </div>
-                <div className={`${body.sm.semibold} text-nd_gray-600`}>
-                  {`Attempting retries to recover ${(order.order_amount -. order.amount_captured)
-                      ->formatCurrency}`->React.string}
+        <RenderIf condition={showInternalRetries}>
+          <RenderIf
+            condition={status != Recovered &&
+            status != Succeeded &&
+            status != Cancelled &&
+            status != Terminated}>
+            <div className="pt-7">
+              <div className="flex items-center justify-between relative">
+                <div
+                  className="border-l-2 border-nd_gray-300 border-dashed absolute left-4 top-8 h-full w-1"
+                />
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9  relative flex justify-center items-center bg-white">
+                    <div className={"w-2 h-2 bg-nd_orange-300 rounded-full"} />
+                  </div>
+                  <div className={`${body.sm.semibold} text-nd_gray-600`}>
+                    {`Attempting retries to recover ${(order.order_amount -. order.amount_captured)
+                        ->formatCurrency}`->React.string}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </RenderIf>
-        {switch status {
-        | Scheduled | Processing =>
-          switch scheduledTime {
-          | Some(time) => {
-              let convertedTime = time->RevenueRecoveryOrderUtils.convertScheduleTimeToUTC
-              <div className="flex items-center justify-between relative pt-7">
-                <div
-                  className="border-l-2 border-nd_gray-200 border-dashed absolute left-4 top-8 h-full w-1"
-                />
-                <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 relative flex justify-center items-center bg-white">
-                    <Icon name="nd_recovery-calandar" size=18 className="text-nd_gray-600" />
-                  </div>
-                  <div className="pt-2">
-                    <div className={`${body.sm.regular} flex gap-2 text-nd_gray-500 mb-2`}>
-                      {`#${(internalAttempts->Array.length + 1)->Int.toString} • `->React.string}
-                      {<Table.DateCell
-                        textStyle={`${body.sm.regular} text-nd_gray-500 `}
-                        timestamp=convertedTime
-                        isCard=true
-                      />}
+          </RenderIf>
+          {switch status {
+          | Scheduled | Processing =>
+            switch scheduledTime {
+            | Some(time) => {
+                let convertedTime = time->RevenueRecoveryOrderUtils.convertScheduleTimeToUTC
+                <div className="flex items-center justify-between relative pt-7">
+                  <div
+                    className="border-l-2 border-nd_gray-200 border-dashed absolute left-4 top-8 h-full w-1"
+                  />
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 relative flex justify-center items-center bg-white">
+                      <Icon name="nd_recovery-calandar" size=18 className="text-nd_gray-600" />
                     </div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span
-                        className={`px-1.5 py-0.5 rounded-md ${body.sm.semibold} bg-nd_purple-100 text-nd_purple-300 border border-nd_purple-200`}>
-                        {"Scheduled"->React.string}
-                      </span>
-                      <div className={`${body.sm.semibold} text-nd_gray-500 flex gap-1`}>
-                        {`Retry to recover ${order.order_amount->formatCurrency} on `->React.string}
+                    <div className="pt-2">
+                      <div className={`${body.sm.regular} flex gap-2 text-nd_gray-500 mb-2`}>
+                        {`${nextAttemptLabel} • `->React.string}
                         {<Table.DateCell
-                          textStyle={`${body.sm.semibold} text-nd_gray-500`}
+                          textStyle={`${body.sm.regular} text-nd_gray-500 `}
                           timestamp=convertedTime
                           isCard=true
                         />}
                       </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span
+                          className={`px-1.5 py-0.5 rounded-md ${body.sm.semibold} bg-nd_purple-100 text-nd_purple-300 border border-nd_purple-200`}>
+                          {"Scheduled"->React.string}
+                        </span>
+                        <div className={`${body.sm.semibold} text-nd_gray-500 flex gap-1`}>
+                          {`Retry to recover ${order.order_amount->formatCurrency} on `->React.string}
+                          {<Table.DateCell
+                            textStyle={`${body.sm.semibold} text-nd_gray-500`}
+                            timestamp=convertedTime
+                            isCard=true
+                          />}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              }
+            | _ => React.null
             }
           | _ => React.null
-          }
-        | _ => React.null
-        }}
-        <RenderIf condition={internalAttempts->Array.length > 0}>
-          {internalAttempts
-          ->Array.mapWithIndex((attempt, index) => {
-            <AttemptItem
-              key={attempt.id}
-              attempt
-              index
-              totalAttempts={internalAttempts->Array.length}
-              isLast={false}
-            />
-          })
-          ->React.array}
-        </RenderIf>
-        <div className="pt-7">
-          <div className="flex items-center justify-between relative">
-            <div
-              className="border-l-2 border-nd_gray-200 border-dashed absolute left-4 top-8 h-full w-1"
-            />
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9  relative flex justify-center items-center">
-                <div className={"w-2 h-2 border-2 border-nd_gray-600 rounded-full"} />
-              </div>
-              <div className={`${body.sm.semibold} text-nd_gray-500 uppercase`}>
-                {"Revenue Recovery Retry Attempts Started"->React.string}
+          }}
+          <RenderIf condition={internalAttempts->isNonEmptyArray}>
+            {internalAttempts
+            ->Array.map(attempt => {
+              <AttemptItem
+                key={attempt.id} attempt attemptNumber={attempt->getAttemptNumber} isLast={false}
+              />
+            })
+            ->React.array}
+          </RenderIf>
+          <div className="pt-7">
+            <div className="flex items-center justify-between relative">
+              <div
+                className="border-l-2 border-nd_gray-200 border-dashed absolute left-4 top-8 h-full w-1"
+              />
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9  relative flex justify-center items-center">
+                  <div className={"w-2 h-2 border-2 border-nd_gray-600 rounded-full"} />
+                </div>
+                <div className={`${body.sm.semibold} text-nd_gray-500 uppercase`}>
+                  {"Revenue Recovery Retry Attempts Started"->React.string}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </RenderIf>
       </RenderIf>
-      <RenderIf condition={merchantAttempts->Array.length > 0}>
+      <RenderIf condition={merchantAttempts->isNonEmptyArray || !isRecoveryStarted}>
         <div className="pt-7">
           <div className="cursor-pointer relative">
             <RenderIf condition={showExternalRetries}>
@@ -253,11 +285,19 @@ module AttemptsHistory = {
                   <Icon name="nd-merchant-retires" size=20 className="text-nd_gray-600" />
                 </div>
                 <div className={`${body.md.semibold} text-nd_gray-600 uppercase`}>
-                  {"MERCHANT RETRIES COMPLETED"->React.string}
+                  {(
+                    isRecoveryStarted
+                      ? "MERCHANT RETRIES COMPLETED"
+                      : "MERCHANT RETRIES ARE GOING ON"
+                  )->React.string}
                 </div>
                 <span
                   className={`px-2 py-0.5 rounded-md border ${body.sm.semibold} bg-nd_gray-100 text-nd_gray-700`}>
-                  {`${merchantAttempts->Array.length->Int.toString} Retries`->React.string}
+                  {(
+                    isRecoveryStarted
+                      ? `${merchantRetries->Array.length->Int.toString} Retries`
+                      : `${totalRetryCount->Int.toString} of ${startRetryThreshold->Int.toString} Retries`
+                  )->React.string}
                 </span>
               </div>
               <div className="flex-1 border-t-1.5 mx-4 w-full" />
@@ -272,31 +312,39 @@ module AttemptsHistory = {
           </div>
         </div>
         <RenderIf condition={showExternalRetries}>
-          <RenderIf condition={merchantAttempts->Array.length > 0}>
-            {merchantAttempts
-            ->Array.mapWithIndex((attempt, index) => {
+          <RenderIf condition={merchantRetries->isNonEmptyArray}>
+            {merchantRetries
+            ->Array.map(attempt => {
               <AttemptItem
-                key={attempt.id}
-                attempt
-                index
-                totalAttempts={merchantAttempts->Array.length}
-                isLast={false}
+                key={attempt.id} attempt attemptNumber={attempt->getAttemptNumber} isLast={false}
               />
             })
             ->React.array}
           </RenderIf>
           <div className="pt-7">
             <div className="flex items-center justify-between relative">
+              <RenderIf condition={firstAttempt->Option.isSome}>
+                <div
+                  className="border-l-2 border-nd_gray-200 border-dashed absolute left-4 top-8 h-full w-1"
+                />
+              </RenderIf>
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9  relative flex justify-center items-center">
                   <div className={"w-2 h-2 border-2 border-nd_gray-600 rounded-full"} />
                 </div>
                 <div className={`${body.sm.semibold} text-nd_gray-500 uppercase`}>
-                  {"Merchant Retry Attempts Started"->React.string}
+                  {"Merchant Retries Started"->React.string}
                 </div>
               </div>
             </div>
           </div>
+          {switch firstAttempt {
+          | Some(attempt) =>
+            <AttemptItem
+              key={attempt.id} attempt attemptNumber={attempt->getAttemptNumber} isLast=true
+            />
+          | None => React.null
+          }}
         </RenderIf>
       </RenderIf>
     </div>
