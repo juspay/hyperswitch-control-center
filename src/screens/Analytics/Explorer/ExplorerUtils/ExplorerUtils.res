@@ -7,7 +7,7 @@ let emptyResponses = {
   previousRows: [],
 }
 
-let urlKey = (key: selectionKey) => `explore.${(key :> string)}`
+let filterKey = (key: selectionKey) => `explore.${(key :> string)}`
 
 let isRate = (measure: measure) =>
   switch measure {
@@ -27,6 +27,20 @@ let isAmount = (measure: measure) =>
   | #failed => false
   }
 
+let getOfferedDimensions = (source, ~backendDimensions: option<array<string>>) =>
+  sourceConfig(source).dimensions->Array.filter(key =>
+    backendDimensions->mapOptionOrDefault(true, names => names->Array.includes((key :> string)))
+  )
+
+let getSplitDimensions = (measure, ~dimensions: array<dimension>) =>
+  dimensions->Array.filter(key =>
+    !((isRate(measure) || isAmount(measure)) && key == #status) &&
+    !(isAmount(measure) && key == #currency)
+  )
+
+let findDimension = (dimensions: array<dimension>, id) =>
+  dimensions->Array.find(key => (key :> string) == id)
+
 let getDimensionValue = (dict, dimension: dimension) => dict->getString((dimension :> string), "")
 
 let getOutcomesOfStatus = (source: source, status) =>
@@ -40,6 +54,8 @@ let getOutcomesOfStatus = (source: source, status) =>
     ->Array.find(item => (item :> string) == status)
     ->mapOptionOrDefault([], attemptStatusOutcomes)
   }
+
+let getRowKey = values => values->getJsonFromArrayOfString->JSON.stringify
 
 let sourceFromString = id =>
   sources->Array.find(source => (source :> string) == id)->Option.getOr(#intent)
@@ -84,4 +100,32 @@ let getChangeImpact = (measure, current, previous) =>
   switch getDisplayedChange(measure, current, previous) {
   | Some(0.0) | None => Neutral
   | Some(change) => change > 0.0 != isLowerBetter(measure) ? Favorable : Unfavorable
+  }
+
+let periodLabel = (startTime, endTime) => {
+  let first = startTime->DayJs.getDayJsForString
+  let last = (endTime->DayJs.getDayJsForString).subtract(1, "millisecond")
+  if first.format("YYYY-MM-DD") == last.format("YYYY-MM-DD") {
+    first.format("MMM D")
+  } else if first.format("YYYY-MM") == last.format("YYYY-MM") {
+    `${first.format("MMM D")}–${last.format("D")}`
+  } else {
+    `${first.format("MMM D")} – ${last.format("MMM D")}`
+  }
+}
+
+let getDimensionValueLabel = (
+  key: dimension,
+  value,
+  ~profileList: array<OMPSwitchTypes.ompListTypes>,
+) =>
+  switch (key, value) {
+  | (_, "") => "Not recorded"
+  | (#profile_id, _) =>
+    profileList
+    ->Array.find(profile => profile.id == value)
+    ->mapOptionOrDefault(value, profile => profile.name)
+  | (#status, _) => value->snakeToTitle
+  | (#connector, _) => value->ConnectorUtils.getDisplayNameForConnector
+  | _ => value
   }

@@ -2,14 +2,14 @@ open LogicUtils
 open ExplorerTypes
 open ExplorerCatalog
 open ExplorerUtils
-open ExplorerQuestion
+open ExplorerSelection
 
 let emptyCounts = {
   total: 0.0,
   success: 0.0,
   failed: 0.0,
   authFailed: 0.0,
-  awaiting: 0.0,
+  excluded: 0.0,
   threeDsAttempts: 0.0,
   amount: 0.0,
 }
@@ -19,7 +19,7 @@ let addCounts = (a, b) => {
   success: a.success +. b.success,
   failed: a.failed +. b.failed,
   authFailed: a.authFailed +. b.authFailed,
-  awaiting: a.awaiting +. b.awaiting,
+  excluded: a.excluded +. b.excluded,
   threeDsAttempts: a.threeDsAttempts +. b.threeDsAttempts,
   amount: a.amount +. b.amount,
 }
@@ -31,14 +31,15 @@ let getCount = (counts, field) =>
   | Total => counts.total
   | Success => counts.success
   | Failed => counts.failed
-  | Awaiting => counts.awaiting
+  | Excluded => counts.excluded
   | AuthFailed => counts.authFailed
+  | Other => counts.total -. counts.success -. counts.failed -. counts.excluded
   }
 
 let getDenominator = (counts, base) =>
   switch base {
   | AllRecords => counts.total
-  | CompletedRecords => counts.total -. counts.awaiting
+  | EligibleRecords => counts.total -. counts.excluded
   | ThreeDsAttempts => counts.threeDsAttempts
   }
 
@@ -53,7 +54,7 @@ let getRowCounts = (source, dict) => {
     total: records,
     success: countIf(Success),
     failed: countIf(Failed),
-    awaiting: countIf(Awaiting),
+    excluded: countIf(Excluded),
     authFailed: isThreeDs ? countIf(AuthFailed) : 0.0,
     threeDsAttempts: isThreeDs ? records : 0.0,
     amount: dict->getFloat((config.amountMetric :> string), 0.0),
@@ -102,29 +103,29 @@ let getCurrenciesBySuccess = (source, rows) =>
     if currency->isNonEmptyString {
       acc->Dict.set(
         currency,
-        acc->Dict.get(currency)->Option.getOr(0.0) +. getRowCounts(source, dict).success,
+        acc->getValueFromDict(currency, 0.0) +. getRowCounts(source, dict).success,
       )
     }
     acc
   })
   ->Dict.toArray
-  ->Array.toSorted(((_, a), (_, b)) => b -. a)
+  ->Array.toSorted(((_, a), (_, b)) => compareLogic(a, b))
   ->Array.map(((currency, _)) => currency)
 
-let buildDataset = (question, responses) => {
-  let source = question.source
-  let needsCurrency = question->needsCurrency
+let buildDataset = (selection, responses) => {
+  let {source, measure} = selection
+  let needsCurrency = selection->needsCurrency
 
   let amountCurrencies = needsCurrency
     ? getCurrenciesBySuccess(source, responses.currentRows)
       ->Array.concat(getCurrenciesBySuccess(source, responses.previousRows))
-      ->Array.concat([question.currency])
+      ->Array.concat([selection.currency])
       ->Array.filter(isNonEmptyString)
       ->ArrayUtils.getUniqueStrArray
     : []
   let amountCurrency =
-    question.currency->isNonEmptyString
-      ? question.currency
+    selection.currency->isNonEmptyString
+      ? selection.currency
       : amountCurrencies->getValueFromArray(0, "")
 
   let isInCurrency = dict => !needsCurrency || dict->getDimensionValue(#currency) == amountCurrency
@@ -134,6 +135,32 @@ let buildDataset = (question, responses) => {
     ->Array.filter(keep)
     ->Array.map(dict => getRowCounts(source, dict))
     ->sumCounts
+  let groupsOf = rows =>
+    rows
+    ->Array.map(getDictFromJsonObject)
+    ->Array.filter(isInCurrency)
+    ->Array.reduce(Dict.make(), (acc, dict) => {
+      let values = selection.split->Array.map(key => dict->getDimensionValue(key))
+      let key = values->getRowKey
+      let (_, sum) = acc->getValueFromDict(key, (values, emptyCounts))
+      acc->Dict.set(key, (values, sum->addCounts(getRowCounts(source, dict))))
+      acc
+    })
+
+  let currentGroups = responses.currentRows->groupsOf
+  let previousGroups = responses.previousRows->groupsOf
+  let groups =
+    currentGroups
+    ->Dict.toArray
+    ->Array.map(((key, (values, current))) => {
+      values,
+      current,
+      previous: previousGroups
+      ->getOptionValFromDict(key)
+      ->Option.map(((_, counts)) => counts)
+      ->Option.filter(counts => measurable(source, measure, counts)),
+    })
+    ->Array.filter(group => measurable(source, measure, group.current))
 
   {
     overall: responses.currentRows->totalOf,
@@ -142,5 +169,11 @@ let buildDataset = (question, responses) => {
     inCurrencyPrevious: responses.previousRows->totalOf(~keep=isInCurrency),
     amountCurrencies,
     amountCurrency,
+    groups: groups->Array.toSorted((a, b) => compareLogic(a.current.total, b.current.total)),
+    unmeasured: isRate(measure)
+      ? currentGroups
+        ->Dict.valuesToArray
+        ->Array.filter(((_, counts)) => !measurable(source, measure, counts))
+      : [],
   }
 }
