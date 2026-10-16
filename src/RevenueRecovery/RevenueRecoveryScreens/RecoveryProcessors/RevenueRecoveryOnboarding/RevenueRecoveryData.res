@@ -92,6 +92,11 @@ let fillDummyData = (
       initialValuesToDict->Dict.set("feature_metadata", feature_metadata(~id=connectorID))
       initialValuesToDict->Dict.set("metadata", metadata)
     }
+  | BillingProcessor(RECURLY) | BillingProcessor(STRIPE_BILLING) => {
+      initialValuesToDict->Dict.set("connector_account_details", connector_account_details)
+      initialValuesToDict->Dict.set("connector_webhook_details", connector_webhook_details)
+      initialValuesToDict->Dict.set("feature_metadata", feature_metadata(~id=connectorID))
+    }
   | BillingProcessor(CUSTOMBILLING) => {
       initialValuesToDict->Dict.set("connector_account_details", custom_connector_account_details)
       initialValuesToDict->Dict.set("feature_metadata", custom_feature_metadata(~id=connectorID))

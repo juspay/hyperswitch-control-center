@@ -63,9 +63,9 @@ let getHeaders = (
       headersForXFeature(~headers, ~uri)
     }
 
-    // TODO: this header is scoped to Webhook events APIs for now;
-    // remove the uri condition once webhook CUG testing is done so it applies to all APIs
-    if cugUser && uri->String.includes("/events/") {
+    // TODO: this header is scoped to Blocklist APIs for now;
+    // remove the uri condition once blocklist CUG testing is done so it applies to all APIs
+    if cugUser && uri->String.includes("/blocklist") {
       headers->Dict.set("x-cug-user", "true")
     }
 

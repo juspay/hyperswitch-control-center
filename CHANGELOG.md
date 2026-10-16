@@ -3,6 +3,61 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.10.16.1
+
+### Features
+
+- Add payout blocklist support in blocklist settings ([#5690](https://github.com/juspay/hyperswitch-control-center/pull/5690)) ([`80412cb`](https://github.com/juspay/hyperswitch-control-center/commit/80412cbfcc959194e8140f82d02a69ded6623987))
+
+**Full Changelog:** [`2026.10.16.0...2026.10.16.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.16.0...2026.10.16.1)
+
+- - -
+
+## 2026.10.16.0
+
+### Features
+
+- **recovery:**
+  - Edit processor credentials and webhooks, refresh status, add webhooks and retry fields ([#5685](https://github.com/juspay/hyperswitch-control-center/pull/5685)) ([`040abcb`](https://github.com/juspay/hyperswitch-control-center/commit/040abcb19d6e68cce5d05283718fc15475b874a7))
+  - Add Recurly and Stripe Billing, simplify onboarding ([#5693](https://github.com/juspay/hyperswitch-control-center/pull/5693)) ([`e8596db`](https://github.com/juspay/hyperswitch-control-center/commit/e8596db1f61816cafa8f1bd032bba9a5c230cb6a))
+
+**Full Changelog:** [`2026.10.15.0...2026.10.16.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.15.0...2026.10.16.0)
+
+- - -
+
+## 2026.10.15.0
+
+### Features
+
+- **analytics:** Add explorer metric cards for payments ([#5635](https://github.com/juspay/hyperswitch-control-center/pull/5635)) ([`c74ab2e`](https://github.com/juspay/hyperswitch-control-center/commit/c74ab2ec700dc278f88bca4f2ef45a7324c9dbfe))
+
+### Bug Fixes
+
+- **sdk-payment:** Round amount to whole minor units ([#5677](https://github.com/juspay/hyperswitch-control-center/pull/5677)) ([`98c3097`](https://github.com/juspay/hyperswitch-control-center/commit/98c3097c4eda9d712342df75da28ec4437044795))
+
+### Miscellaneous Tasks
+
+- Scope x-cug-user header to blocklist apis ([#5688](https://github.com/juspay/hyperswitch-control-center/pull/5688)) ([`6997e05`](https://github.com/juspay/hyperswitch-control-center/commit/6997e059c01d3c463f1b29cd80ba25abcd458075))
+
+**Full Changelog:** [`2026.10.14.0...2026.10.15.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.14.0...2026.10.15.0)
+
+- - -
+
+## 2026.10.14.0
+
+### Features
+
+- **embeddable:** Add embeddable component framework with payments and refunds ([#5660](https://github.com/juspay/hyperswitch-control-center/pull/5660)) ([`1921a12`](https://github.com/juspay/hyperswitch-control-center/commit/1921a12d3e91008068888d3cbccc392e0175c241))
+- Webhook registration ui for specific connectors ([#5249](https://github.com/juspay/hyperswitch-control-center/pull/5249)) ([`eafb78f`](https://github.com/juspay/hyperswitch-control-center/commit/eafb78f78c3bbd7cec35179724748c59d7bbea47))
+
+### Miscellaneous Tasks
+
+- Enable virtualization for selectboxadapter ([#5626](https://github.com/juspay/hyperswitch-control-center/pull/5626)) ([`95cb403`](https://github.com/juspay/hyperswitch-control-center/commit/95cb403d0f139a2a9ef97d792e69506d7bc6bc73))
+
+**Full Changelog:** [`2026.10.12.0...2026.10.14.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.12.0...2026.10.14.0)
+
+- - -
+
 ## 2026.10.12.0
 
 ### Features
