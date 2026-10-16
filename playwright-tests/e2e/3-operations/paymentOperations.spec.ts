@@ -1484,7 +1484,7 @@ test.describe("Payment Operations", () => {
       );
 
       const initialStart = new Date(todayUTC);
-      initialStart.setUTCDate(todayUTC.getUTCDate() - 30);
+      initialStart.setUTCDate(todayUTC.getUTCDate() - 29);
 
       const expectedStart = new Date(initialStart);
       expectedStart.setUTCDate(initialStart.getUTCDate() - 90);

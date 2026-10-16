@@ -17,7 +17,9 @@ let make = (
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
-  let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
+  let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(
+    ~range=HSwitchRemoteFilter.last30DaysRange,
+  )
 
   let (startTime, endTime) = ReconEngineFilterUtils.hasGlobalDateFilterValue(~globalDateFilters)
     ? (globalDateFilters.startTime, globalDateFilters.endTime)
