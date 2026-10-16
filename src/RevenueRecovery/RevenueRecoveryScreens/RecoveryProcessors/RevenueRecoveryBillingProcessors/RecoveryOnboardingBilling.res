@@ -159,15 +159,23 @@ let make = (
 
     if currentStep->getSectionVariant == (#addAPlatform, #processorSetUp) {
       let billing_connector_retry_threshold =
-        revenue_recovery->getInt("billing_connector_retry_threshold", 0)
+        revenue_recovery->getOptionInt("billing_connector_retry_threshold")
       let max_retry_count = revenue_recovery->getInt("max_retry_count", 0)
 
-      if billing_connector_retry_threshold > 15 {
+      switch billing_connector_retry_threshold {
+      | None =>
+        Dict.set(
+          errors,
+          "billing_connector_retry_threshold",
+          `Please enter start retry count`->JSON.Encode.string,
+        )
+      | Some(value) if value > 15 =>
         Dict.set(
           errors,
           "billing_connector_retry_threshold",
           `Start retry count cannot be more than 15`->JSON.Encode.string,
         )
+      | Some(_) => ()
       }
 
       if max_retry_count === 0 {
