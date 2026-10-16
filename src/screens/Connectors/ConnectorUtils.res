@@ -2657,7 +2657,7 @@ let getDisplayNameForBillingProcessor = billingProcessor => {
   | CHARGEBEE => "Chargebee"
   | STRIPE_BILLING => "Stripe Billing"
   | RECURLY => "Recurly"
-  | CUSTOMBILLING => "Custom"
+  | CUSTOMBILLING => "Custom Billing"
   }
 }
 

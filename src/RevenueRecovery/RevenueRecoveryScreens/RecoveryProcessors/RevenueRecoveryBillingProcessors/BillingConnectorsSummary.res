@@ -700,19 +700,21 @@ module RetriesConfiguration = {
         ->getDictFromJsonObject
         ->getDictfromDict("feature_metadata")
         ->getDictfromDict("revenue_recovery")
-      let threshold = retryValues->getInt("billing_connector_retry_threshold", 0)
+      let threshold = retryValues->getOptionInt("billing_connector_retry_threshold")
       let maxRetry = retryValues->getInt("max_retry_count", 0)
 
-      if threshold === 0 {
+      switch threshold {
+      | None =>
         errors->Dict.set(
           "feature_metadata.revenue_recovery.billing_connector_retry_threshold",
           "Please enter start retry count"->JSON.Encode.string,
         )
-      } else if threshold > 15 {
+      | Some(value) if value > 15 =>
         errors->Dict.set(
           "feature_metadata.revenue_recovery.billing_connector_retry_threshold",
-          "Start retry count should be less than 15"->JSON.Encode.string,
+          "Start retry count cannot be more than 15"->JSON.Encode.string,
         )
+      | Some(_) => ()
       }
 
       if maxRetry === 0 {
@@ -723,7 +725,7 @@ module RetriesConfiguration = {
       } else if maxRetry > 15 {
         errors->Dict.set(
           "feature_metadata.revenue_recovery.max_retry_count",
-          "Max retry count should be less than 15"->JSON.Encode.string,
+          "Max retry count cannot be more than 15"->JSON.Encode.string,
         )
       }
 
