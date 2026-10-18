@@ -992,6 +992,7 @@ let make = (
     `
   let autoscrollcss = showAutoScroll ? "table-scrollbar" : ""
   let verticalScroll = !showVerticalScroll ? "overflow-y-hidden" : ""
+  let scrollContainerRef = React.useRef(Nullable.null)
   let frozenFirstColumnCss = if freezeFirstColumn {
     `
   .loadedTable th:first-child,
@@ -1054,9 +1055,11 @@ let make = (
       <style> {React.string(frozenFirstColumnCss)} </style>
     </RenderIf>
     <div
+      ref={scrollContainerRef->ReactDOM.Ref.domRef}
       className={`flex-1 ${overflowClass} no-scrollbar rounded-lg ${childMinWidthClass} ${nonFrozenTableParentClass} ${autoscrollcss} ${verticalScroll} `}>
       nonFrozenTable
     </div>
+    <StickyTableScrollbar containerRef=scrollContainerRef />
     {switch customizeColumnNewTheme {
     | Some(customizeColumnObj) =>
       <RenderIf condition={customizeColumnObj.customizeColumnUi !== React.null}>
