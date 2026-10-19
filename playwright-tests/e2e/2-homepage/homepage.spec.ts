@@ -728,7 +728,7 @@ test.describe("SDK Payment", () => {
     await expect(homePage.sdkAmountInput).toHaveValue("250.50");
   });
 
-  test.fixme("should make a successful payment using SDK", async ({
+  test("should make a successful payment using SDK", async ({
     page,
     context: _context,
   }) => {
@@ -746,7 +746,6 @@ test.describe("SDK Payment", () => {
 
     await homePage.showPreviewButton.click();
     await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(10000);
     await homePage.waitForSdkCardForm();
 
     await homePage.fillSdkTestCard();
@@ -760,12 +759,10 @@ test.describe("SDK Payment", () => {
     });
 
     await homePage.goToPaymentOperationsButton.click();
-    expect(page.url()).toContain("/dashboard/payments/pay_");
+    await expect(page).toHaveURL(/\/dashboard\/payments\/pay_/);
   });
 
-  test.fixme("should display failed payment status using SDK", async ({
-    page,
-  }) => {
+  test("should display failed payment status using SDK", async ({ page }) => {
     const homePage = new HomePage(page);
 
     await page.route("**/payments/*/confirm", async (route) => {
@@ -795,7 +792,7 @@ test.describe("SDK Payment", () => {
     await expect(homePage.goToPaymentOperationsButton).toBeVisible();
   });
 
-  test.fixme("should display processing payment status using SDK", async ({
+  test("should display processing payment status using SDK", async ({
     page,
   }) => {
     const homePage = new HomePage(page);

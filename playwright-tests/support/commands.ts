@@ -2283,6 +2283,121 @@ export async function generateCerts() {
   };
 }
 
+// Stands in for Apple's developer portal: signs a dashboard-issued Apple Pay
+// CSR with a throwaway CA and returns the DER-encoded .cer. The backend reads
+// the merchant identifier from the subject UID.
+export function signApplePayCsr(
+  csr: string,
+  merchantIdentifier: string,
+): Buffer {
+  const certsDir = path.join(process.cwd(), "tmp-certs");
+  fs.mkdirSync(certsDir, { recursive: true });
+  const tmpDir = fs.mkdtempSync(path.join(certsDir, "csr-"));
+  try {
+    const csrPath = path.join(tmpDir, "apple_pay.csr");
+    const caKeyPath = path.join(tmpDir, "ca.key");
+    const caCertPath = path.join(tmpDir, "ca.pem");
+    const certPath = path.join(tmpDir, "apple_pay.cer");
+    fs.writeFileSync(csrPath, csr);
+
+    execFileSync(
+      "openssl",
+      [
+        "req",
+        "-x509",
+        "-newkey",
+        "ec",
+        "-pkeyopt",
+        "ec_paramgen_curve:prime256v1",
+        "-nodes",
+        "-keyout",
+        caKeyPath,
+        "-out",
+        caCertPath,
+        "-days",
+        "1",
+        "-subj",
+        "/CN=Playwright Test CA",
+      ],
+      { stdio: "ignore" },
+    );
+    execFileSync(
+      "openssl",
+      [
+        "x509",
+        "-req",
+        "-in",
+        csrPath,
+        "-CA",
+        caCertPath,
+        "-CAkey",
+        caKeyPath,
+        "-set_serial",
+        "1",
+        "-days",
+        "1",
+        "-subj",
+        `/UID=${merchantIdentifier}/CN=Merchant ID: ${merchantIdentifier}`,
+        "-outform",
+        "DER",
+        "-out",
+        certPath,
+      ],
+      { stdio: "ignore" },
+    );
+
+    return fs.readFileSync(certPath);
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+}
+
+// Creates an Apple Pay certificate resource end to end (CSR -> signed .cer
+// upload) for the logged-in user's merchant and returns its resource id.
+export async function createApplePayCertificateAPI(
+  page: Page,
+  merchantIdentifier: string,
+): Promise<string> {
+  const { merchantId, profileId } = await ompLineage(page);
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${await getJwtFromLocalStorage(page)}`,
+    "X-Merchant-Id": merchantId,
+    "X-Profile-Id": profileId,
+  };
+
+  const createResponse = await page.request.post(
+    `${API_URL}/hierarchical_resources`,
+    { headers, data: { type: "apple_pay_certificate" } },
+  );
+  if (!createResponse.ok()) {
+    const body = await createResponse.text();
+    throw new Error(
+      `createApplePayCertificateAPI create failed (${createResponse.status()}): ${body}`,
+    );
+  }
+  const resource = (await createResponse.json()) as {
+    id: string;
+    data: { apple_pay_certificate: { csr: string } };
+  };
+
+  const certificate = signApplePayCsr(
+    resource.data.apple_pay_certificate.csr,
+    merchantIdentifier,
+  );
+  const uploadResponse = await page.request.put(
+    `${API_URL}/hierarchical_resources/apple_pay_certificate/${resource.id}`,
+    { headers, data: { certificate: certificate.toString("base64") } },
+  );
+  if (!uploadResponse.ok()) {
+    const body = await uploadResponse.text();
+    throw new Error(
+      `createApplePayCertificateAPI upload failed (${uploadResponse.status()}): ${body}`,
+    );
+  }
+  return resource.id;
+}
+
 export async function safeScrollIntoView(
   locator: Locator,
   timeout: number = 10000,
