@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.10.19.0
+
+### Features
+
+- **recovery:** Gate recovery retries on start-retry threshold and label attempts on invoice details ([#5700](https://github.com/juspay/hyperswitch-control-center/pull/5700)) ([`924a84b`](https://github.com/juspay/hyperswitch-control-center/commit/924a84b2b26ac252f7dc659707d1c2ef5e2f0057))
+
+### Bug Fixes
+
+- **recon:** Preserve `effective_at` during exception resolution ([#5698](https://github.com/juspay/hyperswitch-control-center/pull/5698)) ([`2b3f1a7`](https://github.com/juspay/hyperswitch-control-center/commit/2b3f1a7016d5d7e36410ccf3f4c2b5a7203d4836))
+
+**Full Changelog:** [`2026.10.16.1...2026.10.19.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.16.1...2026.10.19.0)
+
+- - -
+
 ## 2026.10.16.1
 
 ### Features
