@@ -184,7 +184,10 @@ test.describe("Hierarchical Configurations", () => {
         page.waitForResponse(isResourceList, { timeout: API_TIMEOUT }),
         certificates.sidebarLink.click(),
       ]);
-      expect(response.ok(), `DBG ${response.status()} ${await response.text()} ${JSON.stringify(response.request().headers())}`).toBeTruthy();
+      expect(
+        response.ok(),
+        `DBG ${response.status()} ${await response.text()} ${JSON.stringify(response.request().headers())}`,
+      ).toBeTruthy();
       expect(response.request().postDataJSON()).toEqual({
         type: RESOURCE_TYPE,
       });

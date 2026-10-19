@@ -15,8 +15,23 @@ import {
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 
+// Legacy routing is only in the sidebar when the Decision Engine embed is off.
+// Force it off so these tests run on every env (no-op locally, where it's
+// already off; on integ/sandbox it hides the DE group and skips the cutover probe).
+const forceEmbedDecisionEngineOff = async (page: Page) => {
+  await page.route("**/config/feature**", async (route) => {
+    // The page can close mid-request at teardown; drop it instead of failing.
+    const res = await route.fetch().catch(() => null);
+    if (!res) return;
+    const body = await res.json();
+    (body?.features ?? body).dev_embed_decision_engine = false;
+    await route.fulfill({ response: res, json: body });
+  });
+};
+
 test.describe("Volume based routing", () => {
   test.beforeEach(async ({ page, context: _context }) => {
+    await forceEmbedDecisionEngineOff(page);
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -257,6 +272,7 @@ test.describe("Volume based routing", () => {
 
 test.describe("Rule based routing", () => {
   test.beforeEach(async ({ page, context: _context }) => {
+    await forceEmbedDecisionEngineOff(page);
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -406,6 +422,7 @@ test.describe("Rule based routing", () => {
 
 test.describe("Payment default fallback", () => {
   test.beforeEach(async ({ page, context: _context }) => {
+    await forceEmbedDecisionEngineOff(page);
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -570,6 +587,7 @@ test.describe("Payment default fallback", () => {
 
 test.describe("Routing list - Configuration History", () => {
   test.beforeEach(async ({ page, context: _context }) => {
+    await forceEmbedDecisionEngineOff(page);
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -996,6 +1014,7 @@ test.describe("Routing list - Configuration History", () => {
 
 test.describe("Advanced rule connector selection modes", () => {
   test.beforeEach(async ({ page, context: _context }) => {
+    await forceEmbedDecisionEngineOff(page);
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
@@ -1324,6 +1343,7 @@ test.describe("Advanced rule connector selection modes", () => {
 
 test.describe("Auth rate based routing", () => {
   test.beforeEach(async ({ page, context: _context }) => {
+    await forceEmbedDecisionEngineOff(page);
     const email = generateUniqueEmail();
     await signupUser(email, PLAYWRIGHT_PASSWORD);
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
