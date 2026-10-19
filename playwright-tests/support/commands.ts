@@ -1344,18 +1344,9 @@ export async function createThreeDsExemptionAPI(
   }
 
   // profile_id rides inside the JWT payload (the dashboard mints it after
-  // login). Decode the middle JWT segment so the request body can include
-  // it the same way buildThreeDsExemptionPayloadBody does on the UI side.
-  const segments = token.split(".");
-  if (segments.length !== 3) {
-    throw new Error(
-      "createThreeDsExemptionAPI: invalid JWT format (expected 3 segments)",
-    );
-  }
-  const jwtPayload = JSON.parse(
-    Buffer.from(segments[1], "base64").toString("utf-8"),
-  ) as { profile_id?: string };
-  const profileId = jwtPayload.profile_id ?? "";
+  // login); the request body includes it the same way
+  // buildThreeDsExemptionPayloadBody does on the UI side.
+  const { profileId } = await jwtLineage(page);
 
   const name = overrides.name ?? "playwright_3ds_exemption";
   const description = overrides.description ?? "";
@@ -2194,6 +2185,42 @@ export async function signinFromMailInbox(page: Page): Promise<void> {
   if (verifyLink) {
     await page.goto(verifyLink);
   }
+}
+
+// Reads org/merchant/profile ids straight from the dashboard's JWT in
+// localStorage. The token is written at login, so unlike the header's
+// merchant id text there is nothing to wait for. The payload is only
+// base64url-decoded, not verified — fine for picking ids in tests.
+export async function jwtLineage(
+  page: Page,
+): Promise<{ orgId: string; merchantId: string; profileId: string }> {
+  const token = await page.evaluate(() => {
+    const raw = window.localStorage.getItem("USER_INFO");
+    if (!raw) return "";
+    try {
+      return (JSON.parse(raw) as { token?: string }).token ?? "";
+    } catch {
+      return "";
+    }
+  });
+  if (!token) {
+    throw new Error(
+      "jwtLineage: no JWT in localStorage — make sure loginUI ran first",
+    );
+  }
+
+  const segments = token.split(".");
+  if (segments.length !== 3) {
+    throw new Error("jwtLineage: invalid JWT format (expected 3 segments)");
+  }
+  const payload = JSON.parse(
+    Buffer.from(segments[1], "base64url").toString("utf-8"),
+  ) as { org_id?: string; merchant_id?: string; profile_id?: string };
+  return {
+    orgId: payload.org_id ?? "",
+    merchantId: payload.merchant_id ?? "",
+    profileId: payload.profile_id ?? "",
+  };
 }
 
 export async function ompLineage(

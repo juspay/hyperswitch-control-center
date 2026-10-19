@@ -11,6 +11,7 @@ import {
   signupUser,
   loginUI,
   createDummyConnectorAPI,
+  jwtLineage,
 } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
@@ -59,7 +60,7 @@ test.describe("Volume based routing", () => {
     const paymentRouting = new PaymentRouting(page);
     const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
 
-    const merchantId = await homePage.merchantID.nth(0).textContent();
+    const { merchantId } = await jwtLineage(page);
     const connectorLabel = `stripe_test_${Date.now()}`;
     if (merchantId) {
       await createDummyConnectorAPI(
@@ -119,7 +120,7 @@ test.describe("Volume based routing", () => {
     const paymentRouting = new PaymentRouting(page);
     const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
 
-    const merchantId = await homePage.merchantID.nth(0).textContent();
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createDummyConnectorAPI(
         merchantId,
@@ -167,7 +168,7 @@ test.describe("Volume based routing", () => {
     const paymentRouting = new PaymentRouting(page);
     const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
 
-    const merchantId = await homePage.merchantID.nth(0).textContent();
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createDummyConnectorAPI(
         merchantId,
@@ -213,7 +214,7 @@ test.describe("Volume based routing", () => {
     const paymentRouting = new PaymentRouting(page);
     const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
 
-    const merchantId = await homePage.merchantID.nth(0).textContent();
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createDummyConnectorAPI(
         merchantId,
@@ -244,7 +245,7 @@ test.describe("Volume based routing", () => {
     const paymentRouting = new PaymentRouting(page);
     const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
 
-    const merchantId = await homePage.merchantID.nth(0).textContent();
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createDummyConnectorAPI(
         merchantId,
@@ -284,7 +285,7 @@ test.describe("Rule based routing", () => {
   ): Promise<string | null> {
     const homePage = new HomePage(page);
     const paymentRouting = new PaymentRouting(page);
-    const merchantId = await homePage.merchantID.nth(0).textContent();
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createDummyConnectorAPI(
         merchantId,
@@ -449,7 +450,7 @@ test.describe("Payment default fallback", () => {
     const paymentRouting = new PaymentRouting(page);
     const defaultFallback = new DefaultFallback(page);
 
-    const merchantId = await homePage.merchantID.nth(0).textContent();
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createDummyConnectorAPI(
         merchantId,
@@ -477,7 +478,7 @@ test.describe("Payment default fallback", () => {
     const paymentRouting = new PaymentRouting(page);
     const defaultFallback = new DefaultFallback(page);
 
-    const merchantId = await homePage.merchantID.nth(0).textContent();
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createDummyConnectorAPI(
         merchantId,
@@ -593,16 +594,6 @@ test.describe("Routing list - Configuration History", () => {
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
-  async function getMerchantId(page: Page): Promise<string | null> {
-    const homePage = new HomePage(page);
-    const merchantLocator = homePage.merchantID.nth(0);
-    if (!(await merchantLocator.isVisible().catch(() => false))) {
-      await page.goto("/dashboard/home");
-      await page.waitForLoadState("networkidle");
-    }
-    return await merchantLocator.textContent();
-  }
-
   async function createInactiveVolumeRule(
     page: Page,
     context: BrowserContext,
@@ -613,7 +604,7 @@ test.describe("Routing list - Configuration History", () => {
     const paymentRouting = new PaymentRouting(page);
     const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
 
-    const merchantId = await getMerchantId(page);
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createDummyConnectorAPI(
         merchantId,
@@ -622,6 +613,9 @@ test.describe("Routing list - Configuration History", () => {
         page,
       );
     }
+    // The dashboard caches the connector list from app load, so reload to
+    // pick up the connector just created via API.
+    await page.reload();
 
     await homePage.workflow.click();
     await homePage.routing.click();
@@ -651,7 +645,7 @@ test.describe("Routing list - Configuration History", () => {
     const paymentRouting = new PaymentRouting(page);
     const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
 
-    const merchantId = await getMerchantId(page);
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createDummyConnectorAPI(
         merchantId,
@@ -660,6 +654,9 @@ test.describe("Routing list - Configuration History", () => {
         page,
       );
     }
+    // The dashboard caches the connector list from app load, so reload to
+    // pick up the connector just created via API.
+    await page.reload();
 
     await homePage.workflow.click();
     await homePage.routing.click();
@@ -764,7 +761,7 @@ test.describe("Routing list - Configuration History", () => {
     const homePage = new HomePage(page);
     const paymentRouting = new PaymentRouting(page);
 
-    const merchantId = await homePage.merchantID.nth(0).textContent();
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createDummyConnectorAPI(
         merchantId,
@@ -893,7 +890,7 @@ test.describe("Routing list - Configuration History", () => {
       "stripe_test_volume_a",
     );
 
-    const merchantId = await getMerchantId(page);
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createDummyConnectorAPI(
         merchantId,
@@ -902,6 +899,9 @@ test.describe("Routing list - Configuration History", () => {
         page,
       );
     }
+    // The dashboard caches the connector list from app load, so reload to
+    // pick up the connector just created via API.
+    await page.reload();
 
     await openManageRulesTab(page);
     const historyRow = paymentRouting.historyCell(1, 2);
@@ -949,7 +949,7 @@ test.describe("Routing list - Configuration History", () => {
     const paymentRouting = new PaymentRouting(page);
     const ruleBasedConfiguration = new RuleBasedConfiguration(page);
 
-    const merchantId = await getMerchantId(page);
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createDummyConnectorAPI(
         merchantId,
@@ -958,6 +958,9 @@ test.describe("Routing list - Configuration History", () => {
         page,
       );
     }
+    // The dashboard caches the connector list from app load, so reload to
+    // pick up the connector just created via API.
+    await page.reload();
 
     await homePage.workflow.click();
     await homePage.routing.click();
@@ -1027,7 +1030,7 @@ test.describe("Advanced rule connector selection modes", () => {
     const homePage = new HomePage(page);
     const paymentRouting = new PaymentRouting(page);
 
-    const merchantId = await homePage.merchantID.nth(0).textContent();
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createDummyConnectorAPI(
         merchantId,
@@ -1372,7 +1375,7 @@ test.describe("Auth rate based routing", () => {
     const paymentRouting = new PaymentRouting(page);
     const authRateBasedConfiguration = new AuthRateBasedConfiguration(page);
 
-    const merchantId = await homePage.merchantID.nth(0).textContent();
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createDummyConnectorAPI(
         merchantId,
@@ -1406,7 +1409,7 @@ test.describe("Auth rate based routing", () => {
     const paymentRouting = new PaymentRouting(page);
     const authRateBasedConfiguration = new AuthRateBasedConfiguration(page);
 
-    const merchantId = await homePage.merchantID.nth(0).textContent();
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createDummyConnectorAPI(
         merchantId,
@@ -1447,7 +1450,7 @@ test.describe("Auth rate based routing", () => {
     const paymentRouting = new PaymentRouting(page);
     const authRateBasedConfiguration = new AuthRateBasedConfiguration(page);
 
-    const merchantId = await homePage.merchantID.nth(0).textContent();
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createDummyConnectorAPI(
         merchantId,

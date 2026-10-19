@@ -1,10 +1,7 @@
 import { test, expect } from "../../support/test";
 import type { Page, Route } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
-import {
-  generateUniqueEmail,
-  generateDateTimeString,
-} from "../../support/helper";
+import { generateUniqueEmail } from "../../support/helper";
 import { signupUser, loginUI } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
@@ -19,12 +16,6 @@ const SIDEBAR_SECTIONS = [
   { slug: "ab-testing", label: "A/B Testing" },
   { slug: "simulator", label: "Decision Simulator" },
 ];
-
-// Page title text, excluding the identically-named sidebar link.
-const pageHeading = (page: Page, title: string) =>
-  page.locator(
-    `xpath=//div[normalize-space(text())="${title}"][not(ancestor::a)]`,
-  );
 
 const expectWorkspacePage = async (page: Page, label: string) => {
   const openInNewTab = page.getByRole("button", { name: "Open in new tab" });

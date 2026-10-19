@@ -12,6 +12,7 @@ import {
   mockPaymentRequiresCapture,
   mockPaymentSummaryAmounts,
   ompLineage,
+  jwtLineage,
 } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
@@ -221,7 +222,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
 
       if (merchantId) {
         await createDummyConnectorAPI(
@@ -387,7 +388,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         // Use API helpers to set up connector and payment without UI login flow
         await createDummyConnectorAPI(
@@ -473,7 +474,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         // Use API helpers to set up connector and payment without UI login flow
         await createDummyConnectorAPI(
@@ -514,7 +515,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         // Use API helpers to set up connector and payment without UI login flow
         await createDummyConnectorAPI(
@@ -588,7 +589,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         // Use API helpers to set up connector and payment without UI login flow
         await createDummyConnectorAPI(
@@ -639,7 +640,7 @@ test.describe("Payment Operations", () => {
       payments = [];
       const homePage = new HomePage(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -843,7 +844,7 @@ test.describe("Payment Operations", () => {
       test.setTimeout(120000);
       const homePage = new HomePage(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -890,7 +891,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         // Use API helpers to set up connector and payment without UI login flow
         await createDummyConnectorAPI(
@@ -952,7 +953,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -1040,7 +1041,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -1080,7 +1081,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -1136,7 +1137,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -1654,7 +1655,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -1701,7 +1702,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -1755,7 +1756,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -1798,7 +1799,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -1843,7 +1844,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -1897,7 +1898,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -1955,7 +1956,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -1997,7 +1998,7 @@ test.describe("Payment Operations", () => {
 
       //await page.goto("/dashboard/home");
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         // Use API helpers to set up connector and payment without UI login flow
         await createDummyConnectorAPI(
@@ -2219,7 +2220,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         // Use API helpers to set up connector and payment without UI login flow
         await createDummyConnectorAPI(
@@ -2402,7 +2403,7 @@ test.describe("Payment Operations", () => {
 
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -2428,7 +2429,7 @@ test.describe("Payment Operations", () => {
 
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -2458,7 +2459,7 @@ test.describe("Payment Operations", () => {
 
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -2507,7 +2508,7 @@ test.describe("Payment Operations", () => {
 
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -2574,7 +2575,7 @@ test.describe("Payment Operations", () => {
 
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -2609,7 +2610,7 @@ test.describe("Payment Operations", () => {
 
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -2644,7 +2645,7 @@ test.describe("Payment Operations", () => {
 
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -2691,7 +2692,7 @@ test.describe("Payment Operations", () => {
 
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -2738,7 +2739,7 @@ test.describe("Payment Operations", () => {
 
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -2772,7 +2773,7 @@ test.describe("Payment Operations", () => {
 
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -2846,7 +2847,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await setupRequiresCapturePayment(page, merchantId, context.request);
       }
@@ -2865,7 +2866,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -2896,7 +2897,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await setupRequiresCapturePayment(page, merchantId, context.request);
       }
@@ -2926,7 +2927,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await setupRequiresCapturePayment(page, merchantId, context.request);
       }
@@ -2949,7 +2950,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await setupRequiresCapturePayment(page, merchantId, context.request);
       }
@@ -2972,7 +2973,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await setupRequiresCapturePayment(page, merchantId, context.request);
       }
@@ -2992,7 +2993,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await setupRequiresCapturePayment(page, merchantId, context.request);
       }
@@ -3013,7 +3014,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await setupRequiresCapturePayment(page, merchantId, context.request);
       }
@@ -3040,7 +3041,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await setupRequiresCapturePayment(page, merchantId, context.request);
       }
@@ -3090,7 +3091,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await setupRequiresCapturePayment(page, merchantId, context.request);
       }
@@ -3109,7 +3110,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await createDummyConnectorAPI(
           merchantId,
@@ -3141,7 +3142,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await setupRequiresCapturePayment(page, merchantId, context.request);
       }
@@ -3177,7 +3178,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await setupRequiresCapturePayment(page, merchantId, context.request);
       }
@@ -3215,7 +3216,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await setupRequiresCapturePayment(page, merchantId, context.request);
       }
@@ -3242,7 +3243,7 @@ test.describe("Payment Operations", () => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
 
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (merchantId) {
         await setupRequiresCapturePayment(page, merchantId, context.request);
       }
@@ -3263,11 +3264,10 @@ test.describe("Payment Operations", () => {
 
     const setupPaymentWithStatus = async (
       page: Page,
-      homePage: HomePage,
       request: Parameters<typeof createDummyConnectorAPI>[2],
       initialStatus: string,
     ) => {
-      const merchantId = await homePage.merchantID.nth(0).textContent();
+      const { merchantId } = await jwtLineage(page);
       if (!merchantId) {
         throw new Error("Merchant ID is required to create a payment");
       }
@@ -3423,7 +3423,7 @@ test.describe("Payment Operations", () => {
     }) => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
-      await setupPaymentWithStatus(page, homePage, context.request, "review");
+      await setupPaymentWithStatus(page, context.request, "review");
       await openPaymentDetails(page, homePage, paymentOperations);
 
       await expect(paymentOperations.manualAttentionHeading).toBeVisible();
@@ -3439,7 +3439,6 @@ test.describe("Payment Operations", () => {
       const paymentOperations = new PaymentOperations(page);
       const paymentStatus = await setupPaymentWithStatus(
         page,
-        homePage,
         context.request,
         "succeeded",
       );
@@ -3475,7 +3474,7 @@ test.describe("Payment Operations", () => {
     }) => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
-      await setupPaymentWithStatus(page, homePage, context.request, "review");
+      await setupPaymentWithStatus(page, context.request, "review");
       await openPaymentDetails(page, homePage, paymentOperations);
       await openStatusUpdateModal(paymentOperations);
 
@@ -3502,7 +3501,7 @@ test.describe("Payment Operations", () => {
     }) => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
-      await setupPaymentWithStatus(page, homePage, context.request, "review");
+      await setupPaymentWithStatus(page, context.request, "review");
       const eligibleCalls = await mockEligibleStatuses(page, [
         { status: 200, eligibleStatuses: ["requires_capture"] },
       ]);
@@ -3524,7 +3523,7 @@ test.describe("Payment Operations", () => {
     }) => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
-      await setupPaymentWithStatus(page, homePage, context.request, "review");
+      await setupPaymentWithStatus(page, context.request, "review");
       const capturedRequest = await mockManualStatusUpdate(page, 200);
       await openPaymentDetails(page, homePage, paymentOperations);
       await openStatusUpdateModal(paymentOperations);
@@ -3549,7 +3548,7 @@ test.describe("Payment Operations", () => {
     }) => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
-      await setupPaymentWithStatus(page, homePage, context.request, "review");
+      await setupPaymentWithStatus(page, context.request, "review");
       const capturedRequest = await mockManualStatusUpdate(page, 200);
       await openPaymentDetails(page, homePage, paymentOperations);
       await openStatusUpdateModal(paymentOperations);
@@ -3576,7 +3575,7 @@ test.describe("Payment Operations", () => {
     }) => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
-      await setupPaymentWithStatus(page, homePage, context.request, "review");
+      await setupPaymentWithStatus(page, context.request, "review");
       await openPaymentDetails(page, homePage, paymentOperations);
       await openStatusUpdateModal(paymentOperations);
 
@@ -3600,7 +3599,7 @@ test.describe("Payment Operations", () => {
     }) => {
       const homePage = new HomePage(page);
       const paymentOperations = new PaymentOperations(page);
-      await setupPaymentWithStatus(page, homePage, context.request, "review");
+      await setupPaymentWithStatus(page, context.request, "review");
       const capturedRequest = await mockManualStatusUpdate(page, 500);
       await openPaymentDetails(page, homePage, paymentOperations);
       await openStatusUpdateModal(paymentOperations);
@@ -3622,7 +3621,6 @@ test.describe("Payment Operations", () => {
       const paymentOperations = new PaymentOperations(page);
       const paymentStatus = await setupPaymentWithStatus(
         page,
-        homePage,
         context.request,
         "review",
       );
@@ -3651,12 +3649,7 @@ test.describe("Payment Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const paymentOperations = new PaymentOperations(page);
-        await setupPaymentWithStatus(
-          page,
-          homePage,
-          context.request,
-          "conflicted",
-        );
+        await setupPaymentWithStatus(page, context.request, "conflicted");
         await openPaymentDetails(page, homePage, paymentOperations);
 
         await expect(paymentOperations.manualAttentionHeading).toBeVisible();
@@ -3675,12 +3668,7 @@ test.describe("Payment Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const paymentOperations = new PaymentOperations(page);
-        await setupPaymentWithStatus(
-          page,
-          homePage,
-          context.request,
-          "conflicted",
-        );
+        await setupPaymentWithStatus(page, context.request, "conflicted");
         // Out of order, plus a value the dashboard doesn't know about
         const eligibleCalls = await mockEligibleStatuses(page, [
           {
@@ -3723,12 +3711,7 @@ test.describe("Payment Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const paymentOperations = new PaymentOperations(page);
-        await setupPaymentWithStatus(
-          page,
-          homePage,
-          context.request,
-          "conflicted",
-        );
+        await setupPaymentWithStatus(page, context.request, "conflicted");
         const eligibleCalls = await mockEligibleStatuses(page, [
           { status: 200, eligibleStatuses: ["succeeded", "failed"] },
         ]);
@@ -3770,12 +3753,7 @@ test.describe("Payment Operations", () => {
         }) => {
           const homePage = new HomePage(page);
           const paymentOperations = new PaymentOperations(page);
-          await setupPaymentWithStatus(
-            page,
-            homePage,
-            context.request,
-            "conflicted",
-          );
+          await setupPaymentWithStatus(page, context.request, "conflicted");
           await mockEligibleStatuses(page, [
             {
               status: 200,
@@ -3810,12 +3788,7 @@ test.describe("Payment Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const paymentOperations = new PaymentOperations(page);
-        await setupPaymentWithStatus(
-          page,
-          homePage,
-          context.request,
-          "conflicted",
-        );
+        await setupPaymentWithStatus(page, context.request, "conflicted");
         await mockEligibleStatuses(page, [
           { status: 200, eligibleStatuses: [] },
         ]);
@@ -3839,12 +3812,7 @@ test.describe("Payment Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const paymentOperations = new PaymentOperations(page);
-        await setupPaymentWithStatus(
-          page,
-          homePage,
-          context.request,
-          "conflicted",
-        );
+        await setupPaymentWithStatus(page, context.request, "conflicted");
         const eligibleCalls = await mockEligibleStatuses(page, [
           { status: 500 },
           { status: 200, eligibleStatuses: ["succeeded", "failed"] },
@@ -3878,12 +3846,7 @@ test.describe("Payment Operations", () => {
       }) => {
         const homePage = new HomePage(page);
         const paymentOperations = new PaymentOperations(page);
-        await setupPaymentWithStatus(
-          page,
-          homePage,
-          context.request,
-          "conflicted",
-        );
+        await setupPaymentWithStatus(page, context.request, "conflicted");
         await mockEligibleStatuses(page, [
           { status: 200, eligibleStatuses: ["requires_capture"] },
         ]);
