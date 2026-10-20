@@ -2,20 +2,13 @@ open LogicUtils
 
 let tableTitle = "RecoveryInvoices"
 
-// Filters the recovery-list endpoint accepts besides the date range and recovery status.
-// The endpoint rejects unknown params, so anything else is dropped from the query.
+// Filters the recovery list exposes. The endpoint rejects unknown params, so anything else is
+// dropped from the query.
 let supportedFilterKeys = [
-  "connector",
-  "currency",
+  "recovery_status",
+  "merchant_connector_id",
   "payment_method_type",
   "payment_method_subtype",
-  "authentication_type",
-  "card_network",
-  "customer_id",
-  "merchant_order_reference_id",
-  "start_amount",
-  "end_amount",
-  "recovery_status",
   "created.gte",
   "created.lte",
 ]
@@ -40,9 +33,49 @@ let recoveryStatusFilter = (): EntityType.initialFilters<'t> => {
   localFilter: None,
 }
 
-// Recovery status replaces the payment status filter; the rest come from the payments filters
+// Connector filter shows the connector label and sends the merchant connector id
+let connectorLabelFilter = (json): EntityType.initialFilters<'t> => {
+  let options =
+    json
+    ->getDictFromJsonObject
+    ->getDictfromDict("connector")
+    ->Dict.toArray
+    ->Array.flatMap(((_, items)) =>
+      items
+      ->getArrayFromJson([])
+      ->Array.map(item => {
+        let dict = item->getDictFromJsonObject
+        let option: FilterSelectBox.dropdownOption = {
+          label: dict->getString("connector_label", ""),
+          value: dict->getString("merchant_connector_id", ""),
+        }
+        option
+      })
+    )
+    ->Array.filter(option => option.value->isNonEmptyString)
+
+  {
+    field: FormRenderer.makeFieldInfo(
+      ~label="connector_label",
+      ~name="merchant_connector_id",
+      ~customInput=InputFields.filterMultiSelectInput(
+        ~options,
+        ~buttonText="Select Connector Label",
+        ~showSelectionAsChips=false,
+        ~searchable=true,
+        ~showToolTip=true,
+        ~showNameAsToolTip=true,
+        ~customButtonStyle="bg-none",
+        (),
+      ),
+    ),
+    localFilter: None,
+  }
+}
+
+// Status, connector label, payment method type and subtype
 let initialFilters = (json, filterValues, removeKeys, filterKeys, setfilterKeys, version) => {
-  let paymentFilters =
+  let paymentMethodFilters =
     OrderUIUtils.initialFilters(
       json,
       filterValues,
@@ -51,11 +84,11 @@ let initialFilters = (json, filterValues, removeKeys, filterKeys, setfilterKeys,
       setfilterKeys,
       version,
     )->Array.filter((item: EntityType.initialFilters<'t>) =>
-      Array.concat(supportedFilterKeys, ["amount"])->Array.includes(
+      ["payment_method_type", "payment_method_subtype"]->Array.includes(
         item.field.inputNames->Array.get(0)->Option.getOr(""),
       )
     )
-  [recoveryStatusFilter()]->Array.concat(paymentFilters)
+  [recoveryStatusFilter(), connectorLabelFilter(json)]->Array.concat(paymentMethodFilters)
 }
 
 let initialFixedFilter = (~disable=false) => OrderUIUtils.initialFixedFilter(V2, ~disable)
@@ -63,19 +96,6 @@ let initialFixedFilter = (~disable=false) => OrderUIUtils.initialFixedFilter(V2,
 // Builds the query params for `recovery-list` from the applied filters
 let buildQuery = (~filters: Dict.t<JSON.t>, ~offset, ~limit, ~searchText) => {
   let query = Dict.make()
-  let filters = AmountFilterUtils.createAmountQuery(~dict=filters->Dict.copy)
-
-  switch filters->Dict.get("amount_filter") {
-  | Some(amountFilter) =>
-    let amountDict = amountFilter->getDictFromJsonObject
-    ["start_amount", "end_amount"]->Array.forEach(key =>
-      switch amountDict->Dict.get(key) {
-      | Some(value) if value !== JSON.Encode.null => filters->Dict.set(key, value)
-      | _ => ()
-      }
-    )
-  | None => ()
-  }
 
   filters
   ->Dict.toArray

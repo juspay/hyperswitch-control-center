@@ -77,7 +77,7 @@ let make = () => {
 
   <div className="flex flex-wrap gap-3 mb-6">
     {card(~label="All", ~count=total, ~isActive=appliedStatuses->Array.length == 0, ~status=None)}
-    {RevenueRecoveryOrderUtils.recoveryStatusFilterOptions
+    {RevenueRecoveryOrderUtils.recoveryMetricStatuses
     ->Array.map(status =>
       card(
         ~label=status->snakeToTitle,

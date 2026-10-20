@@ -64,6 +64,16 @@ let convertScheduleTimeToUTC = (scheduleTime: string) => {
 
 let recoveryStatusFilterKey = "recovery_status"
 
+// Statuses shown as count cards above the list
+let recoveryMetricStatuses = [
+  "monitoring",
+  "scheduled",
+  "recovered",
+  "partially_recovered",
+  "terminated",
+  "cancelled",
+]
+
 let recoveryStatusFilterOptions = [
   "succeeded",
   "scheduled",
