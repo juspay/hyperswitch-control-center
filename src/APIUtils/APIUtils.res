@@ -127,6 +127,15 @@ let getV2Url = (
       }
     | _ => Default(``)
     }
+  | V2_RECOVERY_AGGREGATE =>
+    switch (methodType, queryParameters) {
+    | (Get, Some(queryParams)) =>
+      switch transactionEntity {
+      | #Profile => Default(`${paymentsBaseURL}/profile/recovery-aggregate?${queryParams}`)
+      | _ => Default(`${paymentsBaseURL}/recovery-aggregate?${queryParams}`)
+      }
+    | _ => Default(``)
+    }
   | PAYMENT_METHOD_LIST =>
     switch id {
     | Some(customerId) => Default(`v1/customers/${customerId}/saved-payment-methods`)

@@ -141,6 +141,7 @@ let make = () => {
           <GenerateReport entityName={V2(REVENUE_RECOVERY_REPORT)} />
         </RenderIf>
       </div>
+      <RevenueRecoveryStatusCounts />
       {filtersUI}
       <RenderIf condition={hasOmpViewPortal}>
         <Portal to={`${tableTitle}OMPView`}>
