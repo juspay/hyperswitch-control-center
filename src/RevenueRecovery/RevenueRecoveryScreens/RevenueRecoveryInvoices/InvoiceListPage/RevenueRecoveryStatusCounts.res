@@ -10,6 +10,7 @@ let make = () => {
   let {updateExistingKeys, removeKeys, filterValueJson, filterValue, filterKeys, setfilterKeys} =
     FilterContext.filterContext->React.useContext
   let (statusWithCount, setStatusWithCount) = React.useState(_ => Dict.make())
+  let (total, setTotal) = React.useState(_ => 0)
   let statusKey = RevenueRecoveryOrderUtils.recoveryStatusFilterKey
 
   let (startTime, endTime) = React.useMemo(() => {
@@ -27,7 +28,9 @@ let make = () => {
         ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
       )
       let response = await fetchDetails(url, ~version=V2)
-      setStatusWithCount(_ => response->getDictFromJsonObject->getDictfromDict("status_with_count"))
+      let responseDict = response->getDictFromJsonObject
+      setStatusWithCount(_ => responseDict->getDictfromDict("status_with_count"))
+      setTotal(_ => responseDict->getInt("total_count", 0))
     } catch {
     | _ =>
       showToast(~toastType=ToastError, ~message="Failed to fetch status counts", ~autoClose=true)
@@ -53,11 +56,6 @@ let make = () => {
     | None => removeKeys([statusKey])
     }
   }
-
-  let total =
-    RevenueRecoveryOrderUtils.recoveryStatusFilterOptions->Array.reduce(0, (acc, status) =>
-      acc + statusWithCount->getInt(status, 0)
-    )
 
   let card = (~label, ~count, ~isActive, ~status) =>
     <div
