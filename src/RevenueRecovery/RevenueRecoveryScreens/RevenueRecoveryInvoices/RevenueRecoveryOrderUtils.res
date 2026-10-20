@@ -68,7 +68,7 @@ let recoveryStatusFilterKey = "recovery_status"
 let recoveryMetricStatuses = [
   "monitoring",
   "scheduled",
-  "recovered",
+  "succeeded",
   "partially_recovered",
   "terminated",
   "cancelled",
