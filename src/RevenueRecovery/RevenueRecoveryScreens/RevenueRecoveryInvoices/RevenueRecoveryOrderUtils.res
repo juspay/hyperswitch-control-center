@@ -73,5 +73,4 @@ let recoveryStatusFilterOptions = [
   "terminated",
   "cancelled",
   "partially_recovered",
-  "partially_captured_and_processing",
 ]
