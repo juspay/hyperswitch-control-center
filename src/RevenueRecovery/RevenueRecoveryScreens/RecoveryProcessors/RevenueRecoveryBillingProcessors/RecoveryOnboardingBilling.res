@@ -63,6 +63,10 @@ let make = (
         [
           ("billing_connector_retry_threshold", 0->JSON.Encode.int),
           ("max_retry_count", 0->JSON.Encode.int),
+          (
+            "grace_period_days",
+            RevenueRecoveryOnboardingUtils.defaultGracePeriodDays->JSON.Encode.int,
+          ),
           ("billing_account_reference", billingAccountReference->JSON.Encode.object),
         ]->Dict.fromArray
 
@@ -161,6 +165,11 @@ let make = (
       let billing_connector_retry_threshold =
         revenue_recovery->getInt("billing_connector_retry_threshold", 0)
       let max_retry_count = revenue_recovery->getInt("max_retry_count", 0)
+      let grace_period_days = revenue_recovery->getInt("grace_period_days", 0)
+
+      if grace_period_days <= 0 {
+        Dict.set(errors, "grace_period_days", `Please enter grace period`->JSON.Encode.string)
+      }
 
       if billing_connector_retry_threshold === 0 {
         Dict.set(

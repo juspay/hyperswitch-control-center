@@ -74,35 +74,28 @@ module WebhooksConfiguration = {
   }
 }
 
-// ConnectorWebhookDetails needs the url name param, so saved values are listed directly
+// ConnectorWebhookDetails needs the url name param, so the connector's webhook fields are listed directly
 module WebhookDetailsView = {
   @react.component
-  let make = (~webhookDetails) => {
+  let make = (~webhookFields, ~webhookDetails) => {
     open LogicUtils
-    let entries =
-      webhookDetails
-      ->getDictFromJsonObject
+    let savedValues = webhookDetails->getDictFromJsonObject
+    <div className="grid grid-cols-2 gap-10 max-w-3xl px-2">
+      {webhookFields
       ->Dict.toArray
-      ->Array.filter(((_, value)) => value->JSON.Decode.string->Option.getOr("")->isNonEmptyString)
-    <>
-      <RenderIf condition={entries->isNonEmptyArray}>
-        <div className="grid grid-cols-2 gap-10 max-w-3xl px-2">
-          {entries
-          ->Array.map(((key, value)) =>
-            <div className="flex flex-col gap-2 min-w-0" key>
-              <h4 className="text-nd_gray-400"> {key->snakeToTitle->React.string} </h4>
-              <p className="break-all">
-                {value->JSON.Decode.string->Option.getOr("")->React.string}
-              </p>
-            </div>
-          )
-          ->React.array}
+      ->Array.map(((field, label)) => {
+        let value = savedValues->getString(field, "")
+        <div className="flex flex-col gap-2 min-w-0" key=field>
+          <h4 className="text-nd_gray-400">
+            {label->getStringFromJson(field->snakeToTitle)->React.string}
+          </h4>
+          <p className="break-all">
+            {(value->isNonEmptyString ? value : "None")->React.string}
+          </p>
         </div>
-      </RenderIf>
-      <RenderIf condition={!(entries->isNonEmptyArray)}>
-        <p className="text-nd_gray-400 px-2"> {"No webhook details configured"->React.string} </p>
-      </RenderIf>
-    </>
+      })
+      ->React.array}
+    </div>
   }
 }
 
@@ -361,6 +354,7 @@ module BillingConnectorDetails = {
                   </RenderIf>
                   <RenderIf condition={!isEditing(Metadata)}>
                     <WebhookDetailsView
+                      webhookFields=connectorWebHookDetails
                       webhookDetails=connectorInfodict.connector_webhook_details
                     />
                   </RenderIf>
@@ -447,6 +441,13 @@ module PaymentConnectorDetails = {
       connectorWebHookDetails,
       connectorLabelDetailField,
     } = getConnectorFields(connectorDetails)
+
+    // additional_secret (webhook URL password) is only used by billing platforms, not payment processors
+    let paymentWebhookFields =
+      connectorWebHookDetails
+      ->Dict.toArray
+      ->Array.filter(((field, _)) => field !== "additional_secret")
+      ->Dict.fromArray
 
     let handleClick = (section: option<connectorSummarySection>) => {
       if section->Option.isNone {
@@ -597,6 +598,7 @@ module PaymentConnectorDetails = {
                   </RenderIf>
                   <RenderIf condition={!isEditing(Metadata)}>
                     <WebhookDetailsView
+                      webhookFields={paymentWebhookFields}
                       webhookDetails=connectorInfodict.connector_webhook_details
                     />
                   </RenderIf>
@@ -665,7 +667,11 @@ module RetriesConfiguration = {
     let billing_connector_retry_threshold =
       revenueRecovery->getInt("billing_connector_retry_threshold", 0)
     // Backend defaults grace period to 30 days
-    let grace_period_days = revenueRecovery->getInt("grace_period_days", 30)
+    let grace_period_days =
+      revenueRecovery->getInt(
+        "grace_period_days",
+        RevenueRecoveryOnboardingUtils.defaultGracePeriodDays,
+      )
 
     let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
       try {
@@ -702,6 +708,14 @@ module RetriesConfiguration = {
         ->getDictfromDict("revenue_recovery")
       let threshold = retryValues->getInt("billing_connector_retry_threshold", 0)
       let maxRetry = retryValues->getInt("max_retry_count", 0)
+      let gracePeriod = retryValues->getInt("grace_period_days", 0)
+
+      if gracePeriod <= 0 {
+        errors->Dict.set(
+          "feature_metadata.revenue_recovery.grace_period_days",
+          "Please enter grace period"->JSON.Encode.string,
+        )
+      }
 
       if threshold === 0 {
         errors->Dict.set(
@@ -741,6 +755,13 @@ module RetriesConfiguration = {
       <ToolTip
         toolTipPosition=Top
         description="The total number of retries, including external retries, that should be done within the grace period"
+        toolTipFor={<Icon name="info-circle-unfilled" size=14 />}
+      />
+
+    let hardDeclineRetriesInfo =
+      <ToolTip
+        toolTipPosition=Top
+        description="The total number of retries done for hard declines. This is fixed and cannot be changed"
         toolTipFor={<Icon name="info-circle-unfilled" size=14 />}
       />
 
@@ -839,8 +860,33 @@ module RetriesConfiguration = {
               />
             </div>
             <div className="flex flex-col gap-2 ">
-              <h4 className="text-nd_gray-400 "> {"Grace Period"->React.string} </h4>
-              <p> {`${grace_period_days->Int.toString} days`->React.string} </p>
+              <div className="flex gap-2 items-center">
+                <h4 className="text-nd_gray-400 ">
+                  {"Total retries for hard declines"->React.string}
+                </h4>
+                {hardDeclineRetriesInfo}
+              </div>
+              <p>
+                {RevenueRecoveryOnboardingUtils.hardDeclineTotalRetries
+                ->Int.toString
+                ->React.string}
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 ">
+              <RenderIf condition={!isEditMode}>
+                <h4 className="text-nd_gray-400 "> {"Grace Period"->React.string} </h4>
+                <p> {`${grace_period_days->Int.toString} days`->React.string} </p>
+              </RenderIf>
+              <RenderIf condition={isEditMode}>
+                <FormRenderer.FieldRenderer
+                  labelClass={`!text-nd_gray-400 ${body.md.regular}`}
+                  field={retryField(
+                    ~label="Grace Period (days)",
+                    ~name="feature_metadata.revenue_recovery.grace_period_days",
+                    ~placeholder="ex 30",
+                  )}
+                />
+              </RenderIf>
             </div>
           </div>
         </div>

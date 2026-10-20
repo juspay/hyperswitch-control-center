@@ -1955,10 +1955,7 @@ let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) =>
       BillingProcessor(CHARGEBEE) | BillingProcessor(STRIPE_BILLING) | BillingProcessor(RECURLY),
       "merchant_secret",
     ) => true
-  | (
-      BillingProcessor(CHARGEBEE) | BillingProcessor(STRIPE_BILLING) | BillingProcessor(RECURLY),
-      "additional_secret",
-    ) => true
+  | (BillingProcessor(CHARGEBEE), "additional_secret") => true
   | _ => false
   }
 }
