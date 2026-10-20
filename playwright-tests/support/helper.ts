@@ -1,4 +1,5 @@
 import { randomUUID } from "crypto";
+import type { Page } from "@playwright/test";
 
 export function generateUniqueEmail(): string {
   return `playwright-${randomUUID().slice(0, 8)}@test.com`;
@@ -44,4 +45,21 @@ export function getInvalidEmails(): string[] {
     "12345678",
     "abc.in",
   ];
+}
+
+// Blend accordions animate their height open/closed. Scrolling mid-animation
+// lands on a different offset each run, so wait for every running animation
+// to settle before scrolling or taking a screenshot. Infinite animations
+// (spinners, pulses) are skipped since they never finish.
+export async function waitForAnimationsToFinish(page: Page): Promise<void> {
+  await page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((a) =>
+          Number.isFinite(Number(a.effect?.getComputedTiming().endTime)),
+        )
+        .map((a) => a.finished.catch(() => undefined)),
+    ),
+  );
 }

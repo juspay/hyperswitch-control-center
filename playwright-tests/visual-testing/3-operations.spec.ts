@@ -1,5 +1,8 @@
 import { test, expect } from "@playwright/test";
-import { generateUniqueEmail } from "../support/helper";
+import {
+  generateUniqueEmail,
+  waitForAnimationsToFinish,
+} from "../support/helper";
 import {
   signupUser,
   loginUI,
@@ -168,6 +171,7 @@ test.describe("Visual Testing - Payment Operations", () => {
     });
 
     await paymentOperations.customerDetailsSection.click();
+    await waitForAnimationsToFinish(page);
     await paymentOperations
       .customerEmailTestId("abc@test.com")
       .nth(3)
@@ -189,6 +193,7 @@ test.describe("Visual Testing - Payment Operations", () => {
       "true",
     );
     await paymentOperations.paymentMetadataSection.click();
+    await waitForAnimationsToFinish(page);
     await paymentOperations.paymentMetadataSection.scrollIntoViewIfNeeded();
     await expect(page).toHaveScreenshot("payment-method-details.png", {
       fullPage: true,
@@ -443,6 +448,7 @@ test.describe("Visual Testing - Payout Operations", () => {
     });
 
     await paymentOperations.customerDetailsSection.click();
+    await waitForAnimationsToFinish(page);
     await paymentOperations.payoutMethodText.scrollIntoViewIfNeeded();
 
     await expect(page).toHaveScreenshot("payout-details-2.png", {
@@ -452,6 +458,7 @@ test.describe("Visual Testing - Payout Operations", () => {
     });
 
     await paymentOperations.morePayoutDetailsSection.click();
+    await waitForAnimationsToFinish(page);
     await paymentOperations.payoutErrorCodeText.scrollIntoViewIfNeeded();
 
     await expect(page).toHaveScreenshot("payout-details-3.png", {
@@ -462,6 +469,7 @@ test.describe("Visual Testing - Payout Operations", () => {
 
     await paymentOperations.payoutMethodDetailsSection.click();
     await paymentOperations.payoutMetadataSection.click();
+    await waitForAnimationsToFinish(page);
 
     await paymentOperations.payoutMetadataJsonText.scrollIntoViewIfNeeded();
     await expect(page).toHaveScreenshot("payout-details-4.png", {
