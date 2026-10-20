@@ -155,9 +155,10 @@ test.describe("Visual Testing - Payment Operations", () => {
       maxDiffPixelRatio: 0.01,
     });
 
-    await expect(paymentOperations.refundsSectionBlock).toContainText(
-      "Refunds",
-    );
+    // Refunds is also its own tab; the table only renders once it is selected.
+    const refundsTab = paymentOperations.paymentDetailsTab("Refunds");
+    await paymentOperations.paymentDetailsTab("Refunds").click();
+    await expect(refundsTab).toHaveAttribute("aria-selected", "true");
     await paymentOperations.refundCell(1, 1).click();
     await paymentOperations.refundReasonField.scrollIntoViewIfNeeded();
     await expect(page).toHaveScreenshot("payment-refund-details.png", {
@@ -177,23 +178,27 @@ test.describe("Visual Testing - Payment Operations", () => {
       maxDiffPixelRatio: 0.01,
     });
 
-    await paymentOperations.morePaymentDetailsSection.click();
-    await paymentOperations.paymentMethodDetailsSection.scrollIntoViewIfNeeded();
-    await expect(page).toHaveScreenshot("payment-more-payment-details.png", {
-      fullPage: true,
-      animations: "disabled",
-      maxDiffPixelRatio: 0.01,
-    });
-
+    // Payment Method Details is a tab; Payment Metadata is a collapsed
+    // accordion inside it (rendered because createPaymentAPI sends metadata).
+    const paymentMethodDetailsTab = paymentOperations.paymentDetailsTab(
+      "Payment Method Details",
+    );
+    await paymentMethodDetailsTab.click();
+    await expect(paymentMethodDetailsTab).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
     await paymentOperations.paymentMetadataSection.click();
-    await paymentOperations.frmDetailsSection.scrollIntoViewIfNeeded();
-    await expect(page).toHaveScreenshot("payment-payment-metadata.png", {
+    await paymentOperations.paymentMetadataSection.scrollIntoViewIfNeeded();
+    await expect(page).toHaveScreenshot("payment-method-details.png", {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.01,
     });
 
-    await paymentOperations.frmDetailsSection.click();
+    const frmDetailsTab = paymentOperations.paymentDetailsTab("FRM Details");
+    await frmDetailsTab.click();
+    await expect(frmDetailsTab).toHaveAttribute("aria-selected", "true");
     await paymentOperations.merchantDecisionField.scrollIntoViewIfNeeded();
     await expect(page).toHaveScreenshot("payment-frm-details.png", {
       fullPage: true,
@@ -335,7 +340,16 @@ test.describe("Visual Testing - Refund Operations", () => {
 
     await refundOperations.addRefundButton.click();
     await refundOperations.refundAmountInput.fill("12.34");
+    // The refund row is stored as Pending until the dummy connector replies
+    // (after its refund_duration sleep) and flips it to Succeeded. Wait for
+    // the create call to finish so the list always shows the final status.
+    const refundResponse = page.waitForResponse(
+      (res) =>
+        res.request().method() === "POST" &&
+        new URL(res.url()).pathname.endsWith("/refunds"),
+    );
     await refundOperations.initiateRefundButton.click();
+    await refundResponse;
 
     await homePage.refundOperations.click();
 

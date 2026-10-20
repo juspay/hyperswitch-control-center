@@ -535,23 +535,8 @@ export class PaymentOperations {
     return this.page.getByText("Customer Details");
   }
 
-  get morePaymentDetailsSection(): Locator {
-    return this.page.getByText("More Payment Details");
-  }
-
-  get paymentMethodDetailsSection(): Locator {
-    return this.page
-      .locator("div")
-      .filter({ hasText: /^Payment Method Details$/ })
-      .first();
-  }
-
   get paymentMetadataSection(): Locator {
     return this.page.getByText("Payment Metadata");
-  }
-
-  get frmDetailsSection(): Locator {
-    return this.page.getByText("FRM Details");
   }
 
   get refundReasonField(): Locator {
