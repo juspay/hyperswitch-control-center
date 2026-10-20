@@ -130,7 +130,6 @@ let make = () => {
       />}
       entityName={V2(V2_ORDER_FILTERS)}
       version=V2
-      fetchFilters=false
     />
   }, [searchText])
 
