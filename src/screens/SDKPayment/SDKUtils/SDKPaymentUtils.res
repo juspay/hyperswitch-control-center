@@ -305,3 +305,25 @@ let dropDownOptionsForShowSavedCard = showSavedCardOptions->Array.map((
   label: item,
   value: item->String.toLowerCase,
 })
+
+let getAppliedOffersAmount = (~offers, ~currency) => {
+  open LogicUtils
+  offers->Array.reduce(0.0, (total, offer) => {
+    let offerDict = offer->getDictFromJsonObject
+    offerDict->getString("currency", "") === currency
+      ? total +. offerDict->getFloat("offerAmount", 0.0)
+      : total
+  })
+}
+
+// Offers use minor units; the SDK's display surcharge already uses major units.
+let getPayableAmountLabel = (~amount, ~offerAmount, ~surchargeAmount, ~currency) => {
+  let payableAmount = Math.max(
+    CurrencyUtils.convertCurrencyFromLowestDenomination(~amount=amount -. offerAmount, ~currency) +.
+    surchargeAmount,
+    0.0,
+  )
+  `${currency} ${payableAmount->Float.toFixedWithPrecision(
+      ~digits=CurrencyUtils.getAmountPrecisionDigits(currency),
+    )}`
+}

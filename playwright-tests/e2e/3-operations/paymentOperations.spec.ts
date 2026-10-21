@@ -2533,8 +2533,8 @@ test.describe("Payment Operations", () => {
         offer_engine_txn_id: OFFER_TXN_ID,
         offer_id: OFFER_ID,
         offer_amount: 500,
-        // The cell uses the offer's own currency (falling back to the payment's),
-        // so a JPY offer on a USD payment must use JPY's factor of 1.
+        // The cell uses the offer's own currency, so a JPY offer on a USD
+        // payment must use JPY's factor of 1.
         currency: "JPY",
       });
 
@@ -2543,37 +2543,6 @@ test.describe("Payment Operations", () => {
       await expect(
         paymentOperations.tabPanelDataLabel("Offer Amount"),
       ).toContainText("500 JPY");
-    });
-
-    test("should show N/A for the offer amount when the offer carries no amount", async ({
-      page,
-      context,
-    }) => {
-      const { paymentOperations } = await openPaymentWithOffer(page, context, {
-        offer_engine_merchant_id: OFFER_MERCHANT_ID,
-        offer_engine_txn_id: OFFER_TXN_ID,
-        offer_id: OFFER_ID,
-        // offer_amount intentionally absent
-      });
-
-      const offerDetailsTab =
-        paymentOperations.paymentDetailsTab("Offer Details");
-      await expect(offerDetailsTab).toBeVisible();
-      await offerDetailsTab.click();
-
-      await expect(
-        paymentOperations.tabPanelDataLabel("Offer Amount"),
-      ).toContainText("Offer AmountN/A");
-      // The ids still render.
-      for (const [label, value] of Object.entries({
-        "Offer Engine Merchant Id": OFFER_MERCHANT_ID,
-        "Offer Id": OFFER_ID,
-        "Offer Engine Txn Id": OFFER_TXN_ID,
-      })) {
-        await expect(paymentOperations.tabPanelDataLabel(label)).toContainText(
-          value,
-        );
-      }
     });
 
     test("should show N/A for blank offer ids and keep populated ones", async ({

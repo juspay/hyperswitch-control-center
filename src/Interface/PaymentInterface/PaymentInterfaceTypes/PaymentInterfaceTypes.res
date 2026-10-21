@@ -62,8 +62,8 @@ type appliedOffer = {
   offer_engine_merchant_id: string,
   offer_engine_txn_id: string,
   offer_id: string,
-  offer_amount: option<float>,
-  currency: option<string>,
+  offer_amount: float,
+  currency: string,
 }
 
 type order = {

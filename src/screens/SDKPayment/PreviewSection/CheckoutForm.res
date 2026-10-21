@@ -61,18 +61,12 @@ let make = () => {
     | "surchargeInfo" =>
       setDisplaySurchargeAmount(_ => payload->getFloat("displayTotalSurchargeAmount", 0.0))
     | "appliedOffersInfo" =>
-      let discount =
-        payload
-        ->getArrayFromDict("offers", [])
-        ->Array.reduce(0.0, (total, offer) => {
-          let offerDict = offer->getDictFromJsonObject
-          if offerDict->getString("currency", "") === currency {
-            total +. offerDict->getFloat("offerAmount", 0.0)
-          } else {
-            total
-          }
-        })
-      setOfferAmountMinor(_ => discount)
+      setOfferAmountMinor(_ =>
+        SDKPaymentUtils.getAppliedOffersAmount(
+          ~offers=payload->getArrayFromDict("offers", []),
+          ~currency,
+        )
+      )
     | _ => ()
     }
   }
@@ -134,19 +128,12 @@ let make = () => {
     }
   }
 
-  // Offers use minor units; the SDK's display surcharge already uses major units.
-  let payableAmount = Math.max(
-    CurrencyUtils.convertCurrencyFromLowestDenomination(
-      ~amount=amount -. offerAmountMinor,
-      ~currency,
-    ) +.
-    displaySurchargeAmount,
-    0.0,
+  let payableAmountLabel = SDKPaymentUtils.getPayableAmountLabel(
+    ~amount,
+    ~offerAmount=offerAmountMinor,
+    ~surchargeAmount=displaySurchargeAmount,
+    ~currency,
   )
-  let displayAmount =
-    payableAmount->Float.toFixedWithPrecision(
-      ~digits=CurrencyUtils.getAmountPrecisionDigits(currency),
-    )
 
   <div>
     {switch paymentStatus {
@@ -158,7 +145,7 @@ let make = () => {
             id="payment-element" options={paymentElementOptions} onChange=handlePaymentElementChange
           />
           <Button
-            text={`Pay ${currency} ${displayAmount}`}
+            text={`Pay ${payableAmountLabel}`}
             dataTestId="sdk-pay-button"
             loadingText="Please wait..."
             buttonState=btnState

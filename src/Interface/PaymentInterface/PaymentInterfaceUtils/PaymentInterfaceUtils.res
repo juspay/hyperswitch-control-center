@@ -109,8 +109,8 @@ let getAppliedOffer = dict =>
       offer_engine_merchant_id: offer->getString("offer_engine_merchant_id", ""),
       offer_engine_txn_id: offer->getString("offer_engine_txn_id", ""),
       offer_id: offer->getString("offer_id", ""),
-      offer_amount: offer->getOptionFloat("offer_amount"),
-      currency: offer->getOptionString("currency"),
+      offer_amount: offer->getFloat("offer_amount", 0.0),
+      currency: offer->getString("currency", ""),
     }
     appliedOffer
   })

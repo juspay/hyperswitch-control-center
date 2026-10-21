@@ -1020,8 +1020,8 @@ export type AppliedOfferMock = {
   offer_engine_merchant_id?: string;
   offer_engine_txn_id?: string;
   offer_id?: string;
-  offer_amount?: number;
-  currency?: string;
+  offer_amount: number;
+  currency: string;
 };
 
 // Inject an `applied_offer` block into the payment-detail response so the Offer

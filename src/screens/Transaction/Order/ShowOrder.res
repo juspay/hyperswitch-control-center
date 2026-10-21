@@ -1040,6 +1040,25 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       </div>,
     )
 
+  let renderOfferDetails = () =>
+    renderTabContent(
+      renderDetailsPanel(
+        ~title="Offer Details",
+        ~children=<ShowOrderDetails
+          data=orderData
+          getHeading=OrderEntity.getHeadingForOfferDetails
+          getCell=OrderEntity.getCellForOfferDetails
+          detailsFields=[AppliedOfferAmount, OfferEngineMerchantId, OfferId, OfferEngineTxnId]
+          isNonRefundConnector={isNonRefundConnector(orderData.connector)}
+          paymentStatus={orderData.status}
+          openRefundModal={() => ()}
+          widthClass="md:w-1/4 w-full min-w-0"
+          paymentId={orderData.payment_id}
+          border=""
+        />,
+      ),
+    )
+
   let paymentDetailsTabs: array<Tabs.tab> = []
 
   if (
@@ -1096,30 +1115,11 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     renderContent: renderFrmDetails,
   })
 
-  switch orderData.applied_offer {
-  | Some(_) =>
+  if orderData.applied_offer->Option.isSome {
     paymentDetailsTabs->Array.push({
       title: "Offer Details",
-      renderContent: () =>
-        renderTabContent(
-          renderDetailsPanel(
-            ~title="Offer Details",
-            ~children=<ShowOrderDetails
-              data=orderData
-              getHeading=OrderEntity.getHeadingForOfferDetails
-              getCell=OrderEntity.getCellForOfferDetails
-              detailsFields=[AppliedOfferAmount, OfferEngineMerchantId, OfferId, OfferEngineTxnId]
-              isNonRefundConnector={isNonRefundConnector(orderData.connector)}
-              paymentStatus={orderData.status}
-              openRefundModal={() => ()}
-              widthClass="md:w-1/4 w-full min-w-0"
-              paymentId={orderData.payment_id}
-              border=""
-            />,
-          ),
-        ),
+      renderContent: renderOfferDetails,
     })
-  | None => ()
   }
 
   let selectTabByTitle = title => {
