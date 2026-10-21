@@ -1,7 +1,6 @@
 open Typography
 open ExplorerTypes
 open ExplorerCatalog
-open ExplorerDescriptions
 open ExplorerViewsUtils
 open InsightsHelper
 
@@ -49,7 +48,7 @@ module ViewTabs = {
         ->Array.map(view =>
           <TabsBinding.Trigger
             key={(view :> string)} value={(view :> string)} variant=Floating size=Md>
-            {viewLabel(view)->React.string}
+            {(view :> string)->LogicUtils.capitalizeString->React.string}
           </TabsBinding.Trigger>
         )
         ->React.array}

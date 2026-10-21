@@ -132,14 +132,6 @@ let outcomeLabel = (source: source, field) =>
   | (_, Total) => "All"
   }
 
-let viewLabel = (view: view) =>
-  switch view {
-  | #trend => "Trend"
-  | #breakdown => "Breakdown"
-  | #mix => "Mix"
-  | #table => "Table"
-  }
-
 let viewNote = (selection: selection) => {
   let noun = sourceNoun(selection.source)
   switch (selection.view, selection.split->isNonEmptyArray) {
