@@ -174,6 +174,29 @@ let make = (~id) => {
   let (processTrackerData, setProcessTrackerData) = React.useState(_ => Dict.make())
   let showToast = ToastAdapter.useShowToast()
   let (attemptsList, setAttemptsList) = React.useState(_ => [])
+  let (startRetryThreshold, setStartRetryThreshold) = React.useState(_ => 0)
+
+  let fetchStartRetryThreshold = async (~billingConnectorId) => {
+    try {
+      if billingConnectorId->isNonEmptyString {
+        let url = getURL(
+          ~entityName=V2(V2_CONNECTOR),
+          ~methodType=Get,
+          ~id=Some(billingConnectorId),
+        )
+        let json = await fetchDetails(url, ~version=V2)
+        let threshold =
+          json
+          ->getDictFromJsonObject
+          ->getDictfromDict("feature_metadata")
+          ->getDictfromDict("revenue_recovery")
+          ->getInt("billing_connector_retry_threshold", 0)
+        setStartRetryThreshold(_ => threshold)
+      }
+    } catch {
+    | _ => ()
+    }
+  }
 
   let getPTDetails = async (~orderData: RevenueRecoveryOrderTypes.order) => {
     try {
@@ -224,7 +247,6 @@ let make = (~id) => {
     } catch {
     | _ => ()
     }
-    setScreenState(_ => Success)
   }
 
   let fetchOrderDetails = async _ => {
@@ -245,7 +267,11 @@ let make = (~id) => {
         setRevenueRecoveryData(_ => orderData)
       }
 
-      fetchOrderAttemptListDetails()->ignore
+      let _ = await Promise.all2((
+        fetchStartRetryThreshold(~billingConnectorId=orderData.billing_connector_id),
+        fetchOrderAttemptListDetails(),
+      ))
+      setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
       switch Exn.message(e) {
@@ -286,7 +312,10 @@ let make = (~id) => {
           <div className="w-full h-full col-span-7 flex flex-col gap-7">
             <RecoveryAmountStatus order={revenueRecoveryData} processTracker={processTrackerData} />
             <AttemptsHistory
-              order={revenueRecoveryData} attemptsList processTracker={processTrackerData->Some}
+              order={revenueRecoveryData}
+              attemptsList
+              processTracker={processTrackerData->Some}
+              startRetryThreshold
             />
           </div>
           <div className="w-full h-full col-span-3">
@@ -294,7 +323,7 @@ let make = (~id) => {
               order=revenueRecoveryData
               getHeading
               getCell
-              detailsFields=[Id, Created, OrderAmount, Status, Connector, CardAttached]
+              detailsFields=[Id, Created, OrderAmount, Status, Connector]
             />
           </div>
         </div>
