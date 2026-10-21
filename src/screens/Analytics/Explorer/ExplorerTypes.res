@@ -1,23 +1,20 @@
-type source =
-  | Intent
-  | Attempt
+type source = [#intent | #attempt]
 
-type measure =
-  | SuccessRate
-  | FailureRate
-  | Volume
-  | Successful
-  | Failed
-  | ThreeDsFailureRate
-  | NotCompletedRate
-  | ProcessedAmount
-  | AvgTicket
+type measure = [
+  | #success_rate
+  | #failure_rate
+  | #volume
+  | #successful
+  | #failed
+  | #three_ds_failure_rate
+  | #not_completed_rate
+  | #processed_amount
+  | #avg_ticket
+]
 
-type view =
-  | @as("trend") Trend
-  | @as("breakdown") Breakdown
-  | @as("mix") Mix
-  | @as("table") Table
+type selectionKey = [#source | #measure | #currency | #split | #view | #from]
+
+type view = [#trend | #breakdown | #mix | #table]
 
 type changeImpact =
   | Favorable
@@ -28,8 +25,6 @@ type metric = [
   | #payment_intent_count
   | #payment_count
   | #payment_processed_amount
-  | #payment_success_rate
-  | #payments_success_rate
 ]
 
 type dimension = [
@@ -105,13 +100,13 @@ type countField =
   | Total
   | Success
   | Failed
-  | Awaiting
+  | Excluded
   | AuthFailed
   | Other
 
 type denominator =
   | AllRecords
-  | CompletedRecords
+  | EligibleRecords
   | ThreeDsAttempts
 
 type formula =
@@ -123,7 +118,6 @@ type formula =
 type sourceConfig = {
   countMetric: metric,
   amountMetric: metric,
-  successRateMetric: metric,
   infoDomain: string,
   dimensions: array<dimension>,
   measures: array<measure>,
@@ -134,10 +128,9 @@ type counts = {
   success: float,
   failed: float,
   authFailed: float,
-  awaiting: float,
+  excluded: float,
   threeDsAttempts: float,
   amount: float,
-  backendRate: option<float>,
 }
 
 type group = {
@@ -152,13 +145,15 @@ type dailyPoint = {
   counts: counts,
 }
 
-type question = {
+type selection = {
   source: source,
   measure: measure,
   split: array<dimension>,
-  view: view,
+  splitOptions: array<dimension>,
   dimensions: array<dimension>,
   filters: array<(dimension, array<string>)>,
+  drilledFrom: option<dimension>,
+  view: view,
   currency: string,
   startTime: string,
   endTime: string,
@@ -169,25 +164,26 @@ type responses = {
   previousRows: array<JSON.t>,
   currentDaily: array<JSON.t>,
   previousDaily: array<JSON.t>,
-  rateCurrent: array<JSON.t>,
-  ratePrevious: array<JSON.t>,
-  rateCurrentDaily: array<JSON.t>,
-  ratePreviousDaily: array<JSON.t>,
-  rateOverallCurrent: array<JSON.t>,
-  rateOverallPrevious: array<JSON.t>,
 }
 
 type dataset = {
-  sorted: array<group>,
-  topByVolume: array<group>,
-  unmeasured: array<(array<string>, counts)>,
   overall: counts,
   overallPrevious: counts,
-  currentDaily: array<dailyPoint>,
-  previousDaily: array<dailyPoint>,
-  minimumRateBase: float,
+  inCurrency: counts,
+  inCurrencyPrevious: counts,
   amountCurrencies: array<string>,
   amountCurrency: string,
+  groups: array<group>,
+  topByVolume: array<group>,
+  unmeasured: array<(array<string>, counts)>,
+  currentDaily: Dict.t<dailyPoint>,
+  previousDaily: Dict.t<dailyPoint>,
+}
+
+type chartContext = {
+  selection: selection,
+  dataset: dataset,
+  labelFor: (dimension, string) => string,
 }
 
 type outcomeRow = {
@@ -207,7 +203,6 @@ type groupRow = {
   group: group,
   labels: array<(dimension, string)>,
   value: string,
-  isLowVolume: bool,
   change: string,
   impact: changeImpact,
   volume: float,
@@ -220,16 +215,3 @@ type groupColumn =
   | ChangeColumn
   | VolumeColumn
   | ShareColumn
-
-type viewContext = {
-  question: question,
-  dataset: dataset,
-  hasPrevious: bool,
-  currentLabel: string,
-  previousLabel: string,
-  singleCurrency: string,
-  chartKey: string,
-  labelFor: (dimension, string) => string,
-  groupLabel: group => string,
-  onFocus: group => unit,
-}

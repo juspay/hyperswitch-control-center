@@ -54,6 +54,19 @@ function updateConnectorListWithEnv(connectorListConfig, domain, tableName) {
   return result;
 }
 
+// Update superposition display configs using environment variables
+function updateSuperpositionConfigWithEnv(superpositionConfig, domain) {
+  domain = domain || "default";
+  const envVar =
+    process.env[`${domain}__superposition_configs__display_configs`];
+  return {
+    ...superpositionConfig,
+    display_configs: checkEnvValues(envVar, superpositionConfig.display_configs)
+      .map((key) => key.trim())
+      .filter((key) => key.length > 0),
+  };
+}
+
 function processConfigList(configList, body, domain, listType) {
   const result = {};
   for (const key in configList) {
@@ -169,6 +182,13 @@ const configHandler = async (
         domain,
         "connector_clone",
       );
+    }
+    if (merchantConfig && merchantConfig["superposition_configs"]) {
+      merchantConfig["superposition_configs"] =
+        updateSuperpositionConfigWithEnv(
+          merchantConfig["superposition_configs"],
+          domain,
+        );
     }
     if (merchantConfig && merchantConfig["merchant_config"]) {
       delete merchantConfig["merchant_config"];

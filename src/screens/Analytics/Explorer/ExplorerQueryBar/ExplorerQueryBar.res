@@ -3,35 +3,40 @@ open LogicUtils
 open ExplorerTypes
 open ExplorerUtils
 open ExplorerDescriptions
-open ExplorerQuery
-open ExplorerHelper
+open ExplorerSelection
+open ExplorerQueryBarHelper
+open ExplorerQueryBarUtils
 
 @react.component
 let make = (
-  ~viewContext: viewContext,
+  ~selection: selection,
+  ~dataset: dataset,
   ~onUpdate: Dict.t<string> => unit,
   ~onClearFilters,
   ~editing: option<dimension>,
   ~setEditing,
 ) => {
-  let {question, dataset} = viewContext
-  let source = question.source
-  let splitOptions = question->splitOptions
+  let {source, splitOptions} = selection
+  let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
+  let labelFor = (key, value) => getDimensionValueLabel(key, value, ~profileList)
   let fetchFilterValues = ExplorerHooks.useFetchFilterValues()
   let (filterValuesByKey, setFilterValuesByKey) = React.useState(_ => Dict.make())
   let filterValuesKey =
     [
-      source->sourceToString,
-      editing->Option.mapOr("", key => (key :> string)),
-      question.startTime,
-      question.endTime,
+      (source :> string),
+      editing->mapOptionOrDefault("", key => (key :> string)),
+      selection.startTime,
+      selection.endTime,
     ]->Array.joinWith("|")
-  let filterValues = filterValuesByKey->Dict.get(filterValuesKey)->Option.getOr([])
-  let selected = editing->Option.mapOr([], key => question->getSelectedFilterValues(key))
+  let filterValues = filterValuesByKey->getValueFromDict(filterValuesKey, [])
+  let selected = editing->mapOptionOrDefault([], key => selection->getSelectedFilterValues(key))
+  let splitIds = selection.split->Array.map(key => (key :> string))
+  let thenByOptions =
+    splitOptions->Array.filter(key => (key :> string) != splitIds->getValueFromArray(0, ""))
   let setSelection = updates => updates->selectionUpdate->onUpdate
   let setSplitAt = (index, key) =>
     setSelection([
-      ("split", question->splitAt(index, splitOptions->findDimension(key))->splitValue),
+      (#split, selection->splitAt(index, splitOptions->findDimension(key))->splitValue),
     ])
   let setFilter = (key, values) => getFilterUpdate(key, values)->onUpdate
   let toggleFilterValue = value =>
@@ -46,7 +51,7 @@ let make = (
 
   let getFilterValues = async dimension => {
     try {
-      let values = await fetchFilterValues(~question, ~dimension)
+      let values = await fetchFilterValues(~selection, ~dimension)
       setFilterValuesByKey(prev => {
         let valuesByKey = prev->Dict.copy
         valuesByKey->Dict.set(filterValuesKey, values)
@@ -59,18 +64,19 @@ let make = (
 
   React.useEffect(() => {
     switch (source, editing) {
-    | (Intent, Some(#status)) | (_, None) => ()
+    | (#intent, Some(#status)) | (_, None) => ()
     | (_, Some(dimension)) => getFilterValues(dimension)->ignore
     }
     None
   }, [filterValuesKey])
 
-  <ExplorerCard className="flex flex-col gap-4 px-6 py-5">
-    <div className="flex flex-wrap items-center gap-2">
+  <div
+    className="flex flex-col gap-4 rounded-xl border border-nd_br_gray-200 bg-nd_gray-0 px-6 py-5">
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
       <QueryText text="Show" />
       <QuerySelect
-        value={question.measure->measureToString}
-        onChange={id => setSelection([("measure", id)])}
+        value={(selection.measure :> string)}
+        onChange={id => setSelection([(#measure, id)])}
         options={source->measureOptions}
         placeholder="Measure"
       />
@@ -78,31 +84,29 @@ let make = (
       <QueryText text={`all ${sourceNoun(source)},`} strong=true />
       <QueryText text="split by" />
       <QuerySelect
-        value={question.split->Array.get(0)->Option.mapOr("", key => (key :> string))}
+        value={splitIds->getValueFromArray(0, "")}
         onChange={key => setSplitAt(0, key)}
         options={source->dimensionOptions(splitOptions)}
         placeholder="Select"
         allowDeselect=true
         enableSearch=true
       />
-      <RenderIf condition={question.split->isNonEmptyArray}>
+      <RenderIf condition={selection.split->isNonEmptyArray}>
         <QueryText text="then by" />
         <QuerySelect
-          value={question.split->Array.get(1)->Option.mapOr("", key => (key :> string))}
+          value={splitIds->getValueFromArray(1, "")}
           onChange={key => setSplitAt(1, key)}
-          options={source->dimensionOptions(
-            splitOptions->Array.filter(key => question.split->Array.get(0) != Some(key)),
-          )}
+          options={source->dimensionOptions(thenByOptions)}
           placeholder="Select"
           allowDeselect=true
           enableSearch=true
         />
       </RenderIf>
-      <RenderIf condition={question->needsCurrency && dataset.amountCurrencies->isNonEmptyArray}>
+      <RenderIf condition={selection->needsCurrency && dataset.amountCurrencies->isNonEmptyArray}>
         <QueryText text="in" />
         <QuerySelect
           value=dataset.amountCurrency
-          onChange={currency => setSelection([("currency", currency)])}
+          onChange={currency => setSelection([(#currency, currency)])}
           options={dataset.amountCurrencies->Array.map((
             currency
           ): MultiSelectBindings.selectMenuItemType => {label: currency, value: currency})}
@@ -113,7 +117,8 @@ let make = (
     <div className="flex flex-wrap items-center gap-2">
       <QueryText text="where" />
       <FilterChips
-        viewContext
+        selection
+        labelFor
         editing
         onEdit=setEditing
         onRemove={key => {
@@ -125,9 +130,9 @@ let make = (
       />
       <QuerySelect
         value=""
-        onChange={key => setEditing(question.dimensions->findDimension(key))}
-        options={source->dimensionOptions(question.dimensions)}
-        placeholder={question.filters->isEmptyArray ? "Add a filter" : "Add another"}
+        onChange={key => setEditing(selection.dimensions->findDimension(key))}
+        options={source->dimensionOptions(selection.dimensions)}
+        placeholder={selection.filters->isEmptyArray ? "Add a filter" : "Add another"}
         enableSearch=true
       />
       {switch editing {
@@ -138,11 +143,11 @@ let make = (
           items=[
             {
               items: (
-                source == Intent && key == #status
+                source == #intent && key == #status
                   ? ExplorerCatalog.intentStatuses->Array.map(status => (status :> string))
                   : filterValues
               )->Array.map((value): MultiSelectBindings.selectMenuItemType => {
-                label: viewContext.labelFor(key, value),
+                label: labelFor(key, value),
                 value,
               }),
             },
@@ -155,7 +160,7 @@ let make = (
         />
       | None => React.null
       }}
-      <RenderIf condition={question.filters->isNonEmptyArray}>
+      <RenderIf condition={selection.filters->isNonEmptyArray}>
         <button
           className={`${body.md.medium} text-nd_primary_blue-500 hover:underline`}
           onClick={_ => {
@@ -168,9 +173,9 @@ let make = (
     </div>
     <div className={`flex items-center gap-1.5 ${body.sm.regular} text-nd_gray-500`}>
       <span className={body.sm.medium}>
-        {`${measureLabel(source, question.measure)}:`->React.string}
+        {`${measureLabel(source, selection.measure)}:`->React.string}
       </span>
-      {measureDefinition(source, question.measure)->React.string}
+      {measureDefinition(source, selection.measure)->React.string}
     </div>
-  </ExplorerCard>
+  </div>
 }

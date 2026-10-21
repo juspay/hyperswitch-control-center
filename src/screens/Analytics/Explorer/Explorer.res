@@ -1,9 +1,8 @@
-open Typography
 open LogicUtils
 open ExplorerTypes
 open ExplorerCatalog
 open ExplorerUtils
-open ExplorerQuery
+open ExplorerSelection
 open ExplorerHelper
 open NewAnalyticsHelper
 
@@ -12,7 +11,6 @@ let make = () => {
   let {filterValueJson, updateExistingKeys, removeKeys} = React.useContext(
     FilterContext.filterContext,
   )
-  let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
   let fetchMetrics = ExplorerHooks.useFetchExplorerMetrics()
   let fetchBackendDimensions = ExplorerHooks.useFetchBackendDimensions()
   let getSignal = AbortControllerHook.useAbortController()
@@ -21,24 +19,28 @@ let make = () => {
   let (dimensionsByDomain, setDimensionsByDomain) = React.useState(_ => Dict.make())
   let (editing, setEditing) = React.useState(_ => None)
 
-  let infoDomain = sourceConfig(filterValueJson->sourceFromFilters).infoDomain
-  let question =
-    filterValueJson->questionFromFilters(
-      ~backendDimensions=dimensionsByDomain->Dict.get(infoDomain),
+  let source = filterValueJson->sourceFromFilters
+  let infoDomain = sourceConfig(source).infoDomain
+  let selection =
+    filterValueJson->selectionFromFilters(
+      ~backendDimensions=dimensionsByDomain->getOptionValFromDict(infoDomain),
     )
-  let dataset = question->ExplorerData.buildDataset(responses)
-  let isSplit = question.split->isNonEmptyArray
+  let dimensionsReady = dimensionsByDomain->getOptionValFromDict(infoDomain)->Option.isSome
+  let dataset = selection->ExplorerData.buildDataset(responses)
+
+  let setDimensions = names =>
+    setDimensionsByDomain(prev => {
+      let dimensions = prev->Dict.copy
+      dimensions->Dict.set(infoDomain, names)
+      dimensions
+    })
 
   let getBackendDimensions = async () => {
     try {
       let names = await fetchBackendDimensions(~infoDomain)
-      setDimensionsByDomain(prev => {
-        let dimensions = prev->Dict.copy
-        dimensions->Dict.set(infoDomain, names)
-        dimensions
-      })
+      setDimensions(names)
     } catch {
-    | _ => ()
+    | _ => setDimensions(sourceConfig(source).dimensions->Array.map(key => (key :> string)))
     }
   }
 
@@ -46,56 +48,17 @@ let make = () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let signal = getSignal()
-      let source = question.source
-      let current = (question.startTime, question.endTime)
-      let previous = question->previousWindow
-      let fetchRows = async body =>
-        switch body {
-        | Some(body) => await fetchMetrics(~source, ~body, ~signal)
-        | None => []
-        }
-      let fetchCounts = (~window, ~daily=false) =>
-        fetchRows(Some(question->getCountRequestBody(~window, ~daily)))
-      let fetchRate = (~window, ~groupBy=question.split, ~daily=false) =>
-        fetchRows(question->getRateRequestBody(~window, ~groupBy, ~daily))
-      let (
-        (currentRows, previousRows, currentDaily, previousDaily),
-        (
-          rateCurrent,
-          ratePrevious,
-          rateCurrentDaily,
-          ratePreviousDaily,
-          rateOverallCurrent,
-          rateOverallPrevious,
-        ),
-      ) = await Promise.all2((
-        Promise.all4((
-          fetchCounts(~window=current),
-          fetchCounts(~window=previous),
-          fetchCounts(~window=current, ~daily=true),
-          isSplit ? fetchRows(None) : fetchCounts(~window=previous, ~daily=true),
-        )),
-        Promise.all6((
-          fetchRate(~window=current),
-          fetchRate(~window=previous),
-          fetchRate(~window=current, ~daily=true),
-          isSplit ? fetchRows(None) : fetchRate(~window=previous, ~daily=true),
-          isSplit ? fetchRate(~window=current, ~groupBy=[]) : fetchRows(None),
-          isSplit ? fetchRate(~window=previous, ~groupBy=[]) : fetchRows(None),
-        )),
+      let current = selection->currentWindow
+      let previous = selection->previousWindow
+      let fetchCounts = (~daily=false, window) =>
+        fetchMetrics(~source, ~body=selection->getCountRequestBody(~window, ~daily), ~signal)
+      let (currentRows, previousRows, currentDaily, previousDaily) = await Promise.all4((
+        fetchCounts(current),
+        fetchCounts(previous),
+        fetchCounts(~daily=true, current),
+        selection.split->isNonEmptyArray ? Promise.resolve([]) : fetchCounts(~daily=true, previous),
       ))
-      setResponses(_ => {
-        currentRows,
-        previousRows,
-        currentDaily,
-        previousDaily,
-        rateCurrent,
-        ratePrevious,
-        rateCurrentDaily,
-        ratePreviousDaily,
-        rateOverallCurrent,
-        rateOverallPrevious,
-      })
+      setResponses(_ => {currentRows, previousRows, currentDaily, previousDaily})
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | AbortControllerHook.AbortError => ()
@@ -104,112 +67,62 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    getBackendDimensions()->ignore
+    if !dimensionsReady {
+      getBackendDimensions()->ignore
+    }
     None
   }, [infoDomain])
 
   React.useEffect(() => {
-    if question->hasDates {
+    if !dimensionsReady {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+    } else if selection->hasDates {
       getExplorerData()->ignore
     }
     None
-  }, [question->requestKey])
+  }, [selection->requestKey, dimensionsReady->getStringFromBool])
 
-  let setSelection = updates => updates->selectionUpdate->updateExistingKeys
   let clearFilters = () =>
-    question.filters->Array.map(((key, _)) => getFilterUrlKey(key))->removeKeys
+    selection.filters->Array.map(((key, _)) => getFilterUrlKey(key))->removeKeys
   let setSource = source =>
-    if source != question.source {
+    if source != selection.source {
       clearFilters()
       setEditing(_ => None)
-      setSelection([("source", source->sourceToString), ("split", "[]"), ("from", "")])
+      [(#source, (source :> string)), (#split, "[]"), (#from, "")]
+      ->selectionUpdate
+      ->updateExistingKeys
     }
 
-  let labelFor = (key, value) => getDimensionValueLabel(key, value, ~profileList)
-  let (previousStart, previousEnd) = question->previousWindow
-  let viewContext = {
-    question,
-    dataset,
-    hasPrevious: dataset.overallPrevious.total > 0.0,
-    currentLabel: periodLabel(question.startTime, question.endTime),
-    previousLabel: periodLabel(previousStart, previousEnd),
-    singleCurrency: question->needsCurrency
-      ? dataset.amountCurrency
-      : question->getSelectedFilterValues(#currency)->getValueFromArray(0, ""),
-    chartKey: [
-      question->requestKey,
-      question.measure->measureToString,
-      dataset.amountCurrency,
-    ]->Array.joinWith("|"),
-    labelFor,
-    groupLabel: group => group.values->getValuesLabel(~split=question.split, ~labelFor),
-    onFocus: group => question->getFocusUpdate(group)->updateExistingKeys,
-  }
-  let drilledFrom =
-    question.dimensions->findDimension(filterValueJson->getString(urlKey("from"), ""))
-  let suggestions = question->getSplitSuggestions(~drilledFrom)
-
   <div className="flex flex-col gap-4">
-    <SourceTabs question onSource=setSource />
+    <SourceTabs selection onSource=setSource />
     <ExplorerQueryBar
-      viewContext
+      selection
+      dataset
       onUpdate=updateExistingKeys
       onClearFilters=clearFilters
       editing
       setEditing={key => setEditing(_ => key)}
     />
-    {if question->hasDates {
+    <RenderIf condition={selection->hasDates}>
       <PageLoaderWrapper
         screenState
         customLoader={<Shimmer styleClass="w-full h-80 rounded-xl" />}
         sectionHeight="h-80">
-        {dataset.overall.total == 0.0
-          ? <NoData
-              height="h-32"
-              message="No data for this selection. Widen the dates or remove a filter."
-            />
-          : <div className="flex flex-col gap-4">
-              <ExplorerMetricCards viewContext />
-              <ExplorerCard>
-                <div
-                  className="flex flex-wrap items-center justify-between gap-3 border-b border-nd_br_gray-150 px-5 py-3">
-                  <div className="flex flex-col">
-                    <div className={`${body.lg.semibold} text-nd_gray-800`}>
-                      {question->ExplorerDescriptions.viewTitle->React.string}
-                    </div>
-                    <div className={`${body.sm.regular} text-nd_gray-500`}>
-                      {`${viewContext.currentLabel} · ${question->ExplorerDescriptions.viewNote}`->React.string}
-                    </div>
-                  </div>
-                  <ViewTabs
-                    view=question.view onViewChange={view => setSelection([("view", view)])}
-                  />
-                </div>
-                <div className="px-3 py-4">
-                  <ExplorerViews viewContext />
-                </div>
-                <RenderIf condition={isSplit && dataset.unmeasured->isNonEmptyArray}>
-                  <UnmeasuredNote viewContext />
-                </RenderIf>
-                <RenderIf condition={suggestions->isNonEmptyArray}>
-                  <SplitSuggestions
-                    suggestions
-                    onSelect={key =>
-                      setSelection([
-                        (
-                          "split",
-                          question
-                          ->splitAt(Math.Int.min(question.split->Array.length, 1), Some(key))
-                          ->splitValue,
-                        ),
-                      ])}
-                  />
-                </RenderIf>
-              </ExplorerCard>
-            </div>}
+        <RenderIf condition={dataset.overall.total > 0.0}>
+          <div className="flex flex-col gap-4">
+            <ExplorerMetricCards selection dataset />
+            <ExplorerViews selection dataset onUpdate=updateExistingKeys />
+          </div>
+        </RenderIf>
+        <RenderIf condition={dataset.overall.total == 0.0}>
+          <NoData
+            height="h-32" message="No data for this selection. Widen the dates or remove a filter."
+          />
+        </RenderIf>
       </PageLoaderWrapper>
-    } else {
+    </RenderIf>
+    <RenderIf condition={!(selection->hasDates)}>
       <NoData height="h-32" message="Select a date range to load the data." />
-    }}
+    </RenderIf>
   </div>
 }

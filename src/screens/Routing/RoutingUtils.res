@@ -321,15 +321,14 @@ let decisionEngineHandoffFragment = (
     connectorList
     ->filterConnectorList(~retainInList=PaymentConnector)
     ->Array.filter(connector =>
-      connector.profile_id === profileId &&
-      !connector.disabled &&
-      connector.connector_name !== "applepay"
+      connector.profile_id === profileId && connector.connector_name !== "applepay"
     )
     ->Array.map(connector =>
       [
         ("merchant_connector_id", connector.id->JSON.Encode.string),
         ("connector_name", connector.connector_name->JSON.Encode.string),
         ("connector_label", connector.connector_label->JSON.Encode.string),
+        ("disabled", connector.disabled->JSON.Encode.bool),
       ]->getJsonFromArrayOfJson
     )
 

@@ -239,7 +239,7 @@ let useGetURL = () => {
         userInfo.analyticsEntity,
         userInfo.userEntity,
       )
-    | EmbeddableSession(_) => (#Merchant, #Merchant, #Merchant)
+    | EmbeddableSession(_) => (#Profile, #Merchant, #Merchant)
     }
 
     let connectorBaseURL = `account/${merchantId}/connectors`
@@ -293,8 +293,9 @@ let useGetURL = () => {
         | _ => Default("")
         }
       | BLOCKLIST_EXPORT =>
-        switch methodType {
-        | Post => Default(`blocklist/export`)
+        switch (methodType, queryParameters) {
+        | (Post, Some(queryParams)) => Default(`blocklist/export?${queryParams}`)
+        | (Post, None) => Default(`blocklist/export`)
         | _ => Default("")
         }
       | BLOCKLIST_CLONE =>
@@ -389,6 +390,11 @@ let useGetURL = () => {
             }
           }
         | _ => Default("")
+        }
+      | CONNECTOR_WEBHOOK =>
+        switch id {
+        | Some(mcaId) => Default(`${connectorBaseURL}/webhooks/${mcaId}`)
+        | None => Default(connectorBaseURL)
         }
 
       /* OPERATIONS */
@@ -489,7 +495,7 @@ let useGetURL = () => {
         }
       | MANUAL_STATUS_UPDATE =>
         switch methodType {
-        | Post =>
+        | Get | Post =>
           switch id {
           | Some(payment_id) => Default(`payments/${payment_id}/manual-status-update`)
           | None => Default("")
@@ -1335,7 +1341,7 @@ let useGetURL = () => {
             switch id {
             | Some(transactionId) =>
               Default(
-                `${reconBaseURL}/exception_management/transactions/${transactionId}/manual_reconciliation`,
+                `${reconBaseURL}/exception_management/transactions/${transactionId}/manual_reconciliation/v2`,
               )
             | None => Default(``)
             }

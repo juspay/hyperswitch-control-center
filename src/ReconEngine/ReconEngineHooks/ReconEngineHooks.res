@@ -73,6 +73,31 @@ let useGetCursorPage = (
   }
 }
 
+let useGetTransactionEntryWithStatus = () => {
+  let getEntries = useGetCursorPage(
+    ~hyperswitchReconType=#PROCESSED_ENTRIES_LIST,
+    ~itemMapper=ReconEngineTransactionsUtils.transactionsEntryItemToObjMapperFromDict,
+  )
+
+  async (~primaryTransactionId, ~status: ReconEngineTypes.entryStatus) => {
+    let page = await getEntries(
+      ~body=ReconEngineTransactionsUtils.buildEntriesListBody(
+        ~primaryTransactionId,
+        ~accountIds=[],
+        ~sortBy=defaultCursorSortBy,
+        ~direction=#next,
+        ~filterValueJson=[
+          ("status", [(status :> string)]->getJsonFromArrayOfString),
+        ]->Dict.fromArray,
+        ~searchType=ReconEngineTransactionsTypes.UnknownEntrySearchType,
+        ~searchText="",
+        ~limit=1,
+      ),
+    )
+    page.items->Array.get(0)
+  }
+}
+
 let useGetAccounts = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()

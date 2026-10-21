@@ -15,6 +15,7 @@ let getStepName = step => {
   | Preview => "Preview"
   | CustomMetadata => "Metadata"
   | AutomaticFlow => "AutomaticFlow"
+  | WebhookRegistration => "Register Webhook"
   }
 }
 // Any connector added to these lists must also be added to the matching
@@ -202,6 +203,13 @@ let connectorList: array<connectorTypes> = [
   Processors(WORLDPAYRAFT),
   Processors(ETISALAT),
   Processors(MERCHANTE),
+  Processors(SAFERPAY),
+  Processors(JPMORGAN_ORBITAL),
+  Processors(D24),
+  Processors(PAYNEARME),
+  Processors(PAYDOTCOM),
+  Processors(ELAVON_PG),
+  Processors(GLOBALPAYMENTS_HEARTLAND),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -711,8 +719,12 @@ let stripeBillingInfo = {
   description: "Stripe Billing connector enables automated subscription management, invoicing, and recurring payments using Stripe's billing infrastructure.",
 }
 
+let recurlyInfo = {
+  description: "Recurly is a subscription management and billing platform that automates recurring billing, invoicing, and payment recovery for subscription businesses.",
+}
+
 let customBillingInfo = {
-  description: "Stripe Billing connector enables automated subscription management, invoicing, and recurring payments using Stripe's billing infrastructure.",
+  description: "Custom Billing lets you connect your own in-house billing system for subscription management and invoicing, without needing credentials from a third-party billing platform.",
 }
 
 let nexixpayInfo = {
@@ -776,6 +788,34 @@ let etisalatInfo = {
 
 let merchanteInfo = {
   description: "MerchantE Payment Gateway is a REST API for credit card processing — authorization, capture, settlement, refunds, voids, and AVS/CVV verification — with tokenized Card-on-File (CIT/MIT) recurring payments and Apple Pay/Google Pay support.",
+}
+
+let saferpayInfo = {
+  description: "Saferpay is a secure e-commerce payment gateway supporting domestic and international online payments.",
+}
+
+let jpmorganOrbitalInfo = {
+  description: "J.P. Morgan Orbital is a payment gateway for securely processing online card payments.",
+}
+
+let d24Info = {
+  description: "D24 is a payment platform for accepting deposits and issuing cashouts through local payment methods.",
+}
+
+let paynearmeInfo = {
+  description: "PayNearMe is a US payments platform for bill pay and iGaming, offering card, ACH and cash payments.",
+}
+
+let paydotcomInfo = {
+  description: "Pay.com is a REST-based payment gateway supporting card charges, holds, refunds and 3DS authentication.",
+}
+
+let elavonPgInfo = {
+  description: "Elavon Payment Gateway provides REST APIs for online, in-app and in-person payments and transaction management.",
+}
+
+let globalpaymentsHeartlandInfo = {
+  description: "Global Payments Heartland uses the Portico gateway API to process card and other payment transactions.",
 }
 
 let signifydInfo = {
@@ -1086,6 +1126,13 @@ let getConnectorNameString = (connector: processorTypes) =>
   | WORLDPAYRAFT => "worldpayraft"
   | ETISALAT => "etisalat"
   | MERCHANTE => "merchante"
+  | SAFERPAY => "saferpay"
+  | JPMORGAN_ORBITAL => "jpmorgan_orbital"
+  | D24 => "d24"
+  | PAYNEARME => "paynearme"
+  | PAYDOTCOM => "paydotcom"
+  | ELAVON_PG => "elavon_pg"
+  | GLOBALPAYMENTS_HEARTLAND => "globalpayments_heartland"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1149,6 +1196,7 @@ let getBillingProcessorNameString = (billingProcessor: billingProcessorTypes) =>
   switch billingProcessor {
   | CHARGEBEE => "chargebee"
   | STRIPE_BILLING => "stripebilling"
+  | RECURLY => "recurly"
   | CUSTOMBILLING => "custombilling"
   }
 }
@@ -1307,6 +1355,13 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "worldpayraft" => Processors(WORLDPAYRAFT)
     | "etisalat" => Processors(ETISALAT)
     | "merchante" => Processors(MERCHANTE)
+    | "saferpay" => Processors(SAFERPAY)
+    | "jpmorgan_orbital" => Processors(JPMORGAN_ORBITAL)
+    | "d24" => Processors(D24)
+    | "paynearme" => Processors(PAYNEARME)
+    | "paydotcom" => Processors(PAYDOTCOM)
+    | "elavon_pg" => Processors(ELAVON_PG)
+    | "globalpayments_heartland" => Processors(GLOBALPAYMENTS_HEARTLAND)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1365,6 +1420,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     switch connector {
     | "chargebee" => BillingProcessor(CHARGEBEE)
     | "stripebilling" => BillingProcessor(STRIPE_BILLING)
+    | "recurly" => BillingProcessor(RECURLY)
     | "custombilling" => BillingProcessor(CUSTOMBILLING)
     | _ => UnknownConnector("Not known")
     }
@@ -1504,6 +1560,13 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | WORLDPAYRAFT => worldpayraftInfo
   | ETISALAT => etisalatInfo
   | MERCHANTE => merchanteInfo
+  | SAFERPAY => saferpayInfo
+  | JPMORGAN_ORBITAL => jpmorganOrbitalInfo
+  | D24 => d24Info
+  | PAYNEARME => paynearmeInfo
+  | PAYDOTCOM => paydotcomInfo
+  | ELAVON_PG => elavonPgInfo
+  | GLOBALPAYMENTS_HEARTLAND => globalpaymentsHeartlandInfo
   }
 }
 
@@ -1567,6 +1630,7 @@ let getBillingProcessorInfo = (billingProcessor: ConnectorTypes.billingProcessor
   switch billingProcessor {
   | CHARGEBEE => chargebeeInfo
   | STRIPE_BILLING => stripeBillingInfo
+  | RECURLY => recurlyInfo
   | CUSTOMBILLING => customBillingInfo
   }
 }
@@ -1887,8 +1951,14 @@ let getDisableConnectorPayloadV2 = (connectorType, previousConnectorState, merch
 let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) => {
   switch (connector, fieldName) {
   | (Processors(ADYEN), "merchant_secret") => true
-  | (BillingProcessor(CHARGEBEE) | BillingProcessor(STRIPE_BILLING), "merchant_secret") => true
-  | (BillingProcessor(CHARGEBEE) | BillingProcessor(STRIPE_BILLING), "additional_secret") => true
+  | (
+      BillingProcessor(CHARGEBEE) | BillingProcessor(STRIPE_BILLING) | BillingProcessor(RECURLY),
+      "merchant_secret",
+    ) => true
+  | (
+      BillingProcessor(CHARGEBEE) | BillingProcessor(STRIPE_BILLING) | BillingProcessor(RECURLY),
+      "additional_secret",
+    ) => true
   | _ => false
   }
 }
@@ -2519,6 +2589,13 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | WORLDPAYRAFT => "Worldpay Raft"
   | ETISALAT => "Etisalat"
   | MERCHANTE => "MerchantE"
+  | SAFERPAY => "Saferpay"
+  | JPMORGAN_ORBITAL => "JP Morgan Orbital"
+  | D24 => "D24"
+  | PAYNEARME => "PayNearMe"
+  | PAYDOTCOM => "Pay.com"
+  | ELAVON_PG => "Elavon Payment Gateway (EPG)"
+  | GLOBALPAYMENTS_HEARTLAND => "Global Payments (Heartland)"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -2579,7 +2656,8 @@ let getDisplayNameForBillingProcessor = billingProcessor => {
   switch billingProcessor {
   | CHARGEBEE => "Chargebee"
   | STRIPE_BILLING => "Stripe Billing"
-  | CUSTOMBILLING => "Custom"
+  | RECURLY => "Recurly"
+  | CUSTOMBILLING => "Custom Billing"
   }
 }
 
@@ -2771,6 +2849,8 @@ let connectorTypeFromConnectorName: string => connector = connectorName =>
 let stepsArr = (~connector) => {
   switch connector->getConnectorNameTypeFromString {
   | Processors(PAYSAFE) => [IntegFields, PaymentMethods, CustomMetadata, SummaryAndTest]
+  // TODO: Gate webhook details on the WASM value. Blocked: useGetFilterDictFromUrl is initially empty when the WASM value is called.
+  | Processors(SANTANDER) => [IntegFields, PaymentMethods, WebhookRegistration, SummaryAndTest]
   | _ => [IntegFields, PaymentMethods, SummaryAndTest]
   }
 }

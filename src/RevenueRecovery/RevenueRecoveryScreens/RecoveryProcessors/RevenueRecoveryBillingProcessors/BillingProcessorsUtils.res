@@ -17,7 +17,8 @@ let getConnectorDetails = (connectorList: array<ConnectorTypes.connectorPayloadC
   (mca, name)
 }
 
-let getConnectorConfig = connector => {
+// used for billing connectors the wasm has no config for yet
+let getFallbackConnectorConfig = connector => {
   switch connector {
   | "chargebee" =>
     {
@@ -44,7 +45,19 @@ let getConnectorConfig = connector => {
     {
       "connector_auth": {
         "HeaderKey": {
-          "api_key": "Custom billing API Key",
+          "api_key": "Stripe Billing API Key",
+        },
+      },
+      "connector_webhook_details": {
+        "merchant_secret": "Username",
+        "additional_secret": "Password",
+      },
+    }->Identity.genericTypeToJson
+  | "recurly" =>
+    {
+      "connector_auth": {
+        "HeaderKey": {
+          "api_key": "Recurly API Key",
         },
       },
       "connector_webhook_details": {
@@ -61,6 +74,12 @@ let getConnectorConfig = connector => {
   | _ => JSON.Encode.null
   }
 }
+
+let getConnectorConfig = (connector, ~wasmConfig) =>
+  // the wasm returns undefined for billing connectors it has no config for
+  wasmConfig
+  ->JSON.Decode.object
+  ->LogicUtils.mapOptionOrDefault(getFallbackConnectorConfig(connector), _ => wasmConfig)
 
 type optionType = {
   name: string,

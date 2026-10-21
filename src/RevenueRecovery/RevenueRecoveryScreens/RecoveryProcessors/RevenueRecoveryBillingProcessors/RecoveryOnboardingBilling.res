@@ -56,7 +56,8 @@ let make = (
       )
     } else {
       // TODO: need to be removed when we have file upload on live
-      let billingAccountReference = [(connectorID, connectorID->JSON.Encode.string)]->Dict.fromArray
+      let reference = connector->requiresProcessorReference ? "" : connectorID
+      let billingAccountReference = [(connectorID, reference->JSON.Encode.string)]->Dict.fromArray
 
       let revenueRecovery =
         [
@@ -79,13 +80,13 @@ let make = (
   let handleAuthKeySubmit = async (values, _) => {
     mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
     setInitialValues(_ => values)
-    onNextClick(currentStep, setNextStep, isLiveMode)
+    onNextClick(currentStep, setNextStep, ~isLiveMode, ~billingConnector=connector)
     Nullable.null
   }
 
   let handleClick = () => {
     mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
-    onNextClick(currentStep, setNextStep, isLiveMode)->ignore
+    onNextClick(currentStep, setNextStep, ~isLiveMode, ~billingConnector=connector)->ignore
   }
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
@@ -122,7 +123,10 @@ let make = (
   let connectorDetails = React.useMemo(() => {
     try {
       if connector->isNonEmptyString {
-        let dict = BillingProcessorsUtils.getConnectorConfig(connector)
+        let dict = BillingProcessorsUtils.getConnectorConfig(
+          connector,
+          ~wasmConfig=Window.getBillingConnectorConfig(connector->LogicUtils.capitalizeString),
+        )
         dict
       } else {
         Dict.make()->JSON.Encode.object
@@ -155,41 +159,40 @@ let make = (
 
     if currentStep->getSectionVariant == (#addAPlatform, #processorSetUp) {
       let billing_connector_retry_threshold =
-        revenue_recovery->getInt("billing_connector_retry_threshold", 0)
+        revenue_recovery->getOptionInt("billing_connector_retry_threshold")
       let max_retry_count = revenue_recovery->getInt("max_retry_count", 0)
 
-      if !isLiveMode {
-        if billing_connector_retry_threshold === 0 {
-          Dict.set(
-            errors,
-            "billing_connector_retry_threshold",
-            `Please enter start retry count`->JSON.Encode.string,
-          )
-        } else if billing_connector_retry_threshold > 15 {
-          Dict.set(
-            errors,
-            "billing_connector_retry_threshold",
-            `Start retry count should be less than 15`->JSON.Encode.string,
-          )
-        }
+      switch billing_connector_retry_threshold {
+      | None =>
+        Dict.set(
+          errors,
+          "billing_connector_retry_threshold",
+          `Please enter start retry count`->JSON.Encode.string,
+        )
+      | Some(value) if value > 15 =>
+        Dict.set(
+          errors,
+          "billing_connector_retry_threshold",
+          `Start retry count cannot be more than 15`->JSON.Encode.string,
+        )
+      | Some(_) => ()
+      }
 
-        if max_retry_count === 0 {
-          Dict.set(
-            errors,
-            "max_retry_count",
-            `Please enter max retry count count`->JSON.Encode.string,
-          )
-        } else if max_retry_count > 15 {
-          Dict.set(
-            errors,
-            "max_retry_count",
-            `Max retry count count should be less than 15`->JSON.Encode.string,
-          )
-        }
+      if max_retry_count === 0 {
+        Dict.set(errors, "max_retry_count", `Please enter max retry count`->JSON.Encode.string)
+      } else if max_retry_count > 15 {
+        Dict.set(
+          errors,
+          "max_retry_count",
+          `Max retry count cannot be more than 15`->JSON.Encode.string,
+        )
       }
     }
 
-    if currentStep->getSectionVariant == (#addAPlatform, #processorSetUp) {
+    if (
+      currentStep->getSectionVariant == (#addAPlatform, #processorSetUp) &&
+        connector->requiresProcessorReference
+    ) {
       let billing_account_reference =
         revenue_recovery->getObj("billing_account_reference", Dict.make())
 
@@ -213,7 +216,8 @@ let make = (
     )
   }
 
-  let authKeysSubmit = isLiveMode ? onSubmit : handleAuthKeySubmit
+  let hasProcessorSetUpStep = !isLiveMode || connector->requiresProcessorReference
+  let authKeysSubmit = hasProcessorSetUpStep ? handleAuthKeySubmit : onSubmit
 
   <div>
     <Form onSubmit initialValues>
@@ -234,6 +238,11 @@ let make = (
             mixpanelEventPrefix="recovery_billing_connector_click"
             onCardClick={connectorName => {
               setConnectorName(_ => connectorName)
+              RescriptReactRouter.replace(
+                GlobalVars.appendDashboardPath(
+                  ~url=`/v2/recovery/onboarding?name=${connectorName}`,
+                ),
+              )
               handleClick()
             }}
           />
@@ -246,6 +255,7 @@ let make = (
           updatedInitialVal
           connectorInfoDict
           screenState
+          isCustomBilling={connectorTypeFromName == BillingProcessor(CUSTOMBILLING)}
         />
       | (#addAPlatform, #processorSetUp) =>
         <BillingProcessorsSetUp

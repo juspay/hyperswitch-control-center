@@ -54,7 +54,7 @@ let make = () => {
           <FormSection title="Offer Details">
             <FieldRow fields=[offerCodeField, titleField] />
             <FieldRow fields=[displayTitleField, languageField] />
-            <FieldRow fields=[descriptionField, logoField] />
+            <FieldRow fields=[descriptionField] />
             <FieldRow fields=[validityField] />
             <FieldRow fields=[calculationRuleField, benefitValueField] />
             <FieldRow fields=[maxAmountField] />
