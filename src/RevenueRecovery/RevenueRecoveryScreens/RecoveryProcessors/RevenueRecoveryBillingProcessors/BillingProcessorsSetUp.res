@@ -104,8 +104,8 @@ let make = (
                 />
               </div>
             </div>
-            <div>
-              <div className="text-nd_gray-700 font-medium flex gap-1 w-fit">
+            <div className="flex flex-col gap-1">
+              <div className={`text-nd_gray-700 flex gap-1 w-fit ${body.md.medium}`}>
                 {"Grace period (days)"->React.string}
                 <span className="text-red-900 mb-0.5"> {"*"->React.string} </span>
                 <ToolTip
@@ -116,18 +116,16 @@ let make = (
                   toolTipPosition=ToolTip.Top
                 />
               </div>
-              <div className="-m-1 -mt-3">
-                <FormRenderer.FieldRenderer
-                  labelClass="font-semibold !text-hyperswitch_black"
-                  field={FormRenderer.makeFieldInfo(
-                    ~label="",
-                    ~name="feature_metadata.revenue_recovery.grace_period_days",
-                    ~toolTipPosition=Right,
-                    ~customInput=InputFields.numericTextInput(~customStyle="border rounded-xl"),
-                    ~placeholder="ex 30",
-                  )}
-                />
-              </div>
+              <FormRenderer.FieldRenderer
+                labelClass="font-semibold !text-hyperswitch_black"
+                field={FormRenderer.makeFieldInfo(
+                  ~label="",
+                  ~name="feature_metadata.revenue_recovery.grace_period_days",
+                  ~toolTipPosition=Right,
+                  ~customInput=InputFields.numericTextInput(~customStyle="border rounded-xl"),
+                  ~placeholder="ex 30",
+                )}
+              />
             </div>
           </div>
           <RenderIf
