@@ -195,12 +195,24 @@ let getBinListMode = dict => {
   }
 }
 
+let getCampaignBudgetUsed = dict =>
+  dict
+  ->getArrayFromDict("counter_info", [])
+  ->Array.map(getDictFromJsonObject)
+  ->Array.find(counterDict => counterDict->getString("name", "") == "Budget")
+  ->Option.flatMap(counterDict =>
+    counterDict->getString("error_message", "")->isNonEmptyString
+      ? None
+      : counterDict->getOptionFloat("value")
+  )
+
 let detailItemToObjMapper = dict => {
   offer: dict->itemToObjMapper,
   language: dict->getString("language", "")->languageFromString,
   currencies: dict->getCurrencies,
   campaignAmount: dict->getCounterAmount(~scope=Campaign),
   campaignCount: dict->getCounterCount(~scope=Campaign),
+  campaignBudgetUsed: dict->getCampaignBudgetUsed,
   amountPerCard: dict->getCounterAmount(~scope=PerCard),
   countPerCard: dict->getCounterCount(~scope=PerCard),
   cardResetPeriod: dict->getCardResetPeriod,
@@ -383,6 +395,13 @@ let offerAmountLabel = (detail: offerDetail) =>
 
 let maxDiscountAmountLabel = (detail: offerDetail) =>
   detail->optionalAmountLabel(detail.offer.benefit->Option.flatMap(benefit => benefit.maxAmount))
+
+let remainingCampaignBudgetLabel = (detail: offerDetail) =>
+  switch (detail.campaignAmount, detail.campaignBudgetUsed) {
+  | (None, _) => "Not configured"
+  | (Some(limit), Some(used)) => detail->optionalAmountLabel(Some(Math.max(limit -. used, 0.0)))
+  | _ => "Unavailable"
+  }
 
 let binListModeToDisplayName = (binListMode: OffersTypes.binListMode) => (binListMode :> string)
 
