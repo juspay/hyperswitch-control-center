@@ -50,7 +50,7 @@ let feature_metadata = (~id) => {
     "revenue_recovery": {
       "billing_connector_retry_threshold": 3,
       "max_retry_count": 15,
-      "grace_period_days": 30,
+      "grace_period_days": RevenueRecoveryOnboardingUtils.defaultGracePeriodDays,
       "billing_account_reference": billing_account_reference->Identity.genericTypeToJson,
     },
   }->Identity.genericTypeToJson
@@ -63,7 +63,7 @@ let custom_feature_metadata = (~id) => {
     "revenue_recovery": {
       "billing_connector_retry_threshold": 3,
       "max_retry_count": 15,
-      "grace_period_days": 30,
+      "grace_period_days": RevenueRecoveryOnboardingUtils.defaultGracePeriodDays,
       "billing_account_reference": billing_account_reference->Identity.genericTypeToJson,
     },
   }->Identity.genericTypeToJson

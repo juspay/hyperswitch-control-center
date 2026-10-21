@@ -440,13 +440,6 @@ module PaymentConnectorDetails = {
       connectorLabelDetailField,
     } = getConnectorFields(connectorDetails)
 
-    // additional_secret (webhook URL password) is only used by billing platforms, not payment processors
-    let paymentWebhookFields =
-      connectorWebHookDetails
-      ->Dict.toArray
-      ->Array.filter(((field, _)) => field !== "additional_secret")
-      ->Dict.fromArray
-
     let handleClick = (section: option<connectorSummarySection>) => {
       if section->Option.isNone {
         setInitialValues(_ => JSON.stringify(initialValues)->safeParse)
@@ -596,7 +589,7 @@ module PaymentConnectorDetails = {
                   </RenderIf>
                   <RenderIf condition={!isEditing(Metadata)}>
                     <WebhookDetailsView
-                      webhookFields={paymentWebhookFields}
+                      webhookFields=connectorWebHookDetails
                       webhookDetails=connectorInfodict.connector_webhook_details
                     />
                   </RenderIf>
@@ -640,6 +633,18 @@ module RetriesConfiguration = {
           ~id=Some(connectorID),
         )
         let json = await fetchDetails(connectorUrl, ~version=V2)
+        // connectors created before grace period was configurable don't have it saved
+        let revenueRecovery =
+          json
+          ->getDictFromJsonObject
+          ->getDictfromDict("feature_metadata")
+          ->getDictfromDict("revenue_recovery")
+        if revenueRecovery->getOptionInt("grace_period_days")->Option.isNone {
+          revenueRecovery->Dict.set(
+            "grace_period_days",
+            RevenueRecoveryOnboardingUtils.defaultGracePeriodDays->JSON.Encode.int,
+          )
+        }
         setInitialValues(_ => json->removeFieldsFromResponse)
         setScreenState(_ => Success)
       } catch {
@@ -706,7 +711,11 @@ module RetriesConfiguration = {
         ->getDictfromDict("revenue_recovery")
       let threshold = retryValues->getInt("billing_connector_retry_threshold", 0)
       let maxRetry = retryValues->getInt("max_retry_count", 0)
-      let gracePeriod = retryValues->getInt("grace_period_days", 0)
+      let gracePeriod =
+        retryValues->getInt(
+          "grace_period_days",
+          RevenueRecoveryOnboardingUtils.defaultGracePeriodDays,
+        )
 
       if gracePeriod <= 0 {
         errors->Dict.set(

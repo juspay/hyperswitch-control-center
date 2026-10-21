@@ -73,28 +73,12 @@ let getFallbackConnectorConfig = connector => {
   }
 }
 
-// Stripe Billing and Recurly verify webhooks with a signing secret only, so the
-// wasm's webhook URL password (additional_secret) does not apply to them
-let removeAdditionalSecret = (connector, config) => {
-  open LogicUtils
-  switch connector {
-  | "stripebilling" | "recurly" => {
-      let webhookDetails =
-        config->getDictFromJsonObject->getDictfromDict("connector_webhook_details")
-      webhookDetails->Dict.delete("additional_secret")
-      config
-    }
-  | _ => config
-  }
-}
-
 let getConnectorConfig = (connector, ~wasmConfig) => {
   open LogicUtils
   // the wasm returns undefined for billing connectors it has no config for
   wasmConfig
   ->JSON.Decode.object
   ->mapOptionOrDefault(getFallbackConnectorConfig(connector), _ => wasmConfig)
-  ->(removeAdditionalSecret(connector, _))
 }
 
 type optionType = {
