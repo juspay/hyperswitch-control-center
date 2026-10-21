@@ -93,7 +93,7 @@ let getConnectorConfig = (connector, ~wasmConfig) =>
   wasmConfig
   ->JSON.Decode.object
   ->LogicUtils.mapOptionOrDefault(getFallbackConnectorConfig(connector), _ => wasmConfig)
-  ->removeAdditionalSecret(connector, _)
+  ->(removeAdditionalSecret(connector, _))
 
 type optionType = {
   name: string,

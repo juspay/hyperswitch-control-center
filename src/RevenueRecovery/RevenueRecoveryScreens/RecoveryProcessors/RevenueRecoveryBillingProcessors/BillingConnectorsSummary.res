@@ -89,9 +89,7 @@ module WebhookDetailsView = {
           <h4 className="text-nd_gray-400">
             {label->getStringFromJson(field->snakeToTitle)->React.string}
           </h4>
-          <p className="break-all">
-            {(value->isNonEmptyString ? value : "None")->React.string}
-          </p>
+          <p className="break-all"> {(value->isNonEmptyString ? value : "None")->React.string} </p>
         </div>
       })
       ->React.array}
