@@ -150,7 +150,7 @@ type selection = {
   measure: measure,
   split: array<dimension>,
   splitOptions: array<dimension>,
-  dimensions: array<dimension>,
+  filterOptions: array<dimension>,
   filters: array<(dimension, array<string>)>,
   drilledFrom: option<dimension>,
   view: view,

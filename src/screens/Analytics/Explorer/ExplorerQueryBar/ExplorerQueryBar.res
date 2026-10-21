@@ -11,14 +11,13 @@ open ExplorerQueryBarUtils
 let make = (
   ~selection: selection,
   ~dataset: dataset,
+  ~labelFor,
   ~onUpdate: Dict.t<string> => unit,
-  ~onClearFilters,
+  ~onRemoveFilters: array<dimension> => unit,
   ~editing: option<dimension>,
   ~setEditing,
 ) => {
   let {source, splitOptions} = selection
-  let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
-  let labelFor = (key, value) => getDimensionValueLabel(key, value, ~profileList)
   let fetchFilterValues = ExplorerHooks.useFetchFilterValues()
   let (filterValuesByKey, setFilterValuesByKey) = React.useState(_ => Dict.make())
   let filterValuesKey =
@@ -38,7 +37,8 @@ let make = (
     setSelection([
       (#split, selection->splitAt(index, splitOptions->findDimension(key))->splitValue),
     ])
-  let setFilter = (key, values) => getFilterUpdate(key, values)->onUpdate
+  let setFilter = (key, values) =>
+    values->isEmptyArray ? onRemoveFilters([key]) : getFilterUpdate(key, values)->onUpdate
   let toggleFilterValue = value =>
     editing->Option.forEach(key =>
       setFilter(
@@ -63,9 +63,10 @@ let make = (
   }
 
   React.useEffect(() => {
-    switch (source, editing) {
-    | (#intent, Some(#status)) | (_, None) => ()
-    | (_, Some(dimension)) => getFilterValues(dimension)->ignore
+    switch editing {
+    | Some(dimension) if getStaticFilterValues(source, dimension)->Option.isNone =>
+      getFilterValues(dimension)->ignore
+    | _ => ()
     }
     None
   }, [filterValuesKey])
@@ -130,8 +131,8 @@ let make = (
       />
       <QuerySelect
         value=""
-        onChange={key => setEditing(selection.dimensions->findDimension(key))}
-        options={source->dimensionOptions(selection.dimensions)}
+        onChange={key => setEditing(selection.filterOptions->findDimension(key))}
+        options={source->dimensionOptions(selection.filterOptions)}
         placeholder={selection.filters->isEmptyArray ? "Add a filter" : "Add another"}
         enableSearch=true
       />
@@ -142,11 +143,9 @@ let make = (
           onChange=toggleFilterValue
           items=[
             {
-              items: (
-                source == #intent && key == #status
-                  ? ExplorerCatalog.intentStatuses->Array.map(status => (status :> string))
-                  : filterValues
-              )->Array.map((value): MultiSelectBindings.selectMenuItemType => {
+              items: getStaticFilterValues(source, key)
+              ->Option.getOr(filterValues)
+              ->Array.map((value): MultiSelectBindings.selectMenuItemType => {
                 label: labelFor(key, value),
                 value,
               }),
@@ -164,7 +163,7 @@ let make = (
         <button
           className={`${body.md.medium} text-nd_primary_blue-500 hover:underline`}
           onClick={_ => {
-            onClearFilters()
+            selection.filters->Array.map(((key, _)) => key)->onRemoveFilters
             setEditing(None)
           }}>
           {"Clear filters"->React.string}

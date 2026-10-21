@@ -48,6 +48,9 @@ let getSplitDimensions = (measure, ~dimensions: array<dimension>) =>
     !(isAmount(measure) && key == #currency)
   )
 
+let getFilterDimensions = (measure, ~dimensions: array<dimension>) =>
+  dimensions->Array.filter(key => !((isRate(measure) || isAmount(measure)) && key == #status))
+
 let findDimension = (dimensions: array<dimension>, id) =>
   dimensions->Array.find(key => (key :> string) == id)
 

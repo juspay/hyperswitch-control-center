@@ -9,9 +9,12 @@ open ExplorerViewsHelper
 open NewAnalyticsHelper
 
 @react.component
-let make = (~selection: selection, ~dataset: dataset, ~onUpdate: Dict.t<string> => unit) => {
-  let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
-  let labelFor = (key, value) => getDimensionValueLabel(key, value, ~profileList)
+let make = (
+  ~selection: selection,
+  ~dataset: dataset,
+  ~labelFor,
+  ~onUpdate: Dict.t<string> => unit,
+) => {
   let isSplit = selection.split->isNonEmptyArray
   let title = selection->viewTitle(~currency=dataset.amountCurrency)
   let setView = view => [(#view, view)]->selectionUpdate->onUpdate
@@ -43,7 +46,8 @@ let make = (~selection: selection, ~dataset: dataset, ~onUpdate: Dict.t<string> 
           rows={getGroupRows(selection, dataset, ~labelFor)}
           entity={selection->getGroupTableEntity(~currency=dataset.amountCurrency)}
           visibleColumns={selection->getGroupColumns}
-          onEntityClick={(row: groupRow) => selection->getFocusUpdate(row.group)->onUpdate}
+          onEntityClick={(row: groupRow) =>
+            selection->getFocusUpdate(row.group)->Option.forEach(onUpdate)}
         />
       | (#table, false) =>
         <ViewTable

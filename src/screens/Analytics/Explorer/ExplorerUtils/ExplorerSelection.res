@@ -11,12 +11,13 @@ let selectionFromFilters = (filterValueJson, ~backendDimensions) => {
   let measure = source->measureFromString(filterValueJson->getString(filterKey(#measure), ""))
   let dimensions = source->getOfferedDimensions(~backendDimensions)
   let splitOptions = getSplitDimensions(measure, ~dimensions)
+  let filterOptions = getFilterDimensions(measure, ~dimensions)
   let filters =
     filterValueJson
     ->Dict.toArray
     ->Array.filterMap(((key, value)) =>
       key->String.startsWith(filterPrefix)
-        ? dimensions
+        ? filterOptions
           ->findDimension(key->String.sliceToEnd(~start=filterPrefix->String.length))
           ->Option.map(dimension => (dimension, value->filterValuesFromJson))
           ->Option.filter(((_, values)) => values->isNonEmptyArray)
@@ -31,7 +32,7 @@ let selectionFromFilters = (filterValueJson, ~backendDimensions) => {
     ->Array.filterMap(id => splitOptions->findDimension(id))
     ->Array.slice(~start=0, ~end=2),
     splitOptions,
-    dimensions,
+    filterOptions,
     filters,
     drilledFrom: dimensions->findDimension(filterValueJson->getString(filterKey(#from), "")),
     view: filterValueJson->getString(filterKey(#view), "")->viewFromString,
@@ -127,12 +128,12 @@ let splitAt = (selection, index, key: option<dimension>) =>
   }
 
 let getFilterValuesBody = (selection, ~dimension: dimension) =>
-  AnalyticsUtils.getFilterRequestBody(
-    ~groupByNames=Some([(dimension :> string)]),
-    ~delta=false,
-    ~startDateTime=selection.startTime,
-    ~endDateTime=selection.endTime,
-  )->JSON.Encode.object
+  AnalyticsUtils.filterBody({
+    startTime: selection.startTime,
+    endTime: selection.endTime,
+    groupByNames: [(dimension :> string)],
+    source: "BATCH",
+  })->JSON.Encode.object
 
 let getFilterValueString = values =>
   `[${values->Array.map(encodeFilterValue)->Array.joinWith(",")}]`
@@ -141,17 +142,22 @@ let getFilterUpdate = (dimension, values) =>
   [(getFilterUrlKey(dimension), getFilterValueString(values))]->Dict.fromArray
 
 let getFocusUpdate = (selection, group: group) =>
-  selection.split
-  ->Array.mapWithIndex((key, index) => (key, group.values->getValueFromArray(index, "")))
-  ->Array.filter(((_, value)) => value->isNonEmptyString)
-  ->Array.map(((key, value)) => (getFilterUrlKey(key), getFilterValueString([value])))
-  ->Array.concat(
-    [
-      (#split, "[]"),
-      (#from, selection.split->Array.get(0)->mapOptionOrDefault("", key => (key :> string))),
-    ]->Array.map(((key, value)) => (filterKey(key), value)),
-  )
-  ->Dict.fromArray
+  group.values->Array.every(isNonEmptyString)
+    ? Some(
+        selection.split
+        ->Array.mapWithIndex((key, index) => (
+          getFilterUrlKey(key),
+          getFilterValueString([group.values->getValueFromArray(index, "")]),
+        ))
+        ->Array.concat(
+          [
+            (#split, "[]"),
+            (#from, selection.split->Array.get(0)->mapOptionOrDefault("", key => (key :> string))),
+          ]->Array.map(((key, value)) => (filterKey(key), value)),
+        )
+        ->Dict.fromArray,
+      )
+    : None
 
 let getSplitSuggestions = selection =>
   suggestedNext(

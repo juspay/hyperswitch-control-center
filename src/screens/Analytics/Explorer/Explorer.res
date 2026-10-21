@@ -11,6 +11,7 @@ let make = () => {
   let {filterValueJson, updateExistingKeys, removeKeys} = React.useContext(
     FilterContext.filterContext,
   )
+  let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
   let fetchMetrics = ExplorerHooks.useFetchExplorerMetrics()
   let fetchBackendDimensions = ExplorerHooks.useFetchBackendDimensions()
   let getSignal = AbortControllerHook.useAbortController()
@@ -82,11 +83,11 @@ let make = () => {
     None
   }, [selection->requestKey, dimensionsReady->getStringFromBool])
 
-  let clearFilters = () =>
-    selection.filters->Array.map(((key, _)) => getFilterUrlKey(key))->removeKeys
+  let labelFor = (key, value) => getDimensionValueLabel(key, value, ~profileList)
+  let removeFilters = keys => keys->Array.map(getFilterUrlKey)->removeKeys
   let setSource = source =>
     if source != selection.source {
-      clearFilters()
+      selection.filters->Array.map(((key, _)) => key)->removeFilters
       setEditing(_ => None)
       [(#source, (source :> string)), (#split, "[]"), (#from, "")]
       ->selectionUpdate
@@ -98,8 +99,9 @@ let make = () => {
     <ExplorerQueryBar
       selection
       dataset
+      labelFor
       onUpdate=updateExistingKeys
-      onClearFilters=clearFilters
+      onRemoveFilters=removeFilters
       editing
       setEditing={key => setEditing(_ => key)}
     />
@@ -111,7 +113,7 @@ let make = () => {
         <RenderIf condition={dataset.overall.total > 0.0}>
           <div className="flex flex-col gap-4">
             <ExplorerMetricCards selection dataset />
-            <ExplorerViews selection dataset onUpdate=updateExistingKeys />
+            <ExplorerViews selection dataset labelFor onUpdate=updateExistingKeys />
           </div>
         </RenderIf>
         <RenderIf condition={dataset.overall.total == 0.0}>

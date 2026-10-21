@@ -115,20 +115,23 @@ let getCurrenciesBySuccess = (source, rows) =>
 let buildDataset = (selection, responses) => {
   let {source, measure} = selection
   let needsCurrency = selection->needsCurrency
+  let filteredCurrencies = selection->getSelectedFilterValues(#currency)
+  let pickedCurrency =
+    filteredCurrencies->isEmptyArray || filteredCurrencies->Array.includes(selection.currency)
+      ? selection.currency
+      : ""
 
   let amountCurrencies = needsCurrency
     ? getCurrenciesBySuccess(source, responses.currentRows)
       ->Array.concat(getCurrenciesBySuccess(source, responses.previousRows))
-      ->Array.concat([selection.currency])
+      ->Array.concat([pickedCurrency])
       ->Array.filter(isNonEmptyString)
       ->ArrayUtils.getUniqueStrArray
     : []
-  let amountCurrency = switch selection->getSelectedFilterValues(#currency) {
+  let amountCurrency = switch filteredCurrencies {
   | [currency] => currency
   | _ =>
-    selection.currency->isNonEmptyString
-      ? selection.currency
-      : amountCurrencies->getValueFromArray(0, "")
+    pickedCurrency->isNonEmptyString ? pickedCurrency : amountCurrencies->getValueFromArray(0, "")
   }
 
   let isInCurrency = dict => !needsCurrency || dict->getDimensionValue(#currency) == amountCurrency
