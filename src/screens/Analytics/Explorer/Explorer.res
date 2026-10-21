@@ -1,28 +1,50 @@
+open LogicUtils
 open ExplorerTypes
+open ExplorerCatalog
 open ExplorerUtils
-open ExplorerQuestion
+open ExplorerSelection
 open ExplorerHelper
 open NewAnalyticsHelper
 
 @react.component
 let make = () => {
   let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
-  let question = filterValueJson->questionFromFilters
   let fetchMetrics = ExplorerHooks.useFetchExplorerMetrics()
+  let fetchBackendDimensions = ExplorerHooks.useFetchBackendDimensions()
   let getSignal = AbortControllerHook.useAbortController()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (responses, setResponses) = React.useState(_ => emptyResponses)
-  let dataset = question->ExplorerData.buildDataset(responses)
+  let (dimensionsByDomain, setDimensionsByDomain) = React.useState(_ => Dict.make())
+
+  let infoDomain = sourceConfig(filterValueJson->sourceFromFilters).infoDomain
+  let selection =
+    filterValueJson->selectionFromFilters(
+      ~backendDimensions=dimensionsByDomain->getOptionValFromDict(infoDomain),
+    )
+  let dataset = selection->ExplorerData.buildDataset(responses)
+
+  let getBackendDimensions = async () => {
+    try {
+      let names = await fetchBackendDimensions(~infoDomain)
+      setDimensionsByDomain(prev => {
+        let dimensions = prev->Dict.copy
+        dimensions->Dict.set(infoDomain, names)
+        dimensions
+      })
+    } catch {
+    | _ => ()
+    }
+  }
 
   let getExplorerData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let signal = getSignal()
-      let source = question.source
-      let current = question->currentWindow
-      let previous = question->previousWindow
+      let source = selection.source
+      let current = selection->currentWindow
+      let previous = selection->previousWindow
       let fetchCounts = window =>
-        fetchMetrics(~source, ~body=question->getCountRequestBody(~window), ~signal)
+        fetchMetrics(~source, ~body=selection->getCountRequestBody(~window), ~signal)
       let (currentRows, previousRows) = await Promise.all2((
         fetchCounts(current),
         fetchCounts(previous),
@@ -36,34 +58,44 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    if question->hasDates {
+    if dimensionsByDomain->getOptionValFromDict(infoDomain)->Option.isNone {
+      getBackendDimensions()->ignore
+    }
+    None
+  }, [infoDomain])
+
+  React.useEffect(() => {
+    if selection->hasDates {
       getExplorerData()->ignore
     }
     None
-  }, [question->requestKey])
+  }, [selection->requestKey])
 
   let setSource = source =>
-    if source != question.source {
+    if source != selection.source {
       [(#source, (source :> string))]->selectionUpdate->updateExistingKeys
     }
 
   <div className="flex flex-col gap-4">
-    <SourceTabs question onSource=setSource />
-    <ExplorerQueryBar question dataset onUpdate=updateExistingKeys />
-    <RenderIf condition={question->hasDates}>
+    <SourceTabs selection onSource=setSource />
+    <ExplorerQueryBar selection dataset onUpdate=updateExistingKeys />
+    <RenderIf condition={selection->hasDates}>
       <PageLoaderWrapper
         screenState
-        customLoader={<Shimmer styleClass="w-full h-32 rounded-xl" />}
-        sectionHeight="h-32">
+        customLoader={<Shimmer styleClass="w-full h-80 rounded-xl" />}
+        sectionHeight="h-80">
         <RenderIf condition={dataset.overall.total > 0.0}>
-          <ExplorerMetricCards question dataset />
+          <div className="flex flex-col gap-4">
+            <ExplorerMetricCards selection dataset />
+            <ExplorerViews selection dataset />
+          </div>
         </RenderIf>
         <RenderIf condition={dataset.overall.total == 0.0}>
           <NoData height="h-32" message="No data for the selected dates. Try a wider date range." />
         </RenderIf>
       </PageLoaderWrapper>
     </RenderIf>
-    <RenderIf condition={!(question->hasDates)}>
+    <RenderIf condition={!(selection->hasDates)}>
       <NoData height="h-32" message="Select a date range to load the data." />
     </RenderIf>
   </div>

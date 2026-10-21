@@ -18,6 +18,8 @@ module QuerySelect = {
     ~onChange,
     ~options: array<MultiSelectBindings.selectMenuItemType>,
     ~placeholder,
+    ~allowDeselect=false,
+    ~enableSearch=false,
   ) =>
     <SingleSelectBinding
       selected=value
@@ -25,6 +27,8 @@ module QuerySelect = {
       items=[{items: options->Array.map(option => {...option, disableTruncation: true})}]
       placeholder
       size=Sm
+      allowDeselect
+      enableSearch
       minMenuWidth=300
       maxMenuWidth=380
     />
