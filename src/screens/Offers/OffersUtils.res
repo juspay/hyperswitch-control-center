@@ -359,12 +359,9 @@ let optionalCountLabel = count => count->mapOptionOrDefault(emptyValuePlaceholde
 let resetPeriodUnitToDisplayName = unit =>
   switch unit {
   | OfferPeriod => "offer period"
-  | Hour => "hour"
-  | Day => "day"
-  | Week => "week"
-  | Month => "month"
   | CalendarDay => "calendar day"
   | CalendarMonth => "calendar month"
+  | Hour | Day | Week | Month => (unit :> string)
   }
 
 let resetPeriodLabel = ({unit, value}: resetPeriod) =>
