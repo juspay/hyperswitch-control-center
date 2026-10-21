@@ -1,6 +1,7 @@
 open Typography
 open ExplorerTypes
 open ExplorerCatalog
+open ExplorerDescriptions
 open ExplorerViewsUtils
 open InsightsHelper
 
@@ -67,7 +68,7 @@ module SplitSuggestions = {
       ->Array.map(key =>
         <Button
           key={(key :> string)}
-          text={ExplorerDescriptions.dimensionLabel(key)}
+          text={dimensionLabel(key)}
           buttonType=Secondary
           buttonSize=XSmall
           onClick={_ => onSelect(key)}

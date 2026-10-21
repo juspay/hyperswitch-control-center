@@ -8,9 +8,7 @@ open NewAnalyticsHelper
 
 @react.component
 let make = () => {
-  let {filterValueJson, updateExistingKeys, removeKeys} = React.useContext(
-    FilterContext.filterContext,
-  )
+  let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
   let fetchMetrics = ExplorerHooks.useFetchExplorerMetrics()
   let fetchBackendDimensions = ExplorerHooks.useFetchBackendDimensions()
@@ -84,13 +82,14 @@ let make = () => {
   }, [selection->requestKey, dimensionsReady->getStringFromBool])
 
   let labelFor = (key, value) => getDimensionValueLabel(key, value, ~profileList)
-  let removeFilters = keys => keys->Array.map(getFilterUrlKey)->removeKeys
   let setSource = source =>
     if source != selection.source {
-      selection.filters->Array.map(((key, _)) => key)->removeFilters
       setEditing(_ => None)
-      [(#source, (source :> string)), (#split, "[]"), (#from, "")]
-      ->selectionUpdate
+      [
+        selection->getClearFiltersUpdate,
+        [(#source, (source :> string)), (#split, "[]"), (#from, "")]->selectionUpdate,
+      ]
+      ->DictionaryUtils.mergeDicts
       ->updateExistingKeys
     }
 
@@ -101,7 +100,6 @@ let make = () => {
       dataset
       labelFor
       onUpdate=updateExistingKeys
-      onRemoveFilters=removeFilters
       editing
       setEditing={key => setEditing(_ => key)}
     />

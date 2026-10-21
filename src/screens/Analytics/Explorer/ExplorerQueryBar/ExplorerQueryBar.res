@@ -13,7 +13,6 @@ let make = (
   ~dataset: dataset,
   ~labelFor,
   ~onUpdate: Dict.t<string> => unit,
-  ~onRemoveFilters: array<dimension> => unit,
   ~editing: option<dimension>,
   ~setEditing,
 ) => {
@@ -37,8 +36,7 @@ let make = (
     setSelection([
       (#split, selection->splitAt(index, splitOptions->findDimension(key))->splitValue),
     ])
-  let setFilter = (key, values) =>
-    values->isEmptyArray ? onRemoveFilters([key]) : getFilterUpdate(key, values)->onUpdate
+  let setFilter = (key, values) => getFilterUpdate(key, values)->onUpdate
   let toggleFilterValue = value =>
     editing->Option.forEach(key =>
       setFilter(
@@ -137,7 +135,7 @@ let make = (
         enableSearch=true
       />
       {switch editing {
-      | Some(key) =>
+      | Some(key) if selection.filterOptions->Array.includes(key) =>
         <MultiSelectBindings
           selectedValues=selected
           onChange=toggleFilterValue
@@ -157,17 +155,18 @@ let make = (
           selectionTagType=Count
           minMenuWidth=260
         />
-      | None => React.null
+      | _ => React.null
       }}
       <RenderIf condition={selection.filters->isNonEmptyArray}>
-        <button
-          className={`${body.md.medium} text-nd_primary_blue-500 hover:underline`}
+        <Button
+          text="Clear filters"
+          buttonType=Secondary
+          buttonSize=XSmall
           onClick={_ => {
-            selection.filters->Array.map(((key, _)) => key)->onRemoveFilters
+            selection->getClearFiltersUpdate->onUpdate
             setEditing(None)
-          }}>
-          {"Clear filters"->React.string}
-        </button>
+          }}
+        />
       </RenderIf>
     </div>
     <div className={`flex items-center gap-1.5 ${body.sm.regular} text-nd_gray-500`}>

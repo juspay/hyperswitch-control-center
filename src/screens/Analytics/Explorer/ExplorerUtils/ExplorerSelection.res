@@ -136,10 +136,13 @@ let getFilterValuesBody = (selection, ~dimension: dimension) =>
   })->JSON.Encode.object
 
 let getFilterValueString = values =>
-  `[${values->Array.map(encodeFilterValue)->Array.joinWith(",")}]`
+  values->isEmptyArray ? "" : `[${values->Array.map(encodeFilterValue)->Array.joinWith(",")}]`
 
 let getFilterUpdate = (dimension, values) =>
   [(getFilterUrlKey(dimension), getFilterValueString(values))]->Dict.fromArray
+
+let getClearFiltersUpdate = selection =>
+  selection.filters->Array.map(((key, _)) => (getFilterUrlKey(key), ""))->Dict.fromArray
 
 let getFocusUpdate = (selection, group: group) =>
   group.values->Array.every(isNonEmptyString)
