@@ -89,9 +89,46 @@ let make = (~allowedApiFields: option<array<string>>=?) => {
         )
       }}>
       <div className="flex flex-col gap-4">
-        <div className="ml-1 mt-4">
+        <div className="ml-1 mt-4 flex flex-col gap-4">
+          <RenderIf condition={!featureFlagDetails.isLiveMode}>
+            <div className="max-w-3xl">
+              <AlertV2Binding
+                alertType=Primary
+                slot={{
+                  maxHeight: "none",
+                  slot: <div className="flex gap-2">
+                    <Icon
+                      name="nd-toast-info" size=20 className="text-nd_primary_blue-450 shrink-0"
+                    />
+                    <div className="flex flex-col gap-1">
+                      <p className={`${body.md.semibold} text-nd_gray-700`}>
+                        {"Webhook URL allowlisting required"->React.string}
+                      </p>
+                      <p className={`${body.md.regular} text-nd_gray-600`}>
+                        {"Webhooks are delivered only to allowlisted URLs in the sandbox. Contact us at "->React.string}
+                        <a
+                          href=GlobalVars.supportMailtoUrl
+                          className="text-nd_primary_blue-450 hover:underline cursor-pointer">
+                          {GlobalVars.supportEmail->React.string}
+                        </a>
+                        {" to allowlist your URL, or use "->React.string}
+                        <a
+                          href="https://webhook.site"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`${body.sm.medium} text-nd_gray-700 bg-nd_gray-100 border border-nd_gray-200 rounded px-1.5 py-0.5 hover:underline`}>
+                          {"webhook.site"->React.string}
+                        </a>
+                        {", which is pre-approved for testing."->React.string}
+                      </p>
+                    </div>
+                  </div>,
+                }}
+              />
+            </div>
+          </RenderIf>
           <FieldRenderer
-            field={webhookUrl}
+            field={{...webhookUrl, description: None}}
             errorClass={HSwitchUtils.errorClass}
             labelClass={`!${body.lg.semibold} !text-nd-gray-700`}
             fieldWrapperClass="max-w-xl"
