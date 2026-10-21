@@ -1,12 +1,12 @@
 open ExplorerTypes
 open ExplorerCatalog
 
-let metricCardMeasures = question => {
-  let offered = sourceConfig(question.source).measures
+let metricCardMeasures = selection => {
+  let offered = sourceConfig(selection.source).measures
   let headlineMeasures: array<measure> = [#success_rate, #volume, #successful, #failed]
-  [question.measure]->Array.concat(
+  [selection.measure]->Array.concat(
     headlineMeasures
-    ->Array.filter(measure => measure != question.measure && offered->Array.includes(measure))
+    ->Array.filter(measure => measure != selection.measure && offered->Array.includes(measure))
     ->Array.slice(~start=0, ~end=3),
   )
 }

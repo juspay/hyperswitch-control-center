@@ -22,3 +22,18 @@ let useFetchExplorerMetrics = () => {
     }
   }
 }
+
+let useFetchBackendDimensions = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod(~showErrorToast=false)
+
+  async (~infoDomain) => {
+    let url = getURL(~entityName=V1(ANALYTICS_PAYMENTS), ~methodType=Get, ~id=Some(infoDomain))
+    let response = await fetchDetails(url)
+    response
+    ->getDictFromJsonObject
+    ->getArrayFromDict("dimensions", [])
+    ->Array.map(item => item->getDictFromJsonObject->getString("name", ""))
+    ->Array.filter(isNonEmptyString)
+  }
+}
