@@ -47,7 +47,9 @@ let make = (~createMerchant) => {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6 w-full max-w-2xl mt-2">
       {RevenueRecoveryOnboardingUtils.features
       ->Array.map(feature => {
-        <div key=feature.title className="flex flex-row gap-3 items-start">
+        <div
+          key=feature.title
+          className="flex flex-row gap-3 items-start md:last:col-span-2 md:last:justify-self-center md:last:w-[calc(50%-1.25rem)]">
           <div
             className={`${feature.bgColor} rounded-xl w-12 h-12 flex-shrink-0 flex items-center justify-center`}>
             <Icon
