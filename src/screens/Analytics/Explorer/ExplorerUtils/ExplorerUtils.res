@@ -13,6 +13,8 @@ let filterKey = (key: selectionKey) => `explore.${(key :> string)}`
 
 let topGroupCount = 5
 
+let maxBreakdownGroups = 12
+
 let isRate = (measure: measure) =>
   switch measure {
   | #success_rate | #failure_rate | #three_ds_failure_rate | #not_completed_rate => true

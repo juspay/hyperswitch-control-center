@@ -58,14 +58,18 @@ let getGroupRows = (selection, dataset, ~labelFor) => {
     let current = getMeasureValue(source, measure, group.current)
     let previous =
       group.previous->Option.map(previousCounts => getMeasureValue(source, measure, previousCounts))
+    let isPreviousMeasurable =
+      group.previous->Option.mapOr(true, previousCounts =>
+        measurable(source, measure, previousCounts)
+      )
     {
       labels: selection.split->Array.mapWithIndex((key, index) => (
         key,
         labelFor(key, group.values->getValueFromArray(index, "")),
       )),
       value: formatValue(source, measure, group.current, ~currency=dataset.amountCurrency),
-      change: formatChange(measure, current, previous),
-      impact: getChangeImpact(measure, current, previous),
+      change: isPreviousMeasurable ? formatChange(measure, current, previous) : "–",
+      impact: isPreviousMeasurable ? getChangeImpact(measure, current, previous) : Neutral,
       volume: group.current.total,
       share: calculatePercentage(group.current.total, totals.total),
     }

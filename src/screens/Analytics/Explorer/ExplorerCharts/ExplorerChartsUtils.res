@@ -9,7 +9,6 @@ open NewAnalyticsUtils
 
 external nullablePoints: array<Nullable.t<float>> => array<float> = "%identity"
 
-let maxBreakdownGroups = 12
 let mutedColor = "#CACFD8"
 let previousPeriodName = "Previous period"
 
@@ -291,7 +290,9 @@ let getBreakdownChartOptions = (context: chartContext) => {
   let previous = getColumnSeries(
     ~name=previousPeriodName,
     ~points=groups->Array.filterMap(group =>
-      group.previous->Option.map(counts => (context->groupLabel(group), valueFor(counts)))
+      group.previous
+      ->Option.filter(counts => measurable(selection.source, selection.measure, counts))
+      ->Option.map(counts => (context->groupLabel(group), valueFor(counts)))
     ),
     ~color=mutedColor,
   )

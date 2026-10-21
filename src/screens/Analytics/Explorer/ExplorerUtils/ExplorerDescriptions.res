@@ -143,11 +143,13 @@ let viewLabel = (view: view) =>
 let viewNote = (selection: selection) => {
   let noun = sourceNoun(selection.source)
   switch (selection.view, selection.split->isNonEmptyArray) {
-  | (#trend, true) => "Daily in UTC, for the five largest groups."
+  | (#trend, true) => `Daily in UTC, for the ${topGroupCount->Int.toString} largest groups.`
   | (#trend, false) => "Daily in UTC, against the same days of the previous period."
-  | (#breakdown, true) => `Largest groups by number of ${noun}, up to twelve.`
+  | (#breakdown, true) =>
+    `Largest groups by number of ${noun}, up to ${maxBreakdownGroups->Int.toString}.`
   | (#breakdown, false) => "Outcomes in these dates."
-  | (#mix, true) => "Share of each UTC day's volume by group, for the five largest groups."
+  | (#mix, true) =>
+    `Share of each UTC day's volume by group, for the ${topGroupCount->Int.toString} largest groups.`
   | (#mix, false) => "Share of each UTC day's volume by outcome."
   | (#table, true) => `Sorted by number of ${noun}, highest first.`
   | (#table, false) => "Outcomes in these dates. Add a split to compare groups."

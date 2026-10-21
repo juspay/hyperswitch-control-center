@@ -18,6 +18,7 @@ let selectionFromFilters = (filterValueJson, ~backendDimensions) => {
     measure,
     split: filterValueJson
     ->getStrArrayFromDict(filterKey(#split), [])
+    ->getUniqueArray
     ->Array.filterMap(id => splitOptions->findDimension(id))
     ->Array.slice(~start=0, ~end=2),
     splitOptions,
@@ -58,7 +59,7 @@ let currentWindow = selection => (selection.startTime, selection.endTime)
 let getCountRequestBody = (selection, ~window as (startDateTime, endDateTime), ~daily=false) =>
   [
     AnalyticsUtils.getFilterRequestBody(
-      ~granularity=daily ? Some("G_ONEDAY") : None,
+      ~granularity=daily ? Some((#G_ONEDAY: NewAnalyticsTypes.granularity :> string)) : None,
       ~groupByNames=Some(selection->countGroupBy->Array.map(item => (item :> string))),
       ~metrics=Some(selection->countMetrics->Array.map(item => (item :> string))),
       ~delta=false,

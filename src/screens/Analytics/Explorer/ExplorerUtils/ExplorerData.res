@@ -169,8 +169,7 @@ let buildDataset = (selection, responses) => {
       current,
       previous: previousGroups
       ->getOptionValFromDict(key)
-      ->Option.map(((_, counts)) => counts)
-      ->Option.filter(counts => measurable(source, measure, counts)),
+      ->Option.map(((_, counts)) => counts),
     })
   let groups = allGroups->Array.filter(group => measurable(source, measure, group.current))
 

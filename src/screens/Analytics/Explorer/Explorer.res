@@ -16,23 +16,28 @@ let make = () => {
   let (responses, setResponses) = React.useState(_ => emptyResponses)
   let (dimensionsByDomain, setDimensionsByDomain) = React.useState(_ => Dict.make())
 
-  let infoDomain = sourceConfig(filterValueJson->sourceFromFilters).infoDomain
+  let source = filterValueJson->sourceFromFilters
+  let infoDomain = sourceConfig(source).infoDomain
   let selection =
     filterValueJson->selectionFromFilters(
       ~backendDimensions=dimensionsByDomain->getOptionValFromDict(infoDomain),
     )
+  let dimensionsReady = dimensionsByDomain->getOptionValFromDict(infoDomain)->Option.isSome
   let dataset = selection->ExplorerData.buildDataset(responses)
+
+  let setDimensions = names =>
+    setDimensionsByDomain(prev => {
+      let dimensions = prev->Dict.copy
+      dimensions->Dict.set(infoDomain, names)
+      dimensions
+    })
 
   let getBackendDimensions = async () => {
     try {
       let names = await fetchBackendDimensions(~infoDomain)
-      setDimensionsByDomain(prev => {
-        let dimensions = prev->Dict.copy
-        dimensions->Dict.set(infoDomain, names)
-        dimensions
-      })
+      setDimensions(names)
     } catch {
-    | _ => ()
+    | _ => setDimensions(sourceConfig(source).dimensions->Array.map(key => (key :> string)))
     }
   }
 
@@ -40,7 +45,6 @@ let make = () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
       let signal = getSignal()
-      let source = selection.source
       let current = selection->currentWindow
       let previous = selection->previousWindow
       let fetchCounts = (~daily=false, window) =>
@@ -60,18 +64,20 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    if dimensionsByDomain->getOptionValFromDict(infoDomain)->Option.isNone {
+    if !dimensionsReady {
       getBackendDimensions()->ignore
     }
     None
   }, [infoDomain])
 
   React.useEffect(() => {
-    if selection->hasDates {
+    if !dimensionsReady {
+      setScreenState(_ => PageLoaderWrapper.Loading)
+    } else if selection->hasDates {
       getExplorerData()->ignore
     }
     None
-  }, [selection->requestKey])
+  }, [selection->requestKey, dimensionsReady->getStringFromBool])
 
   let setSource = source =>
     if source != selection.source {
