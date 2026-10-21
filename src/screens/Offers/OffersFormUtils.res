@@ -21,8 +21,6 @@ let currencyOptions =
   ->Array.filter(code => code->CurrencyUtils.getCurrencyTypeFromString == TwoDecimal)
   ->Array.map((code): SelectBox.dropdownOption => {label: code, value: code})
 
-let allResetPeriodUnits = [OfferPeriod, Hour, Day, Week, Month, CalendarDay, CalendarMonth]
-
 let resetPeriodUnitToOptionLabel = unit =>
   switch unit {
   | OfferPeriod => "Offer Period"

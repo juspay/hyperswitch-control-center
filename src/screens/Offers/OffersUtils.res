@@ -152,16 +152,12 @@ let getCounterAmount = (dict, ~scope) =>
 let getCounterCount = (dict, ~scope) =>
   dict->getCounter(~scope, ~valueType=CountLimit)->Option.flatMap(getOptionInt(_, "value"))
 
+let allResetPeriodUnits = [OfferPeriod, Hour, Day, Week, Month, CalendarDay, CalendarMonth]
+
 let resetPeriodUnitFromString = unit =>
-  switch unit {
-  | "hour" => Hour
-  | "day" => Day
-  | "week" => Week
-  | "month" => Month
-  | "CALENDAR_DAY" => CalendarDay
-  | "CALENDAR_MONTH" => CalendarMonth
-  | _ => OfferPeriod
-  }
+  allResetPeriodUnits
+  ->Array.find(resetPeriodUnit => (resetPeriodUnit :> string) == unit)
+  ->Option.getOr(OfferPeriod)
 
 let getCardResetPeriod = dict => {
   let metadataDict = dict->getDictfromDict("metadata")
@@ -284,13 +280,11 @@ let buildBinListBody = offerId =>
     ("offer_id", offerId->JSON.Encode.string),
   ]->getJsonFromArrayOfJson
 
-let binListRowPattern = %re("/^\d+$/")
-
 let parseBinListCsv = content =>
   content
   ->String.split("\n")
   ->Array.map(String.trim)
-  ->Array.filter(row => binListRowPattern->RegExp.test(row))
+  ->Array.filter(row => %re("/^\d+$/")->RegExp.test(row))
 
 let binListCsvContent = bins => [cardBinFilterType]->Array.concat(bins)->Array.joinWith("\n")
 

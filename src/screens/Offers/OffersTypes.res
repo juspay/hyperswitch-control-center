@@ -109,7 +109,6 @@ type binListMode =
   | @as("Whitelist") Whitelist
   | @as("Blacklist") Blacklist
 
-@unboxed
 type resetPeriodUnit =
   | @as("offerPeriod") OfferPeriod
   | @as("hour") Hour
