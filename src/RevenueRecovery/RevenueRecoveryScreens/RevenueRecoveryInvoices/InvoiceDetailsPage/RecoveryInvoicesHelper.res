@@ -177,7 +177,7 @@ module AttemptsHistory = {
           </div>
         </div>
         <RenderIf condition={showInternalRetries}>
-          <RenderIf condition={!(RevenueRecoveryOrderUtils.finalStatuses->Array.includes(status))}>
+          <RenderIf condition={!(finalStatuses->Array.includes(status))}>
             <div className="pt-7">
               <div className="flex items-center justify-between relative">
                 <div

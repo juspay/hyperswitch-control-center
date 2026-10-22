@@ -2,7 +2,6 @@ open LogicUtils
 
 let tableTitle = "RecoveryInvoices"
 
-// Only these params are sent, the endpoint rejects unknown ones
 let recoveryFilterKeys: array<RevenueRecoveryOrderTypes.recoveryFilterKey> = [
   #recovery_status,
   #merchant_connector_id,
