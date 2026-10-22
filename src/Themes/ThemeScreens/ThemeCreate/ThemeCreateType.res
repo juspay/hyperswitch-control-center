@@ -2,10 +2,13 @@ open ThemeTypes
 open HyperSwitchConfigTypes
 open ThemeProvider
 
+type themeCreateTypography = {fontFamily: string}
+
 type themeCreateSettings = {
   colors: colorPalette,
   sidebar: sidebarConfig,
   buttons: buttonConfig,
+  typography: themeCreateTypography,
 }
 
 type themeCreateData = {settings: themeCreateSettings}
@@ -33,6 +36,7 @@ let defaultCreate = (~lineage: lineage) => {
       colors: {fallbackThemeConfig.settings.colors},
       sidebar: {fallbackThemeConfig.settings.sidebar},
       buttons: {fallbackThemeConfig.settings.buttons},
+      typography: {fontFamily: fallbackThemeConfig.settings.typography.fontFamily},
     },
   },
   email_config: Some(defaultEmailConfig),
