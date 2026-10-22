@@ -3,25 +3,21 @@ type inputSize =
   | @as("md") Md
   | @as("lg") Lg
 
-type cursor =
-  | @as("text") Text
-  | @as("pointer") Pointer
-  | @as("default") Default
-  | @as("not-allowed") NotAllowed
+type inputError = {show: bool, message?: string}
+type inputSlot = {slot: React.element, maxHeight?: string}
 
 @module("@juspay/blend-design-system") @react.component
 external make: (
   ~required: bool=?,
   ~label: string=?,
-  ~sublabel: string=?,
+  ~subLabel: string=?,
   ~hintText: string=?,
-  ~helpIconHintText: string=?,
-  ~error: bool=?,
-  ~errorMessage: string=?,
+  ~helpIconText: string=?,
+  ~error: inputError=?,
   ~disabled: bool=?,
   ~size: inputSize=?,
-  ~leftSlot: React.element=?,
-  ~rightSlot: React.element=?,
+  ~leftSlot: inputSlot=?,
+  ~rightSlot: inputSlot=?,
   ~value: string,
   ~onChange: ReactEvent.Form.t => unit,
   ~onBlur: ReactEvent.Focus.t => unit=?,
@@ -31,7 +27,6 @@ external make: (
   ~onKeyUp: ReactEvent.Keyboard.t => unit=?,
   ~placeholder: string=?,
   ~name: string=?,
-  ~cursor: cursor=?,
   ~id: string=?,
   ~autoComplete: string=?,
   ~autoFocus: bool=?,
@@ -45,5 +40,5 @@ external make: (
   ~inputMode: string=?,
   @as("type") ~type_: string=?,
   ~tabIndex: int=?,
-  ~passwordToggle: bool=?,
-) => React.element = "TextInput"
+  @as("aria-label") ~ariaLabel: string=?,
+) => React.element = "TextInputV2"

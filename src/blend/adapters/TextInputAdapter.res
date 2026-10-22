@@ -43,6 +43,8 @@ let make = (
 
   let isPasswordType = inputType == "password" || inputType == "password_without_icon"
 
+  let (showPassword, setShowPassword) = React.useState(_ => false)
+
   React.useEffect(() => {
     let val = input.value->getStringFromJson("")
     if val->String.includes("<script>") || val->String.includes("</script>") {
@@ -90,6 +92,7 @@ let make = (
   | _ => false
   }
 
+  // Keep explicit sizes: V2 defaults to small, unlike V1.
   let blendSize = switch customWidth {
   | "w-full" | "w-96" => TextInputBinding.Lg
   | "w-80" | "w-64" => TextInputBinding.Md
@@ -135,7 +138,20 @@ let make = (
   }
 
   let blendRightSlot = isPasswordType
-    ? None
+    ? inputType == "password_without_icon"
+        ? None
+        : Some(
+            <button
+              type_="button"
+              ariaLabel={showPassword ? "Hide password" : "Show password"}
+              ariaPressed={showPassword ? #"true" : #"false"}
+              disabled=isDisabled
+              className="cursor-pointer flex items-center"
+              onMouseDown={event => event->ReactEvent.Mouse.preventDefault}
+              onClick={_ => setShowPassword(visible => !visible)}>
+              <Icon name={showPassword ? "eye-slash" : "eye"} size=16 />
+            </button>,
+          )
     : switch (rightIcon, rightIconOnClick) {
       | (Some(icon), Some(onClick)) => Some(<div onClick className="cursor-pointer"> icon </div>)
       | (Some(icon), None) => Some(icon)
@@ -157,10 +173,11 @@ let make = (
           size=blendSize
           disabled=isDisabled
           hintText=?{description->getNonEmptyString}
-          error=isInValid
-          leftSlot=?blendLeftSlot
-          rightSlot=?blendRightSlot
-          type_=inputType
+          error={show: isInValid}
+          leftSlot=?{blendLeftSlot->Option.map(slot => {TextInputBinding.slot: slot})}
+          rightSlot=?{blendRightSlot->Option.map(slot => {TextInputBinding.slot: slot})}
+          type_={isPasswordType ? showPassword ? "text" : "password" : inputType}
+          ariaLabel=placeholder
           ?pattern
           ?autoComplete
           ?maxLength
@@ -169,7 +186,6 @@ let make = (
           inputMode
           ?readOnly
           autoFocus
-          passwordToggle=isPasswordType
           ?onKeyUp
           onKeyDown=?handleKeyDown
         />
