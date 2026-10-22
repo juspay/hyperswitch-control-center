@@ -39,13 +39,6 @@ let useShowToast = () => {
 
         let duration = toastDuration > 0 ? toastDuration : 3000
 
-        let header = switch toastType {
-        | ToastSuccess => "Success"
-        | ToastError => "Error"
-        | ToastWarning => "Warning"
-        | ToastInfo => "Information"
-        }
-
         let actionButton = buttonText->Option.map(label => {
           label,
           onClick: () =>
@@ -54,10 +47,8 @@ let useShowToast = () => {
             ),
         })
 
-        // V2 headers truncate; keep the complete application message in the description.
         let toastOptions: addToastOptions = {
-          header,
-          description: message,
+          header: message,
           ?actionButton,
           variant,
           duration,

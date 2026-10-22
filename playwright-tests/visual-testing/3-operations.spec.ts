@@ -106,36 +106,22 @@ test.describe("Visual Testing - Payment Operations", () => {
     await paymentOperations.refundAmountInput.fill("12.34");
     await paymentOperations.initiateRefundButton.click();
 
-    await expect(
-      page
-        .locator("div")
-        .filter({
-          hasText: /^SDK Events not implemented for SQLX is not implemented\.$/,
-        })
-        .nth(1),
-    ).toBeHidden();
-    await expect(
-      page
-        .locator("div")
-        .filter({ hasText: /^Refund successful$/ })
-        .nth(1),
-    ).toBeHidden();
-    await expect(
-      page
-        .locator("div")
-        .filter({ hasText: /^Details Updated$/ })
-        .nth(1),
-    ).toBeHidden();
-    await expect(
-      page
-        .locator("div")
-        .filter({
-          hasText: /^SDK Events not implemented for SQLX is not implemented\.$/,
-        })
-        .nth(5),
-    ).toBeHidden();
-
     await paymentOperations.eventsAndLogsSection.click();
+
+    // Match live notifications, not markup-dependent div positions that can be absent.
+    for (const message of [
+      "SDK Events not implemented for SQLX is not implemented.",
+      "Refund successful",
+      "Details Updated",
+    ]) {
+      await expect(
+        page.getByRole("alert", { name: message, exact: true }),
+      ).toHaveCount(0);
+      await expect(
+        page.getByRole("status", { name: message, exact: true }),
+      ).toHaveCount(0);
+    }
+
     await expect(page).toHaveScreenshot("payment-details.png", {
       fullPage: true,
       animations: "disabled",
