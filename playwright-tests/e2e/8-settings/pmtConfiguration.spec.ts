@@ -96,12 +96,16 @@ test.describe("Configure PMTs - Page & Layout", () => {
     await page.getByText("ProfileId").click();
     await page.getByRole("button", { name: "Select Profile" }).click();
     await page.getByRole("option", { name: "default (" }).click();
+    await expect(
+      page.getByRole("option", { name: "default (" }).getByRole("checkbox"),
+    ).toHaveAttribute("data-state", "checked");
     await page.getByRole("button", { name: "Apply" }).click();
     await expect(page.getByRole("button", { name: "Apply" })).not.toBeVisible();
     await expect(
-      page.getByRole("button", { name: "Select Profile1" }),
+      page.getByRole("button", { name: "Select Profile (1)", exact: true }),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Clear All" })).toBeVisible();
+    await expect(configurePMT.cellByText("stripe_test")).toBeVisible();
   });
 
   test("should verify ConnectorId filter", async ({ page, context }) => {
@@ -111,12 +115,16 @@ test.describe("Configure PMTs - Page & Layout", () => {
     await page.getByText("ConnectorId").click();
     await page.getByRole("button", { name: "Select Connector" }).click();
     await page.getByRole("option", { name: "stripe_test" }).click();
+    await expect(
+      page.getByRole("option", { name: "stripe_test" }).getByRole("checkbox"),
+    ).toHaveAttribute("data-state", "checked");
     await page.getByRole("button", { name: "Apply" }).click();
     await expect(page.getByRole("button", { name: "Apply" })).not.toBeVisible();
     await expect(
-      page.getByRole("button", { name: "Select Connector1" }),
+      page.getByRole("button", { name: "Select Connector (1)", exact: true }),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Clear All" })).toBeVisible();
+    await expect(configurePMT.cellByText("stripe_test")).toBeVisible();
   });
 
   test("should verify PaymentMethod filter", async ({ page, context }) => {
@@ -126,12 +134,19 @@ test.describe("Configure PMTs - Page & Layout", () => {
     await page.getByText("PaymentMethod").first().click();
     await page.getByRole("button", { name: "Select Payment Method" }).click();
     await page.getByRole("option", { name: "card" }).click();
+    await expect(
+      page.getByRole("option", { name: "card" }).getByRole("checkbox"),
+    ).toHaveAttribute("data-state", "checked");
     await page.getByRole("button", { name: "Apply" }).click();
     await expect(page.getByRole("button", { name: "Apply" })).not.toBeVisible();
     await expect(
-      page.getByRole("button", { name: "Select Payment Method1" }),
+      page.getByRole("button", {
+        name: "Select Payment Method (1)",
+        exact: true,
+      }),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Clear All" })).toBeVisible();
+    await expect(configurePMT.cellByText("stripe_test")).toBeVisible();
   });
 
   test("should verify PaymentMethodType filter", async ({ page, context }) => {
@@ -143,12 +158,19 @@ test.describe("Configure PMTs - Page & Layout", () => {
       .getByRole("button", { name: "Select Payment Method Type" })
       .click();
     await page.getByRole("option", { name: "debit" }).click();
+    await expect(
+      page.getByRole("option", { name: "debit" }).getByRole("checkbox"),
+    ).toHaveAttribute("data-state", "checked");
     await page.getByRole("button", { name: "Apply" }).click();
     await expect(page.getByRole("button", { name: "Apply" })).not.toBeVisible();
     await expect(
-      page.getByRole("button", { name: "Select Payment Method Type1" }),
+      page.getByRole("button", {
+        name: "Select Payment Method Type (1)",
+        exact: true,
+      }),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Clear All" })).toBeVisible();
+    await expect(configurePMT.cellByText("stripe_test")).toBeVisible();
   });
 
   test("should verify clear All button clears the filter", async ({
@@ -163,16 +185,26 @@ test.describe("Configure PMTs - Page & Layout", () => {
       .getByRole("button", { name: "Select Payment Method Type" })
       .click();
     await page.getByRole("option", { name: "debit" }).click();
+    await expect(
+      page.getByRole("option", { name: "debit" }).getByRole("checkbox"),
+    ).toHaveAttribute("data-state", "checked");
     await page.getByRole("button", { name: "Apply" }).click();
     await expect(page.getByRole("button", { name: "Apply" })).not.toBeVisible();
     await expect(
-      page.getByRole("button", { name: "Select Payment Method Type1" }),
+      page.getByRole("button", {
+        name: "Select Payment Method Type (1)",
+        exact: true,
+      }),
     ).toBeVisible();
     await expect(page.getByRole("button", { name: "Clear All" })).toBeVisible();
+    await expect(configurePMT.cellByText("stripe_test")).toBeVisible();
 
     await page.getByRole("button", { name: "Clear All" }).click();
     await expect(
-      page.getByRole("button", { name: "Select Payment Method Type1" }),
+      page.getByRole("button", {
+        name: "Select Payment Method Type (1)",
+        exact: true,
+      }),
     ).not.toBeVisible();
   });
 });

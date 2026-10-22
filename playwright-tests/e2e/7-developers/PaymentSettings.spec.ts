@@ -1222,7 +1222,9 @@ test.describe("Payment Settings", () => {
       );
 
       // Verify the connector is the selected option in the multi-select
-      await page.getByRole("button", { name: "Select Field1" }).click();
+      await page
+        .getByRole("button", { name: "Select Field (1)", exact: true })
+        .click();
       await expect(
         page
           .getByRole("option", { name: "juspaythreedsserver" })

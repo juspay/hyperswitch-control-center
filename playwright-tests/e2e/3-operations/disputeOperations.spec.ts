@@ -317,6 +317,9 @@ test.describe("Disputes List page", () => {
       await paymentOperations.applyButton.click();
       await page.waitForLoadState("networkidle");
 
+      await expect(
+        page.locator('[data-id="Select Dispute Status"]'),
+      ).toHaveAccessibleName("Select Dispute Status (1)");
       await expect(disputesOperations.disputeCell(1, 2)).toContainText(
         won.dispute_id.slice(0, 24),
       );
