@@ -1348,10 +1348,10 @@ test.describe("Payment Operations", () => {
       ).not.toBeVisible();
 
       await expect(
-        page.getByRole("button", { name: "Select Status1" }),
+        page.getByRole("button", { name: "Select Status (1)", exact: true }),
       ).toBeVisible();
       await expect(
-        page.getByRole("button", { name: "Select Currency1" }),
+        page.getByRole("button", { name: "Select Currency (1)", exact: true }),
       ).toBeVisible();
     });
 

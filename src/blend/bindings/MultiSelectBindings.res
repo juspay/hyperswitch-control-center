@@ -167,16 +167,21 @@ module Trigger = {
     | Md => "px-3 py-2"
     | Lg => "px-4 py-3"
     }
-    <button
-      type_="button"
-      style={ReactDOM.Style.make(~height=?height->Option.map(v => `${v->Int.toString}px`), ())}
-      disabled
-      className={`flex items-center justify-between gap-2 border border-gray-300 rounded-lg bg-white dark:bg-gray-800 ${padding} text-sm text-left min-w-0 ${fullWidth
-          ? "w-full"
-          : ""}`}>
-      {slot->Option.getOr(React.null)}
-      <span className="truncate flex-1"> {React.string(text)} </span>
-      <Icon name="chevron-down" size=12 />
-    </button>
+    // Keep the selector independent of the selected count or text summary.
+    let trigger =
+      <button
+        type_="button"
+        ariaLabel=text
+        style={ReactDOM.Style.make(~height=?height->Option.map(v => `${v->Int.toString}px`), ())}
+        disabled
+        className={`flex items-center justify-between gap-2 border border-gray-300 rounded-lg bg-white dark:bg-gray-800 ${padding} text-sm text-left min-w-0 ${fullWidth
+            ? "w-full"
+            : ""}`}>
+        {slot->Option.getOr(React.null)}
+        <span className="truncate flex-1"> {React.string(text)} </span>
+        <Icon name="chevron-down" size=12 />
+      </button>
+    // Clone the native element directly: a component wrapper would swallow Radix props/ref.
+    React.cloneElement(trigger, Dict.fromArray([("data-id", placeholder)]))
   }
 }
