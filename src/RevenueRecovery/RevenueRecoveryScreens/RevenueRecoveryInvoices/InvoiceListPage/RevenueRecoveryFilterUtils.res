@@ -39,8 +39,8 @@ let connectorLabelFilter = (json): EntityType.initialFilters<'t> => {
     json
     ->getDictFromJsonObject
     ->getDictfromDict("connector")
-    ->Dict.toArray
-    ->Array.flatMap(((_, items)) =>
+    ->Dict.valuesToArray
+    ->Array.flatMap(items =>
       items
       ->getArrayFromJson([])
       ->Array.map(item => {

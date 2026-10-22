@@ -80,13 +80,12 @@ let make = () => {
       let res = await fetchDetails(url, ~version=V2, ~signal)
 
       let resDict = res->getDictFromJsonObject
-      let data = resDict->getArrayFromDict("data", [])
       let total = resDict->getInt("total_count", 0)
 
       let orderData =
-        data
-        ->Belt.Array.keepMap(JSON.Decode.object)
-        ->Array.map(RevenueRecoveryEntity.itemToObjMapper)
+        resDict
+        ->getJsonObjectFromDict("data")
+        ->getArrayDataFromJson(RevenueRecoveryEntity.itemToObjMapper)
       setData(total, orderData)
     } catch {
     | AbortControllerHook.AbortError => ()
