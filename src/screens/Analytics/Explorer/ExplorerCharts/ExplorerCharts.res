@@ -13,11 +13,11 @@ let make = (~selection: selection, ~dataset: dataset, ~labelFor) => {
       dataset.amountCurrency,
     ]->Array.joinWith("|")
 
-  switch (selection.view, selection.split->LogicUtils.isNonEmptyArray) {
+  switch (selection.view, selection.split->ExplorerUtils.getGrouping) {
   | (#trend, _) => <LineGraph key=chartKey options={context->getTrendChartOptions} />
   | (#mix, _) => <ColumnGraph key=chartKey options={context->getMixChartOptions} />
-  | (#breakdown, true) => <ColumnGraph key=chartKey options={context->getBreakdownChartOptions} />
-  | (#breakdown, false) => <ColumnGraph key=chartKey options={context->getOutcomeChartOptions} />
+  | (#breakdown, Split) => <ColumnGraph key=chartKey options={context->getBreakdownChartOptions} />
+  | (#breakdown, Overall) => <ColumnGraph key=chartKey options={context->getOutcomeChartOptions} />
   | (#table, _) => React.null
   }
 }

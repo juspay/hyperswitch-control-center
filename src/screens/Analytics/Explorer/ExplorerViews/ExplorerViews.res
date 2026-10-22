@@ -15,7 +15,7 @@ let make = (
   ~labelFor,
   ~onUpdate: Dict.t<string> => unit,
 ) => {
-  let isSplit = selection.split->isNonEmptyArray
+  let grouping = selection.split->getGrouping
   let title = selection->viewTitle(~currency=dataset.amountCurrency)
   let setView = view => [(#view, view)]->selectionUpdate->onUpdate
   let suggestions = selection->getSplitSuggestions
@@ -35,12 +35,12 @@ let make = (
       <ViewTabs view=selection.view onViewChange=setView />
     </div>
     <div className="px-3 py-4">
-      {switch (selection.view, isSplit) {
-      | (#breakdown | #table, true) if dataset.groups->isEmptyArray =>
+      {switch (selection.view, grouping) {
+      | (#trend | #breakdown | #table, Split) if dataset.groups->isEmptyArray =>
         <NoData
           height="h-32" message="No groups have a value for this measure in the selected dates."
         />
-      | (#table, true) =>
+      | (#table, Split) =>
         <ViewTable
           title
           rows={getGroupRows(selection, dataset, ~labelFor)}
@@ -49,7 +49,7 @@ let make = (
           onEntityClick={(row: groupRow) =>
             selection->getFocusUpdate(row.group)->Option.forEach(onUpdate)}
         />
-      | (#table, false) =>
+      | (#table, Overall) =>
         <ViewTable
           title
           rows={getOutcomeRows(selection, dataset)}
@@ -59,7 +59,7 @@ let make = (
       | (#trend | #mix | #breakdown, _) => <ExplorerCharts selection dataset labelFor />
       }}
     </div>
-    <RenderIf condition={isSplit && dataset.unmeasured->isNonEmptyArray}>
+    <RenderIf condition={grouping == Split && dataset.unmeasured->isNonEmptyArray}>
       <UnmeasuredNote selection dataset labelFor />
     </RenderIf>
     <RenderIf condition={suggestions->isNonEmptyArray}>

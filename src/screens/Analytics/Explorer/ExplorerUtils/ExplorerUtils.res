@@ -37,6 +37,8 @@ let isAmount = (measure: measure) =>
   | #failed => false
   }
 
+let getGrouping = (split: array<dimension>) => split->isNonEmptyArray ? Split : Overall
+
 let getOfferedDimensions = (source, ~backendDimensions: option<array<string>>) =>
   sourceConfig(source).dimensions->Array.filter(key =>
     backendDimensions->mapOptionOrDefault(true, names => names->Array.includes((key :> string)))

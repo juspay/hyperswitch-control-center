@@ -79,7 +79,7 @@ let make = () => {
       getExplorerData()->ignore
     }
     None
-  }, [selection->requestKey, dimensionsReady->getStringFromBool])
+  }, (selection->requestKey, dimensionsReady))
 
   let labelFor = (key, value) => getDimensionValueLabel(key, value, ~profileList)
   let setSource = source =>

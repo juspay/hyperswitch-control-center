@@ -16,6 +16,8 @@ type selectionKey = [#source | #measure | #currency | #split | #view | #from]
 
 type view = [#trend | #breakdown | #mix | #table]
 
+type grouping = Overall | Split
+
 type changeImpact =
   | Favorable
   | Unfavorable
@@ -175,6 +177,7 @@ type dataset = {
   amountCurrency: string,
   groups: array<group>,
   topByVolume: array<group>,
+  topMeasured: array<group>,
   unmeasured: array<(array<string>, counts)>,
   currentDaily: Dict.t<dailyPoint>,
   previousDaily: Dict.t<dailyPoint>,

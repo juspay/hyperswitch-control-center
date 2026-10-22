@@ -59,7 +59,7 @@ let getGroupRows = (selection, dataset, ~labelFor) => {
     let previous =
       group.previous->Option.map(previousCounts => getMeasureValue(source, measure, previousCounts))
     let isPreviousMeasurable =
-      group.previous->Option.mapOr(true, previousCounts =>
+      group.previous->mapOptionOrDefault(true, previousCounts =>
         measurable(source, measure, previousCounts)
       )
     {
