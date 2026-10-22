@@ -114,5 +114,7 @@ module Trigger = {
         <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="1.5" />
       </svg>
     </button>
+    // Keep the selector on the native node so Radix still receives its anchor ref.
+    ->React.cloneElement(Dict.fromArray([("data-element", "single-select-button")]))
   }
 }
