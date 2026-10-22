@@ -6,6 +6,16 @@ type inputSize =
 type inputError = {show: bool, message?: string}
 type inputSlot = {slot: React.element, maxHeight?: string}
 
+module PasswordVisibleIcon = {
+  @module("lucide-react") @react.component
+  external make: (~size: int, @as("aria-hidden") ~ariaHidden: bool) => React.element = "Eye"
+}
+
+module PasswordHiddenIcon = {
+  @module("lucide-react") @react.component
+  external make: (~size: int, @as("aria-hidden") ~ariaHidden: bool) => React.element = "EyeOff"
+}
+
 @module("@juspay/blend-design-system") @react.component
 external make: (
   ~required: bool=?,

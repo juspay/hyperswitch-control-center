@@ -149,7 +149,9 @@ let make = (
               className="cursor-pointer flex items-center"
               onMouseDown={event => event->ReactEvent.Mouse.preventDefault}
               onClick={_ => setShowPassword(visible => !visible)}>
-              <Icon name={showPassword ? "eye-slash" : "eye"} size=16 />
+              {showPassword
+                ? <TextInputBinding.PasswordHiddenIcon size=18 ariaHidden=true />
+                : <TextInputBinding.PasswordVisibleIcon size=18 ariaHidden=true />}
             </button>,
           )
     : switch (rightIcon, rightIconOnClick) {
