@@ -1,5 +1,9 @@
 open RevenueRecoveryOnboardingTypes
 
+// Fixed for now, not configurable by the merchant
+let hardDeclineTotalRetries = 0
+let defaultGracePeriodDays = 30
+
 let getMainStepName = step => {
   switch step {
   | #connectProcessor => "Connect Processor"
