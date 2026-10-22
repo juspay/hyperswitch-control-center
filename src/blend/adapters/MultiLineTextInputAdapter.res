@@ -51,8 +51,8 @@ let make = (
       onFocus=input.onFocus
       name=input.name
       disabled=isDisabled
+      size=Md
       ?rows
-      ?cols
       ?maxLength
       ?readOnly
       ?autoFocus
