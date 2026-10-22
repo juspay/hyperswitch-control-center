@@ -78,35 +78,42 @@ module BlendAccordion = {
       openValues->AccordionBinding.Value.fromArray
     }
 
-    <AccordionBinding
-      accordionType=AccordionBinding.Border
-      value={blendValue}
-      onValueChange={handleValueChange}
-      isCollapsible=true
-      isMultiple={!singleOpen}
-      className=gapClass>
-      {accordion
-      ->Array.mapWithIndex((item, i) => {
-        let isOpen = openValues->Array.includes(i->Int.toString)
-
-        let titleElem = switch item.renderContentOnTop {
-        | Some(fn) => fn()
-        | None => React.string(item.title)
+    // Form listens for Enter on window; accordion triggers must not submit the form.
+    <div
+      className={`w-full ${gapClass}`}
+      onKeyDown={event => {
+        if (
+          event->ReactEvent.Keyboard.key == "Enter" &&
+            Document.activeElement
+            ->Webapi.Dom.Element.getAttribute("data-radix-collection-item")
+            ->Option.isSome
+        ) {
+          event->ReactEvent.Keyboard.stopPropagation
         }
+      }}>
+      <AccordionBinding
+        accordionType=AccordionBinding.Border
+        value={blendValue}
+        onValueChange={handleValueChange}
+        isMultiple={!singleOpen}>
+        {accordion
+        ->Array.mapWithIndex((item, i) => {
+          let isOpen = openValues->Array.includes(i->Int.toString)
 
-        <AccordionBinding.Item
-          key={i->Int.toString}
-          value={i->Int.toString}
-          title={titleElem}
-          chevronPosition={mapChevronPosition(arrowPosition)}>
-          {item.renderContent(
-            ~currentAccordionState=isOpen,
-            ~closeAccordionFn=makeCloseAccordionFn(i),
-          )}
-        </AccordionBinding.Item>
-      })
-      ->React.array}
-    </AccordionBinding>
+          <AccordionBinding.Item
+            key={i->Int.toString}
+            value={i->Int.toString}
+            title={item.title}
+            chevronPosition={mapChevronPosition(arrowPosition)}>
+            {item.renderContent(
+              ~currentAccordionState=isOpen,
+              ~closeAccordionFn=makeCloseAccordionFn(i),
+            )}
+          </AccordionBinding.Item>
+        })
+        ->React.array}
+      </AccordionBinding>
+    </div>
   }
 }
 
@@ -127,14 +134,17 @@ let make = (
   ~initialOpenIndex=-1,
 ) => {
   let isBlendEnabled = BlendContext.useBlendEnabled()
+  // V2 only supports string titles. Keep custom/interactive headers on the legacy path.
+  let useBlendAccordion =
+    isBlendEnabled && !(accordion->Array.some(item => item.renderContentOnTop->Option.isSome))
 
   <>
-    <RenderIf condition=isBlendEnabled>
+    <RenderIf condition=useBlendAccordion>
       <BlendAccordion
         accordion arrowPosition gapClass singleOpen initialOpenIndex initialExpandedArray
       />
     </RenderIf>
-    <RenderIf condition={!isBlendEnabled}>
+    <RenderIf condition={!useBlendAccordion}>
       <Accordion
         accordion
         arrowFillColor
