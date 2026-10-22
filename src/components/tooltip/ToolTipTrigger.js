@@ -14,9 +14,11 @@ export function useAccessibleTrigger(child, style, onClick) {
     // anchor, with only their actual enabled control in the keyboard sequence.
     anchor.tabIndex = anchor.disabled
       ? -1
-      : control
-        ? -1
-        : Math.max(0, anchor.tabIndex);
+      : native && child.props.tabIndex != null
+        ? child.props.tabIndex
+        : control
+          ? -1
+          : Math.max(0, anchor.tabIndex);
     if (!control) return;
     const previous = control.getAttribute("aria-describedby");
     const sync = () => {
