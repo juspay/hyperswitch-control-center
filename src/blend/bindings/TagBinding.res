@@ -21,14 +21,43 @@ type tagColor =
   | @as("warning") Warning
   | @as("purple") Purple
 
-@module("@juspay/blend-design-system") @react.component
-external make: (
+type slot = {slot: React.element}
+type skeleton = {showSkeleton: bool}
+
+module V2 = {
+  @module("@juspay/blend-design-system") @react.component
+  external make: (
+    ~text: string,
+    @as("type") ~type_: tagVariant=?,
+    ~subType: tagShape=?,
+    ~size: tagSize=?,
+    ~color: tagColor=?,
+    ~leftSlot: slot=?,
+    ~rightSlot: slot=?,
+    ~skeleton: skeleton=?,
+  ) => React.element = "TagV2"
+}
+
+// Keep the application API stable while translating V2's visual and slot contracts.
+@react.component
+let make = (
   ~text: string,
-  ~variant: tagVariant=?,
-  ~shape: tagShape=?,
-  ~size: tagSize=?,
-  ~color: tagColor=?,
-  ~leftSlot: React.element=?,
-  ~rightSlot: React.element=?,
-  ~showSkeleton: bool=?,
-) => React.element = "Tag"
+  ~variant: option<tagVariant>=?,
+  ~shape: option<tagShape>=?,
+  ~size: option<tagSize>=?,
+  ~color: option<tagColor>=?,
+  ~leftSlot: option<React.element>=?,
+  ~rightSlot: option<React.element>=?,
+  ~showSkeleton: option<bool>=?,
+) => {
+  <V2
+    text
+    type_=?variant
+    subType=?shape
+    ?size
+    ?color
+    leftSlot=?{leftSlot->Option.map(slot => {slot: slot})}
+    rightSlot=?{rightSlot->Option.map(slot => {slot: slot})}
+    skeleton=?{showSkeleton->Option.map((showSkeleton): skeleton => {showSkeleton: showSkeleton})}
+  />
+}
