@@ -51,6 +51,25 @@ let make = (
   let descriptionExists =
     description->LogicUtils.isNonEmptyString || descriptionComponent != React.null
 
+  // Custom icon/div triggers need a native focus target for keyboard descriptions.
+  let accessibleTrigger =
+    <span
+      tabIndex=0
+      style={ReactDOM.Style.make(
+        ~display=fullWidth ? "flex" : "inline-flex",
+        ~width=fullWidth ? "100%" : "auto",
+        (),
+      )}
+      onClick={event => {
+        if visibleOnClick {
+          // Prevent Radix's default click dismissal for opt-in touch visibility.
+          event->ReactEvent.Mouse.preventDefault
+          setIsOpen(_ => true)
+        }
+      }}>
+      triggerElement
+    </span>
+
   if !descriptionExists {
     triggerElement
   } else if visibleOnClick {
@@ -64,12 +83,12 @@ let make = (
       onOpenChange={v => setIsOpen(_ => v)}
       disableInteractive={!hoverOnToolTip}
       fullWidth>
-      triggerElement
+      accessibleTrigger
     </ToolTipBinding>
   } else {
     <ToolTipBinding
       content size=Lg ?side ?align delayDuration disableInteractive={!hoverOnToolTip} fullWidth>
-      triggerElement
+      accessibleTrigger
     </ToolTipBinding>
   }
 }
