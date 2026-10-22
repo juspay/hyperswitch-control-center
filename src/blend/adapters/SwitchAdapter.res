@@ -3,6 +3,7 @@ let make = (
   ~isSelected,
   ~setIsSelected,
   ~isDisabled=false,
+  ~ariaLabel="Toggle",
   ~boolCustomClass="",
   ~toggleBorder="border-nd_primary_blue-450",
   ~toggleEnableColor="bg-nd_primary_blue-450",
@@ -16,7 +17,13 @@ let make = (
   let blendNode =
     <AddDataAttributes attributes=[("data-bool-value", isSelected ? "on" : "off")]>
       <div className="inline-flex items-center">
-        <SwitchBinding checked=isSelected onChange=setIsSelected disabled=isDisabled />
+        <SwitchBinding
+          checked=isSelected
+          onCheckedChange=setIsSelected
+          disabled=isDisabled
+          ariaLabel
+          type_="button"
+        />
       </div>
     </AddDataAttributes>
 
