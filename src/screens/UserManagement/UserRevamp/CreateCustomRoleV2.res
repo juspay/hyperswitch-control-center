@@ -64,6 +64,7 @@ module RenderPermissionModule = {
         <div className="w-20 flex justify-center">
           <CheckBoxIconAdapter
             isSelected=isReadSelected
+            ariaLabel={`Read ${moduleName}`}
             setIsSelected={isSelected => {
               handleScopeChange(Read, isSelected)
             }}
@@ -74,6 +75,7 @@ module RenderPermissionModule = {
         <div className="w-24 flex justify-center">
           <CheckBoxIconAdapter
             isSelected=isWriteSelected
+            ariaLabel={`Write ${moduleName}`}
             setIsSelected={isSelected => {
               handleScopeChange(Write, isSelected)
             }}
