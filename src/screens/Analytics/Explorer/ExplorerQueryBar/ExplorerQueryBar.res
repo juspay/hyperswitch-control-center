@@ -19,13 +19,7 @@ let make = (
   let {source, splitOptions} = selection
   let fetchFilterValues = ExplorerHooks.useFetchFilterValues()
   let (filterValuesByKey, setFilterValuesByKey) = React.useState(_ => Dict.make())
-  let filterValuesKey =
-    [
-      (source :> string),
-      editing->mapOptionOrDefault("", key => (key :> string)),
-      selection.startTime,
-      selection.endTime,
-    ]->Array.joinWith("|")
+  let filterValuesKey = selection->getFilterValuesKey(~dimension=editing)
   let filterValues = filterValuesByKey->getValueFromDict(filterValuesKey, [])
   let selected = editing->mapOptionOrDefault([], key => selection->getSelectedFilterValues(key))
   let splitIds = selection.split->Array.map(key => (key :> string))
@@ -62,7 +56,9 @@ let make = (
 
   React.useEffect(() => {
     switch editing {
-    | Some(dimension) if getStaticFilterValues(source, dimension)->Option.isNone =>
+    | Some(dimension)
+      if getStaticFilterValues(source, dimension)->Option.isNone &&
+        filterValuesByKey->Dict.get(filterValuesKey)->Option.isNone =>
       getFilterValues(dimension)->ignore
     | _ => ()
     }
@@ -75,7 +71,7 @@ let make = (
       <QueryText text="Show" />
       <QuerySelect
         value={(selection.measure :> string)}
-        onChange={id => setSelection([(#measure, id)])}
+        onChange={id => selection->getMeasureUpdate(id)->onUpdate}
         options={source->measureOptions}
         placeholder="Measure"
       />

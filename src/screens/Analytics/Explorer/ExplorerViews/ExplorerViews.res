@@ -64,18 +64,7 @@ let make = (
     </RenderIf>
     <RenderIf condition={suggestions->isNonEmptyArray}>
       <SplitSuggestions
-        suggestions
-        onSelect={key =>
-          [
-            (
-              #split,
-              selection
-              ->splitAt(Math.Int.min(selection.split->Array.length, 1), Some(key))
-              ->splitValue,
-            ),
-          ]
-          ->selectionUpdate
-          ->onUpdate}
+        suggestions onSelect={key => selection->getSuggestionUpdate(key)->onUpdate}
       />
     </RenderIf>
   </div>

@@ -127,6 +127,14 @@ let splitAt = (selection, index, key: option<dimension>) =>
   | None => selection.split->Array.filterWithIndex((_, position) => position != index)
   }
 
+let getFilterValuesKey = (selection, ~dimension: option<dimension>) =>
+  [
+    (selection.source :> string),
+    dimension->mapOptionOrDefault("", key => (key :> string)),
+    selection.startTime,
+    selection.endTime,
+  ]->Array.joinWith("|")
+
 let getFilterValuesBody = (selection, ~dimension: dimension) =>
   AnalyticsUtils.filterBody({
     startTime: selection.startTime,
@@ -142,7 +150,24 @@ let getFilterUpdate = (dimension, values) =>
   [(getFilterUrlKey(dimension), getFilterValueString(values))]->Dict.fromArray
 
 let getClearFiltersUpdate = selection =>
-  selection.filters->Array.map(((key, _)) => (getFilterUrlKey(key), ""))->Dict.fromArray
+  selection.filters
+  ->Array.map(((key, _)) => (getFilterUrlKey(key), ""))
+  ->Array.concat([(filterKey(#from), "")])
+  ->Dict.fromArray
+
+let getMeasureUpdate = (selection, id) => {
+  let filterOptions = getFilterDimensions(
+    selection.source->measureFromString(id),
+    ~dimensions=selection.filterOptions,
+  )
+  [
+    selection.filters
+    ->Array.filter(((key, _)) => !(filterOptions->Array.includes(key)))
+    ->Array.map(((key, _)) => (getFilterUrlKey(key), ""))
+    ->Dict.fromArray,
+    [(#measure, id)]->selectionUpdate,
+  ]->DictionaryUtils.mergeDicts
+}
 
 let getFocusUpdate = (selection, group: group) =>
   group.values->Array.every(isNonEmptyString)
@@ -169,3 +194,11 @@ let getSplitSuggestions = selection =>
   )->Array.filter(key =>
     selection.splitOptions->Array.includes(key) && !(selection.split->Array.includes(key))
   )
+
+let getSuggestionUpdate = (selection, key) =>
+  [
+    (
+      #split,
+      selection->splitAt(Math.Int.min(selection.split->Array.length, 1), Some(key))->splitValue,
+    ),
+  ]->selectionUpdate

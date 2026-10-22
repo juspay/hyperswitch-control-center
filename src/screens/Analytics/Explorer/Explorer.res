@@ -87,7 +87,7 @@ let make = () => {
       setEditing(_ => None)
       [
         selection->getClearFiltersUpdate,
-        [(#source, (source :> string)), (#split, "[]"), (#from, "")]->selectionUpdate,
+        [(#source, (source :> string)), (#split, "[]")]->selectionUpdate,
       ]
       ->DictionaryUtils.mergeDicts
       ->updateExistingKeys
