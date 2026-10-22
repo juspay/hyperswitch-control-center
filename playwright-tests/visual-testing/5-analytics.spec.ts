@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import type { Page } from "@playwright/test";
-import { generateUniqueEmail } from "../support/helper";
+import { generateUniqueEmail, scrollIntoViewStable } from "../support/helper";
 import { signupUser, loginUI, mockV2MerchantList } from "../support/commands";
 import { HomePage } from "../support/pages/homepage/HomePage";
 import { PaymentAnalyticsPage } from "../support/pages/analytics/PaymentAnalyticsPage";
@@ -89,18 +89,20 @@ test.describe("Visual Testing - Analytics", () => {
         SCREENSHOT_OPTS,
       );
 
-      await page
-        .getByRole("img", { name: "Success Rate" })
-        .scrollIntoViewIfNeeded();
+      await scrollIntoViewStable(
+        page.getByRole("img", { name: "Success Rate" }),
+        "center",
+      );
 
       await expect(page).toHaveScreenshot(
         "analytics-payments-charts1-.png",
         SCREENSHOT_OPTS,
       );
 
-      await page
-        .getByText("'NA' denotes those incomplete")
-        .scrollIntoViewIfNeeded();
+      await scrollIntoViewStable(
+        page.getByText("'NA' denotes those incomplete"),
+        "center",
+      );
 
       await expect(page).toHaveScreenshot(
         "analytics-payments-charts2-.png",
@@ -135,9 +137,10 @@ test.describe("Visual Testing - Analytics", () => {
         SCREENSHOT_OPTS,
       );
 
-      await page
-        .getByText("'NA' denotes those incomplete")
-        .scrollIntoViewIfNeeded();
+      await scrollIntoViewStable(
+        page.getByText("'NA' denotes those incomplete"),
+        "center",
+      );
       await expect(page).toHaveScreenshot(
         "analytics-refunds-chart.png",
         SCREENSHOT_OPTS,
@@ -232,41 +235,41 @@ test.describe("Visual Testing - Analytics", () => {
         SCREENSHOT_OPTS,
       );
 
-      await page
-        .getByRole("heading", { name: "Payments Processed" })
-        .scrollIntoViewIfNeeded();
+      await scrollIntoViewStable(
+        page.getByRole("heading", { name: "Payments Processed" }),
+      );
       await expect(page).toHaveScreenshot(
         "analytics-insights2-populated.png",
         SCREENSHOT_OPTS,
       );
 
-      await page
-        .getByRole("heading", { name: "Payments Success Rate" })
-        .scrollIntoViewIfNeeded();
+      await scrollIntoViewStable(
+        page.getByRole("heading", { name: "Payments Success Rate" }),
+      );
       await expect(page).toHaveScreenshot(
         "analytics-insights3-populated.png",
         SCREENSHOT_OPTS,
       );
 
-      await page
-        .getByRole("heading", { name: "Successful Payments" })
-        .scrollIntoViewIfNeeded();
+      await scrollIntoViewStable(
+        page.getByRole("heading", { name: "Successful Payments" }),
+      );
       await expect(page).toHaveScreenshot(
         "analytics-insights4-populated.png",
         SCREENSHOT_OPTS,
       );
 
-      await page
-        .getByRole("heading", { name: "Failed Payments Distribution" })
-        .scrollIntoViewIfNeeded();
+      await scrollIntoViewStable(
+        page.getByRole("heading", { name: "Failed Payments Distribution" }),
+      );
       await expect(page).toHaveScreenshot(
         "analytics-insights5-populated.png",
         SCREENSHOT_OPTS,
       );
 
-      await page
-        .getByRole("heading", { name: "Failure Reasons" })
-        .scrollIntoViewIfNeeded();
+      await scrollIntoViewStable(
+        page.getByRole("heading", { name: "Failure Reasons" }),
+      );
       await expect(page).toHaveScreenshot(
         "analytics-insights6-populated.png",
         SCREENSHOT_OPTS,
@@ -308,7 +311,7 @@ test.describe("Visual Testing - Analytics", () => {
         SCREENSHOT_OPTS,
       );
 
-      await insights.failedSmartRetryDistributionHeading.scrollIntoViewIfNeeded();
+      await scrollIntoViewStable(insights.failedSmartRetryDistributionHeading);
       await expect(page).toHaveScreenshot(
         "analytics-smartretries2-populated.png",
         SCREENSHOT_OPTS,
@@ -353,23 +356,23 @@ test.describe("Visual Testing - Analytics", () => {
         SCREENSHOT_OPTS,
       );
 
-      await insights.refundsSuccessRateHeading.scrollIntoViewIfNeeded();
+      await scrollIntoViewStable(insights.refundsSuccessRateHeading);
       await expect(page).toHaveScreenshot(
         "analytics-refundstab2-populated.png",
         SCREENSHOT_OPTS,
       );
 
-      await page
-        .getByRole("heading", { name: "Failed Refunds Distribution" })
-        .scrollIntoViewIfNeeded();
+      await scrollIntoViewStable(
+        page.getByRole("heading", { name: "Failed Refunds Distribution" }),
+      );
       await expect(page).toHaveScreenshot(
         "analytics-refundstab3-populated.png",
         SCREENSHOT_OPTS,
       );
 
-      await page
-        .getByRole("heading", { name: "Failed Refund Error Reasons" })
-        .scrollIntoViewIfNeeded();
+      await scrollIntoViewStable(
+        page.getByRole("heading", { name: "Failed Refund Error Reasons" }),
+      );
       await expect(page).toHaveScreenshot(
         "analytics-refundstab4-populated.png",
         SCREENSHOT_OPTS,
@@ -404,14 +407,14 @@ test.describe("Visual Testing - Analytics", () => {
       );
 
       // Routing Distribution section (two pie charts).
-      await analytics.performanceSummary.scrollIntoViewIfNeeded();
+      await scrollIntoViewStable(analytics.performanceSummary, "center");
       await expect(page).toHaveScreenshot(
         "analytics-routing-performanceSummary.png",
         SCREENSHOT_OPTS,
       );
 
       // Time Series Distribution section (two trend line charts).
-      await analytics.volumeOverTime.scrollIntoViewIfNeeded();
+      await scrollIntoViewStable(analytics.volumeOverTime);
       await expect(page).toHaveScreenshot(
         "analytics-routing-volumeOverTime.png",
         SCREENSHOT_OPTS,
@@ -453,7 +456,7 @@ test.describe("Visual Testing - Analytics", () => {
       );
 
       // Summary Table section.
-      await analytics.leastCostSummaryHeading.scrollIntoViewIfNeeded();
+      await scrollIntoViewStable(analytics.leastCostSummaryHeading);
       await expect(page).toHaveScreenshot(
         "analytics-leastcost-summary.png",
         SCREENSHOT_OPTS,

@@ -446,7 +446,347 @@ test.describe("Payment Settings", () => {
     });
   });
 
+  test.describe("Block List Tab — Payment Method Blocking", () => {
+    const selectFieldLabels = [
+      "Issuing Country",
+      "Card Types",
+      "Card Networks",
+      "Funding Sources",
+      "Card Segment Types",
+      "Card Subtypes",
+    ];
+    const toggleLabels = [
+      "Block virtual cards",
+      "Block non-reloadable prepaid cards",
+      "Block gambling BINs",
+      "Block if BIN info unavailable",
+    ];
+
+    test.beforeEach(async ({ page }) => {
+      const homePage = new HomePage(page);
+      const paymentSettings = new PaymentSettings(page);
+      await homePage.developer.click();
+      await homePage.paymentSettings.click();
+      await paymentSettings.blockListTab.click();
+      await expect(paymentSettings.paymentMethodBlocking).toBeVisible();
+    });
+
+    for (const paymentMethod of ["Card", "Apple Pay", "Google Pay"]) {
+      test(`should render all blocking fields and toggles (off) for ${paymentMethod}`, async ({
+        page,
+      }) => {
+        const paymentSettings = new PaymentSettings(page);
+
+        await paymentSettings
+          .paymentMethodBlockingAccordion(paymentMethod)
+          .click();
+
+        for (const label of selectFieldLabels) {
+          await expect(
+            paymentSettings.paymentMethodBlockingDropdown(label),
+          ).toBeVisible();
+        }
+        for (const label of toggleLabels) {
+          await expect(
+            paymentSettings.paymentMethodBlockingToggle(label),
+          ).toHaveAttribute("data-bool-value", "off");
+        }
+      });
+    }
+
+    test("should submit and persist all card blocking fields", async ({
+      page,
+    }) => {
+      const paymentSettings = new PaymentSettings(page);
+
+      await paymentSettings.paymentMethodBlockingAccordion("Card").click();
+
+      await paymentSettings.selectPaymentMethodBlockingOption(
+        "Issuing Country",
+        "Germany",
+        { search: true },
+      );
+      await paymentSettings.selectPaymentMethodBlockingOption(
+        "Card Types",
+        "Charge Card",
+      );
+      await paymentSettings.selectPaymentMethodBlockingOption(
+        "Card Networks",
+        "Visa",
+      );
+      await paymentSettings.selectPaymentMethodBlockingOption(
+        "Funding Sources",
+        "Prepaid",
+      );
+      await paymentSettings.selectPaymentMethodBlockingOption(
+        "Card Segment Types",
+        "Commercial",
+      );
+      await paymentSettings.selectPaymentMethodBlockingOption(
+        "Card Subtypes",
+        "VIRTUAL",
+        { search: true },
+      );
+
+      await paymentSettings
+        .paymentMethodBlockingToggle("Block virtual cards")
+        .click();
+      await paymentSettings
+        .paymentMethodBlockingToggle("Block gambling BINs")
+        .click();
+
+      const updateRequestPromise = page.waitForRequest(
+        (request) =>
+          request.method() === "POST" &&
+          request.url().includes("/business_profile/"),
+      );
+
+      await paymentSettings.clickUpdate();
+
+      const payload = (await updateRequestPromise).postDataJSON();
+      const cardBlocking = payload.payment_method_blocking.card;
+
+      expect(cardBlocking.issuing_country).toEqual(["DE"]);
+      expect(cardBlocking.card_types).toEqual(["charge_card"]);
+      expect(cardBlocking.card_networks).toEqual(["Visa"]);
+      expect(cardBlocking.funding_sources).toEqual(["PREPAID"]);
+      expect(cardBlocking.card_segment_types).toEqual(["commercial"]);
+      expect(cardBlocking.card_subtypes).toEqual(["VIRTUAL"]);
+      expect(cardBlocking.block_virtual_cards).toBe(true);
+      expect(cardBlocking.gambling_blocked).toBe(true);
+      expect(cardBlocking.block_non_reloadable_prepaid_cards).toBeFalsy();
+      expect(cardBlocking.block_if_bin_info_unavailable).toBeFalsy();
+      await expect(paymentSettings.detailsUpdatedToast).toBeVisible({
+        timeout: 10000,
+      });
+      await page.waitForLoadState("networkidle");
+
+      await page.reload();
+      await page.waitForLoadState("networkidle");
+      await paymentSettings.blockListTab.click();
+      await paymentSettings.paymentMethodBlockingAccordion("Card").click();
+
+      await expect(
+        paymentSettings.paymentMethodBlockingToggle("Block virtual cards"),
+      ).toHaveAttribute("data-bool-value", "on", { timeout: 10000 });
+      await expect(
+        paymentSettings.paymentMethodBlockingToggle("Block gambling BINs"),
+      ).toHaveAttribute("data-bool-value", "on");
+      await expect(
+        paymentSettings.paymentMethodBlockingToggle(
+          "Block non-reloadable prepaid cards",
+        ),
+      ).toHaveAttribute("data-bool-value", "off");
+
+      await paymentSettings
+        .paymentMethodBlockingDropdown("Card Networks")
+        .click();
+      await expect(
+        paymentSettings.dropdownOptionCheckbox("Visa"),
+      ).toBeChecked();
+      await expect(
+        paymentSettings.dropdownOptionCheckbox("Mastercard"),
+      ).not.toBeChecked();
+      await page.keyboard.press("Escape");
+
+      await paymentSettings
+        .paymentMethodBlockingDropdown("Card Segment Types")
+        .click();
+      await expect(
+        paymentSettings.dropdownOptionCheckbox("Commercial"),
+      ).toBeChecked();
+      await page.keyboard.press("Escape");
+    });
+
+    test("should submit new blocking fields under the wallet key, separate from card", async ({
+      page,
+    }) => {
+      const paymentSettings = new PaymentSettings(page);
+
+      await paymentSettings.paymentMethodBlockingAccordion("Apple Pay").click();
+      await paymentSettings.selectPaymentMethodBlockingOption(
+        "Card Networks",
+        "Mastercard",
+      );
+      await paymentSettings
+        .paymentMethodBlockingToggle("Block if BIN info unavailable")
+        .click();
+      await paymentSettings.paymentMethodBlockingAccordion("Apple Pay").click();
+      // Wait for Apple Pay to collapse so the Google Pay toggle is the only match.
+      await expect(
+        paymentSettings.paymentMethodBlockingField("Card Networks"),
+      ).toHaveCount(0);
+
+      await paymentSettings
+        .paymentMethodBlockingAccordion("Google Pay")
+        .click();
+      await paymentSettings
+        .paymentMethodBlockingToggle("Block non-reloadable prepaid cards")
+        .click();
+
+      const updateRequestPromise = page.waitForRequest(
+        (request) =>
+          request.method() === "POST" &&
+          request.url().includes("/business_profile/"),
+      );
+
+      await paymentSettings.clickUpdate();
+
+      const payload = (await updateRequestPromise).postDataJSON();
+      const { card, wallet } = payload.payment_method_blocking;
+
+      expect(wallet.apple_pay.card_networks).toEqual(["Mastercard"]);
+      expect(wallet.apple_pay.block_if_bin_info_unavailable).toBe(true);
+      expect(wallet.apple_pay.block_non_reloadable_prepaid_cards).toBeFalsy();
+      expect(wallet.google_pay.block_non_reloadable_prepaid_cards).toBe(true);
+      expect(wallet.google_pay.card_networks).toBeUndefined();
+      expect(card?.card_networks).toBeUndefined();
+      expect(card?.block_if_bin_info_unavailable).toBeFalsy();
+      await expect(paymentSettings.detailsUpdatedToast).toBeVisible({
+        timeout: 10000,
+      });
+    });
+  });
+
+  test.describe("Payment Behaviour Tab — Account Updater", () => {
+    test.beforeEach(async ({ page }) => {
+      const homePage = new HomePage(page);
+      await homePage.developer.click();
+      await homePage.paymentSettings.click();
+    });
+
+    test("should display the Account Updater section with description and supported networks", async ({
+      page,
+    }) => {
+      const paymentSettings = new PaymentSettings(page);
+
+      await expect(paymentSettings.accountUpdaterHeading).toBeVisible();
+      await expect(paymentSettings.accountUpdaterDescription).toContainText(
+        "fetching the latest card details from the network when a card is reissued, expired or replaced",
+      );
+      await expect(paymentSettings.accountUpdaterDescription).toContainText(
+        "Supported on Visa and Mastercard",
+      );
+      await expect(
+        paymentSettings.accountUpdaterSection.getByText("Visa", {
+          exact: true,
+        }),
+      ).toBeVisible();
+      await expect(
+        paymentSettings.accountUpdaterSection.getByText("Mastercard", {
+          exact: true,
+        }),
+      ).toBeVisible();
+
+      for (const gateway of ["VISA", "MASTERCARD"] as const) {
+        const icon = paymentSettings.accountUpdaterNetworkIcon(gateway);
+        await expect(icon).toBeVisible();
+        await expect(icon).toHaveAttribute(
+          "src",
+          `/assets/Gateway/${gateway}.svg`,
+        );
+      }
+    });
+
+    test("should render a Slack contact link that opens in a new tab", async ({
+      page,
+    }) => {
+      const paymentSettings = new PaymentSettings(page);
+
+      await expect(paymentSettings.accountUpdaterDescription).toContainText(
+        "To enable this feature for your merchant account, please reach out to us on Slack.",
+      );
+      await expect(paymentSettings.accountUpdaterSlackLink).toBeVisible();
+      await expect(paymentSettings.accountUpdaterSlackLink).toHaveAttribute(
+        "href",
+        "https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect",
+      );
+      await expect(paymentSettings.accountUpdaterSlackLink).toHaveAttribute(
+        "target",
+        "_blank",
+      );
+    });
+
+    test("should show the Account Updater toggle as off and not allow enabling it", async ({
+      page,
+    }) => {
+      const paymentSettings = new PaymentSettings(page);
+      const toggle = paymentSettings.toggleSwitchByLabel("Account Updater");
+
+      await expect(toggle).toBeVisible();
+      await expect(toggle).toHaveAttribute("data-bool-value", "off");
+
+      // The switch is disabled, so a forced click must not flip it.
+      await toggle.click({ force: true });
+      await expect(toggle).toHaveAttribute("data-bool-value", "off");
+    });
+  });
+
   test.describe("Webhook Configuration Tab", () => {
+    // Accordion title (event_class) → status dropdown label (from api_field)
+    // and the statuses that map to a webhook EventType in euclid_wasm.
+    const eventClasses: Record<
+      string,
+      { resourceLabel: string; options: string[] }
+    > = {
+      Payments: {
+        resourceLabel: "Payment",
+        options: [
+          "Succeeded",
+          "Failed",
+          "Cancelled",
+          "Cancelled Post Capture",
+          "Processing",
+          "Requires Customer Action",
+          "Requires Merchant Action",
+          "Requires Capture",
+          "Partially Captured",
+          "Partially Captured And Capturable",
+          "Partially Authorized And Requires Capture",
+          "Partially Captured And Processing",
+          "Conflicted",
+          "Expired",
+          "Review",
+        ],
+      },
+      Refunds: {
+        resourceLabel: "Refund",
+        options: ["Failure", "Manual Review", "Success"],
+      },
+      Disputes: {
+        resourceLabel: "Dispute",
+        options: [
+          "Dispute Opened",
+          "Dispute Expired",
+          "Dispute Accepted",
+          "Dispute Cancelled",
+          "Dispute Challenged",
+          "Dispute Won",
+          "Dispute Lost",
+        ],
+      },
+      Mandates: {
+        resourceLabel: "Mandate",
+        options: ["Active", "Revoked"],
+      },
+      Payouts: {
+        resourceLabel: "Payout",
+        options: [
+          "Success",
+          "Failed",
+          "Cancelled",
+          "Initiated",
+          "Expired",
+          "Reversed",
+          "Not Permitted",
+        ],
+      },
+      Subscriptions: {
+        resourceLabel: "Invoice",
+        options: ["Invoice Paid"],
+      },
+    };
+
     test.beforeEach(async ({ page }) => {
       const homePage = new HomePage(page);
       const paymentSettings = new PaymentSettings(page);
@@ -463,15 +803,163 @@ test.describe("Payment Settings", () => {
 
       await expect(paymentSettings.webhookUrlInput).toBeVisible();
       await expect(paymentSettings.webhookConfigurationHeading).toBeVisible();
+      for (const eventClass of Object.keys(eventClasses)) {
+        await expect(
+          paymentSettings.webhookEventClassAccordion(eventClass),
+        ).toBeVisible();
+      }
+    });
+
+    test("should no longer show the webhook URL on the Payment Behaviour tab", async ({
+      page,
+    }) => {
+      const paymentSettings = new PaymentSettings(page);
+
+      await paymentSettings.paymentBehaviourTab.click();
+      await expect(paymentSettings.returnUrlInput).toBeVisible();
+      await expect(paymentSettings.webhookUrlInput).toHaveCount(0);
+    });
+
+    for (const [eventClass, { resourceLabel, options }] of Object.entries(
+      eventClasses,
+    )) {
+      test(`should list every webhook-emitting ${resourceLabel} status under ${eventClass}`, async ({
+        page,
+      }) => {
+        const paymentSettings = new PaymentSettings(page);
+
+        await expect(
+          paymentSettings.webhookStatusesDropdown(resourceLabel),
+        ).toHaveCount(0);
+        await paymentSettings.webhookEventClassAccordion(eventClass).click();
+        await expect(
+          page.getByText(`${resourceLabel} Statuses`, { exact: true }),
+        ).toBeVisible();
+
+        await paymentSettings.webhookStatusesDropdown(resourceLabel).click();
+        const dropdownOptions = page.getByRole("listbox").getByRole("option");
+        await expect(dropdownOptions).toHaveCount(options.length);
+        const renderedLabels = (await dropdownOptions.allTextContents()).map(
+          (label) => label.trim(),
+        );
+        expect([...renderedLabels].sort()).toEqual([...options].sort());
+
+        for (const label of options) {
+          await expect(
+            paymentSettings.dropdownOptionCheckbox(label),
+          ).not.toBeChecked();
+        }
+      });
+    }
+
+    test("should block saving an invalid webhook URL", async ({ page }) => {
+      const paymentSettings = new PaymentSettings(page);
+
+      await paymentSettings.fillWebhookUrl("not-a-valid-url");
+      await paymentSettings.webhookUrlInput.blur();
+      await expect(paymentSettings.webhookUrlError).toBeVisible();
+      await expect(paymentSettings.updateButton).toBeDisabled();
+
+      await paymentSettings.fillWebhookUrl("https://example.com/webhook");
+      await paymentSettings.webhookUrlInput.blur();
+      await expect(paymentSettings.webhookUrlError).toHaveCount(0);
+      await expect(paymentSettings.updateButton).toBeEnabled();
+    });
+
+    test("should send statuses for multiple event classes, null for untouched ones, and persist them", async ({
+      page,
+    }) => {
+      const paymentSettings = new PaymentSettings(page);
+
+      await paymentSettings.selectWebhookStatuses("Payments", "Payment", [
+        "Succeeded",
+        "Failed",
+      ]);
+      await paymentSettings.selectWebhookStatuses("Refunds", "Refund", [
+        "Success",
+      ]);
+
+      const updateRequestPromise = page.waitForRequest(
+        (request) =>
+          request.method() === "POST" &&
+          request.url().includes("/business_profile/"),
+      );
+      await paymentSettings.clickUpdate();
+      const webhookDetails = (await updateRequestPromise).postDataJSON()
+        .webhook_details;
+
+      expect(webhookDetails.payment_statuses_enabled).toEqual(
+        expect.arrayContaining(["succeeded", "failed"]),
+      );
+      expect(webhookDetails.payment_statuses_enabled).toHaveLength(2);
+      expect(webhookDetails.refund_statuses_enabled).toEqual(["success"]);
+      for (const field of [
+        "dispute_statuses_enabled",
+        "mandate_statuses_enabled",
+        "payout_statuses_enabled",
+        "invoice_statuses_enabled",
+      ]) {
+        expect(webhookDetails[field]).toBeNull();
+      }
+
+      await expect(paymentSettings.detailsUpdatedToast).toBeVisible({
+        timeout: 10000,
+      });
+      await page.waitForLoadState("networkidle");
+
+      await page.reload();
+      await page.waitForLoadState("networkidle");
+      await paymentSettings.webhookConfigurationTab.click();
+
+      await paymentSettings.webhookEventClassAccordion("Payments").click();
+      await paymentSettings.webhookStatusesDropdown("Payment").click();
       await expect(
-        paymentSettings.webhookEventClassAccordion("Payments"),
-      ).toBeVisible();
+        paymentSettings.dropdownOptionCheckbox("Succeeded"),
+      ).toBeChecked({ timeout: 10000 });
       await expect(
-        paymentSettings.webhookEventClassAccordion("Refunds"),
-      ).toBeVisible();
+        paymentSettings.dropdownOptionCheckbox("Failed"),
+      ).toBeChecked();
       await expect(
-        paymentSettings.webhookEventClassAccordion("Disputes"),
-      ).toBeVisible();
+        paymentSettings.dropdownOptionCheckbox("Processing"),
+      ).not.toBeChecked();
+      await page.keyboard.press("Escape");
+      await expect(page.getByRole("listbox")).toHaveCount(0);
+      await paymentSettings.webhookEventClassAccordion("Payments").click();
+
+      await paymentSettings.webhookEventClassAccordion("Refunds").click();
+      await paymentSettings.webhookStatusesDropdown("Refund").click();
+      await expect(
+        paymentSettings.dropdownOptionCheckbox("Success"),
+      ).toBeChecked();
+      await expect(
+        paymentSettings.dropdownOptionCheckbox("Failure"),
+      ).not.toBeChecked();
+    });
+
+    test("should show an error toast when the update fails", async ({
+      page,
+    }) => {
+      const paymentSettings = new PaymentSettings(page);
+
+      await page.route("**/business_profile/**", async (route) => {
+        if (route.request().method() === "POST") {
+          await route.fulfill({
+            status: 500,
+            contentType: "application/json",
+            body: JSON.stringify({ error: { message: "update failed" } }),
+          });
+        } else {
+          await route.fallback();
+        }
+      });
+
+      await paymentSettings.fillWebhookUrl("https://example.com/webhook");
+      await paymentSettings.clickUpdate();
+
+      await expect(paymentSettings.failedToUpdateToast).toBeVisible({
+        timeout: 10000,
+      });
+      await expect(paymentSettings.detailsUpdatedToast).toHaveCount(0);
     });
 
     test("should save the webhook URL and the selected payment statuses", async ({
