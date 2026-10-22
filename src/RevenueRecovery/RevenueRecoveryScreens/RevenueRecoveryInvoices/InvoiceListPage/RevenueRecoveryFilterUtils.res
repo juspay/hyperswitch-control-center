@@ -3,14 +3,17 @@ open LogicUtils
 let tableTitle = "RecoveryInvoices"
 
 // Only these params are sent, the endpoint rejects unknown ones
-let supportedFilterKeys: array<RevenueRecoveryOrderTypes.recoveryFilterKey> = [
+let recoveryFilterKeys: array<RevenueRecoveryOrderTypes.recoveryFilterKey> = [
   #recovery_status,
   #merchant_connector_id,
   #payment_method_type,
   #payment_method_subtype,
-  #"created.gte",
-  #"created.lte",
 ]
+
+let supportedFilterKeys =
+  [OrderUIUtils.startTimeFilterKey(V2), OrderUIUtils.endTimeFilterKey(V2)]->Array.concat(
+    recoveryFilterKeys->Array.map(filterKey => (filterKey :> string)),
+  )
 
 let paymentMethodFilterKeys: array<RevenueRecoveryOrderTypes.paymentMethodFilterKey> = [
   #payment_method_type,
@@ -109,10 +112,7 @@ let buildQuery = (~filters: Dict.t<JSON.t>, ~offset, ~limit, ~searchText) => {
     | Array(arr) => arr->getStrArrayFromJsonArray->Array.joinWith(",")
     | _ => ""
     }
-    if (
-      formatted->isNonEmptyString &&
-        supportedFilterKeys->Array.map(filterKey => (filterKey :> string))->Array.includes(key)
-    ) {
+    if formatted->isNonEmptyString && supportedFilterKeys->Array.includes(key) {
       query->Dict.set(key, formatted)
     }
   })

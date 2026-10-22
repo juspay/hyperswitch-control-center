@@ -81,8 +81,6 @@ type recoveryFilterKey = [
   | #merchant_connector_id
   | #payment_method_type
   | #payment_method_subtype
-  | #"created.gte"
-  | #"created.lte"
 ]
 
 type paymentMethodFilterKey = [#payment_method_type | #payment_method_subtype]
