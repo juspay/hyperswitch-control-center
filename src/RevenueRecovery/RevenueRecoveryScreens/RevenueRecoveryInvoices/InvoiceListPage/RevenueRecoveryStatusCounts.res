@@ -13,10 +13,13 @@ let make = () => {
   let (total, setTotal) = React.useState(_ => 0)
   let statusKey = RevenueRecoveryOrderUtils.recoveryStatusFilterKey
 
+  // The date filter only stores its keys once the user picks a range, so fall back to the same
+  // default range the list filters use
   let (startTime, endTime) = React.useMemo(() => {
+    let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
     (
-      filterValueJson->getString(OrderUIUtils.startTimeFilterKey(V2), ""),
-      filterValueJson->getString(OrderUIUtils.endTimeFilterKey(V2), ""),
+      filterValueJson->getString(OrderUIUtils.startTimeFilterKey(V2), defaultDate.start_time),
+      filterValueJson->getString(OrderUIUtils.endTimeFilterKey(V2), defaultDate.end_time),
     )
   }, filterValue)
 
