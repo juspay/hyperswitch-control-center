@@ -1,10 +1,6 @@
 open LogicUtils
 
-let makeItems = (
-  options: array<SelectBox.dropdownOption>,
-  ~deselectDisable as _: bool=false,
-  ~selectedValue as _: string,
-) => {
+let makeItems = (options: array<SelectBox.dropdownOption>) => {
   let groups = Dict.make()
 
   options->Array.forEach(opt => {
@@ -64,6 +60,7 @@ let make = (
   ~variant: option<MultiSelectBindings.selectMenuItemVariant>=?,
   ~menuFooter: option<React.element>=?,
 ) => {
+  let triggerId = React.useId()
   let authContext = React.useContext(FormAuthContext.formAuthContext)
   let isDisabled = disabled || authContext === CommonAuthTypes.NoAccess
 
@@ -79,6 +76,7 @@ let make = (
   let computedEnableSearch = enableSearch || totalItems > 5
 
   <SingleSelectBinding
+    name=triggerId
     selected=selectedValue
     onSelect=handleChange
     items
@@ -101,6 +99,10 @@ let make = (
     customTrigger={customTrigger->Option.getOr(
       SingleSelectBinding.Trigger.make(
         ~items,
+        ~id=triggerId,
+        ~label?,
+        ~onFocus?,
+        ~onBlur?,
         ~selected=selectedValue,
         ~placeholder,
         ~disabled=isDisabled,

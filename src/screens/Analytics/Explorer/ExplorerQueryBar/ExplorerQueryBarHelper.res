@@ -20,33 +20,27 @@ module QuerySelect = {
     ~placeholder,
     ~allowDeselect=false,
     ~enableSearch=false,
-  ) =>
+  ) => {
+    let items: array<SingleSelectBinding.selectMenuGroupType> = [
+      {
+        items: options->Array.map(option => {
+          SingleSelectBinding.label: option.label,
+          value: option.value,
+          subLabel: ?option.subLabel,
+          slot1: ?option.slot1,
+          slot2: ?option.slot2,
+          disabled: ?option.disabled,
+          tooltip: ?option.tooltip,
+          disableTruncation: true,
+        }),
+      },
+    ]
     <SingleSelectBinding
       selected=value
       onSelect={next => onChange(allowDeselect && next === value ? "" : next)}
-      items=[
-        {
-          items: options->Array.map(option => {
-            SingleSelectBinding.label: option.label,
-            value: option.value,
-            subLabel: ?option.subLabel,
-            slot1: ?option.slot1,
-            slot2: ?option.slot2,
-            disabled: ?option.disabled,
-            tooltip: ?option.tooltip,
-            disableTruncation: true,
-          }),
-        },
-      ]
+      items
       customTrigger={SingleSelectBinding.Trigger.make(
-        ~items=[
-          {
-            items: options->Array.map(item => {
-              SingleSelectBinding.label: item.label,
-              value: item.value,
-            }),
-          },
-        ],
+        ~items,
         ~selected=value,
         ~placeholder,
         ~size=Sm,
@@ -57,4 +51,5 @@ module QuerySelect = {
       search={show: enableSearch}
       menuDimensions={minWidth: 300, maxWidth: 380}
     />
+  }
 }

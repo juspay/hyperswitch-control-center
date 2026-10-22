@@ -83,6 +83,10 @@ module Trigger = {
     ~selected: string,
     ~placeholder: string,
     ~disabled=false,
+    ~id: option<string>=?,
+    ~label: option<string>=?,
+    ~onFocus: option<unit => unit>=?,
+    ~onBlur: option<unit => unit>=?,
     ~slot: option<React.element>=?,
     ~fullWidth=false,
     ~minWidth: option<float>=?,
@@ -99,8 +103,14 @@ module Trigger = {
     <button
       type_="button"
       disabled
+      ?id
       ariaLabel=text
-      className={`flex items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white dark:bg-gray-900 px-3 text-sm text-gray-900 dark:text-gray-100 disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500 ${fullWidth
+      ariaLabelledby=?{label
+      ->Option.flatMap(LogicUtils.getNonEmptyString)
+      ->Option.flatMap(_ => id->Option.map(id => `${id}-label`))}
+      onFocus={_ => onFocus->Option.forEach(callback => callback())}
+      onBlur={_ => onBlur->Option.forEach(callback => callback())}
+      className={`flex items-center justify-between gap-2 rounded-lg border border-nd_br_gray-200 bg-nd_gray-0 dark:bg-nd_gray-800 px-3 ${Typography.body.md.regular} text-nd_gray-800 dark:text-nd_gray-100 disabled:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-nd_primary_blue-500 ${fullWidth
           ? "w-full"
           : ""} ${size === Sm ? "h-8" : size === Lg ? "h-11" : "h-9"}`}
       style={ReactDOM.Style.make(
@@ -108,6 +118,15 @@ module Trigger = {
         ~maxWidth=?maxWidth->Option.map(v => `${v->Float.toString}px`),
         (),
       )}>
+      // Blend 0.0.38 does not put its generated label ID on InputLabels.
+      {label
+      ->Option.flatMap(LogicUtils.getNonEmptyString)
+      ->Option.map(text =>
+        <span id=?{id->Option.map(id => `${id}-label`)} className="sr-only">
+          {text->React.string}
+        </span>
+      )
+      ->Option.getOr(React.null)}
       {slot->Option.getOr(React.null)}
       <span className="truncate text-left"> {text->React.string} </span>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" ariaHidden=true>

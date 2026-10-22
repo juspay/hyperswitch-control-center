@@ -59,7 +59,7 @@ let makeFilterItems = (options: array<dropdownOption>, ~selectedValues: array<st
   })
 }
 
-let makeFilterItemsSingle = (options: array<dropdownOption>, ~selectedValue as _: string) => {
+let makeFilterItemsSingle = (options: array<dropdownOption>) => {
   let groups: Dict.t<array<dropdownOption>> = Dict.make()
   options->Array.forEach(opt => {
     let group = opt.optGroup->Option.getOr("-")
@@ -186,8 +186,7 @@ module BlendSingleSelect = {
     ~alignment: option<selectMenuItemAlignment>=?,
     ~side: option<selectMenuItemSide>=?,
   ) => {
-    let selectedValue = input.value->getStringFromJson("")
-    let blendItems = makeFilterItemsSingle(options, ~selectedValue)
+    let blendItems = makeFilterItemsSingle(options)
     let totalItems = blendItems->Array.reduce(0, (acc, g) => acc + g.items->Array.length)
     let computedEnableSearch = searchable->Option.getOr(false) || totalItems > 5
     <SingleSelectWrapper
