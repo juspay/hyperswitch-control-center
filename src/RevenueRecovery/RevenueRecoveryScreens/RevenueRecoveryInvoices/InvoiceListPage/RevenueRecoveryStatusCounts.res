@@ -13,8 +13,7 @@ let make = () => {
   let (total, setTotal) = React.useState(_ => 0)
   let statusKey = RevenueRecoveryOrderUtils.recoveryStatusFilterKey
 
-  // The date filter only stores its keys once the user picks a range, so fall back to the same
-  // default range the list filters use
+  // falls back to the default range until a date is picked
   let (startTime, endTime) = React.useMemo(() => {
     let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
     (
@@ -26,7 +25,7 @@ let make = () => {
   let loadCounts = async () => {
     try {
       let url = getURL(
-        ~entityName=V2(V2_RECOVERY_AGGREGATE),
+        ~entityName=V2(RECOVERY_AGGREGATE),
         ~methodType=Get,
         ~queryParameters=Some(`start_time=${startTime}&end_time=${endTime}`),
       )

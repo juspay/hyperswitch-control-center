@@ -2,8 +2,7 @@ open LogicUtils
 
 let tableTitle = "RecoveryInvoices"
 
-// Filters the recovery list exposes. The endpoint rejects unknown params, so anything else is
-// dropped from the query.
+// Only these params are sent, the endpoint rejects unknown ones
 let supportedFilterKeys: array<RevenueRecoveryOrderTypes.recoveryFilterKey> = [
   #recovery_status,
   #merchant_connector_id,

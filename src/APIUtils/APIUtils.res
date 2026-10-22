@@ -127,7 +127,7 @@ let getV2Url = (
       }
     | _ => Default(``)
     }
-  | V2_RECOVERY_AGGREGATE =>
+  | RECOVERY_AGGREGATE =>
     switch (methodType, queryParameters) {
     | (Get, Some(queryParams)) =>
       switch transactionEntity {

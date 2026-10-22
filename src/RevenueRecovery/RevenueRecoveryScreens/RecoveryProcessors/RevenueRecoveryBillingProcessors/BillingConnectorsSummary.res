@@ -83,8 +83,7 @@ module WebhookDetailsView = {
     <div className="grid grid-cols-2 gap-10 max-w-3xl px-2">
       {webhookFields
       ->Dict.toArray
-      // the wasm lists every webhook field and leaves the label empty for the ones a connector
-      // does not use
+      // fields the connector does not use have an empty label
       ->Array.filter(((_, label)) => label->getStringFromJson("")->isNonEmptyString)
       ->Array.map(((field, label)) => {
         let value = savedValues->getString(field, "")

@@ -133,7 +133,7 @@ let make = () => {
   }, [searchText])
 
   <ErrorBoundary>
-    <div className={`flex flex-col gap-4 mx-auto h-full w-full min-h-[50vh]`}>
+    <div className={`flex flex-col gap-4 mx-auto h-full w-full min-h-50-vh`}>
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="List of Invoices" customTitleStyle="py-0 !pt-0" />
         <RenderIf condition={generateReport && email && revenueRecoveryData->Array.length > 0}>
