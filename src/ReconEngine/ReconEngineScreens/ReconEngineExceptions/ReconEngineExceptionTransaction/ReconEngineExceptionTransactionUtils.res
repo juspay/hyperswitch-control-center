@@ -620,7 +620,7 @@ let getNewEntry = (
 let getEntryOverrides = (formData): ReconEngineExceptionTransactionTypes.entryOverrides => {
   entry_type: formData->getString("entry_type", "")->getEntryTypeVariantFromString,
   amount: formData->getFloat("amount", 0.0),
-  effective_at: formData->getString("effective_at", "")->toReconTimeString,
+  effective_at: formData->getString("effective_at", "")->toReconTimeString(~convertToLocal=false),
   metadata: formData->getJsonObjectFromDict("metadata"),
   order_id: formData->getString("order_id", ""),
   transformation_id: ?formData->getOptionString("transformation_id"),
@@ -629,7 +629,7 @@ let getEntryOverrides = (formData): ReconEngineExceptionTransactionTypes.entryOv
 let getStagingEntryOverrides = (
   formData
 ): ReconEngineExceptionTransactionTypes.stagingEntryOverrides => {
-  effective_at: formData->getString("effective_at", "")->toReconTimeString,
+  effective_at: formData->getString("effective_at", "")->toReconTimeString(~convertToLocal=false),
   metadata: formData->getJsonObjectFromDict("metadata"),
   order_id: formData->getString("order_id", ""),
 }
@@ -639,7 +639,7 @@ let getCreateEntryOp = (formData): ReconEngineExceptionTransactionTypes.entryOp 
     account_id: formData->getString("account", ""),
     entry_type: formData->getString("entry_type", "")->getEntryTypeVariantFromString,
     amount: formData->getFloat("amount", 0.0),
-    effective_at: formData->getString("effective_at", "")->toReconTimeString,
+    effective_at: formData->getString("effective_at", "")->toReconTimeString(~convertToLocal=false),
     metadata: formData->getJsonObjectFromDict("metadata"),
     order_id: formData->getString("order_id", ""),
     transformation_id: ?formData->getOptionString("transformation_id"),

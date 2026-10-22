@@ -6,10 +6,10 @@ open ExplorerDescriptions
 
 module SourceTabs = {
   @react.component
-  let make = (~question: question, ~onSource) =>
+  let make = (~selection: selection, ~onSource) =>
     <div className="flex items-center gap-3">
       <TabsBinding
-        value={(question.source :> string)}
+        value={(selection.source :> string)}
         onValueChange={id => onSource(id->sourceFromString)}
         variant=Boxed
         size=Md>
@@ -25,7 +25,7 @@ module SourceTabs = {
         </TabsBinding.List>
       </TabsBinding>
       <span className={`${body.md.regular} text-nd_gray-500`}>
-        {sourceDescription(question.source)->React.string}
+        {sourceDescription(selection.source)->React.string}
       </span>
     </div>
 }

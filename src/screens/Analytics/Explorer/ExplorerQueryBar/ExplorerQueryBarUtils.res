@@ -1,3 +1,4 @@
+open ExplorerTypes
 open ExplorerCatalog
 open ExplorerDescriptions
 
@@ -6,4 +7,11 @@ let measureOptions = source =>
     label: measureLabel(source, measure),
     value: (measure :> string),
     subLabel: measureDefinition(source, measure),
+  })
+
+let dimensionOptions = (source, dimensions: array<dimension>) =>
+  dimensions->Array.map((key): MultiSelectBindings.selectMenuItemType => {
+    label: dimensionLabel(key),
+    value: (key :> string),
+    subLabel: dimensionDescription(source, key),
   })
