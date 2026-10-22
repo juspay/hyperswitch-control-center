@@ -39,16 +39,36 @@ let useShowToast = () => {
 
         let duration = toastDuration > 0 ? toastDuration : 3000
 
+        let header = switch toastType {
+        | ToastSuccess => "Success"
+        | ToastError => "Error"
+        | ToastWarning => "Warning"
+        | ToastInfo => "Information"
+        }
+
+        let actionButton = buttonText->Option.map(label => {
+          label,
+          onClick: () =>
+            RescriptReactRouter.push(
+              GlobalVars.appendDashboardPath(~url=helpLink->Option.getOr("")),
+            ),
+        })
+
+        // V2 headers truncate; keep the complete application message in the description.
         let toastOptions: addToastOptions = {
-          header: message,
+          header,
+          description: message,
+          ?actionButton,
           variant,
           duration,
           position: TopCenter,
-          wrap: true,
+          width: "min(400px, calc(100vw - 32px))",
+          maxWidth: "calc(100vw - 32px)",
+          minWidth: "0",
         }
 
-        let _ = addSnackbar(toastOptions)
+        let _ = addSnackbarV2(toastOptions)
       }
     }
-  }, [isBlendEnabled])
+  }, (isBlendEnabled, legacyShowToast))
 }
