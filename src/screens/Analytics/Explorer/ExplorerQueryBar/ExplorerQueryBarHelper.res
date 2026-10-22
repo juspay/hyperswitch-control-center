@@ -23,13 +23,38 @@ module QuerySelect = {
   ) =>
     <SingleSelectBinding
       selected=value
-      onSelect=onChange
-      items=[{items: options->Array.map(option => {...option, disableTruncation: true})}]
+      onSelect={next => onChange(allowDeselect && next === value ? "" : next)}
+      items=[
+        {
+          items: options->Array.map(option => {
+            SingleSelectBinding.label: option.label,
+            value: option.value,
+            subLabel: ?option.subLabel,
+            slot1: ?option.slot1,
+            slot2: ?option.slot2,
+            disabled: ?option.disabled,
+            tooltip: ?option.tooltip,
+            disableTruncation: true,
+          }),
+        },
+      ]
+      customTrigger={SingleSelectBinding.Trigger.make(
+        ~items=[
+          {
+            items: options->Array.map(item => {
+              SingleSelectBinding.label: item.label,
+              value: item.value,
+            }),
+          },
+        ],
+        ~selected=value,
+        ~placeholder,
+        ~size=Sm,
+        (),
+      )}
       placeholder
       size=Sm
-      allowDeselect
-      enableSearch
-      minMenuWidth=300
-      maxMenuWidth=380
+      search={show: enableSearch}
+      menuDimensions={minWidth: 300, maxWidth: 380}
     />
 }
