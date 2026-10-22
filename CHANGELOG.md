@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.10.22.0
+
+### Features
+
+- **analytics:** Add explorer split and table view ([#5641](https://github.com/juspay/hyperswitch-control-center/pull/5641)) ([`2e85412`](https://github.com/juspay/hyperswitch-control-center/commit/2e854124bd0af88a93c1c4808c6185aa3981c9db))
+
+### Bug Fixes
+
+- **recovery:** Onboarding and configuration fixes ([#5702](https://github.com/juspay/hyperswitch-control-center/pull/5702)) ([`3dddb20`](https://github.com/juspay/hyperswitch-control-center/commit/3dddb20737ae5b4b602bfa165542d7a1ca55e716))
+
+**Full Changelog:** [`2026.10.19.0...2026.10.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.19.0...2026.10.22.0)
+
+- - -
+
 ## 2026.10.19.0
 
 ### Features
