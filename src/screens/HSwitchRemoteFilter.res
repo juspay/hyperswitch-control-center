@@ -183,7 +183,6 @@ module RemoteTableFilters = {
     ~connectorTypes: array<ConnectorTypes.connector>=[Processor, ThreeDsAuthenticator],
     ~customFilterActions=React.null,
     ~setRemoteFilterData=_ => (),
-    ~fetchFilters=true,
     (),
   ) => {
     open LogicUtils
@@ -302,12 +301,7 @@ module RemoteTableFilters = {
     }
 
     React.useEffect(() => {
-      if fetchFilters {
-        fetchAllFilters()->ignore
-      } else {
-        // for lists without a remote filters endpoint
-        setFilterDataJson(_ => Some(Dict.make()->JSON.Encode.object))
-      }
+      fetchAllFilters()->ignore
       None
     }, (start_time, end_time, transactionEntity))
 

@@ -8,7 +8,7 @@ let statusVariantMapper: string => RevenueRecoveryOrderTypes.recoveryInvoiceStat
   | "PROCESSING" => Processing
   | "QUEUED" => Queued
   | "MONITORING" => Monitoring
-  | "PARTIALLYCAPTURED" => PartiallyRecovered
+  | "PARTIALLYCAPTURED" | "PARTIALLY_RECOVERED" => PartiallyRecovered
   | "PARTIALLYCAPTUREDANDPROCESSING" => PartiallyCapturedAndProcessing
   | _ => Other(statusLabel)
   }
