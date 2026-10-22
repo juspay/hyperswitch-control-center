@@ -34,7 +34,14 @@ let make = (
   }
 
   <ErrorBoundary>
-    <TabsBinding value={selectedValue} onValueChange={handleValueChange} variant size ?fitContent>
+    // Preserve the V1 items-path inset without changing direct compound consumers.
+    <TabsBinding
+      value={selectedValue}
+      onValueChange={handleValueChange}
+      variant
+      size
+      ?fitContent
+      className={variant === TabsBinding.Underline ? "pt-2" : ""}>
       <TabsBinding.List variant size ?fitContent ariaLabel>
         {tabs
         ->Array.mapWithIndex((tab, i) =>
