@@ -2,28 +2,14 @@ type tabsVariant =
   | @as("boxed") Boxed
   | @as("floating") Floating
   | @as("underline") Underline
+  | @as("pills") Pills
 
 type tabsSize =
+  | @as("sm") Sm
   | @as("md") Md
   | @as("lg") Lg
 
 type skeletonVariant = [#pulse | #wave | #shimmer]
-
-type tabItem = {
-  value: string,
-  label: string,
-  content: React.element,
-  closable?: bool,
-  isDefault?: bool,
-  disable?: bool,
-  showSkeleton?: bool,
-  skeletonVariant?: skeletonVariant,
-  leftSlot?: React.element,
-  rightSlot?: React.element,
-  newItem?: bool,
-  stickyHeader?: bool,
-  offsetTop?: int,
-}
 
 @module("@juspay/blend-design-system") @react.component
 external make: (
@@ -34,12 +20,14 @@ external make: (
   ~size: tabsSize=?,
   ~className: string=?,
   ~children: React.element=?,
-  ~items: array<tabItem>=?,
   ~fitContent: bool=?,
-  ~onTabClose: string => unit=?,
+  ~expanded: bool=?,
+  ~disabled: bool=?,
+  ~showSkeleton: bool=?,
+  ~skeletonVariant: skeletonVariant=?,
   ~stickyHeader: bool=?,
   ~offsetTop: int=?,
-) => React.element = "Tabs"
+) => React.element = "TabsV2"
 
 module List = {
   @module("@juspay/blend-design-system") @react.component
@@ -48,9 +36,12 @@ module List = {
     ~size: tabsSize=?,
     ~expanded: bool=?,
     ~fitContent: bool=?,
+    ~stickyHeader: bool=?,
+    ~offsetTop: int=?,
     ~className: string=?,
+    @as("aria-label") ~ariaLabel: string=?,
     ~children: React.element,
-  ) => React.element = "TabsList"
+  ) => React.element = "TabsV2List"
 }
 
 module Trigger = {
@@ -62,11 +53,15 @@ module Trigger = {
     ~leftSlot: React.element=?,
     ~rightSlot: React.element=?,
     ~disabled: bool=?,
+    ~closable: bool=?,
+    ~onClose: unit => unit=?,
+    ~showSkeleton: bool=?,
+    ~skeletonVariant: skeletonVariant=?,
     ~isOverlay: bool=?,
     ~className: string=?,
     @as("aria-label") ~ariaLabel: string=?,
     ~children: React.element,
-  ) => React.element = "TabsTrigger"
+  ) => React.element = "TabsV2Trigger"
 }
 
 module Content = {
@@ -76,5 +71,5 @@ module Content = {
     ~forceMount: bool=?,
     ~className: string=?,
     ~children: React.element,
-  ) => React.element = "TabsContent"
+  ) => React.element = "TabsV2Content"
 }

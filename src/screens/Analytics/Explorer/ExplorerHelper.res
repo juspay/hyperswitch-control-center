@@ -13,7 +13,7 @@ module SourceTabs = {
         onValueChange={id => onSource(id->sourceFromString)}
         variant=Boxed
         size=Md>
-        <TabsBinding.List variant=Boxed size=Md fitContent=true>
+        <TabsBinding.List variant=Boxed size=Md fitContent=true ariaLabel="Payment source">
           {sources
           ->Array.map(source =>
             <TabsBinding.Trigger

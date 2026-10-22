@@ -409,7 +409,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
       }}
       variant=Underline
       size=Md>
-      <TabsBinding.List variant=Underline size=Md>
+      <TabsBinding.List variant=Underline size=Md ariaLabel="Log origin">
         {[AllOrigins]
         ->Array.concat(presentOrigins)
         ->Array.map(origin => {
@@ -438,7 +438,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
       }}
       variant=Boxed
       size=Md>
-      <TabsBinding.List variant=Boxed size=Md fitContent=true>
+      <TabsBinding.List variant=Boxed size=Md fitContent=true ariaLabel="SDK log type">
         {[AllSdk]
         ->Array.concat(presentSdkFilters)
         ->Array.map(filter => {
@@ -497,7 +497,7 @@ let make = (~id, ~urls, ~logType: LogTypes.pageType) => {
             onValueChange=setActiveTab
             variant=Underline
             size=Md>
-            <TabsBinding.List variant=Underline size=Md>
+            <TabsBinding.List variant=Underline size=Md ariaLabel="Log details">
               {tabKeys
               ->Array.map(tabKey =>
                 <TabsBinding.Trigger key=tabKey value=tabKey variant=Underline size=Md>
