@@ -83,12 +83,13 @@ module WebhookDetailsView = {
     <div className="grid grid-cols-2 gap-10 max-w-3xl px-2">
       {webhookFields
       ->Dict.toArray
+      // the wasm lists every webhook field and leaves the label empty for the ones a connector
+      // does not use
+      ->Array.filter(((_, label)) => label->getStringFromJson("")->isNonEmptyString)
       ->Array.map(((field, label)) => {
         let value = savedValues->getString(field, "")
         <div className="flex flex-col gap-2 min-w-0" key=field>
-          <h4 className="text-nd_gray-400">
-            {label->getStringFromJson(field->snakeToTitle)->React.string}
-          </h4>
+          <h4 className="text-nd_gray-400"> {label->getStringFromJson("")->React.string} </h4>
           <p className="break-all"> {(value->isNonEmptyString ? value : "None")->React.string} </p>
         </div>
       })
