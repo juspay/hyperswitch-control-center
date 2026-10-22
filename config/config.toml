@@ -88,6 +88,7 @@ dev_sidebar_v2=true
 dev_debit_routing=true
 dev_webhooks=true
 dev_blocklist=false
+dev_payout_blocklist=false
 dev_recon_engine_v1=false
 dev_alerts=false
 dev_analytics_explorer=false

@@ -2199,6 +2199,11 @@ test.describe("All Payin Connectors", () => {
 
     await expect(paymentConnector.connectorCreatedToast).toBeVisible();
 
+    await expect(
+      page.getByRole("button", { name: "Register webhook" }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Skip this step" }).click();
+
     await paymentConnector.connectorSetupDone.click();
 
     await expect(page).toHaveURL(/.*dashboard\/connectors/);

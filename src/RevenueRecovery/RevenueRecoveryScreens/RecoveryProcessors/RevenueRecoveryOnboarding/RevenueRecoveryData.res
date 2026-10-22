@@ -50,6 +50,7 @@ let feature_metadata = (~id) => {
     "revenue_recovery": {
       "billing_connector_retry_threshold": 3,
       "max_retry_count": 15,
+      "grace_period_days": RevenueRecoveryOnboardingUtils.defaultGracePeriodDays,
       "billing_account_reference": billing_account_reference->Identity.genericTypeToJson,
     },
   }->Identity.genericTypeToJson
@@ -62,6 +63,7 @@ let custom_feature_metadata = (~id) => {
     "revenue_recovery": {
       "billing_connector_retry_threshold": 3,
       "max_retry_count": 15,
+      "grace_period_days": RevenueRecoveryOnboardingUtils.defaultGracePeriodDays,
       "billing_account_reference": billing_account_reference->Identity.genericTypeToJson,
     },
   }->Identity.genericTypeToJson
@@ -91,6 +93,11 @@ let fillDummyData = (
       initialValuesToDict->Dict.set("connector_webhook_details", connector_webhook_details)
       initialValuesToDict->Dict.set("feature_metadata", feature_metadata(~id=connectorID))
       initialValuesToDict->Dict.set("metadata", metadata)
+    }
+  | BillingProcessor(RECURLY) | BillingProcessor(STRIPE_BILLING) => {
+      initialValuesToDict->Dict.set("connector_account_details", connector_account_details)
+      initialValuesToDict->Dict.set("connector_webhook_details", connector_webhook_details)
+      initialValuesToDict->Dict.set("feature_metadata", feature_metadata(~id=connectorID))
     }
   | BillingProcessor(CUSTOMBILLING) => {
       initialValuesToDict->Dict.set("connector_account_details", custom_connector_account_details)
