@@ -73,7 +73,7 @@ let getTooltipRow = (~color, ~label, ~value, ~change="") =>
   </div>`
 
 let getSeriesName = (point: ColumnGraphTypes.point) =>
-  point.series->Option.mapOr("", series => series.name)
+  point.series->mapOptionOrDefault("", series => series.name)
 
 let getTooltip = (~title, ~rows) =>
   InsightsUtils.getContentsUI(
@@ -83,7 +83,7 @@ let getTooltip = (~title, ~rows) =>
 
 let hasPrevious = (context: chartContext, ~measure) => {
   let (_, previousCounts) = context.dataset->getMeasureCounts(measure)
-  previousCounts.total > 0.0
+  previousCounts.total > 0.0 && measurable(context.selection.source, measure, previousCounts)
 }
 
 let currentLabel = (context: chartContext) =>
@@ -114,7 +114,7 @@ let trendTooltipFormatter = (~title, ~measure, ~currency, ~previousDays: array<s
             ~color=point.color,
             ~label=previousDays->isEmptyArray ? point.series.name : point.x,
             ~value=point.y->format,
-            ~change=previous->Option.mapOr("", previousPoint =>
+            ~change=previous->mapOptionOrDefault("", previousPoint =>
               getChangeHtml(~measure, ~current=point.y, ~previous=previousPoint.y)
             ),
           )
@@ -215,7 +215,7 @@ let getTrendSeries = (context: chartContext, ~days, ~previousDays) => {
     )
     context->hasPrevious(~measure=selection.measure) ? [current, previous] : [current]
   } else {
-    dataset.topByVolume->Array.mapWithIndex((group, index) =>
+    dataset.topMeasured->Array.mapWithIndex((group, index) =>
       getLineSeries(
         ~name=context->groupLabel(group),
         ~points=context->getTrendPoints(

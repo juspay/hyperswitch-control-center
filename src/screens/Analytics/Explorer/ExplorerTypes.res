@@ -172,6 +172,7 @@ type dataset = {
   amountCurrency: string,
   groups: array<group>,
   topByVolume: array<group>,
+  topMeasured: array<group>,
   unmeasured: array<(array<string>, counts)>,
   currentDaily: Dict.t<dailyPoint>,
   previousDaily: Dict.t<dailyPoint>,

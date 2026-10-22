@@ -77,7 +77,7 @@ let make = () => {
       getExplorerData()->ignore
     }
     None
-  }, [selection->requestKey, dimensionsReady->getStringFromBool])
+  }, (selection->requestKey, dimensionsReady))
 
   let setSource = source =>
     if source != selection.source {

@@ -32,7 +32,7 @@ let make = (~selection: selection, ~dataset: dataset, ~onUpdate: Dict.t<string> 
     </div>
     <div className="px-3 py-4">
       {switch (selection.view, isSplit) {
-      | (#breakdown | #table, true) if dataset.groups->isEmptyArray =>
+      | (#trend | #breakdown | #table, true) if dataset.groups->isEmptyArray =>
         <NoData
           height="h-32" message="No groups have a value for this measure in the selected dates."
         />

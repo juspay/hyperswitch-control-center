@@ -171,7 +171,10 @@ let buildDataset = (selection, responses) => {
       ->getOptionValFromDict(key)
       ->Option.map(((_, counts)) => counts),
     })
-  let groups = allGroups->Array.filter(group => measurable(source, measure, group.current))
+  let groups =
+    allGroups
+    ->Array.filter(group => measurable(source, measure, group.current))
+    ->Array.toSorted((a, b) => compareLogic(a.current.total, b.current.total))
 
   {
     overall: responses.currentRows->totalOf,
@@ -180,10 +183,11 @@ let buildDataset = (selection, responses) => {
     inCurrencyPrevious: responses.previousRows->totalOf(~keep=isInCurrency),
     amountCurrencies,
     amountCurrency,
-    groups: groups->Array.toSorted((a, b) => compareLogic(a.current.total, b.current.total)),
+    groups,
     topByVolume: allGroups
     ->Array.toSorted((a, b) => compareLogic(a.current.total, b.current.total))
     ->Array.slice(~start=0, ~end=topGroupCount),
+    topMeasured: groups->Array.slice(~start=0, ~end=topGroupCount),
     unmeasured: isRate(measure)
       ? currentGroups
         ->Dict.valuesToArray
@@ -198,7 +202,7 @@ let buildDataset = (selection, responses) => {
 let getCountsOn = (points, ~groupKey, ~day) =>
   points
   ->getOptionValFromDict(getDailyKey(~groupKey, ~day))
-  ->Option.mapOr(emptyCounts, point => point.counts)
+  ->mapOptionOrDefault(emptyCounts, point => point.counts)
 
 let getPointValue = (selection, counts, ~currency) =>
   measurable(selection.source, selection.measure, counts)
