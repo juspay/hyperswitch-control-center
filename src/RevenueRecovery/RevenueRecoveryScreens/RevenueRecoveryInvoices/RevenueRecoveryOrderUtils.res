@@ -62,6 +62,14 @@ let convertScheduleTimeToUTC = (scheduleTime: string) => {
   }
 }
 
+// Invoices in these statuses have no retries left to show
+let finalStatuses: array<RevenueRecoveryOrderTypes.recoveryInvoiceStatus> = [
+  Recovered,
+  Succeeded,
+  Cancelled,
+  Terminated,
+]
+
 let recoveryStatusFilterKey = "recovery_status"
 
 // Statuses shown as count cards above the list

@@ -47,7 +47,7 @@ let make = () => {
     None
   }, (startTime, endTime, transactionEntity))
 
-  let appliedStatuses = filterValueJson->getArrayFromDict(statusKey, [])->getStrArrayFromJsonArray
+  let appliedStatuses = filterValueJson->getStrArrayFromDict(statusKey, [])
 
   let onClick = status => {
     switch status {
@@ -79,7 +79,7 @@ let make = () => {
     </div>
 
   <div className="flex flex-wrap gap-3 mb-6">
-    {card(~label="All", ~count=total, ~isActive=appliedStatuses->Array.length == 0, ~status=None)}
+    {card(~label="All", ~count=total, ~isActive=appliedStatuses->isEmptyArray, ~status=None)}
     {RevenueRecoveryOrderUtils.recoveryMetricStatuses
     ->Array.map(status =>
       card(

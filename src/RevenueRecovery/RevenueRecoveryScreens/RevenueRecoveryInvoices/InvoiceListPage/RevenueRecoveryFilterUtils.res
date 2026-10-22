@@ -85,7 +85,7 @@ let initialFilters = (json, filterValues, removeKeys, filterKeys, setfilterKeys,
       version,
     )->Array.filter((item: EntityType.initialFilters<'t>) =>
       ["payment_method_type", "payment_method_subtype"]->Array.includes(
-        item.field.inputNames->Array.get(0)->Option.getOr(""),
+        item.field.inputNames->getValueFromArray(0, ""),
       )
     )
   [recoveryStatusFilter(), connectorLabelFilter(json)]->Array.concat(paymentMethodFilters)
@@ -103,7 +103,7 @@ let buildQuery = (~filters: Dict.t<JSON.t>, ~offset, ~limit, ~searchText) => {
     let formatted = switch value->JSON.Classify.classify {
     | String(str) => str
     | Number(num) => num->Float.toString
-    | Array(arr) => arr->Array.map(item => item->getStringFromJson(""))->Array.joinWith(",")
+    | Array(arr) => arr->getStrArrayFromJsonArray->Array.joinWith(",")
     | _ => ""
     }
     if formatted->isNonEmptyString && supportedFilterKeys->Array.includes(key) {
