@@ -53,8 +53,8 @@ let useShowToast = () => {
           variant,
           duration,
           position: TopCenter,
-          width: "min(400px, calc(100vw - 32px))",
-          maxWidth: "calc(100vw - 32px)",
+          width: "min(var(--app-snackbar-width), calc(100vw - var(--app-snackbar-gutter)))",
+          maxWidth: "calc(100vw - var(--app-snackbar-gutter))",
           minWidth: "0",
         }
 
