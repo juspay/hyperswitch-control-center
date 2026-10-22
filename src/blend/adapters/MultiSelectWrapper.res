@@ -30,33 +30,39 @@ let makeItems = (
 
   groupKeys->Array.map(groupKey => {
     let groupOptions = groups->getValueFromDict(groupKey, [])
-    let items = groupOptions->Array.map(opt => {
+    let items: array<MultiSelectBindings.multiSelectV2ItemType> = groupOptions->Array.map(opt => {
       let slot1 = getLeftSlot(opt.icon)
       let slot2 = getRightSlot(opt.icon)
       let isChecked = selectedValues->Array.includes(opt.value)
       let alwaysSelected = deselectDisable && isChecked
-      {
-        MultiSelectBindings.label: opt.label,
-        value: opt.value,
-        checked: isChecked,
-        subLabel: ?opt.labelDescription,
-        ?slot1,
-        ?slot2,
-        disabled: ?opt.isDisabled,
-        alwaysSelected: ?(alwaysSelected ? Some(true) : None),
-        tooltip: ?opt.description,
-      }
+
+      (
+        {
+          MultiSelectBindings.label: opt.label,
+          value: opt.value,
+          checked: isChecked,
+          subLabel: ?opt.labelDescription,
+          ?slot1,
+          ?slot2,
+          disabled: ?opt.isDisabled,
+          alwaysSelected: ?(alwaysSelected ? Some(true) : None),
+          tooltip: ?opt.description,
+        }: MultiSelectBindings.multiSelectV2ItemType
+      )
     })
-    {
-      MultiSelectBindings.groupLabel: ?(groupKey === "-" ? None : Some(groupKey)),
-      items,
-    }
+
+    (
+      {
+        MultiSelectBindings.groupLabel: ?(groupKey === "-" ? None : Some(groupKey)),
+        items,
+      }: MultiSelectBindings.multiSelectV2GroupType
+    )
   })
 }
 
 @react.component
 let make = (
-  ~items: array<MultiSelectBindings.selectMenuGroupType>,
+  ~items: array<MultiSelectBindings.multiSelectV2GroupType>,
   ~placeholder: string,
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~label: string="",
@@ -92,86 +98,52 @@ let make = (
   let authContext = React.useContext(FormAuthContext.formAuthContext)
   let isDisabled = disabled || authContext === CommonAuthTypes.NoAccess
 
-  // Batched onChange to handle rapid fire events from select-all / deselect-all
-  let batchedRef = React.useRef([])
-  let timerRef = React.useRef(None)
-
   let selectedValues = input.value->getStrArrayFromJson
-
-  let cancelPendingTimer = () =>
-    switch timerRef.current {
-    | Some(id) => clearTimeout(id)
-    | None => ()
-    }
-
-  let commitChange = () => {
-    let values = batchedRef.current
+  let handleChange = values =>
     input.onChange(values->getJsonFromArrayOfString->Identity.jsonToFormReactEvent)
-  }
-
-  let handleChange = value => {
-    let current = batchedRef.current
-    let next = if current->Array.includes(value) {
-      current->Array.filter(v => v !== value)
-    } else {
-      Array.concat(current, [value])
-    }
-    batchedRef.current = next
-    cancelPendingTimer()
-    timerRef.current = Some(setTimeout(() => {
-        commitChange()
-        timerRef.current = None
-      }, 10))
-  }
-
-  let defaultClearAll = () => {
-    cancelPendingTimer()
-    batchedRef.current = []
-    input.onChange([]->getJsonFromArrayOfString->Identity.jsonToFormReactEvent)
-  }
-
-  let resolvedClearAllClick = onClearAllClick->Option.getOr(defaultClearAll)
-
-  // Only sync when not batching — preserves accumulated state during rapid-fire events
-  if timerRef.current->Option.isNone {
-    batchedRef.current = selectedValues
-  }
-
-  React.useEffect0(() => Some(cancelPendingTimer))
+  let resolvedClearAllClick = onClearAllClick->Option.getOr(() => handleChange([]))
 
   <MultiSelectBindings
     selectedValues
-    onChange=handleChange
+    onSelectionChange=handleChange
     items
     label
     disabled=isDisabled
-    helpIconHintText=?{helpIconHintText->isEmptyString ? None : Some(helpIconHintText)}
+    helpIconText=?{helpIconHintText->isEmptyString ? None : Some(helpIconHintText)}
     required
-    fullWidth
+    triggerDimensions={width: fullWidth ? "100%" : "auto"}
     placeholder
     ?size
-    ?alignment
-    ?side
+    menuPosition={?alignment, ?side}
     allowCustomValue
     ?slot
-    ?customTrigger
-    minMenuWidth
-    maxMenuWidth
+    customTrigger={customTrigger->Option.getOr(
+      MultiSelectBindings.Trigger.make(
+        ~items,
+        ~selectedValues,
+        ~placeholder,
+        ~disabled=isDisabled,
+        ~slot?,
+        ~fullWidth,
+        ~size?,
+        ~selectionTagType?,
+        ~height?,
+        (),
+      ),
+    )}
+    menuDimensions={minWidth: minMenuWidth, maxWidth: maxMenuWidth, maxHeight: 320}
     ?variant
     ?onFocus
     ?onBlur
     ?showClearButton
     onClearAllClick=resolvedClearAllClick
-    ?height
-    error
-    ?errorMessage
+    error={show: error, message: ?errorMessage}
     enableSelectAll=?showSelectAll
     ?primaryAction
     ?secondaryAction
     ?selectionTagType
     ?menuFooter
-    ?enableSearch
-    ?searchPlaceholder
+    search={show: ?enableSearch, placeholder: ?searchPlaceholder}
     ?enableVirtualization
   />
 }
