@@ -181,12 +181,12 @@ module Trigger = {
         ariaLabel=text
         ariaLabelledby=?{label
         ->Option.flatMap(LogicUtils.getNonEmptyString)
-        ->Option.flatMap(_ => id->Option.map(id => `${id}-label`))}
+        ->Option.flatMap(_ => id->Option.map(id => `${id}-trigger-label`))}
         ariaInvalid={error ? #"true" : #"false"}
         ariaDescribedby=?{error
           ? errorMessage
             ->Option.flatMap(LogicUtils.getNonEmptyString)
-            ->Option.flatMap(_ => id->Option.map(id => `${id}-error`))
+            ->Option.flatMap(_ => id->Option.map(id => `${id}-trigger-error`))
           : None}
         onFocus={_ => onFocus->Option.forEach(callback => callback())}
         onBlur={_ => onBlur->Option.forEach(callback => callback())}

@@ -104,54 +104,71 @@ let make = (
     input.onChange(values->getJsonFromArrayOfString->Identity.jsonToFormReactEvent)
   let resolvedClearAllClick = onClearAllClick->Option.getOr(() => handleChange([]))
 
-  <MultiSelectBindings
-    name=triggerId
-    selectedValues
-    onSelectionChange=handleChange
-    items
-    label
-    disabled=isDisabled
-    helpIconText=?{helpIconHintText->isEmptyString ? None : Some(helpIconHintText)}
-    required
-    triggerDimensions={width: fullWidth ? "100%" : "auto"}
-    placeholder
-    ?size
-    menuPosition={?alignment, ?side}
-    allowCustomValue
-    ?slot
-    customTrigger={customTrigger->Option.getOr(
-      MultiSelectBindings.Trigger.make(
-        ~items,
-        ~id=triggerId,
-        ~label=?label->getNonEmptyString,
-        ~error,
-        ~errorMessage?,
-        ~onFocus?,
-        ~onBlur?,
-        ~selectedValues,
-        ~placeholder,
-        ~disabled=isDisabled,
-        ~slot?,
-        ~fullWidth,
-        ~size?,
-        ~selectionTagType?,
-        ~height?,
-        (),
-      ),
-    )}
-    menuDimensions={minWidth: minMenuWidth, maxWidth: maxMenuWidth, maxHeight: 320}
-    ?variant
-    ?onFocus
-    ?onBlur
-    ?showClearButton
-    onClearAllClick=resolvedClearAllClick
-    error={show: error, message: ?errorMessage}
-    enableSelectAll=?showSelectAll
-    ?primaryAction
-    ?secondaryAction
-    ?selectionTagType
-    ?menuFooter
-    search={show: ?enableSearch, placeholder: ?searchPlaceholder}
-    ?enableVirtualization
-  />
+  // Blend omits field text for some size/variant paths; keep native ARIA targets stable.
+  <>
+    {label
+    ->getNonEmptyString
+    ->Option.map(text =>
+      <span id={`${triggerId}-trigger-label`} className="sr-only"> {React.string(text)} </span>
+    )
+    ->Option.getOr(React.null)}
+    {error
+      ? errorMessage
+        ->Option.flatMap(getNonEmptyString)
+        ->Option.map(text =>
+          <span id={`${triggerId}-trigger-error`} className="sr-only"> {React.string(text)} </span>
+        )
+        ->Option.getOr(React.null)
+      : React.null}
+    <MultiSelectBindings
+      name=triggerId
+      selectedValues
+      onSelectionChange=handleChange
+      items
+      label
+      disabled=isDisabled
+      helpIconText=?{helpIconHintText->isEmptyString ? None : Some(helpIconHintText)}
+      required
+      triggerDimensions={width: fullWidth ? "100%" : "auto"}
+      placeholder
+      ?size
+      menuPosition={?alignment, ?side}
+      allowCustomValue
+      ?slot
+      customTrigger={customTrigger->Option.getOr(
+        MultiSelectBindings.Trigger.make(
+          ~items,
+          ~id=triggerId,
+          ~label=?label->getNonEmptyString,
+          ~error,
+          ~errorMessage?,
+          ~onFocus?,
+          ~onBlur?,
+          ~selectedValues,
+          ~placeholder,
+          ~disabled=isDisabled,
+          ~slot?,
+          ~fullWidth,
+          ~size?,
+          ~selectionTagType?,
+          ~height?,
+          (),
+        ),
+      )}
+      menuDimensions={minWidth: minMenuWidth, maxWidth: maxMenuWidth, maxHeight: 320}
+      ?variant
+      ?onFocus
+      ?onBlur
+      ?showClearButton
+      onClearAllClick=resolvedClearAllClick
+      error={show: error, message: ?errorMessage}
+      enableSelectAll=?showSelectAll
+      ?primaryAction
+      ?secondaryAction
+      ?selectionTagType
+      ?menuFooter
+      search={show: ?enableSearch, placeholder: ?searchPlaceholder}
+      ?enableVirtualization
+    />
+  </>
 }
