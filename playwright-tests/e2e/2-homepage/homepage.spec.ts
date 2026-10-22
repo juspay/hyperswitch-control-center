@@ -749,7 +749,6 @@ test.describe("SDK Payment", () => {
 
     await homePage.showPreviewButton.click();
     await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(10000);
     await homePage.waitForSdkCardForm();
 
     await homePage.fillSdkTestCard();
@@ -764,7 +763,7 @@ test.describe("SDK Payment", () => {
     });
 
     await homePage.goToPaymentOperationsButton.click();
-    expect(page.url()).toContain("/dashboard/payments/pay_");
+    await expect(page).toHaveURL(/\/dashboard\/payments\/pay_/);
   });
 
   test("should display failed payment status using SDK", async ({ page }) => {
@@ -1221,8 +1220,12 @@ test.describe("Organization Chart Tree", () => {
     await expect(merchantTwoName).toHaveClass(/border-nd_primary_blue-600/);
     await expect(merchantTwoName).toHaveClass(/text-nd_primary_blue-600/);
 
-    // merchantTwo's most-recently-created profile ("new-test-profile") is
-    // auto-selected when switching to that merchant, not its "default" one.
+    // Which profile the backend auto-selects on merchant switch isn't
+    // deterministic (unordered list + pop), so select "new-test-profile"
+    // explicitly before asserting highlight state.
+    await expect(merchantTwoProfileTwoName).toBeVisible();
+    await merchantTwoProfileTwoName.click();
+
     await expect(merchantOneProfileName).toBeVisible();
     await expect(merchantOneProfileName).toHaveClass(/border-nd_gray-200/);
     await expect(merchantOneProfileName).toHaveClass(/text-nd_gray-600/);

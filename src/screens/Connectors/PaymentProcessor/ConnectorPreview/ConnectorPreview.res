@@ -116,7 +116,13 @@ module ConnectorSummaryGrid = {
           | AuthenticationProcessor => Window.getAuthenticationConnectorConfig(connectorName)
           | PMAuthProcessor => Window.getPMAuthenticationProcessorConfig(connectorName)
           | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
-          | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connectorName)
+          | BillingProcessor =>
+            BillingProcessorsUtils.getConnectorConfig(
+              connectorName,
+              ~wasmConfig=Window.getBillingConnectorConfig(
+                connectorName->LogicUtils.capitalizeString,
+              ),
+            )
           | VaultProcessor => Window.getConnectorConfig(connectorName)
           | SurchargeProcessor => Window.getSurchargeProcessorConfig(connectorName)
           | PaymentVas => JSON.Encode.null

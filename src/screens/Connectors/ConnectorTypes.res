@@ -203,7 +203,7 @@ type pmAuthenticationProcessorTypes = PLAID
 
 type taxProcessorTypes = TAXJAR
 
-type billingProcessorTypes = CHARGEBEE | STRIPE_BILLING | CUSTOMBILLING
+type billingProcessorTypes = CHARGEBEE | STRIPE_BILLING | RECURLY | CUSTOMBILLING
 
 type vaultProcessorTypes = VGS
 

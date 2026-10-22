@@ -408,7 +408,7 @@ export class HomePage {
 
   async fillSdkTestCard(): Promise<void> {
     await this.sdkCardNoInput.fill("4242424242424242");
-    await this.sdkExpiryInput.fill("0127");
+    await this.sdkExpiryInput.fill("1230");
     await this.sdkCvvInput.fill("492");
   }
 

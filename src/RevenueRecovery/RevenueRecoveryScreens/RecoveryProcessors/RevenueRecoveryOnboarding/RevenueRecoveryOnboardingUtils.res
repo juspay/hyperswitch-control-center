@@ -156,20 +156,20 @@ module PageWrapper = {
 
 open ConnectorTypes
 let billingConnectorList: array<connectorTypes> = [
-  BillingProcessor(CHARGEBEE),
   BillingProcessor(CUSTOMBILLING),
+  BillingProcessor(CHARGEBEE),
+  BillingProcessor(RECURLY),
+  BillingProcessor(STRIPE_BILLING),
 ]
 
 let prodBillingConnectorList: array<connectorTypes> = [
-  BillingProcessor(CHARGEBEE),
   BillingProcessor(CUSTOMBILLING),
+  BillingProcessor(CHARGEBEE),
+  BillingProcessor(RECURLY),
+  BillingProcessor(STRIPE_BILLING),
 ]
 
 let billingConnectorProdList: array<BillingProcessorsUtils.optionType> = [
-  {
-    name: "Recurly",
-    icon: "/assets/recurly-logo.png",
-  },
   {
     name: "Recharge",
     icon: "/assets/recharge-logo.png",
@@ -177,10 +177,6 @@ let billingConnectorProdList: array<BillingProcessorsUtils.optionType> = [
   {
     name: "Zoura",
     icon: "/assets/zoura-logo.png",
-  },
-  {
-    name: "Stripe Billing",
-    icon: "/assets/Gateway/STRIPEBILLING.svg",
   },
 ]
 
@@ -235,13 +231,6 @@ let features: array<feature> = [
     iconColor: "text-nd_orange-300",
     title: "ML-Powered Retry Engine",
     description: "Minimizes recurring payment failures using data and machine learning for optimized retries.",
-  },
-  {
-    icon: "nd-settings",
-    bgColor: "bg-nd_purple-200",
-    iconColor: "text-nd_purple-300",
-    title: "Configurable Retry Strategies",
-    description: "Customize recovery plans via dashboard with 20+ parameters.",
   },
   {
     icon: "recovery-home",

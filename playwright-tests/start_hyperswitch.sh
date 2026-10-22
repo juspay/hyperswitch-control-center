@@ -16,7 +16,7 @@ MAX_SCAN=25
 # Last tag known to boot cleanly. Tried once as a last resort when auto-discovery is
 # exhausted, so that a run of broken recent tags does not fail the suite outright.
 # Bump this when a newer tag has been verified.
-KNOWN_GOOD_TAG="${HYPERSWITCH_KNOWN_GOOD_TAG:-2026.08.21.0}"
+KNOWN_GOOD_TAG="${HYPERSWITCH_KNOWN_GOOD_TAG:-2026.10.16.0}"
 
 # Optional override: pin a known-good tag and skip auto-discovery.
 # Useful when all of the most-recent tags fail to boot but an older tag is known to work.
