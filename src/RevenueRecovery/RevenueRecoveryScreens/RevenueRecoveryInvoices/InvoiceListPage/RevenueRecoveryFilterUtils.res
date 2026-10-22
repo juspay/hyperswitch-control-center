@@ -4,13 +4,18 @@ let tableTitle = "RecoveryInvoices"
 
 // Filters the recovery list exposes. The endpoint rejects unknown params, so anything else is
 // dropped from the query.
-let supportedFilterKeys = [
-  "recovery_status",
-  "merchant_connector_id",
-  "payment_method_type",
-  "payment_method_subtype",
-  "created.gte",
-  "created.lte",
+let supportedFilterKeys: array<RevenueRecoveryOrderTypes.recoveryFilterKey> = [
+  #recovery_status,
+  #merchant_connector_id,
+  #payment_method_type,
+  #payment_method_subtype,
+  #"created.gte",
+  #"created.lte",
+]
+
+let paymentMethodFilterKeys: array<RevenueRecoveryOrderTypes.paymentMethodFilterKey> = [
+  #payment_method_type,
+  #payment_method_subtype,
 ]
 
 let recoveryStatusFilter = (): EntityType.initialFilters<'t> => {
@@ -18,9 +23,9 @@ let recoveryStatusFilter = (): EntityType.initialFilters<'t> => {
     ~label="status",
     ~name=RevenueRecoveryOrderUtils.recoveryStatusFilterKey,
     ~customInput=InputFields.filterMultiSelectInput(
-      ~options=RevenueRecoveryOrderUtils.recoveryStatusFilterOptions->FilterSelectBox.makeOptions(
-        ~isTitle=true,
-      ),
+      ~options=RevenueRecoveryOrderUtils.recoveryStatusFilterOptions
+      ->Array.map(option => (option :> string))
+      ->FilterSelectBox.makeOptions(~isTitle=true),
       ~buttonText="Select Status",
       ~showSelectionAsChips=false,
       ~searchable=true,
@@ -75,19 +80,18 @@ let connectorLabelFilter = (json): EntityType.initialFilters<'t> => {
 
 // Status, connector label, payment method type and subtype
 let initialFilters = (json, filterValues, removeKeys, filterKeys, setfilterKeys, version) => {
-  let paymentMethodFilters =
-    OrderUIUtils.initialFilters(
-      json,
-      filterValues,
-      removeKeys,
-      filterKeys,
-      setfilterKeys,
-      version,
-    )->Array.filter((item: EntityType.initialFilters<'t>) =>
-      ["payment_method_type", "payment_method_subtype"]->Array.includes(
-        item.field.inputNames->getValueFromArray(0, ""),
-      )
-    )
+  let paymentMethodFilters = OrderUIUtils.initialFilters(
+    json,
+    filterValues,
+    removeKeys,
+    filterKeys,
+    setfilterKeys,
+    version,
+  )->Array.filter((item: EntityType.initialFilters<'t>) =>
+    paymentMethodFilterKeys
+    ->Array.map(key => (key :> string))
+    ->Array.includes(item.field.inputNames->getValueFromArray(0, ""))
+  )
   [recoveryStatusFilter(), connectorLabelFilter(json)]->Array.concat(paymentMethodFilters)
 }
 
@@ -106,7 +110,10 @@ let buildQuery = (~filters: Dict.t<JSON.t>, ~offset, ~limit, ~searchText) => {
     | Array(arr) => arr->getStrArrayFromJsonArray->Array.joinWith(",")
     | _ => ""
     }
-    if formatted->isNonEmptyString && supportedFilterKeys->Array.includes(key) {
+    if (
+      formatted->isNonEmptyString &&
+        supportedFilterKeys->Array.map(filterKey => (filterKey :> string))->Array.includes(key)
+    ) {
       query->Dict.set(key, formatted)
     }
   })

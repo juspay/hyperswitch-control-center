@@ -81,14 +81,15 @@ let make = () => {
   <div className="flex flex-wrap gap-3 mb-6">
     {card(~label="All", ~count=total, ~isActive=appliedStatuses->isEmptyArray, ~status=None)}
     {RevenueRecoveryOrderUtils.recoveryMetricStatuses
-    ->Array.map(status =>
+    ->Array.map(metricStatus => {
+      let status = (metricStatus :> string)
       card(
         ~label=status->snakeToTitle,
         ~count=statusWithCount->getInt(status, 0),
         ~isActive=appliedStatuses == [status],
         ~status=Some(status),
       )
-    )
+    })
     ->React.array}
   </div>
 }

@@ -70,25 +70,25 @@ let finalStatuses: array<RevenueRecoveryOrderTypes.recoveryInvoiceStatus> = [
   Terminated,
 ]
 
-let recoveryStatusFilterKey = "recovery_status"
+let recoveryStatusFilterKey = (#recovery_status: RevenueRecoveryOrderTypes.recoveryFilterKey :> string)
 
 // Statuses shown as count cards above the list
-let recoveryMetricStatuses = [
-  "monitoring",
-  "scheduled",
-  "succeeded",
-  "partially_recovered",
-  "terminated",
-  "cancelled",
+let recoveryMetricStatuses: array<RevenueRecoveryOrderTypes.recoveryMetricStatus> = [
+  #monitoring,
+  #scheduled,
+  #succeeded,
+  #partially_recovered,
+  #terminated,
+  #cancelled,
 ]
 
-let recoveryStatusFilterOptions = [
-  "succeeded",
-  "scheduled",
-  "processing",
-  "queued",
-  "monitoring",
-  "terminated",
-  "cancelled",
-  "partially_recovered",
+let recoveryStatusFilterOptions: array<RevenueRecoveryOrderTypes.recoveryStatusFilterOption> = [
+  #succeeded,
+  #scheduled,
+  #processing,
+  #queued,
+  #monitoring,
+  #terminated,
+  #cancelled,
+  #partially_recovered,
 ]

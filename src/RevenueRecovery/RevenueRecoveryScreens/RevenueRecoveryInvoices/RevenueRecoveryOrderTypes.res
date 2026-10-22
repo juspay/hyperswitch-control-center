@@ -76,6 +76,37 @@ type recoveryInvoiceStatus =
   | PartiallyCapturedAndProcessing
   | Other(string)
 
+type recoveryFilterKey = [
+  | #recovery_status
+  | #merchant_connector_id
+  | #payment_method_type
+  | #payment_method_subtype
+  | #"created.gte"
+  | #"created.lte"
+]
+
+type paymentMethodFilterKey = [#payment_method_type | #payment_method_subtype]
+
+type recoveryMetricStatus = [
+  | #monitoring
+  | #scheduled
+  | #succeeded
+  | #partially_recovered
+  | #terminated
+  | #cancelled
+]
+
+type recoveryStatusFilterOption = [
+  | #succeeded
+  | #scheduled
+  | #processing
+  | #queued
+  | #monitoring
+  | #terminated
+  | #cancelled
+  | #partially_recovered
+]
+
 type recoverySchedulerStatusType =
   | Finish
   | Scheduled
