@@ -1142,10 +1142,14 @@ test.describe("Payin Connector tests", () => {
     await paymentConnector.connectAndProceedButton.click();
 
     await expect(page.getByText("Bank DebitAchBacsBecsSepa")).toBeVisible();
-    await page.getByTestId("bank_debit_ach").click();
-    await page.getByTestId("bank_debit_bacs").click();
-    await page.getByTestId("bank_debit_becs").click();
-    await page.getByTestId("bank_debit_sepa").click();
+    // Click the control, not the row center (which can fall in the label gap).
+    for (const method of ["ach", "bacs", "becs", "sepa"]) {
+      const checkbox = page
+        .getByTestId(`bank_debit_${method}`)
+        .getByRole("checkbox");
+      await checkbox.check();
+      await expect(checkbox).toBeChecked();
+    }
 
     await paymentConnector.pmtProceedButton.click();
 
