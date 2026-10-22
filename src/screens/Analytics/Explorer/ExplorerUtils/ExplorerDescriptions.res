@@ -1,4 +1,3 @@
-open LogicUtils
 open ExplorerTypes
 open ExplorerUtils
 
@@ -134,17 +133,17 @@ let outcomeLabel = (source: source, field) =>
 
 let viewNote = (selection: selection) => {
   let noun = sourceNoun(selection.source)
-  switch (selection.view, selection.split->isNonEmptyArray) {
-  | (#trend, true) => `Daily in UTC, for the ${topGroupCount->Int.toString} largest groups.`
-  | (#trend, false) => "Daily in UTC, against the same days of the previous period."
-  | (#breakdown, true) =>
+  switch (selection.view, selection.split->getGrouping) {
+  | (#trend, Split) => `Daily in UTC, for the ${topGroupCount->Int.toString} largest groups.`
+  | (#trend, Overall) => "Daily in UTC, against the same days of the previous period."
+  | (#breakdown, Split) =>
     `Largest groups by number of ${noun}, up to ${maxBreakdownGroups->Int.toString}.`
-  | (#breakdown, false) => "Outcomes in these dates."
-  | (#mix, true) =>
+  | (#breakdown, Overall) => "Outcomes in these dates."
+  | (#mix, Split) =>
     `Share of each UTC day's volume by group, for the ${topGroupCount->Int.toString} largest groups.`
-  | (#mix, false) => "Share of each UTC day's volume by outcome."
-  | (#table, true) => `Sorted by number of ${noun}, highest first.`
-  | (#table, false) => "Outcomes in these dates. Add a split to compare groups."
+  | (#mix, Overall) => "Share of each UTC day's volume by outcome."
+  | (#table, Split) => `Sorted by number of ${noun}, highest first.`
+  | (#table, Overall) => "Outcomes in these dates. Add a split to compare groups."
   }
 }
 
@@ -154,11 +153,11 @@ let viewTitle = (selection: selection, ~currency) => {
   let mixRecords = isAmount(measure)
     ? `${currency} ${sourceNoun(source)}`
     : measureLabel(source, #volume)
-  switch (split->isNonEmptyArray, view) {
-  | (true, #mix) => `${mixRecords} by ${splitText}`
-  | (false, #mix) => `${mixRecords} by outcome`
-  | (true, #trend | #breakdown | #table) => `${measureLabel(source, measure)} by ${splitText}`
-  | (false, #trend) => measureLabel(source, measure)
-  | (false, #breakdown | #table) => `${measureLabel(source, #volume)} by outcome`
+  switch (view, split->getGrouping) {
+  | (#mix, Split) => `${mixRecords} by ${splitText}`
+  | (#mix, Overall) => `${mixRecords} by outcome`
+  | (#trend | #breakdown | #table, Split) => `${measureLabel(source, measure)} by ${splitText}`
+  | (#trend, Overall) => measureLabel(source, measure)
+  | (#breakdown | #table, Overall) => `${measureLabel(source, #volume)} by outcome`
   }
 }

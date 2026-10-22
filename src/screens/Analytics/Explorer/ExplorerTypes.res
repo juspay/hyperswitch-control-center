@@ -16,6 +16,8 @@ type selectionKey = [#source | #measure | #currency | #split | #view]
 
 type view = [#trend | #breakdown | #mix | #table]
 
+type grouping = Overall | Split
+
 type changeImpact =
   | Favorable
   | Unfavorable
