@@ -95,6 +95,7 @@ let make = (
   ~searchPlaceholder: option<string>=?,
   ~enableVirtualization: option<bool>=?,
 ) => {
+  let triggerId = React.useId()
   let authContext = React.useContext(FormAuthContext.formAuthContext)
   let isDisabled = disabled || authContext === CommonAuthTypes.NoAccess
 
@@ -104,6 +105,7 @@ let make = (
   let resolvedClearAllClick = onClearAllClick->Option.getOr(() => handleChange([]))
 
   <MultiSelectBindings
+    name=triggerId
     selectedValues
     onSelectionChange=handleChange
     items
@@ -120,6 +122,12 @@ let make = (
     customTrigger={customTrigger->Option.getOr(
       MultiSelectBindings.Trigger.make(
         ~items,
+        ~id=triggerId,
+        ~label=?label->getNonEmptyString,
+        ~error,
+        ~errorMessage?,
+        ~onFocus?,
+        ~onBlur?,
         ~selectedValues,
         ~placeholder,
         ~disabled=isDisabled,

@@ -144,6 +144,12 @@ module Trigger = {
     ~selectedValues: array<string>,
     ~placeholder: string,
     ~disabled: bool=false,
+    ~id: option<string>=?,
+    ~label: option<string>=?,
+    ~error=false,
+    ~errorMessage: option<string>=?,
+    ~onFocus: option<unit => unit>=?,
+    ~onBlur: option<unit => unit>=?,
     ~slot: option<React.element>=?,
     ~fullWidth: bool=false,
     ~height: option<int>=?,
@@ -171,10 +177,22 @@ module Trigger = {
     let trigger =
       <button
         type_="button"
+        ?id
         ariaLabel=text
+        ariaLabelledby=?{label
+        ->Option.flatMap(LogicUtils.getNonEmptyString)
+        ->Option.flatMap(_ => id->Option.map(id => `${id}-label`))}
+        ariaInvalid={error ? #"true" : #"false"}
+        ariaDescribedby=?{error
+          ? errorMessage
+            ->Option.flatMap(LogicUtils.getNonEmptyString)
+            ->Option.flatMap(_ => id->Option.map(id => `${id}-error`))
+          : None}
+        onFocus={_ => onFocus->Option.forEach(callback => callback())}
+        onBlur={_ => onBlur->Option.forEach(callback => callback())}
         style={ReactDOM.Style.make(~height=?height->Option.map(v => `${v->Int.toString}px`), ())}
         disabled
-        className={`flex items-center justify-between gap-2 border border-gray-300 rounded-lg bg-white dark:bg-gray-800 ${padding} text-sm text-left min-w-0 ${fullWidth
+        className={`flex items-center justify-between gap-2 border border-nd_br_gray-200 rounded-lg bg-nd_gray-0 dark:bg-nd_gray-800 text-nd_gray-800 dark:text-nd_gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-nd_primary_blue-500 ${padding} ${Typography.body.md.regular} text-left min-w-0 ${fullWidth
             ? "w-full"
             : ""}`}>
         {slot->Option.getOr(React.null)}
