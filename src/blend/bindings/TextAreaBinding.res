@@ -6,6 +6,13 @@ type resize =
   | @as("block") Block
   | @as("inline") Inline
 
+type inputSize =
+  | @as("sm") Sm
+  | @as("md") Md
+  | @as("lg") Lg
+
+type error = {show: bool, message?: string}
+
 @module("@juspay/blend-design-system") @react.component
 external make: (
   ~value: string,
@@ -16,18 +23,17 @@ external make: (
   ~disabled: bool=?,
   ~autoFocus: bool=?,
   ~rows: int=?,
-  ~cols: int=?,
+  ~size: inputSize=?,
   ~label: string=?,
   ~sublabel: string=?,
   ~hintText: string=?,
-  ~helpIconHintText: string=?,
+  ~helpIconText: string=?,
   ~required: bool=?,
-  ~error: bool=?,
-  ~errorMessage: string=?,
+  ~error: error=?,
   ~resize: resize=?,
   ~wrap: string=?,
   ~maxLength: int=?,
   ~readOnly: bool=?,
   ~name: string=?,
   ~id: string=?,
-) => React.element = "TextArea"
+) => React.element = "TextAreaV2"
