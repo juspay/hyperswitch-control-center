@@ -176,7 +176,7 @@ let getMeasureUpdate = (selection, id) => {
 }
 
 let getFocusUpdate = (selection, group: group) =>
-  group.values->Array.every(isNonEmptyString)
+  group->isRecordedGroup
     ? Some(
         selection.split
         ->Array.mapWithIndex((key, index) => (

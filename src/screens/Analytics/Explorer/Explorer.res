@@ -26,6 +26,8 @@ let make = () => {
     )
   let dimensionsReady = dimensionsByDomain->getOptionValFromDict(infoDomain)->Option.isSome
   let dataset = selection->ExplorerData.buildDataset(responses)
+  let hasData =
+    selection->hasDates && screenState == PageLoaderWrapper.Success && dataset.overall.total > 0.0
 
   let setDimensions = names =>
     setDimensionsByDomain(prev => {
@@ -101,8 +103,13 @@ let make = () => {
       labelFor
       onUpdate=updateExistingKeys
       editing
-      setEditing={key => setEditing(_ => key)}
-    />
+      setEditing={key => setEditing(_ => key)}>
+      <RenderIf condition=hasData>
+        <div className="border-t border-nd_br_gray-150 pt-4">
+          <ExplorerSummary selection dataset labelFor />
+        </div>
+      </RenderIf>
+    </ExplorerQueryBar>
     <RenderIf condition={selection->hasDates}>
       <PageLoaderWrapper
         screenState

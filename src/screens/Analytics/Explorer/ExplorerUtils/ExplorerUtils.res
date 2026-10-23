@@ -82,6 +82,8 @@ let getDailyKey = (~groupKey, ~day) => [groupKey, day]->getRowKey
 
 let getRowDay = dict => dict->getString("time_bucket", "")->String.replace(" ", "T") ++ "Z"
 
+let isRecordedGroup = (group: group) => group.values->Array.every(isNonEmptyString)
+
 let getValuesLabel = (values, ~split: array<dimension>, ~labelFor) =>
   split
   ->Array.mapWithIndex((key, index) => labelFor(key, values->getValueFromArray(index, "")))
@@ -126,6 +128,16 @@ let formatChange = (measure, current, previous) =>
   | Some(0.0) => "no change"
   | Some(change) => `${change->formatSigned}${isRate(measure) ? " pp" : "%"}`
   | None => "new"
+  }
+
+let getChangeInWords = (measure, current, previous, ~period) =>
+  switch getDisplayedChange(measure, current, Some(previous)) {
+  | Some(0.0) => `unchanged from ${period}`
+  | Some(change) =>
+    `${change > 0.0 ? "up" : "down"} ${Math.abs(change)->Float.toFixedWithPrecision(
+        ~digits=1,
+      )}${isRate(measure) ? " percentage points" : "%"} from ${period}`
+  | None => `up from 0 in ${period}`
   }
 
 let getChangeImpact = (measure, current, previous) =>
