@@ -18,9 +18,11 @@ let selectionFromFilters = (filterValueJson, ~backendDimensions) => {
     measure,
     split: filterValueJson
     ->getStrArrayFromDict(filterKey(#split), [])
+    ->getUniqueArray
     ->Array.filterMap(id => splitOptions->findDimension(id))
     ->Array.slice(~start=0, ~end=2),
     splitOptions,
+    view: filterValueJson->getString(filterKey(#view), "")->viewFromString,
     currency: filterValueJson->getString(filterKey(#currency), ""),
     startTime: filterValueJson->getString(HSAnalyticsUtils.startTimeFilterKey, ""),
     endTime: filterValueJson->getString(HSAnalyticsUtils.endTimeFilterKey, ""),
@@ -54,9 +56,10 @@ let previousWindow = selection =>
 
 let currentWindow = selection => (selection.startTime, selection.endTime)
 
-let getCountRequestBody = (selection, ~window as (startDateTime, endDateTime)) =>
+let getCountRequestBody = (selection, ~window as (startDateTime, endDateTime), ~daily=false) =>
   [
     AnalyticsUtils.getFilterRequestBody(
+      ~granularity=daily ? Some((#G_ONEDAY: NewAnalyticsTypes.granularity :> string)) : None,
       ~groupByNames=Some(selection->countGroupBy->Array.map(item => (item :> string))),
       ~metrics=Some(selection->countMetrics->Array.map(item => (item :> string))),
       ~delta=false,

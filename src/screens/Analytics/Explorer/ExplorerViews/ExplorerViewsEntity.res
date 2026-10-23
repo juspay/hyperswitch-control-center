@@ -58,14 +58,18 @@ let getGroupRows = (selection, dataset, ~labelFor) => {
     let current = getMeasureValue(source, measure, group.current)
     let previous =
       group.previous->Option.map(previousCounts => getMeasureValue(source, measure, previousCounts))
+    let isPreviousMeasurable =
+      group.previous->mapOptionOrDefault(true, previousCounts =>
+        measurable(source, measure, previousCounts)
+      )
     {
       labels: selection.split->Array.mapWithIndex((key, index) => (
         key,
         labelFor(key, group.values->getValueFromArray(index, "")),
       )),
       value: formatValue(source, measure, group.current, ~currency=dataset.amountCurrency),
-      change: formatChange(measure, current, previous),
-      impact: getChangeImpact(measure, current, previous),
+      change: isPreviousMeasurable ? formatChange(measure, current, previous) : "–",
+      impact: isPreviousMeasurable ? getChangeImpact(measure, current, previous) : Neutral,
       volume: group.current.total,
       share: calculatePercentage(group.current.total, totals.total),
     }
@@ -98,17 +102,8 @@ let getGroupCell = (row: groupRow, colType): Table.cell =>
     )
   | MeasureColumn => Text(row.value)
   | ChangeColumn =>
-    CustomCell(
-      <span
-        className={switch row.impact {
-        | Favorable => "text-nd_green-600"
-        | Unfavorable => "text-nd_red-600"
-        | Neutral => "text-nd_gray-500"
-        }}>
-        {row.change->React.string}
-      </span>,
-      "",
-    )
+    let (impactTextClass, _) = row.impact->getImpactClasses
+    CustomCell(<span className=impactTextClass> {row.change->React.string} </span>, "")
   | VolumeColumn => Text(row.volume->formatNumberWithCommas)
   | ShareColumn => Text(row.share->formatPercentage)
   }
