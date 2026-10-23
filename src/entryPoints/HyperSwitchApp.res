@@ -234,22 +234,12 @@ let make = () => {
                   </div>
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
-                    <RenderIf condition={maintenanceAlert->LogicUtils.isNonEmptyString}>
-                      <AlertV2Binding
-                        alertType=Primary
-                        slot={{
-                          slot: <Icon
-                            name="nd-toast-info" size=20 className="text-nd_primary_blue-450"
-                          />,
-                        }}
-                        description=maintenanceAlert
-                      />
-                    </RenderIf>
                     <WorkflowSideDrawer />
                     <div
                       className={isDecisionEngineWorkspace
                         ? "flex flex-col min-h-full"
                         : "p-6 md:px-12 md:py-8 flex flex-col gap-8 max-w-fixedPageWidth min-h-full"}>
+                      <MaintenanceAlert message=maintenanceAlert />
                       <ErrorBoundary>
                         {switch (activeProduct, url.path->urlPath) {
                         // /* DEFAULT HOME */
