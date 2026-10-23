@@ -1,4 +1,5 @@
 open ExplorerTypes
+open ExplorerUtils
 
 let sourceLabel = (source: source) =>
   switch source {
@@ -48,16 +49,16 @@ let measureDefinition = (source: source, measure: measure) =>
       #intent,
       #failure_rate,
     ) => "Share of payments that failed. Payments awaiting customer or merchant action are excluded."
-  | (#attempt, #failure_rate) => "Share of attempts that failed."
+  | (
+      #attempt,
+      #failure_rate,
+    ) => "Share of attempts with status failure. Attempts that failed authentication or are awaiting a payment method, confirmation, device data or resolution are excluded."
   | (#intent, #volume) => "Payments created, in any status."
   | (#attempt, #volume) => "Attempts made, in any status. Each retry counts as an attempt."
   | (#intent, #successful) => "Payments with status succeeded."
   | (#attempt, #successful) => "Attempts with status charged."
   | (#intent, #failed) => "Payments with status failed."
-  | (
-      #attempt,
-      #failed,
-    ) => "Attempts that failed, as the backend counts terminal failures: declined, authentication or authorization failed, router declined, capture or void failed, or expired."
+  | (#attempt, #failed) => "Attempts with status failure."
   | (_, #three_ds_failure_rate) => "Share of 3DS attempts that failed authentication."
   | (_, #not_completed_rate) => "Share of payments awaiting customer or merchant action."
   | (#intent, #processed_amount) => "Amount of succeeded payments, in one currency."
@@ -69,6 +70,94 @@ let measureDefinition = (source: source, measure: measure) =>
 let unmeasurableNote = (source: source, measure: measure) =>
   switch (source, measure) {
   | (#intent, #success_rate | #failure_rate) => "No completed payments in this period"
+  | (#attempt, #failure_rate) => "No eligible attempts in this period"
   | (_, #three_ds_failure_rate) => "No 3DS attempts in this period"
   | _ => "No data in this period"
   }
+
+let unmeasurableReason = (source: source, measure: measure) =>
+  switch (source, measure) {
+  | (#intent, #success_rate | #failure_rate) => "all awaiting customer or merchant action"
+  | (_, #three_ds_failure_rate) => "no 3DS attempts"
+  | _ => "no eligible records"
+  }
+
+let dimensionLabel = (key: dimension) =>
+  switch key {
+  | #connector => "Connector"
+  | #payment_method => "Payment method"
+  | #payment_method_type => "Payment method type"
+  | #card_network => "Card network"
+  | #authentication_type => "Authentication type"
+  | #status => "Status"
+  | #error_reason => "Error reason"
+  | #currency => "Currency"
+  | #profile_id => "Profile"
+  | #routing_approach => "Routing approach"
+  | #client_source => "Client source"
+  | #client_version => "Client version"
+  }
+
+let dimensionDescription = (source: source, key: dimension) =>
+  switch (source, key) {
+  | (_, #connector) => "Processor that handled it."
+  | (_, #payment_method) => "Broad method, such as card, wallet or bank transfer."
+  | (_, #payment_method_type) => "Specific method, such as credit, debit or Apple Pay."
+  | (_, #card_network) => "Card scheme, such as Visa or Mastercard."
+  | (_, #authentication_type) => "Whether 3DS was requested."
+  | (#intent, #status) => "Payment status, such as succeeded, failed or requires payment method."
+  | (#attempt, #status) => "Attempt status, such as charged, failure or authentication failed."
+  | (_, #error_reason) => "Error returned by the connector for a failed attempt."
+  | (_, #currency) => "Currency of the payment."
+  | (_, #profile_id) => "Business profile it belongs to."
+  | (
+      _,
+      #routing_approach,
+    ) => "How the connector was chosen, such as rule-based or success-rate based."
+  | (_, #client_source) => "Where the payment was confirmed from, such as the SDK or a server call."
+  | (_, #client_version) => "Version of the SDK or client that confirmed it."
+  }
+
+let outcomeLabel = (source: source, field) =>
+  switch (source, field) {
+  | (#attempt, Success) => "Charged"
+  | (#attempt, Excluded) => "Authentication failed or awaiting action"
+  | (#attempt, Other) => "Other (pending, authorized, declined, voided, expired…)"
+  | (#intent, Excluded) => "Waiting on customer or merchant"
+  | (#intent, Other) => "Other (cancelled, processing, expired…)"
+  | (_, Success) => "Succeeded"
+  | (_, Failed) => "Failed"
+  | (_, AuthFailed) => "Failed 3DS authentication"
+  | (_, Total) => "All"
+  }
+
+let viewNote = (selection: selection) => {
+  let noun = sourceNoun(selection.source)
+  switch (selection.view, selection.split->getGrouping) {
+  | (#trend, Split) => `Daily in UTC, for the ${topGroupCount->Int.toString} largest groups.`
+  | (#trend, Overall) => "Daily in UTC, against the same days of the previous period."
+  | (#breakdown, Split) =>
+    `Largest groups by number of ${noun}, up to ${maxBreakdownGroups->Int.toString}.`
+  | (#breakdown, Overall) => "Outcomes in these dates."
+  | (#mix, Split) =>
+    `Share of each UTC day's volume by group, for the ${topGroupCount->Int.toString} largest groups.`
+  | (#mix, Overall) => "Share of each UTC day's volume by outcome."
+  | (#table, Split) => `Sorted by number of ${noun}, highest first.`
+  | (#table, Overall) => "Outcomes in these dates. Add a split to compare groups."
+  }
+}
+
+let viewTitle = (selection: selection, ~currency) => {
+  let {source, measure, split, view} = selection
+  let splitText = split->Array.map(dimensionLabel)->Array.joinWith(" and ")
+  let mixRecords = isAmount(measure)
+    ? `${currency} ${sourceNoun(source)}`
+    : measureLabel(source, #volume)
+  switch (view, split->getGrouping) {
+  | (#mix, Split) => `${mixRecords} by ${splitText}`
+  | (#mix, Overall) => `${mixRecords} by outcome`
+  | (#trend | #breakdown | #table, Split) => `${measureLabel(source, measure)} by ${splitText}`
+  | (#trend, Overall) => measureLabel(source, measure)
+  | (#breakdown | #table, Overall) => `${measureLabel(source, #volume)} by outcome`
+  }
+}

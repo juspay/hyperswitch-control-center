@@ -720,8 +720,12 @@ let stripeBillingInfo = {
   description: "Stripe Billing connector enables automated subscription management, invoicing, and recurring payments using Stripe's billing infrastructure.",
 }
 
+let recurlyInfo = {
+  description: "Recurly is a subscription management and billing platform that automates recurring billing, invoicing, and payment recovery for subscription businesses.",
+}
+
 let customBillingInfo = {
-  description: "Stripe Billing connector enables automated subscription management, invoicing, and recurring payments using Stripe's billing infrastructure.",
+  description: "Custom Billing lets you connect your own in-house billing system for subscription management and invoicing, without needing credentials from a third-party billing platform.",
 }
 
 let nexixpayInfo = {
@@ -1194,6 +1198,7 @@ let getBillingProcessorNameString = (billingProcessor: billingProcessorTypes) =>
   switch billingProcessor {
   | CHARGEBEE => "chargebee"
   | STRIPE_BILLING => "stripebilling"
+  | RECURLY => "recurly"
   | CUSTOMBILLING => "custombilling"
   }
 }
@@ -1418,6 +1423,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     switch connector {
     | "chargebee" => BillingProcessor(CHARGEBEE)
     | "stripebilling" => BillingProcessor(STRIPE_BILLING)
+    | "recurly" => BillingProcessor(RECURLY)
     | "custombilling" => BillingProcessor(CUSTOMBILLING)
     | _ => UnknownConnector("Not known")
     }
@@ -1628,6 +1634,7 @@ let getBillingProcessorInfo = (billingProcessor: ConnectorTypes.billingProcessor
   switch billingProcessor {
   | CHARGEBEE => chargebeeInfo
   | STRIPE_BILLING => stripeBillingInfo
+  | RECURLY => recurlyInfo
   | CUSTOMBILLING => customBillingInfo
   }
 }
@@ -1948,8 +1955,11 @@ let getDisableConnectorPayloadV2 = (connectorType, previousConnectorState, merch
 let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) => {
   switch (connector, fieldName) {
   | (Processors(ADYEN), "merchant_secret") => true
-  | (BillingProcessor(CHARGEBEE) | BillingProcessor(STRIPE_BILLING), "merchant_secret") => true
-  | (BillingProcessor(CHARGEBEE) | BillingProcessor(STRIPE_BILLING), "additional_secret") => true
+  | (
+      BillingProcessor(CHARGEBEE) | BillingProcessor(STRIPE_BILLING) | BillingProcessor(RECURLY),
+      "merchant_secret",
+    ) => true
+  | (BillingProcessor(CHARGEBEE), "additional_secret") => true
   | _ => false
   }
 }
@@ -2648,7 +2658,8 @@ let getDisplayNameForBillingProcessor = billingProcessor => {
   switch billingProcessor {
   | CHARGEBEE => "Chargebee"
   | STRIPE_BILLING => "Stripe Billing"
-  | CUSTOMBILLING => "Custom"
+  | RECURLY => "Recurly"
+  | CUSTOMBILLING => "Custom Billing"
   }
 }
 

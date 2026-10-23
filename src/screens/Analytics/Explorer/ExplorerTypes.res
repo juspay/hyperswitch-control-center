@@ -12,7 +12,11 @@ type measure = [
   | #avg_ticket
 ]
 
-type selectionKey = [#source | #measure | #currency]
+type selectionKey = [#source | #measure | #currency | #split | #view]
+
+type view = [#trend | #breakdown | #mix | #table]
+
+type grouping = Overall | Split
 
 type changeImpact =
   | Favorable
@@ -27,8 +31,17 @@ type metric = [
 
 type dimension = [
   | #status
+  | #connector
+  | #payment_method
+  | #payment_method_type
+  | #card_network
   | #authentication_type
+  | #error_reason
   | #currency
+  | #profile_id
+  | #routing_approach
+  | #client_source
+  | #client_version
 ]
 
 type authenticationType = [#three_ds | #no_three_ds]
@@ -89,12 +102,13 @@ type countField =
   | Total
   | Success
   | Failed
-  | Awaiting
+  | Excluded
   | AuthFailed
+  | Other
 
 type denominator =
   | AllRecords
-  | CompletedRecords
+  | EligibleRecords
   | ThreeDsAttempts
 
 type formula =
@@ -106,6 +120,8 @@ type formula =
 type sourceConfig = {
   countMetric: metric,
   amountMetric: metric,
+  infoDomain: string,
+  dimensions: array<dimension>,
   measures: array<measure>,
 }
 
@@ -114,14 +130,29 @@ type counts = {
   success: float,
   failed: float,
   authFailed: float,
-  awaiting: float,
+  excluded: float,
   threeDsAttempts: float,
   amount: float,
 }
 
-type question = {
+type group = {
+  values: array<string>,
+  current: counts,
+  previous: option<counts>,
+}
+
+type dailyPoint = {
+  groupKey: string,
+  day: string,
+  counts: counts,
+}
+
+type selection = {
   source: source,
   measure: measure,
+  split: array<dimension>,
+  splitOptions: array<dimension>,
+  view: view,
   currency: string,
   startTime: string,
   endTime: string,
@@ -130,6 +161,8 @@ type question = {
 type responses = {
   currentRows: array<JSON.t>,
   previousRows: array<JSON.t>,
+  currentDaily: array<JSON.t>,
+  previousDaily: array<JSON.t>,
 }
 
 type dataset = {
@@ -139,4 +172,45 @@ type dataset = {
   inCurrencyPrevious: counts,
   amountCurrencies: array<string>,
   amountCurrency: string,
+  groups: array<group>,
+  topByVolume: array<group>,
+  topMeasured: array<group>,
+  unmeasured: array<(array<string>, counts)>,
+  currentDaily: Dict.t<dailyPoint>,
+  previousDaily: Dict.t<dailyPoint>,
 }
+
+type chartContext = {
+  selection: selection,
+  dataset: dataset,
+  labelFor: (dimension, string) => string,
+}
+
+type outcomeRow = {
+  outcome: string,
+  count: float,
+  change: string,
+  share: float,
+}
+
+type outcomeColumn =
+  | OutcomeName
+  | OutcomeCount
+  | OutcomeChange
+  | OutcomeShare
+
+type groupRow = {
+  labels: array<(dimension, string)>,
+  value: string,
+  change: string,
+  impact: changeImpact,
+  volume: float,
+  share: float,
+}
+
+type groupColumn =
+  | SplitColumn(dimension)
+  | MeasureColumn
+  | ChangeColumn
+  | VolumeColumn
+  | ShareColumn
