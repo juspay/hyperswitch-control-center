@@ -88,8 +88,8 @@ let decodeFilterValue = value =>
 
 let filterValuesFromJson = json =>
   json
-  ->getOptionStrArrayFromJson
-  ->Option.getOr([json->getStringFromJson("")])
+  ->JSON.Decode.string
+  ->mapOptionOrDefault(json->getStrArrayFromJson, value => [value])
   ->Array.filter(isNonEmptyString)
   ->Array.map(decodeFilterValue)
 

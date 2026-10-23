@@ -41,29 +41,25 @@ module FilterChips = {
   let make = (~selection: selection, ~labelFor, ~editing, ~onEdit, ~onRemove) =>
     selection.filters
     ->Array.map(((key, values)) =>
-      <button
+      <TagBinding
         key={(key :> string)}
-        className="inline-flex"
+        text={`${dimensionLabel(key)}: ${values
+          ->Array.map(value => labelFor(key, value))
+          ->Array.joinWith(", ")}`}
+        variant=Subtle
+        color={editing == Some(key) ? Primary : Neutral}
+        size=Sm
+        shape=Rounded
         onClick={_ => onEdit(Some(key))}
-        title="Edit this filter">
-        <TagBinding
-          text={`${dimensionLabel(key)}: ${values
-            ->Array.map(value => labelFor(key, value))
-            ->Array.joinWith(", ")}`}
-          variant=Subtle
-          color={editing == Some(key) ? Primary : Neutral}
-          size=Sm
-          shape=Rounded
-          rightSlot={<span
-            className="inline-flex"
-            onClick={ev => {
-              ev->ReactEvent.Mouse.stopPropagation
-              onRemove(key)
-            }}>
-            <Icon name="nd-cross" size=10 />
-          </span>}
-        />
-      </button>
+        rightSlot={<span
+          className="inline-flex"
+          onClick={ev => {
+            ev->ReactEvent.Mouse.stopPropagation
+            onRemove(key)
+          }}>
+          <Icon name="nd-cross" size=10 />
+        </span>}
+      />
     )
     ->React.array
 }

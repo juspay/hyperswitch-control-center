@@ -20,7 +20,10 @@ let make = (
   let fetchFilterValues = ExplorerHooks.useFetchFilterValues()
   let (filterValuesByKey, setFilterValuesByKey) = React.useState(_ => Dict.make())
   let filterValuesKey = selection->getFilterValuesKey(~dimension=editing)
-  let filterValues = filterValuesByKey->getValueFromDict(filterValuesKey, [])
+  let filterValues =
+    editing
+    ->Option.flatMap(key => getStaticFilterValues(source, key))
+    ->Option.getOr(filterValuesByKey->getValueFromDict(filterValuesKey, []))
   let selected = editing->mapOptionOrDefault([], key => selection->getSelectedFilterValues(key))
   let splitIds = selection.split->Array.map(key => (key :> string))
   let thenByOptions =
@@ -137,9 +140,7 @@ let make = (
           onChange=toggleFilterValue
           items=[
             {
-              items: getStaticFilterValues(source, key)
-              ->Option.getOr(filterValues)
-              ->Array.map((value): MultiSelectBindings.selectMenuItemType => {
+              items: filterValues->Array.map((value): MultiSelectBindings.selectMenuItemType => {
                 label: labelFor(key, value),
                 value,
               }),

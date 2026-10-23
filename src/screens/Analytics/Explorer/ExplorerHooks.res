@@ -40,7 +40,7 @@ let useFetchBackendDimensions = () => {
 
 let useFetchFilterValues = () => {
   let getURL = useGetURL()
-  let updateDetails = useUpdateMethod()
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
 
   async (~selection, ~dimension) => {
     try {
