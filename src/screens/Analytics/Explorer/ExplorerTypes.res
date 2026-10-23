@@ -12,7 +12,7 @@ type measure = [
   | #avg_ticket
 ]
 
-type selectionKey = [#source | #measure | #currency | #split | #view]
+type selectionKey = [#source | #measure | #currency | #split | #view | #from]
 
 type view = [#trend | #breakdown | #mix | #table]
 
@@ -152,6 +152,9 @@ type selection = {
   measure: measure,
   split: array<dimension>,
   splitOptions: array<dimension>,
+  filterOptions: array<dimension>,
+  filters: array<(dimension, array<string>)>,
+  drilledFrom: option<dimension>,
   view: view,
   currency: string,
   startTime: string,
@@ -200,6 +203,7 @@ type outcomeColumn =
   | OutcomeShare
 
 type groupRow = {
+  group: group,
   labels: array<(dimension, string)>,
   value: string,
   change: string,

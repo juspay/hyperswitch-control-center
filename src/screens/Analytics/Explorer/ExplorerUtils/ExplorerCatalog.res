@@ -180,3 +180,16 @@ let isLowerBetter = (measure: measure) =>
   | #failure_rate | #failed | #three_ds_failure_rate | #not_completed_rate => true
   | #success_rate | #volume | #successful | #processed_amount | #avg_ticket => false
   }
+
+let suggestedNext = (source: source, key: option<dimension>): array<dimension> =>
+  switch (source, key) {
+  | (#intent, Some(#status)) => [#currency, #profile_id]
+  | (#intent, _) => [#currency, #status]
+  | (#attempt, Some(#connector)) => [#payment_method_type, #error_reason]
+  | (#attempt, Some(#payment_method)) => [#payment_method_type, #connector]
+  | (#attempt, Some(#payment_method_type)) => [#connector, #card_network]
+  | (#attempt, Some(#card_network)) => [#connector, #authentication_type]
+  | (#attempt, Some(#error_reason)) => [#connector, #card_network]
+  | (#attempt, Some(#status)) => [#error_reason, #connector]
+  | (#attempt, _) => [#connector, #error_reason]
+  }

@@ -11,6 +11,10 @@ let emptyResponses = {
 
 let filterKey = (key: selectionKey) => `explore.${(key :> string)}`
 
+let filterPrefix = "explore.f."
+
+let getFilterUrlKey = (dimension: dimension) => `${filterPrefix}${(dimension :> string)}`
+
 let topGroupCount = 5
 
 let maxBreakdownGroups = 12
@@ -46,6 +50,9 @@ let getSplitDimensions = (measure, ~dimensions: array<dimension>) =>
     !(isAmount(measure) && key == #currency)
   )
 
+let getFilterDimensions = (measure, ~dimensions: array<dimension>) =>
+  dimensions->Array.filter(key => !((isRate(measure) || isAmount(measure)) && key == #status))
+
 let findDimension = (dimensions: array<dimension>, id) =>
   dimensions->Array.find(key => (key :> string) == id)
 
@@ -62,6 +69,12 @@ let getOutcomesOfStatus = (source: source, status) =>
     ->Array.find(item => (item :> string) == status)
     ->mapOptionOrDefault([], attemptStatusOutcomes)
   }
+
+let filterValuesFromJson = json =>
+  json
+  ->JSON.Decode.string
+  ->mapOptionOrDefault(json->getStrArrayFromJson, value => [value])
+  ->Array.filter(isNonEmptyString)
 
 let getRowKey = values => values->getJsonFromArrayOfString->JSON.stringify
 
