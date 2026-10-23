@@ -146,10 +146,22 @@ let buildDataset = (selection, responses) => {
       acc->Dict.set(key, (values, sum->addCounts(getRowCounts(source, dict))))
       acc
     })
+  let dailyOf = rows =>
+    rows
+    ->Array.map(getDictFromJsonObject)
+    ->Array.filter(isInCurrency)
+    ->Array.reduce(Dict.make(), (acc, dict) => {
+      let groupKey = selection.split->Array.map(key => dict->getDimensionValue(key))->getRowKey
+      let day = dict->getRowDay
+      let key = getDailyKey(~groupKey, ~day)
+      let point = acc->getValueFromDict(key, {groupKey, day, counts: emptyCounts})
+      acc->Dict.set(key, {...point, counts: point.counts->addCounts(getRowCounts(source, dict))})
+      acc
+    })
 
   let currentGroups = responses.currentRows->groupsOf
   let previousGroups = responses.previousRows->groupsOf
-  let groups =
+  let allGroups =
     currentGroups
     ->Dict.toArray
     ->Array.map(((key, (values, current))) => {
@@ -157,10 +169,12 @@ let buildDataset = (selection, responses) => {
       current,
       previous: previousGroups
       ->getOptionValFromDict(key)
-      ->Option.map(((_, counts)) => counts)
-      ->Option.filter(counts => measurable(source, measure, counts)),
+      ->Option.map(((_, counts)) => counts),
     })
+  let groups =
+    allGroups
     ->Array.filter(group => measurable(source, measure, group.current))
+    ->Array.toSorted((a, b) => compareLogic(a.current.total, b.current.total))
 
   {
     overall: responses.currentRows->totalOf,
@@ -169,11 +183,28 @@ let buildDataset = (selection, responses) => {
     inCurrencyPrevious: responses.previousRows->totalOf(~keep=isInCurrency),
     amountCurrencies,
     amountCurrency,
-    groups: groups->Array.toSorted((a, b) => compareLogic(a.current.total, b.current.total)),
+    groups,
+    topByVolume: allGroups
+    ->Array.toSorted((a, b) => compareLogic(a.current.total, b.current.total))
+    ->Array.slice(~start=0, ~end=topGroupCount),
+    topMeasured: groups->Array.slice(~start=0, ~end=topGroupCount),
     unmeasured: isRate(measure)
       ? currentGroups
         ->Dict.valuesToArray
         ->Array.filter(((_, counts)) => !measurable(source, measure, counts))
+        ->Array.toSorted(((_, a), (_, b)) => compareLogic(a.total, b.total))
       : [],
+    currentDaily: responses.currentDaily->dailyOf,
+    previousDaily: responses.previousDaily->dailyOf,
   }
 }
+
+let getCountsOn = (points, ~groupKey, ~day) =>
+  points
+  ->getOptionValFromDict(getDailyKey(~groupKey, ~day))
+  ->mapOptionOrDefault(emptyCounts, point => point.counts)
+
+let getPointValue = (selection, counts, ~currency) =>
+  measurable(selection.source, selection.measure, counts)
+    ? Nullable.make(displayValue(selection.source, selection.measure, counts, ~currency))
+    : Nullable.null

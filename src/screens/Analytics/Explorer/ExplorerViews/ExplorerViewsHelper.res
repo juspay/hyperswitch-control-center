@@ -1,5 +1,6 @@
 open Typography
 open ExplorerTypes
+open ExplorerCatalog
 open ExplorerViewsUtils
 open InsightsHelper
 
@@ -36,4 +37,21 @@ module UnmeasuredNote = {
     <div className={`px-5 pb-4 ${body.sm.regular} text-nd_gray-500`}>
       {getUnmeasuredNote(selection, dataset, ~labelFor)->React.string}
     </div>
+}
+
+module ViewTabs = {
+  @react.component
+  let make = (~view: view, ~onViewChange) =>
+    <TabsBinding value={(view :> string)} onValueChange=onViewChange variant=Floating size=Md>
+      <TabsBinding.List variant=Floating size=Md fitContent=true>
+        {views
+        ->Array.map(view =>
+          <TabsBinding.Trigger
+            key={(view :> string)} value={(view :> string)} variant=Floating size=Md>
+            {(view :> string)->LogicUtils.capitalizeString->React.string}
+          </TabsBinding.Trigger>
+        )
+        ->React.array}
+      </TabsBinding.List>
+    </TabsBinding>
 }
