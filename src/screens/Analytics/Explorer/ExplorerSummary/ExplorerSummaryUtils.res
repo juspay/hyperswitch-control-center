@@ -21,7 +21,7 @@ let getHeadline = (context: chartContext) => {
   let {source, measure} = selection
   let (counts, previousCounts) = dataset->getMeasureCounts(measure)
   if !measurable(source, measure, counts) {
-    unmeasurableNote(source, measure)
+    `${unmeasurableNote(source, measure)}.`
   } else {
     let filterText = context->getFilterText
     let scope = `all ${sourceNoun(source)}${filterText->isNonEmptyString
@@ -48,7 +48,7 @@ let getHeadline = (context: chartContext) => {
 
 let getCurrencyLine = (context: chartContext) =>
   context.selection->needsCurrency
-    ? `Counts and amounts are for ${context.dataset.amountCurrency} only. Other currencies are left out.`
+    ? `Amounts are for ${context.dataset.amountCurrency} only. Other currencies are left out.`
     : ""
 
 let getGroupsByMeasure = (context: chartContext) => {
@@ -67,18 +67,12 @@ let getRateSplitLine = (context: chartContext, ~by) => {
     context
     ->getGroupsByMeasure
     ->Array.filter(group => group.values->Array.every(isNonEmptyString))
-  let leftOut = dataset.unmeasured->Array.length
-  let leftOutText =
-    leftOut > 0
-      ? ` Left out: ${leftOut->Int.toString} with ${unmeasurableReason(source, measure)}.`
-      : ""
   switch (ranked->Array.get(0), ranked->Array.at(-1)) {
   | (Some(top), Some(bottom)) if ranked->Array.length > 1 =>
     `By ${by}, ${context->groupLabel(top)} is highest at ${valueText(
         top,
-      )} and ${context->groupLabel(bottom)} is lowest at ${valueText(bottom)}.${leftOutText}`
-  | (Some(top), _) =>
-    `By ${by}, only ${context->groupLabel(top)} has a value (${valueText(top)}).${leftOutText}`
+      )} and ${context->groupLabel(bottom)} is lowest at ${valueText(bottom)}.`
+  | (Some(top), _) => `By ${by}, only ${context->groupLabel(top)} has a value (${valueText(top)}).`
   | (None, _) => `By ${by}, no group has a value for this measure.`
   }
 }

@@ -29,7 +29,10 @@ module OutcomeBar = {
       />
       <RenderIf condition={context->isExcludedFromRate}>
         <div className={`${body.sm.regular} text-nd_gray-500`}>
-          {`Payments awaiting customer or merchant action are excluded from the ${measureLabel(
+          {`${sourceNoun(selection.source)->capitalizeString} marked "${outcomeLabel(
+              selection.source,
+              Excluded,
+            )}" are excluded from the ${measureLabel(
               selection.source,
               selection.measure,
             )->String.toLowerCase}.`->React.string}
