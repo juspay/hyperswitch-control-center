@@ -345,16 +345,32 @@ export class HomePage {
     return this.sdkIframe.contentFrame().getByRole("button", { name: "Card" });
   }
 
+  // The SDK renders card inputs in a vault iframe nested inside the
+  // payment element iframe.
+  get sdkCardFieldsIframe(): Locator {
+    return this.sdkIframe
+      .contentFrame()
+      .locator(
+        'iframe[name="orca-payment-element-iframeRef-parent-card-inner-iframe-container"]',
+      );
+  }
+
   get sdkCardNoInput(): Locator {
-    return this.sdkIframe.contentFrame().locator("[data-testid=cardNoInput]");
+    return this.sdkCardFieldsIframe
+      .contentFrame()
+      .locator("[data-testid=cardNoInput]");
   }
 
   get sdkExpiryInput(): Locator {
-    return this.sdkIframe.contentFrame().locator("[data-testid=expiryInput]");
+    return this.sdkCardFieldsIframe
+      .contentFrame()
+      .locator("[data-testid=expiryInput]");
   }
 
   get sdkCvvInput(): Locator {
-    return this.sdkIframe.contentFrame().locator("[data-testid=cvvInput]");
+    return this.sdkCardFieldsIframe
+      .contentFrame()
+      .locator("[data-testid=cvvInput]");
   }
 
   get paymentFailedText(): Locator {
@@ -380,7 +396,7 @@ export class HomePage {
 
   async fillSdkTestCard(): Promise<void> {
     await this.sdkCardNoInput.fill("4242424242424242");
-    await this.sdkExpiryInput.fill("0127");
+    await this.sdkExpiryInput.fill("1230");
     await this.sdkCvvInput.fill("492");
   }
 

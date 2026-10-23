@@ -3,6 +3,7 @@ let make = (~id) => {
   open LogicUtils
   open ReconEngineTransactionsUtils
   open ReconEngineTransactionsHelper
+  open ReconEngineRulesUtils
   open APIUtils
 
   let getURL = useGetURL()
@@ -14,9 +15,7 @@ let make = (~id) => {
   let (allExceptionDetails, setAllExceptionDetails) = React.useState(_ => [
     Dict.make()->getTransactionsPayloadFromDict,
   ])
-  let (entriesList, setEntriesList) = React.useState(_ => [
-    Dict.make()->transactionsEntryItemToObjMapperFromDict,
-  ])
+  let (ruleAccountIds, setRuleAccountIds) = React.useState(_ => [])
   let (accountsData, setAccountsData) = React.useState(_ => [])
   let getTransactions = ReconEngineHooks.useGetTransactions()
   let getAccounts = ReconEngineHooks.useGetAccounts()
@@ -28,27 +27,15 @@ let make = (~id) => {
       exceptions->Array.sort(sortByVersion)
       let currentExceptionDetails =
         exceptions->getValueFromArray(0, Dict.make()->getTransactionsPayloadFromDict)
-      let entriesUrl = getURL(
+      let ruleUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
-        ~hyperswitchReconType=#PROCESSED_ENTRIES_LIST_WITH_TRANSACTION,
-        ~id=Some(currentExceptionDetails.transaction_id),
+        ~hyperswitchReconType=#RECON_RULES,
+        ~id=Some(currentExceptionDetails.rule.rule_id),
       )
-      let entriesRes = await fetchDetails(entriesUrl)
-      let entriesList = entriesRes->getArrayDataFromJson(transactionsEntryItemToObjMapperFromDict)
-      let entriesDataArray = currentExceptionDetails.entries->Array.map(entry => {
-        let foundEntry =
-          entriesList
-          ->Array.find(e => entry.entry_id == e.entry_id)
-          ->Option.getOr(Dict.make()->transactionsEntryItemToObjMapperFromDict)
-
-        {
-          ...foundEntry,
-          account_name: entry.account.account_name,
-        }
-      })
+      let rule = (await fetchDetails(ruleUrl))->getDictFromJsonObject->ruleItemToObjMapper
       let accountData = await getAccounts()
-      setEntriesList(_ => entriesDataArray)
+      setRuleAccountIds(_ => rule.strategy->getRuleAccountIds)
       setCurrentExceptionDetails(_ => currentExceptionDetails)
       setAllExceptionDetails(_ => exceptions)
       setAccountsData(_ => accountData)
@@ -78,7 +65,7 @@ let make = (~id) => {
         title: "Entries",
         renderContent: () =>
           <ReconEngineExceptionTransactionEntries
-            entriesList={entriesList}
+            accountIds=ruleAccountIds
             currentExceptionDetails={currentExceptionsDetails}
             accountsData
           />,
@@ -91,7 +78,7 @@ let make = (~id) => {
           />,
       },
     ]
-  }, (allExceptionDetails, entriesList, accountsData, auditTrailAccountIds))
+  }, (allExceptionDetails, ruleAccountIds, accountsData, auditTrailAccountIds))
 
   <div>
     <div className="flex flex-col gap-4 mb-6">

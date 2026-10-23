@@ -2,6 +2,27 @@ open LogicUtils
 open OrderTypes
 open CommonAuthUtils
 
+let manualUpdateStatuses = [
+  Succeeded,
+  Failed,
+  RequiresCapture,
+  PartiallyAuthorizedAndRequiresCapture,
+  PartiallyCaptured,
+  PartiallyCapturedAndCapturable,
+]
+
+let manualUpdateStatusFromString = (value: string): option<manualUpdateStatus> =>
+  manualUpdateStatuses->Array.find(status => (status :> string) === value)
+
+let manualUpdateEligibleStatusesFromResponse = (response: JSON.t): array<manualUpdateStatus> => {
+  let returnedStatuses =
+    response
+    ->getDictFromJsonObject
+    ->getStrArray("eligible_statuses")
+    ->Array.filterMap(manualUpdateStatusFromString)
+  manualUpdateStatuses->Array.filter(status => returnedStatuses->Array.includes(status))
+}
+
 let getPaymentListSourceFromString = (~defaultSource, source) =>
   switch source {
   | "Normal" => Normal

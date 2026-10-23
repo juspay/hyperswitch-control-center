@@ -127,7 +127,9 @@ async function setupConfiguredZiftConnector(
     .getByTestId(connector.label)
     .getByRole("button", { name: "Connect" })
     .click();
+  await assertConnectorFieldLabels(page, connector.fields.fieldLabels);
   await fillConnectorFields(page, fields);
+  await expect(paymentConnector.connectAndProceedButton).toBeEnabled();
   await paymentConnector.connectAndProceedButton.click();
   await paymentConnector.pmtProceedButton.click();
   await expect(paymentConnector.connectorCreatedToast).toBeVisible({
@@ -2196,6 +2198,11 @@ test.describe("All Payin Connectors", () => {
     await paymentConnector.pmtProceedButton.click();
 
     await expect(paymentConnector.connectorCreatedToast).toBeVisible();
+
+    await expect(
+      page.getByRole("button", { name: "Register webhook" }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Skip this step" }).click();
 
     await paymentConnector.connectorSetupDone.click();
 
