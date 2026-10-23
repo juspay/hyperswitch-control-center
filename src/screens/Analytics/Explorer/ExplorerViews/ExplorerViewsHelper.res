@@ -45,18 +45,13 @@ module UnmeasuredNote = {
 module ViewTabs = {
   @react.component
   let make = (~view: view, ~onViewChange) =>
-    <TabsBinding value={(view :> string)} onValueChange=onViewChange variant=Floating size=Md>
-      <TabsBinding.List variant=Floating size=Md fitContent=true>
-        {views
-        ->Array.map(view =>
-          <TabsBinding.Trigger
-            key={(view :> string)} value={(view :> string)} variant=Floating size=Md>
-            {(view :> string)->capitalizeString->React.string}
-          </TabsBinding.Trigger>
-        )
-        ->React.array}
-      </TabsBinding.List>
-    </TabsBinding>
+    <ExplorerHelper.TabList
+      value={(view :> string)}
+      items={views->Array.map(view => ((view :> string), (view :> string)->capitalizeString))}
+      onChange=onViewChange
+      variant=Floating
+      size=Md
+    />
 }
 
 module SplitSuggestions = {

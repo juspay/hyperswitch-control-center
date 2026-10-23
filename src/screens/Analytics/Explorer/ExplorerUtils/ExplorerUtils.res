@@ -22,12 +22,12 @@ let maxBreakdownGroups = 12
 let isRate = (measure: measure) =>
   switch measure {
   | #success_rate | #failure_rate | #three_ds_failure_rate | #not_completed_rate => true
-  | #volume | #successful | #failed | #processed_amount | #avg_ticket => false
+  | #volume | #successful | #failed | #processed_amount | #avg_ticket | #lost_amount => false
   }
 
 let isAmount = (measure: measure) =>
   switch measure {
-  | #processed_amount | #avg_ticket => true
+  | #processed_amount | #avg_ticket | #lost_amount => true
   | #success_rate
   | #failure_rate
   | #three_ds_failure_rate
@@ -46,12 +46,14 @@ let getOfferedDimensions = (source, ~backendDimensions: option<array<string>>) =
 
 let getSplitDimensions = (measure, ~dimensions: array<dimension>) =>
   dimensions->Array.filter(key =>
-    !((isRate(measure) || isAmount(measure)) && key == #status) &&
+    !((isRate(measure) || isAmount(measure)) && statusDimensions->Array.includes(key)) &&
     !(isAmount(measure) && key == #currency)
   )
 
 let getFilterDimensions = (measure, ~dimensions: array<dimension>) =>
-  dimensions->Array.filter(key => !((isRate(measure) || isAmount(measure)) && key == #status))
+  dimensions->Array.filter(key =>
+    !((isRate(measure) || isAmount(measure)) && statusDimensions->Array.includes(key))
+  )
 
 let findDimension = (dimensions: array<dimension>, id) =>
   dimensions->Array.find(key => (key :> string) == id)
@@ -68,6 +70,11 @@ let getOutcomesOfStatus = (source: source, status) =>
     attemptStatuses
     ->Array.find(item => (item :> string) == status)
     ->mapOptionOrDefault([], attemptStatusOutcomes)
+  | #refund =>
+    refundStatuses
+    ->Array.find(item => (item :> string) == status)
+    ->mapOptionOrDefault([], refundStatusOutcomes)
+  | #dispute => []
   }
 
 let filterValuesFromJson = json =>
@@ -91,6 +98,10 @@ let getValuesLabel = (values, ~split: array<dimension>, ~labelFor) =>
 
 let sourceFromString = id =>
   sources->Array.find(source => (source :> string) == id)->Option.getOr(#intent)
+
+let domainFromString = id => domains->Array.find(domain => (domain :> string) == id)
+
+let getDefaultSource = domain => domain->getDomainSources->getValueFromArray(0, #intent)
 
 let viewFromString = id => views->Array.find(view => (view :> string) == id)->Option.getOr(#trend)
 
@@ -188,7 +199,7 @@ let getDimensionValueLabel = (
     profileList
     ->Array.find(profile => profile.id == value)
     ->mapOptionOrDefault(value, profile => profile.name)
-  | (#status, _) => value->snakeToTitle
+  | (#status | #refund_status | #refund_type | #dispute_stage, _) => value->snakeToTitle
   | (#connector, _) => value->ConnectorUtils.getDisplayNameForConnector
   | _ => value
   }
