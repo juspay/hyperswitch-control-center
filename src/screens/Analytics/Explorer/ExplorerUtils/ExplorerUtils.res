@@ -70,28 +70,11 @@ let getOutcomesOfStatus = (source: source, status) =>
     ->mapOptionOrDefault([], attemptStatusOutcomes)
   }
 
-let encodeFilterValue = value =>
-  value
-  ->stringReplaceAll("%", "%25")
-  ->stringReplaceAll(",", "%2C")
-  ->stringReplaceAll("&", "%26")
-  ->stringReplaceAll("=", "%3D")
-  ->stringReplaceAll("#", "%23")
-
-let decodeFilterValue = value =>
-  value
-  ->stringReplaceAll("%2C", ",")
-  ->stringReplaceAll("%26", "&")
-  ->stringReplaceAll("%3D", "=")
-  ->stringReplaceAll("%23", "#")
-  ->stringReplaceAll("%25", "%")
-
 let filterValuesFromJson = json =>
   json
   ->JSON.Decode.string
   ->mapOptionOrDefault(json->getStrArrayFromJson, value => [value])
   ->Array.filter(isNonEmptyString)
-  ->Array.map(decodeFilterValue)
 
 let getRowKey = values => values->getJsonFromArrayOfString->JSON.stringify
 

@@ -144,7 +144,9 @@ let getFilterValuesBody = (selection, ~dimension: dimension) =>
   })->JSON.Encode.object
 
 let getFilterValueString = values =>
-  values->isEmptyArray ? "" : `[${values->Array.map(encodeFilterValue)->Array.joinWith(",")}]`
+  values->isEmptyArray
+    ? ""
+    : `[${values->Array.map(UrlFetchUtils.encodeFilterValue)->Array.joinWith(",")}]`
 
 let getFilterUpdate = (selection, dimension, values) => {
   let clearsDrill = values->isEmptyArray && selection.drilledFrom == Some(dimension)
