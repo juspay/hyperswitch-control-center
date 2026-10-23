@@ -2,6 +2,8 @@ open ExplorerTypes
 
 let sources: array<source> = [#intent, #attempt]
 
+let views: array<view> = [#trend, #breakdown, #mix, #table]
+
 let sourceConfig = (source: source) =>
   switch source {
   | #intent => {

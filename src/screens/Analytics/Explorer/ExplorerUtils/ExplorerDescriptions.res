@@ -1,5 +1,5 @@
-open LogicUtils
 open ExplorerTypes
+open ExplorerUtils
 
 let sourceLabel = (source: source) =>
   switch source {
@@ -122,7 +122,7 @@ let outcomeLabel = (source: source, field) =>
   switch (source, field) {
   | (#attempt, Success) => "Charged"
   | (#attempt, Excluded) => "Authentication failed or awaiting action"
-  | (#attempt, Other) => "Other (pending, authorized, voided…)"
+  | (#attempt, Other) => "Other (pending, authorized, declined, voided, expired…)"
   | (#intent, Excluded) => "Waiting on customer or merchant"
   | (#intent, Other) => "Other (cancelled, processing, expired…)"
   | (_, Success) => "Succeeded"
@@ -131,16 +131,33 @@ let outcomeLabel = (source: source, field) =>
   | (_, Total) => "All"
   }
 
-let viewNote = (selection: selection) =>
-  selection.split->isNonEmptyArray
-    ? `Sorted by number of ${sourceNoun(selection.source)}, highest first.`
-    : "Outcomes in these dates. Add a split to compare groups."
+let viewNote = (selection: selection) => {
+  let noun = sourceNoun(selection.source)
+  switch (selection.view, selection.split->getGrouping) {
+  | (#trend, Split) => `Daily in UTC, for the ${topGroupCount->Int.toString} largest groups.`
+  | (#trend, Overall) => "Daily in UTC, against the same days of the previous period."
+  | (#breakdown, Split) =>
+    `Largest groups by number of ${noun}, up to ${maxBreakdownGroups->Int.toString}.`
+  | (#breakdown, Overall) => "Outcomes in these dates."
+  | (#mix, Split) =>
+    `Share of each UTC day's volume by group, for the ${topGroupCount->Int.toString} largest groups.`
+  | (#mix, Overall) => "Share of each UTC day's volume by outcome."
+  | (#table, Split) => `Sorted by number of ${noun}, highest first.`
+  | (#table, Overall) => "Outcomes in these dates. Add a split to compare groups."
+  }
+}
 
-let viewTitle = (selection: selection) => {
-  let {source, measure, split} = selection
-  split->isNonEmptyArray
-    ? `${measureLabel(source, measure)} by ${split
-        ->Array.map(dimensionLabel)
-        ->Array.joinWith(" and ")}`
-    : `${measureLabel(source, #volume)} by outcome`
+let viewTitle = (selection: selection, ~currency) => {
+  let {source, measure, split, view} = selection
+  let splitText = split->Array.map(dimensionLabel)->Array.joinWith(" and ")
+  let mixRecords = isAmount(measure)
+    ? `${currency} ${sourceNoun(source)}`
+    : measureLabel(source, #volume)
+  switch (view, split->getGrouping) {
+  | (#mix, Split) => `${mixRecords} by ${splitText}`
+  | (#mix, Overall) => `${mixRecords} by outcome`
+  | (#trend | #breakdown | #table, Split) => `${measureLabel(source, measure)} by ${splitText}`
+  | (#trend, Overall) => measureLabel(source, measure)
+  | (#breakdown | #table, Overall) => `${measureLabel(source, #volume)} by outcome`
+  }
 }
