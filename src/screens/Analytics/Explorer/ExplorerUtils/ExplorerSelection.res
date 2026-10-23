@@ -184,7 +184,7 @@ let getFocusUpdate = (selection, group: group) =>
         ->Array.concat(
           [
             (#split, "[]"),
-            (#from, selection.split->Array.get(0)->mapOptionOrDefault("", key => (key :> string))),
+            (#from, selection.split->Array.map(key => (key :> string))->getValueFromArray(0, "")),
           ]->Array.map(((key, value)) => (filterKey(key), value)),
         )
         ->Dict.fromArray,
@@ -194,7 +194,7 @@ let getFocusUpdate = (selection, group: group) =>
 let getSplitSuggestions = selection =>
   suggestedNext(
     selection.source,
-    selection.split->Array.get(0)->Option.orElse(selection.drilledFrom),
+    selection.split->Array.map(key => Some(key))->getValueFromArray(0, selection.drilledFrom),
   )->Array.filter(key =>
     selection.splitOptions->Array.includes(key) && !(selection.split->Array.includes(key))
   )

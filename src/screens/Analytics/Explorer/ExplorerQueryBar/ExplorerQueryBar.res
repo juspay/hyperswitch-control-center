@@ -25,6 +25,15 @@ let make = (
     ->Option.flatMap(key => getStaticFilterValues(source, key))
     ->Option.getOr(filterValuesByKey->getValueFromDict(filterValuesKey, []))
   let selected = editing->mapOptionOrDefault([], key => selection->getSelectedFilterValues(key))
+  let editingFilter = editing->Option.filter(key => selection.filterOptions->Array.includes(key))
+  let filterItems = editingFilter->mapOptionOrDefault([], key =>
+    filterValues->Array.map((value): MultiSelectBindings.selectMenuItemType => {
+      label: labelFor(key, value),
+      value,
+    })
+  )
+  let filterPlaceholder =
+    editingFilter->mapOptionOrDefault("", key => `${dimensionLabel(key)} is…`)
   let splitIds = selection.split->Array.map(key => (key :> string))
   let thenByOptions =
     splitOptions->Array.filter(key => (key :> string) != splitIds->getValueFromArray(0, ""))
@@ -133,27 +142,18 @@ let make = (
         placeholder={selection.filters->isEmptyArray ? "Add a filter" : "Add another"}
         enableSearch=true
       />
-      {switch editing {
-      | Some(key) if selection.filterOptions->Array.includes(key) =>
+      <RenderIf condition={editingFilter->Option.isSome}>
         <MultiSelectBindings
           selectedValues=selected
           onChange=toggleFilterValue
-          items=[
-            {
-              items: filterValues->Array.map((value): MultiSelectBindings.selectMenuItemType => {
-                label: labelFor(key, value),
-                value,
-              }),
-            },
-          ]
-          placeholder={`${dimensionLabel(key)} is…`}
+          items=[{items: filterItems}]
+          placeholder=filterPlaceholder
           size=Sm
           enableSearch=true
           selectionTagType=Count
           minMenuWidth=260
         />
-      | _ => React.null
-      }}
+      </RenderIf>
       <RenderIf condition={selection.filters->isNonEmptyArray}>
         <Button
           text="Clear filters"
