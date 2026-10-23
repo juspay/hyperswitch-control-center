@@ -3,6 +3,36 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.10.22.1
+
+### Features
+
+- **recovery:**
+  - Editable grace period, hard decline retries, webhook details fixes ([#5712](https://github.com/juspay/hyperswitch-control-center/pull/5712)) ([`df88949`](https://github.com/juspay/hyperswitch-control-center/commit/df8894976226e9da73201ff884269371c3d958c1))
+  - Add search, status filters and merchant/profile views to the invoices list ([#5696](https://github.com/juspay/hyperswitch-control-center/pull/5696)) ([`6a44dba`](https://github.com/juspay/hyperswitch-control-center/commit/6a44dba166863905bd629ba36e77950228268f53))
+
+### Testing
+
+- Run routing specs on every env and add Playwright e2e coverage ([#5710](https://github.com/juspay/hyperswitch-control-center/pull/5710)) ([`9fda60d`](https://github.com/juspay/hyperswitch-control-center/commit/9fda60db03813590d40f5a3f6d553c818c74ab9b))
+
+**Full Changelog:** [`2026.10.22.0...2026.10.22.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.22.0...2026.10.22.1)
+
+- - -
+
+## 2026.10.22.0
+
+### Features
+
+- **analytics:** Add explorer split and table view ([#5641](https://github.com/juspay/hyperswitch-control-center/pull/5641)) ([`2e85412`](https://github.com/juspay/hyperswitch-control-center/commit/2e854124bd0af88a93c1c4808c6185aa3981c9db))
+
+### Bug Fixes
+
+- **recovery:** Onboarding and configuration fixes ([#5702](https://github.com/juspay/hyperswitch-control-center/pull/5702)) ([`3dddb20`](https://github.com/juspay/hyperswitch-control-center/commit/3dddb20737ae5b4b602bfa165542d7a1ca55e716))
+
+**Full Changelog:** [`2026.10.19.0...2026.10.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.19.0...2026.10.22.0)
+
+- - -
+
 ## 2026.10.19.0
 
 ### Features
