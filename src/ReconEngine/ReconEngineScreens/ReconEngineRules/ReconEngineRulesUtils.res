@@ -280,6 +280,14 @@ let getSourceAndTargetAccountDetails = (strategy: reconStrategyType): (
   }
 }
 
+let getRuleAccountIds = (strategy: reconStrategyType) => {
+  let (sourceAccountId, targetAccounts) = getSourceAndTargetAccountDetails(strategy)
+  [sourceAccountId]
+  ->Array.concat(targetAccounts->Array.map(target => target.account_id))
+  ->Array.filter(isNonEmptyString)
+  ->getUniqueArray
+}
+
 let createFormInput = (~name, ~value): ReactFinalForm.fieldRenderPropsInput => {
   name,
   onBlur: _ => (),
