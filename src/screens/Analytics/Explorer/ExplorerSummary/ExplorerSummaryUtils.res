@@ -24,9 +24,7 @@ let getHeadline = (context: chartContext) => {
     `${unmeasurableNote(source, measure)}.`
   } else {
     let filterText = context->getFilterText
-    let scope = `all ${sourceNoun(source)}${filterText->isNonEmptyString
-        ? ` where ${filterText}`
-        : ""}`
+    let where = filterText->isNonEmptyString ? ` where ${filterText}` : ""
     let (previousStart, previousEnd) = selection->previousWindow
     let comparison =
       context->hasPrevious(~measure)
@@ -34,15 +32,18 @@ let getHeadline = (context: chartContext) => {
               measure,
               getMeasureValue(source, measure, counts),
               getMeasureValue(source, measure, previousCounts),
-            )} from ${periodLabel(previousStart, previousEnd)}`
+              ~period=periodLabel(previousStart, previousEnd),
+            )}`
         : ", with nothing to compare in the previous period"
     let value = formatValue(source, measure, counts, ~currency=dataset.amountCurrency)
-    measure == #volume
-      ? `${scope->capitalizeString} totalled ${value} in ${context->currentLabel}${comparison}.`
-      : `${measureLabel(
-            source,
-            measure,
-          )} for ${scope} was ${value} in ${context->currentLabel}${comparison}.`
+    let label = measureLabel(source, measure)
+    switch getMeasureFormula(source, measure) {
+    | Count(_) => `${label}${where} totalled ${value} in ${context->currentLabel}${comparison}.`
+    | _ =>
+      `${label} for all ${sourceNoun(
+          source,
+        )}${where} was ${value} in ${context->currentLabel}${comparison}.`
+    }
   }
 }
 
@@ -66,7 +67,7 @@ let getRateSplitLine = (context: chartContext, ~by) => {
   let ranked =
     context
     ->getGroupsByMeasure
-    ->Array.filter(group => group.values->Array.every(isNonEmptyString))
+    ->Array.filter(isRecordedGroup)
   switch (ranked->Array.get(0), ranked->Array.at(-1)) {
   | (Some(top), Some(bottom)) if ranked->Array.length > 1 =>
     `By ${by}, ${context->groupLabel(top)} is highest at ${valueText(
