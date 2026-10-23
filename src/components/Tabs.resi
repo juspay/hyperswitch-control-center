@@ -13,4 +13,5 @@ let make: (
   ~variant: TabsBinding.tabsVariant=?,
   ~size: TabsBinding.tabsSize=?,
   ~fitContent: bool=?,
+  ~ariaLabel: string=?,
 ) => React.element

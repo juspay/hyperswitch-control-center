@@ -14,6 +14,7 @@ let make = (
   ~variant=TabsBinding.Underline,
   ~size=TabsBinding.Lg,
   ~fitContent=?,
+  ~ariaLabel="Sections",
 ) => {
   let initialIndex = initialIndex->Option.getOr(0)
   let (selectedValue, setSelectedValue) = React.useState(() => initialIndex->Int.toString)
@@ -32,24 +33,37 @@ let make = (
     ->Option.forEach(tab => tab.onTabSelection->Option.forEach(fn => fn()))
   }
 
-  let items = React.useMemo(() => {
-    tabs->Array.mapWithIndex((tab, i) => {
-      let base: TabsBinding.tabItem = {
-        value: i->Int.toString,
-        label: tab.title,
-        content: tab.renderContent(),
-        disable: disabledTab->Array.includes(tab.title),
-      }
-      switch tab.tabElement {
-      | Some(elem) => {...base, leftSlot: elem}
-      | None => base
-      }
-    })
-  }, (tabs, disabledTab))
-
   <ErrorBoundary>
+    // Preserve the V1 items-path inset without changing direct compound consumers.
     <TabsBinding
-      value={selectedValue} onValueChange={handleValueChange} variant size ?fitContent items
-    />
+      value={selectedValue}
+      onValueChange={handleValueChange}
+      variant
+      size
+      ?fitContent
+      className={variant === TabsBinding.Underline ? "pt-2" : ""}>
+      <TabsBinding.List variant size ?fitContent ariaLabel>
+        {tabs
+        ->Array.mapWithIndex((tab, i) =>
+          <TabsBinding.Trigger
+            key={i->Int.toString}
+            value={i->Int.toString}
+            variant
+            size
+            disabled={disabledTab->Array.includes(tab.title)}
+            leftSlot=?{tab.tabElement}>
+            {tab.title->React.string}
+          </TabsBinding.Trigger>
+        )
+        ->React.array}
+      </TabsBinding.List>
+      {tabs
+      ->Array.mapWithIndex((tab, i) =>
+        <TabsBinding.Content key={i->Int.toString} value={i->Int.toString}>
+          {tab.renderContent()}
+        </TabsBinding.Content>
+      )
+      ->React.array}
+    </TabsBinding>
   </ErrorBoundary>
 }
