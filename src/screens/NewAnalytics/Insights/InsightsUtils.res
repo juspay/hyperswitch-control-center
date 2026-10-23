@@ -418,7 +418,7 @@ let fillMissingDataPoints = (
 }
 
 let getSampleDateRange = (~useSampleDates, ~sampleDateRange) => {
-  let defaultDateRange: filterBody = getDateFilteredObject(~range=7)
+  let defaultDateRange: filterBody = getDateFilteredObject(~range=last7DaysRange)
   let dates = useSampleDates ? sampleDateRange : defaultDateRange
   let comparison = useSampleDates ? (EnableComparison :> string) : (DisableComparison :> string)
   let (compareStart, compareEnd) = getComparisonTimePeriod(
