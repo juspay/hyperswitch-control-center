@@ -146,8 +146,12 @@ let getFilterValuesBody = (selection, ~dimension: dimension) =>
 let getFilterValueString = values =>
   values->isEmptyArray ? "" : `[${values->Array.map(encodeFilterValue)->Array.joinWith(",")}]`
 
-let getFilterUpdate = (dimension, values) =>
-  [(getFilterUrlKey(dimension), getFilterValueString(values))]->Dict.fromArray
+let getFilterUpdate = (selection, dimension, values) => {
+  let clearsDrill = values->isEmptyArray && selection.drilledFrom == Some(dimension)
+  [(getFilterUrlKey(dimension), getFilterValueString(values))]
+  ->Array.concat(clearsDrill ? [(filterKey(#from), "")] : [])
+  ->Dict.fromArray
+}
 
 let getClearFiltersUpdate = selection =>
   selection.filters

@@ -177,10 +177,8 @@ let buildDataset = (selection, responses) => {
       ->getOptionValFromDict(key)
       ->Option.map(((_, counts)) => counts),
     })
-  let groups =
-    allGroups
-    ->Array.filter(group => measurable(source, measure, group.current))
     ->Array.toSorted((a, b) => compareLogic(a.current.total, b.current.total))
+  let groups = allGroups->Array.filter(group => measurable(source, measure, group.current))
 
   {
     overall: responses.currentRows->totalOf,
@@ -190,9 +188,7 @@ let buildDataset = (selection, responses) => {
     amountCurrencies,
     amountCurrency,
     groups,
-    topByVolume: allGroups
-    ->Array.toSorted((a, b) => compareLogic(a.current.total, b.current.total))
-    ->Array.slice(~start=0, ~end=topGroupCount),
+    topByVolume: allGroups->Array.slice(~start=0, ~end=topGroupCount),
     topMeasured: groups->Array.slice(~start=0, ~end=topGroupCount),
     unmeasured: isRate(measure)
       ? currentGroups
