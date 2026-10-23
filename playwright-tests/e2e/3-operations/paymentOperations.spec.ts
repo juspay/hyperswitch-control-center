@@ -1,5 +1,5 @@
 import { test, expect } from "../../support/test";
-import type { Page } from "@playwright/test";
+import type { APIRequestContext, Page } from "@playwright/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { PaymentOperations } from "../../support/pages/operations/PaymentOperations";
 import { generateUniqueEmail } from "../../support/helper";
@@ -11,9 +11,11 @@ import {
   createRequiresCapturePaymentAPI,
   mockPaymentRequiresCapture,
   mockPaymentSummaryAmounts,
+  mockPaymentAppliedOffer,
   ompLineage,
   jwtLineage,
 } from "../../support/commands";
+import type { AppliedOfferMock } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
 const columnSize = 24;
@@ -2062,6 +2064,10 @@ test.describe("Payment Operations", () => {
       await expect(
         paymentOperations.dataLabel("Surcharge Amount"),
       ).toContainText("Surcharge Amount3.44 USD");
+      // No applied_offer on this payment -> the Summary field falls back to N/A.
+      await expect(paymentOperations.dataLabel("Offer Amount")).toContainText(
+        "Offer AmountN/A",
+      );
       await expect(
         paymentOperations.dataLabel("Connector Transaction ID"),
       ).toContainText("Connector Transaction ID");
@@ -2255,6 +2261,13 @@ test.describe("Payment Operations", () => {
         ).toBeVisible();
       }
 
+      // Offer Details is pushed only when the payment carries an applied_offer,
+      // so it must not exist for this payment. Asserting absence explicitly --
+      // the list above would pass whether or not an extra tab were rendered.
+      await expect(
+        paymentOperations.paymentDetailsTab("Offer Details"),
+      ).toHaveCount(0);
+
       const eventAndLogsTab =
         paymentOperations.paymentDetailsTab("Event and Logs");
       await expect(eventAndLogsTab).toHaveAttribute("aria-selected", "true");
@@ -2390,6 +2403,192 @@ test.describe("Payment Operations", () => {
           value,
         );
       }
+    });
+  });
+
+  // Offer Details tab + Summary "Offer Amount", driven off a mocked
+  // applied_offer block on the payment-detail response.
+  test.describe("Payment details \u2014 applied offer", () => {
+    const OFFER_MERCHANT_ID = "offer_engine_merchant_pw_001";
+    const OFFER_TXN_ID = "offer_engine_txn_pw_001";
+    // Long enough to be visually truncated by the cell's `w-36 truncate`.
+    const OFFER_ID = "offer_pw_a_very_long_offer_identifier_0001";
+
+    // Create a confirmed payment (12345 minor units / 123.45 USD), overlay the
+    // given applied_offer on its detail response, then open its details page.
+    const openPaymentWithOffer = async (
+      page: Page,
+      context: { request: APIRequestContext },
+      appliedOffer: AppliedOfferMock,
+    ) => {
+      const homePage = new HomePage(page);
+      const paymentOperations = new PaymentOperations(page);
+
+      const merchantId = await homePage.merchantID.nth(0).textContent();
+      if (!merchantId) {
+        throw new Error("openPaymentWithOffer: merchant ID not found on page");
+      }
+
+      await createDummyConnectorAPI(
+        merchantId,
+        "stripe_test_1",
+        context.request,
+        page,
+      );
+      const paymentData = await createPaymentAPI(
+        merchantId,
+        context.request,
+        undefined,
+        undefined,
+        page,
+      );
+      await mockPaymentAppliedOffer(page, paymentData.payment_id, appliedOffer);
+
+      await homePage.operations.click();
+      await homePage.paymentOperations.click();
+      await paymentOperations.orderCell(1, 1).click();
+
+      return { homePage, paymentOperations, paymentData };
+    };
+
+    test("should display the Offer Details tab when an offer is applied", async ({
+      page,
+      context,
+    }) => {
+      const { paymentOperations } = await openPaymentWithOffer(page, context, {
+        offer_engine_merchant_id: OFFER_MERCHANT_ID,
+        offer_engine_txn_id: OFFER_TXN_ID,
+        offer_id: OFFER_ID,
+        offer_amount: 150,
+        currency: "USD",
+      });
+
+      const offerDetailsTab =
+        paymentOperations.paymentDetailsTab("Offer Details");
+      await expect(offerDetailsTab).toBeVisible();
+      await offerDetailsTab.click();
+      await expect(offerDetailsTab).toHaveAttribute("aria-selected", "true");
+    });
+
+    test("should display all offer fields in the Offer Details tab", async ({
+      page,
+      context,
+    }) => {
+      const { paymentOperations } = await openPaymentWithOffer(page, context, {
+        offer_engine_merchant_id: OFFER_MERCHANT_ID,
+        offer_engine_txn_id: OFFER_TXN_ID,
+        offer_id: OFFER_ID,
+        offer_amount: 150,
+        currency: "USD",
+      });
+
+      await paymentOperations.paymentDetailsTab("Offer Details").click();
+
+      // 150 minor units / USD conversion factor 100 -> rendered by CurrencyCell
+      // with Float.toString, so "1.5 USD" and not "1.50 USD".
+      for (const [label, value] of Object.entries({
+        "Offer Amount": "1.5 USD",
+        "Offer Engine Merchant Id": OFFER_MERCHANT_ID,
+        "Offer Id": OFFER_ID,
+        "Offer Engine Txn Id": OFFER_TXN_ID,
+      })) {
+        await expect(paymentOperations.tabPanelDataLabel(label)).toContainText(
+          value,
+        );
+      }
+    });
+
+    test("should show the same offer amount in Summary and in the Offer Details tab", async ({
+      page,
+      context,
+    }) => {
+      const { paymentOperations } = await openPaymentWithOffer(page, context, {
+        offer_engine_merchant_id: OFFER_MERCHANT_ID,
+        offer_engine_txn_id: OFFER_TXN_ID,
+        offer_id: OFFER_ID,
+        offer_amount: 150,
+        currency: "USD",
+      });
+
+      // Summary renders outside <Tabs>, so it is present before the tab is opened.
+      await expect(paymentOperations.dataLabel("Offer Amount")).toContainText(
+        "Offer Amount1.5 USD",
+      );
+
+      await paymentOperations.paymentDetailsTab("Offer Details").click();
+
+      // getCellForOfferDetails delegates to getCellForSummary(OfferAmount), so
+      // both panels must agree.
+      await expect(
+        paymentOperations.tabPanelDataLabel("Offer Amount"),
+      ).toContainText("Offer Amount1.5 USD");
+      await expect(paymentOperations.dataLabel("Offer Amount")).toHaveCount(2);
+    });
+
+    test("should not divide the offer amount for a zero-decimal currency", async ({
+      page,
+      context,
+    }) => {
+      const { paymentOperations } = await openPaymentWithOffer(page, context, {
+        offer_engine_merchant_id: OFFER_MERCHANT_ID,
+        offer_engine_txn_id: OFFER_TXN_ID,
+        offer_id: OFFER_ID,
+        offer_amount: 500,
+        // The cell uses the offer's own currency, so a JPY offer on a USD
+        // payment must use JPY's factor of 1.
+        currency: "JPY",
+      });
+
+      await paymentOperations.paymentDetailsTab("Offer Details").click();
+
+      await expect(
+        paymentOperations.tabPanelDataLabel("Offer Amount"),
+      ).toContainText("500 JPY");
+    });
+
+    test("should show N/A for blank offer ids and keep populated ones", async ({
+      page,
+      context,
+    }) => {
+      const { paymentOperations } = await openPaymentWithOffer(page, context, {
+        offer_engine_merchant_id: OFFER_MERCHANT_ID,
+        offer_engine_txn_id: "",
+        offer_id: "",
+        offer_amount: 150,
+        currency: "USD",
+      });
+
+      await paymentOperations.paymentDetailsTab("Offer Details").click();
+
+      await expect(
+        paymentOperations.tabPanelDataLabel("Offer Id"),
+      ).toContainText("Offer IdN/A");
+      await expect(
+        paymentOperations.tabPanelDataLabel("Offer Engine Txn Id"),
+      ).toContainText("Offer Engine Txn IdN/A");
+      await expect(
+        paymentOperations.tabPanelDataLabel("Offer Engine Merchant Id"),
+      ).toContainText(OFFER_MERCHANT_ID);
+    });
+
+    test("should render offer ids as copyable, untruncated values", async ({
+      page,
+      context,
+    }) => {
+      const { paymentOperations } = await openPaymentWithOffer(page, context, {
+        offer_engine_merchant_id: OFFER_MERCHANT_ID,
+        offer_engine_txn_id: OFFER_TXN_ID,
+        offer_id: OFFER_ID,
+        offer_amount: 150,
+        currency: "USD",
+      });
+
+      await paymentOperations.paymentDetailsTab("Offer Details").click();
+
+      const offerIdField = paymentOperations.tabPanelDataLabel("Offer Id");
+      await expect(offerIdField.locator('[data-icon="nd-copy"]')).toBeVisible();
+      // `w-36 truncate` only clips visually -- the full id stays in the DOM.
+      await expect(offerIdField).toContainText(OFFER_ID);
     });
   });
 
