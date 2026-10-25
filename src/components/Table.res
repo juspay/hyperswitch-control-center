@@ -1050,16 +1050,24 @@ let make = (
       let nativeScrollbarOutOfView =
         Webapi.Dom.DomRect.bottom(rect) > viewportHeight &&
           Webapi.Dom.DomRect.top(rect) < viewportHeight
-      if hasOverflow && nativeScrollbarOutOfView {
-        setFloatingScrollbar(_ => Some((
+      let next = if hasOverflow && nativeScrollbarOutOfView {
+        Some((
           Webapi.Dom.DomRect.left(rect),
           Webapi.Dom.DomRect.width(rect),
           Webapi.Dom.Element.scrollWidth(el)->Int.toFloat,
-        )))
+        ))
       } else {
-        setFloatingScrollbar(_ => None)
+        None
       }
-    | None => setFloatingScrollbar(_ => None)
+      setFloatingScrollbar(prev => prev == next ? prev : next)
+    | None => setFloatingScrollbar(prev => prev == None ? prev : None)
+    }
+  }
+
+  let syncScrollLeft = (~fromEl, ~toEl) => {
+    let target = Webapi.Dom.Element.scrollLeft(fromEl)
+    if Webapi.Dom.Element.scrollLeft(toEl) != target {
+      Webapi.Dom.Element.setScrollLeft(toEl, target)
     }
   }
 
@@ -1068,8 +1076,7 @@ let make = (
       scrollContainerRef.current->Nullable.toOption,
       floatingScrollRef.current->Nullable.toOption,
     ) {
-    | (Some(mainEl), Some(floatingEl)) =>
-      Webapi.Dom.Element.setScrollLeft(mainEl, Webapi.Dom.Element.scrollLeft(floatingEl))
+    | (Some(mainEl), Some(floatingEl)) => syncScrollLeft(~fromEl=floatingEl, ~toEl=mainEl)
     | _ => ()
     }
   }
@@ -1079,15 +1086,31 @@ let make = (
       scrollContainerRef.current->Nullable.toOption,
       floatingScrollRef.current->Nullable.toOption,
     ) {
-    | (Some(mainEl), Some(floatingEl)) =>
-      Webapi.Dom.Element.setScrollLeft(floatingEl, Webapi.Dom.Element.scrollLeft(mainEl))
+    | (Some(mainEl), Some(floatingEl)) => syncScrollLeft(~fromEl=mainEl, ~toEl=floatingEl)
     | _ => ()
     }
   }
 
+  let isFloatingScrollbarVisible = floatingScrollbar->Option.isSome
+  React.useEffect(() => {
+    if isFloatingScrollbarVisible {
+      syncFloatingFromMain()
+    }
+    None
+  }, [isFloatingScrollbarVisible])
+
   React.useEffect(() => {
     if showAutoScroll {
       let handleScrollOrResize = _ => updateFloatingScrollbar()
+      let resizeObserver = DOMUtils.createResizeObserver(_ => updateFloatingScrollbar())
+      scrollContainerRef.current
+      ->Nullable.toOption
+      ->Option.forEach(el => {
+        DOMUtils.observeElement(resizeObserver, el)
+        el
+        ->Webapi.Dom.Element.firstElementChild
+        ->Option.forEach(child => DOMUtils.observeElement(resizeObserver, child))
+      })
       updateFloatingScrollbar()
       Webapi.Dom.Window.addEventListenerWithOptions(
         Webapi.Dom.window,
@@ -1098,6 +1121,7 @@ let make = (
       Webapi.Dom.Window.addEventListener(Webapi.Dom.window, "resize", handleScrollOrResize)
       Some(
         () => {
+          DOMUtils.disconnectObserver(resizeObserver)
           Webapi.Dom.Window.removeEventListenerWithOptions(
             Webapi.Dom.window,
             "scroll",
