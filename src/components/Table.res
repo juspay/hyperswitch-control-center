@@ -1033,6 +1033,85 @@ let make = (
   } else {
     ""
   }
+
+  // Horizontal tables keep their scrollbar at the table's own bottom edge, which falls below
+  // the fold on tall tables and is then unreachable with a mouse. This floats a synced scrollbar
+  // at the bottom of the viewport while the table is tall enough to hide its native one.
+  let scrollContainerRef = React.useRef(Nullable.null)
+  let floatingScrollRef = React.useRef(Nullable.null)
+  let (floatingScrollbar, setFloatingScrollbar) = React.useState(_ => None)
+
+  let updateFloatingScrollbar = () => {
+    switch scrollContainerRef.current->Nullable.toOption {
+    | Some(el) =>
+      let hasOverflow = Webapi.Dom.Element.scrollWidth(el) > Webapi.Dom.Element.clientWidth(el)
+      let rect = el->Webapi.Dom.Element.getBoundingClientRect
+      let viewportHeight = Webapi.Dom.Window.innerHeight(Webapi.Dom.window)->Int.toFloat
+      let nativeScrollbarOutOfView =
+        Webapi.Dom.DomRect.bottom(rect) > viewportHeight &&
+          Webapi.Dom.DomRect.top(rect) < viewportHeight
+      if hasOverflow && nativeScrollbarOutOfView {
+        setFloatingScrollbar(_ => Some((
+          Webapi.Dom.DomRect.left(rect),
+          Webapi.Dom.DomRect.width(rect),
+          Webapi.Dom.Element.scrollWidth(el)->Int.toFloat,
+        )))
+      } else {
+        setFloatingScrollbar(_ => None)
+      }
+    | None => setFloatingScrollbar(_ => None)
+    }
+  }
+
+  let syncMainFromFloating = () => {
+    switch (
+      scrollContainerRef.current->Nullable.toOption,
+      floatingScrollRef.current->Nullable.toOption,
+    ) {
+    | (Some(mainEl), Some(floatingEl)) =>
+      Webapi.Dom.Element.setScrollLeft(mainEl, Webapi.Dom.Element.scrollLeft(floatingEl))
+    | _ => ()
+    }
+  }
+
+  let syncFloatingFromMain = () => {
+    switch (
+      scrollContainerRef.current->Nullable.toOption,
+      floatingScrollRef.current->Nullable.toOption,
+    ) {
+    | (Some(mainEl), Some(floatingEl)) =>
+      Webapi.Dom.Element.setScrollLeft(floatingEl, Webapi.Dom.Element.scrollLeft(mainEl))
+    | _ => ()
+    }
+  }
+
+  React.useEffect(() => {
+    if showAutoScroll {
+      let handleScrollOrResize = _ => updateFloatingScrollbar()
+      updateFloatingScrollbar()
+      Webapi.Dom.Window.addEventListenerWithOptions(
+        Webapi.Dom.window,
+        "scroll",
+        handleScrollOrResize,
+        {"capture": true, "once": false, "passive": true},
+      )
+      Webapi.Dom.Window.addEventListener(Webapi.Dom.window, "resize", handleScrollOrResize)
+      Some(
+        () => {
+          Webapi.Dom.Window.removeEventListenerWithOptions(
+            Webapi.Dom.window,
+            "scroll",
+            handleScrollOrResize,
+            {"capture": true, "passive": true},
+          )
+          Webapi.Dom.Window.removeEventListener(Webapi.Dom.window, "resize", handleScrollOrResize)
+        },
+      )
+    } else {
+      None
+    }
+  }, (showAutoScroll, rows->Array.length))
+
   <div
     className={`flex flex-row items-stretch ${scrollBarClass} loadedTable ${parentMinWidthClass} ${customBorderClass->Option.getOr(
         parentBorderRadius,
@@ -1054,9 +1133,38 @@ let make = (
       <style> {React.string(frozenFirstColumnCss)} </style>
     </RenderIf>
     <div
+      ref={scrollContainerRef->ReactDOM.Ref.domRef}
+      onScroll={_ => {
+        syncFloatingFromMain()
+        updateFloatingScrollbar()
+      }}
       className={`flex-1 ${overflowClass} no-scrollbar rounded-lg ${childMinWidthClass} ${nonFrozenTableParentClass} ${autoscrollcss} ${verticalScroll} `}>
       nonFrozenTable
     </div>
+    <RenderIf condition={showAutoScroll && floatingScrollbar->Option.isSome}>
+      {switch floatingScrollbar {
+      | Some((left, width, scrollWidth)) =>
+        <div
+          ref={floatingScrollRef->ReactDOM.Ref.domRef}
+          onScroll={_ => syncMainFromFloating()}
+          className="fixed bottom-1 z-40 table-scrollbar overflow-x-scroll overflow-y-hidden"
+          style={ReactDOM.Style.make(
+            ~left=`${left->Float.toString}px`,
+            ~width=`${width->Float.toString}px`,
+            ~height="10px",
+            (),
+          )}>
+          <div
+            style={ReactDOM.Style.make(
+              ~width=`${scrollWidth->Float.toString}px`,
+              ~height="1px",
+              (),
+            )}
+          />
+        </div>
+      | None => React.null
+      }}
+    </RenderIf>
     {switch customizeColumnNewTheme {
     | Some(customizeColumnObj) =>
       <RenderIf condition={customizeColumnObj.customizeColumnUi !== React.null}>
