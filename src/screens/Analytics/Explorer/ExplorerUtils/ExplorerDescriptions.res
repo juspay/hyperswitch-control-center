@@ -158,10 +158,7 @@ let dimensionDescription = (source: source, key: dimension) =>
   | (_, #card_network) => "Card scheme, such as Visa or Mastercard."
   | (_, #authentication_type) => "Whether 3DS was requested."
   | (#intent, #status) => "Payment status, such as succeeded, failed or requires payment method."
-  | (
-      #attempt | #refund | #dispute,
-      #status,
-    ) => "Attempt status, such as charged, failure or authentication failed."
+  | (_, #status) => "Attempt status, such as charged, failure or authentication failed."
   | (_, #error_reason) => "Error returned by the connector for a failed attempt."
   | (_, #currency) => "Currency of the payment."
   | (_, #profile_id) => "Business profile it belongs to."
