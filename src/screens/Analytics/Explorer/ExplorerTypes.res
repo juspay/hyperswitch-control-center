@@ -189,6 +189,10 @@ type chartContext = {
   labelFor: (dimension, string) => string,
 }
 
+type summaryLine =
+  | CurrencyLine
+  | SplitLine
+
 type outcomeRow = {
   outcome: string,
   count: float,

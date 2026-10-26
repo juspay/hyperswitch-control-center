@@ -82,25 +82,21 @@ let getAmountSplitLine = (context: chartContext, ~by) => {
   let {selection, dataset} = context
   let {source, measure} = selection
   let (counts, _) = dataset->getMeasureCounts(measure)
-  context
-  ->getGroupsByMeasure
-  ->Array.get(0)
-  ->mapOptionOrDefault("", top => {
-    let value = formatValue(source, measure, top.current, ~currency=dataset.amountCurrency)
-    measure == #avg_ticket
-      ? `By ${by}, ${context->groupLabel(top)} is the highest at ${value}.`
-      : `By ${by}, ${context->groupLabel(top)} is the largest at ${value}, ${calculatePercentage(
-            getMeasureValue(source, measure, top.current),
-            getMeasureValue(source, measure, counts),
-          )->formatPercentage} of the ${isAmount(measure) ? "total amount" : "total"}.`
-  })
+  let top = context->getGroupsByMeasure->getValueFromArray(0, Dict.make()->groupItemToObjMapper)
+  let value = formatValue(source, measure, top.current, ~currency=dataset.amountCurrency)
+  measure == #avg_ticket
+    ? `By ${by}, ${context->groupLabel(top)} is the highest at ${value}.`
+    : `By ${by}, ${context->groupLabel(top)} is the largest at ${value}, ${calculatePercentage(
+          getMeasureValue(source, measure, top.current),
+          getMeasureValue(source, measure, counts),
+        )->formatPercentage} of the ${isAmount(measure) ? "total amount" : "total"}.`
 }
 
 let getSplitLine = (context: chartContext) => {
   let {selection, dataset} = context
   let {source, measure, split} = selection
   let (counts, _) = dataset->getMeasureCounts(measure)
-  if split->isEmptyArray || !measurable(source, measure, counts) {
+  if split->isEmptyArray || dataset.groups->isEmptyArray || !measurable(source, measure, counts) {
     ""
   } else {
     let by =
@@ -108,6 +104,12 @@ let getSplitLine = (context: chartContext) => {
     isRate(measure) ? context->getRateSplitLine(~by) : context->getAmountSplitLine(~by)
   }
 }
+
+let getSummaryLine = (context: chartContext, line) =>
+  switch line {
+  | CurrencyLine => context->getCurrencyLine
+  | SplitLine => context->getSplitLine
+  }
 
 let getOutcomeParts = (context: chartContext): array<StackedBarGraphTypes.dataObj> => {
   let {selection, dataset} = context

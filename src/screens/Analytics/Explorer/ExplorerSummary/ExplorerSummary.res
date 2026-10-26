@@ -14,11 +14,15 @@ let make = (~selection: selection, ~dataset: dataset, ~labelFor) => {
       {context->getHeadline->React.string}
     </div>
     <OutcomeBar context chartKey />
-    {[context->getCurrencyLine, context->getSplitLine]
-    ->Array.filter(isNonEmptyString)
-    ->Array.map(line =>
-      <div key=line className={`${body.md.regular} text-nd_gray-600`}> {line->React.string} </div>
-    )
+    {[CurrencyLine, SplitLine]
+    ->Array.map(line => {
+      let description = context->getSummaryLine(line)
+      <RenderIf condition={description->isNonEmptyString}>
+        <div key=description className={`${body.md.regular} text-nd_gray-600`}>
+          {description->React.string}
+        </div>
+      </RenderIf>
+    })
     ->React.array}
   </div>
 }
