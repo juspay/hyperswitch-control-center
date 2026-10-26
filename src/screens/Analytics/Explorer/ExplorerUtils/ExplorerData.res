@@ -23,6 +23,7 @@ let countsItemToObjMapper = (dict): counts => {
   excluded: dict->getFloat("excluded", 0.0),
   threeDsAttempts: dict->getFloat("threeDsAttempts", 0.0),
   amount: dict->getFloat("amount", 0.0),
+  lostAmount: dict->getFloat("lostAmount", 0.0),
 }
 
 let groupItemToObjMapper = (dict): group => {
