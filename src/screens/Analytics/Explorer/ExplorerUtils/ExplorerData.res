@@ -15,6 +15,22 @@ let emptyCounts = {
   lostAmount: 0.0,
 }
 
+let countsItemToObjMapper = (dict): counts => {
+  total: dict->getFloat("total", 0.0),
+  success: dict->getFloat("success", 0.0),
+  failed: dict->getFloat("failed", 0.0),
+  authFailed: dict->getFloat("authFailed", 0.0),
+  excluded: dict->getFloat("excluded", 0.0),
+  threeDsAttempts: dict->getFloat("threeDsAttempts", 0.0),
+  amount: dict->getFloat("amount", 0.0),
+}
+
+let groupItemToObjMapper = (dict): group => {
+  values: dict->getStrArrayFromDict("values", []),
+  current: dict->getDictfromDict("current")->countsItemToObjMapper,
+  previous: None,
+}
+
 let addCounts = (a, b) => {
   total: a.total +. b.total,
   success: a.success +. b.success,
