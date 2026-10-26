@@ -142,7 +142,7 @@ let viewNote = (selection: selection) => {
   | (#mix, Split) =>
     `Share of each UTC day's volume by group, for the ${topGroupCount->Int.toString} largest groups.`
   | (#mix, Overall) => "Share of each UTC day's volume by outcome."
-  | (#table, Split) => `Sorted by number of ${noun}, highest first.`
+  | (#table, Split) => `Sorted by number of ${noun}, highest first. Click a row to focus on it.`
   | (#table, Overall) => "Outcomes in these dates. Add a split to compare groups."
   }
 }

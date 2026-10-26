@@ -115,18 +115,24 @@ let getCurrenciesBySuccess = (source, rows) =>
 let buildDataset = (selection, responses) => {
   let {source, measure} = selection
   let needsCurrency = selection->needsCurrency
+  let filteredCurrencies = selection->getSelectedFilterValues(#currency)
+  let pickedCurrency =
+    filteredCurrencies->isEmptyArray || filteredCurrencies->Array.includes(selection.currency)
+      ? selection.currency
+      : ""
 
   let amountCurrencies = needsCurrency
     ? getCurrenciesBySuccess(source, responses.currentRows)
       ->Array.concat(getCurrenciesBySuccess(source, responses.previousRows))
-      ->Array.concat([selection.currency])
+      ->Array.concat([pickedCurrency])
       ->Array.filter(isNonEmptyString)
       ->ArrayUtils.getUniqueStrArray
     : []
-  let amountCurrency =
-    selection.currency->isNonEmptyString
-      ? selection.currency
-      : amountCurrencies->getValueFromArray(0, "")
+  let amountCurrency = switch filteredCurrencies {
+  | [currency] => currency
+  | _ =>
+    pickedCurrency->isNonEmptyString ? pickedCurrency : amountCurrencies->getValueFromArray(0, "")
+  }
 
   let isInCurrency = dict => !needsCurrency || dict->getDimensionValue(#currency) == amountCurrency
   let totalOf = (rows, ~keep=_ => true) =>
@@ -171,10 +177,8 @@ let buildDataset = (selection, responses) => {
       ->getOptionValFromDict(key)
       ->Option.map(((_, counts)) => counts),
     })
-  let groups =
-    allGroups
-    ->Array.filter(group => measurable(source, measure, group.current))
     ->Array.toSorted((a, b) => compareLogic(a.current.total, b.current.total))
+  let groups = allGroups->Array.filter(group => measurable(source, measure, group.current))
 
   {
     overall: responses.currentRows->totalOf,
@@ -184,9 +188,7 @@ let buildDataset = (selection, responses) => {
     amountCurrencies,
     amountCurrency,
     groups,
-    topByVolume: allGroups
-    ->Array.toSorted((a, b) => compareLogic(a.current.total, b.current.total))
-    ->Array.slice(~start=0, ~end=topGroupCount),
+    topByVolume: allGroups->Array.slice(~start=0, ~end=topGroupCount),
     topMeasured: groups->Array.slice(~start=0, ~end=topGroupCount),
     unmeasured: isRate(measure)
       ? currentGroups

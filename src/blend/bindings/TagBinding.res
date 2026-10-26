@@ -31,4 +31,5 @@ external make: (
   ~leftSlot: React.element=?,
   ~rightSlot: React.element=?,
   ~showSkeleton: bool=?,
+  ~onClick: ReactEvent.Mouse.t => unit=?,
 ) => React.element = "Tag"
