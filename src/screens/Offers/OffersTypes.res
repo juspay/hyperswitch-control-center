@@ -146,7 +146,6 @@ type offerFormValues = {
   title: string,
   displayTitle: string,
   description: string,
-  sponsoredBy: sponsor,
   language: language,
   startTime: string,
   endTime: string,

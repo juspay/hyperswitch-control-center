@@ -6,17 +6,19 @@ let useFetchExplorerMetrics = () => {
   let getURL = useGetURL()
   let updateDetails = useCancellableUpdateMethod(~showErrorToast=false)
 
-  async (~source, ~body, ~signal) => {
+  async (~source: source, ~body, ~signal) => {
     try {
-      let url = switch source {
-      | Intent =>
-        getURL(~entityName=V1(ANALYTICS_PAYMENTS_V2), ~methodType=Post, ~id=Some("payments"))
-      | Attempt =>
-        getURL(~entityName=V1(ANALYTICS_PAYMENTS), ~methodType=Post, ~id=Some("payments"))
-      | Refund => getURL(~entityName=V1(ANALYTICS_REFUNDS), ~methodType=Post, ~id=Some("refunds"))
-      | Dispute =>
-        getURL(~entityName=V1(ANALYTICS_DISPUTES), ~methodType=Post, ~id=Some("disputes"))
+      let entityName: APIUtilsTypes.entityName = switch source {
+      | #intent => ANALYTICS_PAYMENTS_V2
+      | #attempt => ANALYTICS_PAYMENTS
+      | #refund => ANALYTICS_REFUNDS
+      | #dispute => ANALYTICS_DISPUTES
       }
+      let url = getURL(
+        ~entityName=V1(entityName),
+        ~methodType=Post,
+        ~id=Some((ExplorerCatalog.sourceConfig(source).domain :> string)),
+      )
       let response = await updateDetails(url, body, Post, ~signal)
       response->getDictFromJsonObject->getArrayFromDict("queryData", [])
     } catch {
@@ -31,27 +33,23 @@ let useFetchBackendDimensions = () => {
   let fetchDetails = useGetMethod(~showErrorToast=false)
 
   async (~infoDomain) => {
-    try {
-      let url = getURL(~entityName=V1(ANALYTICS_PAYMENTS), ~methodType=Get, ~id=Some(infoDomain))
-      let response = await fetchDetails(url)
-      response
-      ->getDictFromJsonObject
-      ->getArrayFromDict("dimensions", [])
-      ->Array.map(item => item->getDictFromJsonObject->getString("name", ""))
-      ->Array.filter(isNonEmptyString)
-    } catch {
-    | Exn.Error(e) => Exn.raiseError(Exn.message(e)->Option.getOr("Failed to fetch dimensions"))
-    }
+    let url = getURL(~entityName=V1(ANALYTICS_PAYMENTS), ~methodType=Get, ~id=Some(infoDomain))
+    let response = await fetchDetails(url)
+    response
+    ->getDictFromJsonObject
+    ->getArrayFromDict("dimensions", [])
+    ->Array.map(item => item->getDictFromJsonObject->getString("name", ""))
+    ->Array.filter(isNonEmptyString)
   }
 }
 
 let useFetchFilterValues = () => {
   let getURL = useGetURL()
-  let updateDetails = useUpdateMethod()
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
 
-  async (~question, ~dimension) => {
+  async (~selection, ~dimension) => {
     try {
-      let domain = ExplorerCatalog.sourceConfig(question.source).domain
+      let domain = ExplorerCatalog.sourceConfig(selection.source).domain
       let url = getURL(
         ~entityName=V1(ANALYTICS_FILTERS),
         ~methodType=Post,
@@ -59,7 +57,7 @@ let useFetchFilterValues = () => {
       )
       let response = await updateDetails(
         url,
-        question->ExplorerQuery.getFilterValuesBody(~dimension),
+        selection->ExplorerSelection.getFilterValuesBody(~dimension),
         Post,
       )
       response

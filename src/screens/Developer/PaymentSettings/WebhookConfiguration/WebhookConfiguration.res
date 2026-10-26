@@ -15,7 +15,7 @@ module EventClassSection = {
 }
 
 @react.component
-let make = () => {
+let make = (~allowedApiFields: option<array<string>>=?) => {
   open FormRenderer
 
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -35,7 +35,13 @@ let make = () => {
     try {
       let _ = await Window.connectorWasmInit()
       let configs =
-        Window.getWebhookStatusConfig()->Array.map(WebhookConfigurationUtils.eventClassConfigMapper)
+        Window.getWebhookStatusConfig()
+        ->Array.map(WebhookConfigurationUtils.eventClassConfigMapper)
+        ->Array.filter(config =>
+          allowedApiFields->LogicUtils.mapOptionOrDefault(true, fields =>
+            fields->Array.includes(config.apiField)
+          )
+        )
       setEventClassConfigs(_ => configs)
     } catch {
     | Exn.Error(e) => Js.log2("FAILED TO LOAD WEBHOOK STATUS CONFIG", e)

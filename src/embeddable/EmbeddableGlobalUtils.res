@@ -1,5 +1,4 @@
 open LogicUtils
-
 let getConfigFromDict: Dict.t<JSON.t> => HyperSwitchConfigTypes.baseConfig = dict => {
   {
     apiBaseUrl: dict->getString("api_url", ""),
@@ -24,14 +23,5 @@ let getConfigFromDict: Dict.t<JSON.t> => HyperSwitchConfigTypes.baseConfig = dic
     },
     hypersenseUrl: dict->getString("hypersense_url", ""),
     superpositionConfigs: None,
-  }
-}
-
-let messageToTypeConversion = messageString => {
-  switch messageString->String.toLowerCase {
-  | "auth_token" => EmbeddedTypes.AUTH_TOKEN
-  | "auth_error" => EmbeddedTypes.AUTH_ERROR
-  | "init_config" => EmbeddedTypes.INIT_CONFIG
-  | str => EmbeddedTypes.Unknown(str)
   }
 }
