@@ -15,9 +15,7 @@ let selectionFromFilters = (filterValueJson, ~backendDimensions) => {
   let dimensions = source->getOfferedDimensions(~backendDimensions)
   let flowDimensions: array<dimension> = hasFlows(source) ? [#flow] : []
   let splitOptions =
-    flowDimensions
-    ->Array.filter(_ => flow == #all)
-    ->Array.concat(getSplitDimensions(measure, ~dimensions))
+    (flow == #all ? flowDimensions : [])->Array.concat(getSplitDimensions(measure, ~dimensions))
   let filterOptions = getFilterDimensions(measure, ~dimensions)
   let filters =
     filterValueJson
