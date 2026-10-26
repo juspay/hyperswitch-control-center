@@ -255,7 +255,7 @@ let isLowerBetter = (measure: measure) =>
   | #success_rate | #volume | #successful | #processed_amount | #avg_ticket => false
   }
 
-let statusDimensions = sources->Belt.Array.keepMap(source => sourceConfig(source).statusDimension)
+let statusDimensions = sources->Array.filterMap(source => sourceConfig(source).statusDimension)
 
 let suggestedNext = (source: source, key: option<dimension>): array<dimension> =>
   switch (source, key) {
