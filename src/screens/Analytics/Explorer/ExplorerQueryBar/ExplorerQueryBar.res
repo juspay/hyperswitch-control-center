@@ -15,6 +15,7 @@ let make = (
   ~onUpdate: Dict.t<string> => unit,
   ~editing: option<dimension>,
   ~setEditing,
+  ~children,
 ) => {
   let {source, splitOptions} = selection
   let fetchFilterValues = ExplorerHooks.useFetchFilterValues()
@@ -172,5 +173,6 @@ let make = (
       </span>
       {measureDefinition(source, selection.measure)->React.string}
     </div>
+    children
   </div>
 }
