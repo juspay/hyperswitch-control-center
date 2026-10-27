@@ -230,6 +230,7 @@ let make = (
 ) => {
   let showBorderBottom = borderBottom
   let _ = revealFrom
+  let modalTarget = FullPageModalContext.useModalTarget(~showModal)
 
   let headerTextClass = headerTextClass->getHeaderTextClass
 
@@ -283,18 +284,7 @@ let make = (
 
   let animationClass = showModal->getAnimationClass
 
-  <ModalOverlay
-    showModal
-    handleOverlayClick
-    paddingClass
-    modalHeading
-    modalPosition
-    noBackDrop
-    isBackdropBlurReq
-    alignModal
-    addAttributeId
-    zIndexClass>
-    // <Reveal showReveal=showModal revealFrom>
+  let modalContent =
     <ModalContent
       handleContainerClick
       bgClass
@@ -342,6 +332,25 @@ let make = (
         React.null
       }}
     </ModalContent>
-    // </Reveal>
-  </ModalOverlay>
+
+  let modalWithOverlay =
+    <ModalOverlay
+      showModal
+      handleOverlayClick
+      paddingClass
+      modalHeading
+      modalPosition
+      noBackDrop
+      isBackdropBlurReq
+      alignModal
+      addAttributeId
+      zIndexClass>
+      modalContent
+    </ModalOverlay>
+
+  switch modalTarget {
+  | Inline => modalWithOverlay
+  | Waiting => React.null
+  | Portal(root) => ReactDOM.createPortal(modalWithOverlay, root)
+  }
 }

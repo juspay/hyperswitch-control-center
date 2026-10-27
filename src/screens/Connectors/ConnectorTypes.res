@@ -1,5 +1,11 @@
 type steps =
-  IntegFields | PaymentMethods | CustomMetadata | SummaryAndTest | Preview | AutomaticFlow
+  | IntegFields
+  | PaymentMethods
+  | CustomMetadata
+  | SummaryAndTest
+  | Preview
+  | AutomaticFlow
+  | WebhookRegistration
 type connectorIntegrationField = {
   placeholder?: string,
   label?: string,
@@ -197,7 +203,7 @@ type pmAuthenticationProcessorTypes = PLAID
 
 type taxProcessorTypes = TAXJAR
 
-type billingProcessorTypes = CHARGEBEE | STRIPE_BILLING | CUSTOMBILLING
+type billingProcessorTypes = CHARGEBEE | STRIPE_BILLING | RECURLY | CUSTOMBILLING
 
 type vaultProcessorTypes = VGS
 
