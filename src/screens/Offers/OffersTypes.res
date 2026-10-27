@@ -163,3 +163,9 @@ type offerFormValues = {
 }
 
 type offerFormRule = (string, offerFormValues => option<string>)
+
+type demoFeature = {
+  icon: string,
+  heading: string,
+  description: string,
+}
