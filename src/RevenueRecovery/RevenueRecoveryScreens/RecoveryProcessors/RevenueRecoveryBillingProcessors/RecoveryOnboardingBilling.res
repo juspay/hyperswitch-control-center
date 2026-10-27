@@ -63,6 +63,10 @@ let make = (
         [
           ("billing_connector_retry_threshold", 0->JSON.Encode.int),
           ("max_retry_count", 0->JSON.Encode.int),
+          (
+            "grace_period_days",
+            RevenueRecoveryOnboardingUtils.defaultGracePeriodDays->JSON.Encode.int,
+          ),
           ("billing_account_reference", billingAccountReference->JSON.Encode.object),
         ]->Dict.fromArray
 
@@ -123,7 +127,10 @@ let make = (
   let connectorDetails = React.useMemo(() => {
     try {
       if connector->isNonEmptyString {
-        let dict = BillingProcessorsUtils.getConnectorConfig(connector)
+        let dict = BillingProcessorsUtils.getConnectorConfig(
+          connector,
+          ~wasmConfig=Window.getBillingConnectorConfig(connector->LogicUtils.capitalizeString),
+        )
         dict
       } else {
         Dict.make()->JSON.Encode.object
@@ -156,34 +163,37 @@ let make = (
 
     if currentStep->getSectionVariant == (#addAPlatform, #processorSetUp) {
       let billing_connector_retry_threshold =
-        revenue_recovery->getInt("billing_connector_retry_threshold", 0)
+        revenue_recovery->getOptionInt("billing_connector_retry_threshold")
       let max_retry_count = revenue_recovery->getInt("max_retry_count", 0)
+      let grace_period_days = revenue_recovery->getInt("grace_period_days", 0)
 
-      if billing_connector_retry_threshold === 0 {
+      if grace_period_days <= 0 {
+        Dict.set(errors, "grace_period_days", `Please enter grace period`->JSON.Encode.string)
+      }
+
+      switch billing_connector_retry_threshold {
+      | None =>
         Dict.set(
           errors,
           "billing_connector_retry_threshold",
           `Please enter start retry count`->JSON.Encode.string,
         )
-      } else if billing_connector_retry_threshold > 15 {
+      | Some(value) if value > 15 =>
         Dict.set(
           errors,
           "billing_connector_retry_threshold",
-          `Start retry count should be less than 15`->JSON.Encode.string,
+          `Start retry count cannot be more than 15`->JSON.Encode.string,
         )
+      | Some(_) => ()
       }
 
       if max_retry_count === 0 {
-        Dict.set(
-          errors,
-          "max_retry_count",
-          `Please enter max retry count count`->JSON.Encode.string,
-        )
+        Dict.set(errors, "max_retry_count", `Please enter max retry count`->JSON.Encode.string)
       } else if max_retry_count > 15 {
         Dict.set(
           errors,
           "max_retry_count",
-          `Max retry count count should be less than 15`->JSON.Encode.string,
+          `Max retry count cannot be more than 15`->JSON.Encode.string,
         )
       }
     }
@@ -254,6 +264,7 @@ let make = (
           updatedInitialVal
           connectorInfoDict
           screenState
+          isCustomBilling={connectorTypeFromName == BillingProcessor(CUSTOMBILLING)}
         />
       | (#addAPlatform, #processorSetUp) =>
         <BillingProcessorsSetUp

@@ -87,7 +87,10 @@ let useUserGroupACLHook = () => {
 
   let userHasResourceAccess = (~resourceAccess) => {
     if isEmbeddableSession() {
-      Access
+      switch (resourceAccess: UserManagementTypes.resourceAccessType) {
+      | Analytics => NoAccess
+      | _ => Access
+      }
     } else {
       switch userGroupACL {
       | Some(groupACLValue) =>
