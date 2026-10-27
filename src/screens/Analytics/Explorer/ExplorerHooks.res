@@ -8,12 +8,17 @@ let useFetchExplorerMetrics = () => {
 
   async (~source: source, ~body, ~signal) => {
     try {
-      let url = switch source {
-      | #intent =>
-        getURL(~entityName=V1(ANALYTICS_PAYMENTS_V2), ~methodType=Post, ~id=Some("payments"))
-      | #attempt =>
-        getURL(~entityName=V1(ANALYTICS_PAYMENTS), ~methodType=Post, ~id=Some("payments"))
+      let entityName: APIUtilsTypes.entityName = switch source {
+      | #intent => ANALYTICS_PAYMENTS_V2
+      | #attempt => ANALYTICS_PAYMENTS
+      | #refund => ANALYTICS_REFUNDS
+      | #dispute => ANALYTICS_DISPUTES
       }
+      let url = getURL(
+        ~entityName=V1(entityName),
+        ~methodType=Post,
+        ~id=Some((ExplorerCatalog.sourceConfig(source).domain :> string)),
+      )
       let response = await updateDetails(url, body, Post, ~signal)
       response->getDictFromJsonObject->getArrayFromDict("queryData", [])
     } catch {
@@ -44,7 +49,12 @@ let useFetchFilterValues = () => {
 
   async (~selection, ~dimension) => {
     try {
-      let url = getURL(~entityName=V1(ANALYTICS_FILTERS), ~methodType=Post, ~id=Some("payments"))
+      let domain = ExplorerCatalog.sourceConfig(selection.source).domain
+      let url = getURL(
+        ~entityName=V1(ANALYTICS_FILTERS),
+        ~methodType=Post,
+        ~id=Some((domain :> string)),
+      )
       let response = await updateDetails(
         url,
         selection->ExplorerSelection.getFilterValuesBody(~dimension),
