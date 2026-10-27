@@ -90,9 +90,9 @@ let getRowCounts = (source: source, dict) => {
       excluded: countIf(Excluded),
       authFailed: isThreeDs ? countIf(AuthFailed) : 0.0,
       threeDsAttempts: isThreeDs ? records : 0.0,
-      amount: config.amountMetrics->Array.reduce(0.0, (acc, metric) =>
-        acc +. dict->getFloat((metric :> string), 0.0)
-      ),
+      amount: config.amountMetrics
+      ->Array.map(metric => dict->getFloat((metric :> string), 0.0))
+      ->getValueFromArray(0, 0.0),
     }
   }
 }
