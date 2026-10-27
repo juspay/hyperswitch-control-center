@@ -23,6 +23,7 @@ type layout = {
   width: float,
   thumbLeft: float,
   thumbWidth: float,
+  progress: float,
 }
 
 @send external getRect: Dom.element => rect = "getBoundingClientRect"
@@ -110,6 +111,7 @@ let make = (~containerRef: React.ref<Nullable.t<Dom.element>>) => {
         width,
         thumbLeft: (width -. thumbWidth) *. progress,
         thumbWidth,
+        progress,
       })
     } else {
       None
@@ -249,8 +251,13 @@ let make = (~containerRef: React.ref<Nullable.t<Dom.element>>) => {
         role="scrollbar"
         ariaLabel="Scroll table horizontally"
         ariaOrientation=#horizontal
+        ariaValuemin=0.
+        ariaValuemax=100.
+        ariaValuenow={layout.progress *. 100.}
         tabIndex=0
-        className="fixed z-20 select-none cursor-pointer outline-none"
+        // Only the thumb takes pointer input, so the track never swallows clicks on the
+        // table row underneath it.
+        className="fixed z-20 select-none outline-none pointer-events-none"
         style={
           left: `${layout.left->Float.toString}px`,
           top: `${layout.top->Float.toString}px`,
@@ -266,19 +273,16 @@ let make = (~containerRef: React.ref<Nullable.t<Dom.element>>) => {
           | "ArrowRight" =>
             event->ReactEvent.Keyboard.preventDefault
             scrollBy(80.)
+          | "Home" =>
+            event->ReactEvent.Keyboard.preventDefault
+            scrollTo(~progress=0.)
+          | "End" =>
+            event->ReactEvent.Keyboard.preventDefault
+            scrollTo(~progress=1.)
           | _ => ()
-          }}
-        // Clicking the track jumps to that position, like a native scrollbar.
-        onPointerDown={event => {
-          let pointerX = event->ReactEvent.Pointer.clientX->Int.toFloat
-          let offset = pointerX -. layout.left
-          if offset < layout.thumbLeft || offset > layout.thumbLeft +. layout.thumbWidth {
-            let travel = layout.width -. layout.thumbWidth
-            scrollTo(~progress=travel > 0. ? (offset -. layout.thumbWidth /. 2.) /. travel : 0.)
-          }
-        }}>
+          }}>
         <div
-          className={`absolute rounded-full transition-opacity ${thumbOpacity}`}
+          className={`absolute rounded-full cursor-pointer pointer-events-auto transition-opacity ${thumbOpacity}`}
           style={
             left: `${layout.thumbLeft->Float.toString}px`,
             top: `${((barHeight -. thumbHeight) /. 2.)->Float.toString}px`,
@@ -286,11 +290,12 @@ let make = (~containerRef: React.ref<Nullable.t<Dom.element>>) => {
             height: `${thumbHeight->Float.toString}px`,
             backgroundColor: thumbColor,
           }
-          onPointerDown={event => {
-            event->ReactEvent.Pointer.preventDefault
-            event->ReactEvent.Pointer.stopPropagation
-            startDrag(~pointerX=event->ReactEvent.Pointer.clientX->Int.toFloat, ~layout)
-          }}
+          onPointerDown={event =>
+            // Primary button only, so a right-click doesn't start a drag.
+            if event->ReactEvent.Pointer.button === 0 {
+              event->ReactEvent.Pointer.preventDefault
+              startDrag(~pointerX=event->ReactEvent.Pointer.clientX->Int.toFloat, ~layout)
+            }}
         />
       </div>,
       body,
