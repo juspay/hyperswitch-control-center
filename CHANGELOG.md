@@ -3,6 +3,37 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.10.27.0
+
+### Features
+
+- **analytics:**
+  - Add explorer chart views ([#5643](https://github.com/juspay/hyperswitch-control-center/pull/5643)) ([`75ba7c1`](https://github.com/juspay/hyperswitch-control-center/commit/75ba7c1e7b99a1b35d30b43c4df7809dead8253d))
+  - Add explorer filters and drill-down ([#5645](https://github.com/juspay/hyperswitch-control-center/pull/5645)) ([`239b6e3`](https://github.com/juspay/hyperswitch-control-center/commit/239b6e32f523ea5094d196a3445ba5140428de5b))
+  - Add explorer summary ([#5647](https://github.com/juspay/hyperswitch-control-center/pull/5647)) ([`fcecd0b`](https://github.com/juspay/hyperswitch-control-center/commit/fcecd0be6fdaf99331a0d62d21a7e69114eee309))
+  - Add refunds and disputes to explorer ([#5649](https://github.com/juspay/hyperswitch-control-center/pull/5649)) ([`ea6f564`](https://github.com/juspay/hyperswitch-control-center/commit/ea6f5644318b729dc8b3227e396615b5a7ee0d2a))
+- **auth:** Show disabled sign up link behind signup_disabled flag ([#5759](https://github.com/juspay/hyperswitch-control-center/pull/5759)) ([`b69c23b`](https://github.com/juspay/hyperswitch-control-center/commit/b69c23b8d55b86260a50cfba13f3c2dea233fba7))
+
+**Full Changelog:** [`2026.10.22.1...2026.10.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.22.1...2026.10.27.0)
+
+- - -
+
+## 2026.10.22.1
+
+### Features
+
+- **recovery:**
+  - Editable grace period, hard decline retries, webhook details fixes ([#5712](https://github.com/juspay/hyperswitch-control-center/pull/5712)) ([`df88949`](https://github.com/juspay/hyperswitch-control-center/commit/df8894976226e9da73201ff884269371c3d958c1))
+  - Add search, status filters and merchant/profile views to the invoices list ([#5696](https://github.com/juspay/hyperswitch-control-center/pull/5696)) ([`6a44dba`](https://github.com/juspay/hyperswitch-control-center/commit/6a44dba166863905bd629ba36e77950228268f53))
+
+### Testing
+
+- Run routing specs on every env and add Playwright e2e coverage ([#5710](https://github.com/juspay/hyperswitch-control-center/pull/5710)) ([`9fda60d`](https://github.com/juspay/hyperswitch-control-center/commit/9fda60db03813590d40f5a3f6d553c818c74ab9b))
+
+**Full Changelog:** [`2026.10.22.0...2026.10.22.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.22.0...2026.10.22.1)
+
+- - -
+
 ## 2026.10.22.0
 
 ### Features

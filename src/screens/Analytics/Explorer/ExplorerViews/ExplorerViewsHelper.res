@@ -1,11 +1,14 @@
 open Typography
+open LogicUtils
 open ExplorerTypes
+open ExplorerCatalog
+open ExplorerDescriptions
 open ExplorerViewsUtils
 open InsightsHelper
 
 module ViewTable = {
   @react.component
-  let make = (~title, ~rows, ~entity, ~visibleColumns) => {
+  let make = (~title, ~rows, ~entity, ~visibleColumns, ~onEntityClick=?) => {
     let (offset, setOffset) = React.useState(_ => 0)
     let defaultSort: Table.sortedObject = {key: "", order: Table.INC}
     <LoadedTable
@@ -26,6 +29,7 @@ module ViewTable = {
       ignoreHeaderBg=true
       tableDataBorderClass=tableBorderClass
       isAnalyticsModule=true
+      ?onEntityClick
     />
   }
 }
@@ -35,5 +39,37 @@ module UnmeasuredNote = {
   let make = (~selection: selection, ~dataset: dataset, ~labelFor) =>
     <div className={`px-5 pb-4 ${body.sm.regular} text-nd_gray-500`}>
       {getUnmeasuredNote(selection, dataset, ~labelFor)->React.string}
+    </div>
+}
+
+module ViewTabs = {
+  @react.component
+  let make = (~view: view, ~onViewChange) =>
+    <ExplorerHelper.TabList
+      value={(view :> string)}
+      items={views->Array.map(view => ((view :> string), (view :> string)->capitalizeString))}
+      onChange=onViewChange
+      variant=Floating
+      size=Md
+    />
+}
+
+module SplitSuggestions = {
+  @react.component
+  let make = (~suggestions: array<dimension>, ~onSelect) =>
+    <div
+      className={`flex flex-wrap items-center gap-2 border-t border-nd_br_gray-150 px-5 py-3 ${body.md.regular}`}>
+      <span className="text-nd_gray-500"> {"Break down by"->React.string} </span>
+      {suggestions
+      ->Array.map(key =>
+        <Button
+          key={(key :> string)}
+          text={dimensionLabel(key)}
+          buttonType=Secondary
+          buttonSize=XSmall
+          onClick={_ => onSelect(key)}
+        />
+      )
+      ->React.array}
     </div>
 }
