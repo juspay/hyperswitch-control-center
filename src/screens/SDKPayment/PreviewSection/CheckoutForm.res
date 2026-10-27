@@ -57,17 +57,19 @@ let make = () => {
   let handlePaymentElementChange = event => {
     let eventDict = event->getDictFromJsonObject
     let payload = eventDict->getDictfromDict("payload")
-    switch eventDict->getString("eventName", "") {
-    | "surchargeInfo" =>
+    switch eventDict
+    ->getString("eventName", "")
+    ->SDKPaymentUtils.getPaymentElementEventFromString {
+    | SurchargeInfo =>
       setDisplaySurchargeAmount(_ => payload->getFloat("displayTotalSurchargeAmount", 0.0))
-    | "appliedOffersInfo" =>
+    | AppliedOffersInfo =>
       setOfferAmountMinor(_ =>
         SDKPaymentUtils.getAppliedOffersAmount(
           ~offers=payload->getArrayFromDict("offers", []),
           ~currency,
         )
       )
-    | _ => ()
+    | UnknownEvent => ()
     }
   }
 

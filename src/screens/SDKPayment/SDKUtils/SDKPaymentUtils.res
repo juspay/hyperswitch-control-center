@@ -306,6 +306,13 @@ let dropDownOptionsForShowSavedCard = showSavedCardOptions->Array.map((
   value: item->String.toLowerCase,
 })
 
+let getPaymentElementEventFromString = (eventName): SDKPaymentTypes.paymentElementEvent =>
+  switch eventName {
+  | "surchargeInfo" => SurchargeInfo
+  | "appliedOffersInfo" => AppliedOffersInfo
+  | _ => UnknownEvent
+  }
+
 let getAppliedOffersAmount = (~offers, ~currency) => {
   open LogicUtils
   offers->Array.reduce(0.0, (total, offer) => {
