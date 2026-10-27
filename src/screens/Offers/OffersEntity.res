@@ -116,6 +116,10 @@ let getOfferDetailsHeading = (colType: offerDetailsColType) =>
     Table.makeHeaderInfo(~key="max_order_amount", ~title="Maximum Transaction Amount")
   | CampaignAmount => Table.makeHeaderInfo(~key="campaign_amount", ~title="Offer Campaign Amount")
   | CampaignCount => Table.makeHeaderInfo(~key="campaign_count", ~title="Offer Campaign Count")
+  | RemainingCampaignBudget =>
+    Table.makeHeaderInfo(~key="campaign_budget", ~title="Remaining Campaign Budget")
+  | UnusedCampaignBudget =>
+    Table.makeHeaderInfo(~key="campaign_budget", ~title="Unused Campaign Budget")
   }
 
 let getOfferDetailsCell = (detail: offerDetail, colType: offerDetailsColType): Table.cell =>
@@ -143,6 +147,7 @@ let getOfferDetailsCell = (detail: offerDetail, colType: offerDetailsColType): T
   | MaxTxnAmount => Text(detail->currencyRangeLabel(~getAmount=currency => currency.maxOrderAmount))
   | CampaignAmount => Text(detail->optionalAmountLabel(detail.campaignAmount))
   | CampaignCount => Text(detail.campaignCount->optionalCountLabel)
+  | RemainingCampaignBudget | UnusedCampaignBudget => Text(detail->remainingCampaignBudgetLabel)
   }
 
 let getPaymentDetailsHeading = (colType: paymentDetailsColType) =>
@@ -174,7 +179,7 @@ let getPaymentDetailsCell = (detail: offerDetail, colType: paymentDetailsColType
     )
   }
 
-let offerDetailsFields = [
+let offerDetailsFields = (detail: offerDetail) => [
   Code,
   Id,
   OfferTitle,
@@ -192,6 +197,7 @@ let offerDetailsFields = [
   MaxTxnAmount,
   CampaignAmount,
   CampaignCount,
+  detail.offer.status === Expired ? UnusedCampaignBudget : RemainingCampaignBudget,
 ]
 
 let paymentDetailsFields = [AmountPerCard, CountPerCard, BinList, BinListType]

@@ -109,7 +109,6 @@ type binListMode =
   | @as("Whitelist") Whitelist
   | @as("Blacklist") Blacklist
 
-@unboxed
 type resetPeriodUnit =
   | @as("offerPeriod") OfferPeriod
   | @as("hour") Hour
@@ -130,6 +129,7 @@ type offerDetail = {
   currencies: array<currencyConstraint>,
   campaignAmount: option<float>,
   campaignCount: option<int>,
+  campaignBudgetUsed: option<float>,
   amountPerCard: option<float>,
   countPerCard: option<int>,
   cardResetPeriod: option<resetPeriod>,
@@ -154,6 +154,8 @@ type offerDetailsColType =
   | MaxTxnAmount
   | CampaignAmount
   | CampaignCount
+  | RemainingCampaignBudget
+  | UnusedCampaignBudget
 
 type paymentDetailsColType =
   | AmountPerCard

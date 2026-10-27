@@ -152,16 +152,12 @@ let getCounterAmount = (dict, ~scope) =>
 let getCounterCount = (dict, ~scope) =>
   dict->getCounter(~scope, ~valueType=CountLimit)->Option.flatMap(getOptionInt(_, "value"))
 
+let allResetPeriodUnits = [OfferPeriod, Hour, Day, Week, Month, CalendarDay, CalendarMonth]
+
 let resetPeriodUnitFromString = unit =>
-  switch unit {
-  | "hour" => Hour
-  | "day" => Day
-  | "week" => Week
-  | "month" => Month
-  | "CALENDAR_DAY" => CalendarDay
-  | "CALENDAR_MONTH" => CalendarMonth
-  | _ => OfferPeriod
-  }
+  allResetPeriodUnits
+  ->Array.find(resetPeriodUnit => (resetPeriodUnit :> string) == unit)
+  ->Option.getOr(OfferPeriod)
 
 let getCardResetPeriod = dict => {
   let metadataDict = dict->getDictfromDict("metadata")
@@ -195,12 +191,24 @@ let getBinListMode = dict => {
   }
 }
 
+let getCampaignBudgetUsed = dict =>
+  dict
+  ->getArrayFromDict("counter_info", [])
+  ->Array.map(getDictFromJsonObject)
+  ->Array.find(counterDict => counterDict->getString("name", "") == "Budget")
+  ->Option.flatMap(counterDict =>
+    counterDict->getString("error_message", "")->isNonEmptyString
+      ? None
+      : counterDict->getOptionFloat("value")
+  )
+
 let detailItemToObjMapper = dict => {
   offer: dict->itemToObjMapper,
   language: dict->getString("language", "")->languageFromString,
   currencies: dict->getCurrencies,
   campaignAmount: dict->getCounterAmount(~scope=Campaign),
   campaignCount: dict->getCounterCount(~scope=Campaign),
+  campaignBudgetUsed: dict->getCampaignBudgetUsed,
   amountPerCard: dict->getCounterAmount(~scope=PerCard),
   countPerCard: dict->getCounterCount(~scope=PerCard),
   cardResetPeriod: dict->getCardResetPeriod,
@@ -272,13 +280,11 @@ let buildBinListBody = offerId =>
     ("offer_id", offerId->JSON.Encode.string),
   ]->getJsonFromArrayOfJson
 
-let binListRowPattern = %re("/^\d+$/")
-
 let parseBinListCsv = content =>
   content
   ->String.split("\n")
   ->Array.map(String.trim)
-  ->Array.filter(row => binListRowPattern->RegExp.test(row))
+  ->Array.filter(row => %re("/^\d+$/")->RegExp.test(row))
 
 let binListCsvContent = bins => [cardBinFilterType]->Array.concat(bins)->Array.joinWith("\n")
 
@@ -353,12 +359,9 @@ let optionalCountLabel = count => count->mapOptionOrDefault(emptyValuePlaceholde
 let resetPeriodUnitToDisplayName = unit =>
   switch unit {
   | OfferPeriod => "offer period"
-  | Hour => "hour"
-  | Day => "day"
-  | Week => "week"
-  | Month => "month"
   | CalendarDay => "calendar day"
   | CalendarMonth => "calendar month"
+  | Hour | Day | Week | Month => (unit :> string)
   }
 
 let resetPeriodLabel = ({unit, value}: resetPeriod) =>
@@ -383,6 +386,13 @@ let offerAmountLabel = (detail: offerDetail) =>
 
 let maxDiscountAmountLabel = (detail: offerDetail) =>
   detail->optionalAmountLabel(detail.offer.benefit->Option.flatMap(benefit => benefit.maxAmount))
+
+let remainingCampaignBudgetLabel = (detail: offerDetail) =>
+  switch (detail.campaignAmount, detail.campaignBudgetUsed) {
+  | (None, _) => "Not configured"
+  | (Some(limit), Some(used)) => detail->optionalAmountLabel(Some(Math.max(limit -. used, 0.0)))
+  | _ => "Unavailable"
+  }
 
 let binListModeToDisplayName = (binListMode: OffersTypes.binListMode) => (binListMode :> string)
 

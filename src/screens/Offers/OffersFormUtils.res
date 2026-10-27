@@ -1,3 +1,4 @@
+open CurrencyUtils
 open LogicUtils
 open OffersTypes
 open OffersUtils
@@ -16,12 +17,10 @@ let calculationRuleOptions: array<SelectBox.dropdownOption> = [
 ]
 
 let currencyOptions =
-  CurrencyUtils.currencyList
-  ->Array.map(CurrencyUtils.getCurrencyCodeStringFromVariant)
-  ->Array.filter(code => code->CurrencyUtils.getCurrencyTypeFromString == TwoDecimal)
+  currencyList
+  ->Array.map(getCurrencyCodeStringFromVariant)
+  ->Array.filter(code => code->getCurrencyTypeFromString == TwoDecimal)
   ->Array.map((code): SelectBox.dropdownOption => {label: code, value: code})
-
-let allResetPeriodUnits = [OfferPeriod, Hour, Day, Week, Month, CalendarDay, CalendarMonth]
 
 let resetPeriodUnitToOptionLabel = unit =>
   switch unit {

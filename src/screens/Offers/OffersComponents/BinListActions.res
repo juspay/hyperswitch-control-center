@@ -1,3 +1,4 @@
+open LogicUtils
 open OffersHooks
 open OffersUtils
 open Typography
@@ -33,11 +34,9 @@ let make = (~offerId, ~offerCode) => {
     }
   }
 
-  let viewBins = _ => withBins(_ => setShowModal(_ => true))->ignore
-
   let downloadBins = _ =>
     withBins(loadedBins =>
-      if loadedBins->LogicUtils.isEmptyArray {
+      if loadedBins->isEmptyArray {
         showToast(~message=noBinsMessage, ~toastType=ToastError)
       } else {
         DownloadUtils.download(
@@ -57,7 +56,7 @@ let make = (~offerId, ~offerCode) => {
       buttonType=Secondary
       buttonSize=Small
       buttonState={isLoading ? Disabled : Normal}
-      onClick=viewBins
+      onClick={_ => withBins(_ => setShowModal(_ => true))->ignore}
     />
     <Button
       text="Download"
@@ -85,11 +84,11 @@ let make = (~offerId, ~offerCode) => {
         />
         <div
           className="border border-nd_gray-150 rounded-xl bg-nd_gray-25 p-4 h-80 overflow-y-auto">
-          <RenderIf condition={visibleBins->LogicUtils.isEmptyArray}>
+          <RenderIf condition={visibleBins->isEmptyArray}>
             <div
               className={`flex items-center justify-center h-full text-nd_gray-500 ${body.md.regular}`}>
               {(
-                loadedBins->LogicUtils.isEmptyArray ? noBinsMessage : "No BINs match your search"
+                loadedBins->isEmptyArray ? noBinsMessage : "No BINs match your search"
               )->React.string}
             </div>
           </RenderIf>
