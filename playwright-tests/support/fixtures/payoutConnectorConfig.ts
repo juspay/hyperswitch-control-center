@@ -242,6 +242,27 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
     },
   },
 
+  mifinity: {
+    label: "mifinity",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "mifinity_default",
+      },
+      fieldLabels: ["key *"],
+    },
+    paymentSections: {
+      Wallet: {
+        label: "Wallet",
+        methods: ["mifinity"],
+      },
+      BankTransfer: {
+        label: "Bank Transfer",
+        methods: ["sepa_bank_transfer"],
+      },
+    },
+  },
+
   nomupay: {
     label: "nomupay",
     fields: {
