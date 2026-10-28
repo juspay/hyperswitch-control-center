@@ -60,7 +60,10 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
       setScreenState(_ => Loading)
       let obj: ConnectorTypes.wasmRequest = {
         connector,
-        payment_methods_enabled: paymentMethodsEnabled,
+        payment_methods_enabled: paymentMethodsEnabled->PaymentMethod.removeInapplicablePayViaSingleUseToken(
+          ~connector,
+          ~formValues=values,
+        ),
       }
       let body = constructConnectorRequestBody(obj, values)
       if connector->getConnectorNameTypeFromString == Processors(PAYSAFE) {

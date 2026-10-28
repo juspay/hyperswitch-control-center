@@ -1686,6 +1686,7 @@ let itemProviderMapper: dict<JSON.t> => ConnectorTypes.paymentMethodConfigType =
     installment_payment_enabled: dict->getOptionBool("installment_payment_enabled"),
     payment_experience: dict->getOptionString("payment_experience"),
     card_networks: dict->getStrArrayFromDict("card_networks", []),
+    pay_via_single_use_token: ?dict->getOptionString("pay_via_single_use_token"),
   }
 }
 
@@ -1739,6 +1740,7 @@ let configKeysToIgnore = [
   "additional_merchant_data",
   "connector_wallets_details",
   "connector_webhook_register_details",
+  "pay_via_single_use_token",
 ]
 
 let verifyConnectorIgnoreField = [

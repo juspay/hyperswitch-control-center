@@ -299,6 +299,12 @@ let getGooglePayIntegrationTypeFromName = (name: string) => {
   }
 }
 
+let isGooglePayDecryptFlow = connectorWalletsDetails =>
+  connectorWalletsDetails
+  ->getIntegrationTypeFromConnectorWalletDetailsGooglePay
+  ->getGooglePayIntegrationTypeFromName
+  ->isDirectFlow
+
 let decryptionKeyOptions: array<SelectBox.dropdownOption> = [
   {label: "Provide custom certificates", value: "DIRECT"},
   {label: "Use Hyperswitch managed certificates", value: "INTERNAL_GATEWAY"},

@@ -282,6 +282,15 @@ let validatePaymentProcessingDetailsAt = data => {
   )
 }
 
+let isApplePayDecryptFlow = metadata => {
+  let applePayCombined = metadata->getDictfromDict("apple_pay_combined")
+
+  applePayCombined->getOptionObj((#simplified: applePayIntegrationType :> string))->Option.isSome ||
+    (applePayCombined->sessionToken).payment_processing_details_at->Option.mapOr(false, value =>
+      value->paymentProcessingMapper == #Hyperswitch
+    )
+}
+
 let usesLinkHierarchicalResource = metadata => {
   let data = metadata->getDictFromJsonObject->getDictfromDict("apple_pay_combined")->sessionToken
 
