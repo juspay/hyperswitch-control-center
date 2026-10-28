@@ -9,12 +9,16 @@ open ExplorerViewsHelper
 open NewAnalyticsHelper
 
 @react.component
-let make = (~selection: selection, ~dataset: dataset, ~onUpdate: Dict.t<string> => unit) => {
-  let profileList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.profileListAtom)
-  let labelFor = (key, value) => getDimensionValueLabel(key, value, ~profileList)
+let make = (
+  ~selection: selection,
+  ~dataset: dataset,
+  ~labelFor,
+  ~onUpdate: Dict.t<string> => unit,
+) => {
   let grouping = selection.split->getGrouping
   let title = selection->viewTitle(~currency=dataset.amountCurrency)
   let setView = view => [(#view, view)]->selectionUpdate->onUpdate
+  let suggestions = selection->getSplitSuggestions
 
   <div className="rounded-xl border border-nd_br_gray-200 bg-nd_gray-0">
     <div
@@ -42,6 +46,8 @@ let make = (~selection: selection, ~dataset: dataset, ~onUpdate: Dict.t<string> 
           rows={getGroupRows(selection, dataset, ~labelFor)}
           entity={selection->getGroupTableEntity(~currency=dataset.amountCurrency)}
           visibleColumns={selection->getGroupColumns}
+          onEntityClick={(row: groupRow) =>
+            selection->getFocusUpdate(row.group)->Option.forEach(onUpdate)}
         />
       | (#table, Overall) =>
         <ViewTable
@@ -55,6 +61,11 @@ let make = (~selection: selection, ~dataset: dataset, ~onUpdate: Dict.t<string> 
     </div>
     <RenderIf condition={grouping == Split && dataset.unmeasured->isNonEmptyArray}>
       <UnmeasuredNote selection dataset labelFor />
+    </RenderIf>
+    <RenderIf condition={suggestions->isNonEmptyArray}>
+      <SplitSuggestions
+        suggestions onSelect={key => selection->getSuggestionUpdate(key)->onUpdate}
+      />
     </RenderIf>
   </div>
 }

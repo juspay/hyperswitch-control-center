@@ -1,4 +1,6 @@
-type source = [#intent | #attempt]
+type domain = [#payments | #refunds | #disputes]
+
+type source = [#intent | #attempt | #refund | #dispute]
 
 type measure = [
   | #success_rate
@@ -10,9 +12,10 @@ type measure = [
   | #not_completed_rate
   | #processed_amount
   | #avg_ticket
+  | #lost_amount
 ]
 
-type selectionKey = [#source | #measure | #currency | #split | #view]
+type selectionKey = [#source | #measure | #currency | #split | #view | #from]
 
 type view = [#trend | #breakdown | #mix | #table]
 
@@ -26,7 +29,12 @@ type changeImpact =
 type metric = [
   | #payment_intent_count
   | #payment_count
+  | #refund_count
+  | #dispute_status_metric
   | #payment_processed_amount
+  | #refund_processed_amount
+  | #total_amount_disputed
+  | #total_dispute_lost_amount
 ]
 
 type dimension = [
@@ -42,6 +50,11 @@ type dimension = [
   | #routing_approach
   | #client_source
   | #client_version
+  | #refund_status
+  | #refund_type
+  | #refund_reason
+  | #refund_error_message
+  | #dispute_stage
 ]
 
 type authenticationType = [#three_ds | #no_three_ds]
@@ -98,6 +111,8 @@ type attemptStatus = [
   | #capture_review
 ]
 
+type refundStatus = [#success | #failure | #transaction_failure | #pending | #manual_review]
+
 type countField =
   | Total
   | Success
@@ -109,17 +124,24 @@ type countField =
 type denominator =
   | AllRecords
   | EligibleRecords
+  | DecidedRecords
   | ThreeDsAttempts
+
+type amountField =
+  | Processed
+  | Lost
 
 type formula =
   | Rate(countField, denominator)
   | Count(countField)
-  | TotalAmount
+  | TotalAmount(amountField)
   | AmountPerSuccess
 
 type sourceConfig = {
+  domain: domain,
+  statusDimension: option<dimension>,
   countMetric: metric,
-  amountMetric: metric,
+  amountMetrics: array<metric>,
   infoDomain: string,
   dimensions: array<dimension>,
   measures: array<measure>,
@@ -133,6 +155,7 @@ type counts = {
   excluded: float,
   threeDsAttempts: float,
   amount: float,
+  lostAmount: float,
 }
 
 type group = {
@@ -152,6 +175,9 @@ type selection = {
   measure: measure,
   split: array<dimension>,
   splitOptions: array<dimension>,
+  filterOptions: array<dimension>,
+  filters: array<(dimension, array<string>)>,
+  drilledFrom: option<dimension>,
   view: view,
   currency: string,
   startTime: string,
@@ -186,6 +212,10 @@ type chartContext = {
   labelFor: (dimension, string) => string,
 }
 
+type summaryLine =
+  | CurrencyLine
+  | SplitLine
+
 type outcomeRow = {
   outcome: string,
   count: float,
@@ -200,6 +230,7 @@ type outcomeColumn =
   | OutcomeShare
 
 type groupRow = {
+  group: group,
   labels: array<(dimension, string)>,
   value: string,
   change: string,

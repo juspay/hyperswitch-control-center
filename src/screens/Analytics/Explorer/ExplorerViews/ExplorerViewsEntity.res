@@ -63,6 +63,7 @@ let getGroupRows = (selection, dataset, ~labelFor) => {
         measurable(source, measure, previousCounts)
       )
     {
+      group,
       labels: selection.split->Array.mapWithIndex((key, index) => (
         key,
         labelFor(key, group.values->getValueFromArray(index, "")),
