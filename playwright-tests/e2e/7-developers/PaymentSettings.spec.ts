@@ -688,23 +688,21 @@ test.describe("Payment Settings", () => {
       }
     });
 
-    test("should render a Slack contact link that opens in a new tab", async ({
-      page,
-    }) => {
+    test("should render a support email contact link", async ({ page }) => {
       const paymentSettings = new PaymentSettings(page);
 
       await expect(paymentSettings.accountUpdaterDescription).toContainText(
-        "To enable this feature for your merchant account, please reach out to us on Slack.",
+        "To enable this feature for your merchant account, please reach out to us at support.global@juspay.io.",
       );
-      await expect(paymentSettings.accountUpdaterSlackLink).toBeVisible();
-      await expect(paymentSettings.accountUpdaterSlackLink).toHaveAttribute(
-        "href",
-        "https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect",
-      );
-      await expect(paymentSettings.accountUpdaterSlackLink).toHaveAttribute(
-        "target",
-        "_blank",
-      );
+      await expect(
+        paymentSettings.accountUpdaterSupportEmailLink,
+      ).toBeVisible();
+      await expect(
+        paymentSettings.accountUpdaterSupportEmailLink,
+      ).toHaveAttribute("href", "mailto:support.global@juspay.io");
+      await expect(
+        paymentSettings.accountUpdaterSupportEmailLink,
+      ).not.toHaveAttribute("target", "_blank");
     });
 
     test("should show the Account Updater toggle as off and not allow enabling it", async ({

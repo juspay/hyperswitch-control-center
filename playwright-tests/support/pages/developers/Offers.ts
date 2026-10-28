@@ -41,14 +41,14 @@ export class Offers {
 
   get demoBanner(): Locator {
     return this.page.getByText(
-      "You are viewing Offers in demo mode. To enable this feature for your merchant account, please reach out to us on",
+      "You are viewing Offers in demo mode. To enable this feature for your merchant account, please reach out to us at",
     );
   }
 
   // The banner's alert hides its slotted content from the accessibility
   // tree, so the link isn't reachable by role.
-  get demoBannerSlackLink(): Locator {
-    return this.page.locator('a[href*="hyperswitch-io.slack.com"]');
+  get demoBannerSupportEmailLink(): Locator {
+    return this.page.locator('a[href="mailto:support.global@juspay.io"]');
   }
 
   // Real list page

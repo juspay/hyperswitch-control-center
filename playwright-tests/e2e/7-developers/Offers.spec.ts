@@ -256,12 +256,11 @@ test.describe("Offers", () => {
       await expect(offers.createNewOfferButton).toBeVisible();
       await expect(offers.createNewOfferButton).toBeEnabled();
       await expect(offers.demoBanner).toBeVisible();
-      await expect(offers.demoBannerSlackLink).toBeVisible();
-      await expect(offers.demoBannerSlackLink).toHaveAttribute(
-        "href",
-        "https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect",
+      await expect(offers.demoBannerSupportEmailLink).toBeVisible();
+      await expect(offers.demoBannerSupportEmailLink).toHaveText(
+        "support.global@juspay.io",
       );
-      await expect(offers.demoBannerSlackLink).toHaveAttribute(
+      await expect(offers.demoBannerSupportEmailLink).not.toHaveAttribute(
         "target",
         "_blank",
       );

@@ -115,7 +115,9 @@ export class OrganizationSettingsPage {
   }
 
   get contactUsText(): Locator {
-    return this.page.getByText("Contact us for further assistance on Slack");
+    return this.page.getByText(
+      "Contact us for further assistance at support.global@juspay.io",
+    );
   }
 
   // The platform-creation modal (unlike the inline edit) does render the
