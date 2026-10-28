@@ -5,7 +5,7 @@ type alertV2Type =
   | @as("error") Error
   | @as("neutral") Neutral
 
-type slotConfig = {slot: React.element, maxHeight?: string}
+type slotConfig = {slot: React.element}
 
 type alertV2Action = {
   text: string,
