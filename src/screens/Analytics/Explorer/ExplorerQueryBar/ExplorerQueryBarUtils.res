@@ -19,5 +19,6 @@ let dimensionOptions = (source, dimensions: array<dimension>) =>
 let getStaticFilterValues = (source: source, key: dimension) =>
   switch (source, key) {
   | (#intent, #status) => Some(intentStatuses->Array.map(status => (status :> string)))
+  | (#refund, #refund_status) => Some(refundStatuses->Array.map(status => (status :> string)))
   | _ => None
   }

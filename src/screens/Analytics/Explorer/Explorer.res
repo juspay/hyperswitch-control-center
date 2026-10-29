@@ -96,6 +96,7 @@ let make = () => {
     }
 
   <div className="flex flex-col gap-4">
+    <DomainTabs selection onSource=setSource />
     <SourceTabs selection onSource=setSource />
     <ExplorerQueryBar
       selection

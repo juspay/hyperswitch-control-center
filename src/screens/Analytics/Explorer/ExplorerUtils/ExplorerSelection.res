@@ -70,7 +70,8 @@ let countGroupBy = (selection): array<dimension> => {
   | _ => []
   }
   let fixed =
-    [#status]
+    sourceConfig(selection.source).statusDimension
+    ->mapOptionOrDefault([], key => [key])
     ->Array.concat(threeDsColumn)
     ->Array.concat(needsCurrency(selection) ? [#currency] : [])
   fixed->Array.concat(selection.split->Array.filter(key => !(fixed->Array.includes(key))))
@@ -78,7 +79,7 @@ let countGroupBy = (selection): array<dimension> => {
 
 let countMetrics = selection => {
   let config = sourceConfig(selection.source)
-  [config.countMetric]->Array.concat(isAmount(selection.measure) ? [config.amountMetric] : [])
+  [config.countMetric]->Array.concat(isAmount(selection.measure) ? config.amountMetrics : [])
 }
 
 let previousWindow = selection =>
