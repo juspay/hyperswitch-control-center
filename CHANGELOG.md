@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.10.28.0
+
+### Features
+
+- **connectors:** Add mifinity payout processor ([#5692](https://github.com/juspay/hyperswitch-control-center/pull/5692)) ([`c4053e1`](https://github.com/juspay/hyperswitch-control-center/commit/c4053e192a9271f651aa18ca110924dffbbdf835))
+- Show maintenance alert only on home and overview pages ([#5756](https://github.com/juspay/hyperswitch-control-center/pull/5756)) ([`34ada92`](https://github.com/juspay/hyperswitch-control-center/commit/34ada92dbdaf93271e8263cef964dfc400582928))
+
+**Full Changelog:** [`2026.10.27.0...2026.10.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.27.0...2026.10.28.0)
+
+- - -
+
 ## 2026.10.27.0
 
 ### Features

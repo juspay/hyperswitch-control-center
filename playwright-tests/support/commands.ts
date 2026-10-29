@@ -18,6 +18,8 @@ const _BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:9000";
 const API_URL = process.env.HYPERSWITCH_API_URL || "http://localhost:8080";
 const MAIL_URL = process.env.PLAYWRIGHT_MAIL_URL || "http://localhost:8025";
 const ADMIN_API_KEY = process.env.HYPERSWITCH_ADMIN_API_KEY || "test_admin";
+// Backend now reads the admin key from the Authorization header rather than `api-key`.
+const ADMIN_AUTHORIZATION = `admin-api-key=${ADMIN_API_KEY}`;
 
 // Extracts the JWT from dashboard localStorage after a successful UI login.
 export async function getJwtFromLocalStorage(page: Page): Promise<string> {
@@ -42,7 +44,7 @@ export async function signupUser(
   const response = await ctx.post(`${API_URL}/user/signup_with_merchant_id`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": ADMIN_API_KEY,
+      Authorization: ADMIN_AUTHORIZATION,
     },
     data: {
       email,
@@ -67,7 +69,7 @@ export async function loginUser(
   const response = await ctx.post(`${API_URL}/user/v2/signin`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": ADMIN_API_KEY,
+      Authorization: ADMIN_AUTHORIZATION,
     },
     data: { email, password },
   });
@@ -120,10 +122,9 @@ export async function createAPIKey(
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        "api-key": ADMIN_API_KEY,
-        ...(authorizationToken
-          ? { Authorization: `Bearer ${authorizationToken}` }
-          : {}),
+        Authorization: authorizationToken
+          ? `Bearer ${authorizationToken}`
+          : ADMIN_AUTHORIZATION,
       },
       data: {
         name: "API Key 1",
@@ -1627,7 +1628,7 @@ export async function signupAPI(
   const response = await ctx.post(`${API_URL}/user/signup_with_merchant_id`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": ADMIN_API_KEY,
+      Authorization: ADMIN_AUTHORIZATION,
     },
     data: {
       email: username,
@@ -1655,7 +1656,7 @@ export async function loginAPI(
   const response = await ctx.post(`${API_URL}/user/v2/signin`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": ADMIN_API_KEY,
+      Authorization: ADMIN_AUTHORIZATION,
     },
     data: { email: username, password },
   });
@@ -2047,7 +2048,7 @@ export async function createAuth(
   const response = await ctx.post(`${API_URL}/user/auth`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": ADMIN_API_KEY,
+      Authorization: ADMIN_AUTHORIZATION,
     },
     data: {
       owner_id: ownerId,
