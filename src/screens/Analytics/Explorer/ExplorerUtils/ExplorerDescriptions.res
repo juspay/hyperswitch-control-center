@@ -1,3 +1,4 @@
+open LogicUtils
 open ExplorerTypes
 open ExplorerUtils
 
@@ -22,6 +23,14 @@ let sourceDescription = (source: source) =>
   | #attempt => "One row per attempt; each retry is a separate attempt. Use this view to analyse how attempts perform."
   | #refund => "One row per refund. Use this view to analyse refund failures by connector, reason and error."
   | #dispute => "One row per dispute. Use this view to track win rate and amounts lost to disputes."
+  }
+
+let flowLabel = (flow: flow) =>
+  switch flow {
+  | #all => "All"
+  | #cit => "CIT"
+  | #cit_saving => "CIT saving card"
+  | #mit => "MIT"
   }
 
 let flowDescription = (flow: flow) =>
@@ -241,3 +250,20 @@ let viewTitle = (selection: selection, ~currency) => {
   | (#breakdown | #table, Overall) => `${measureLabel(source, #volume)} by outcome`
   }
 }
+
+let getDimensionValueLabel = (
+  key: dimension,
+  value,
+  ~profileList: array<OMPSwitchTypes.ompListTypes>,
+) =>
+  switch (key, value) {
+  | (_, "") => "Not recorded"
+  | (#flow, _) => value->flowFromString->flowLabel
+  | (#profile_id, _) =>
+    profileList
+    ->Array.find(profile => profile.id == value)
+    ->mapOptionOrDefault(value, profile => profile.name)
+  | (#status | #refund_status | #refund_type | #dispute_stage, _) => value->snakeToTitle
+  | (#connector, _) => value->ConnectorUtils.getDisplayNameForConnector
+  | _ => value
+  }

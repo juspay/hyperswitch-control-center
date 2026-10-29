@@ -2,6 +2,7 @@ open LogicUtils
 open ExplorerTypes
 open ExplorerCatalog
 open ExplorerUtils
+open ExplorerDescriptions
 open ExplorerSelection
 open ExplorerHelper
 open NewAnalyticsHelper

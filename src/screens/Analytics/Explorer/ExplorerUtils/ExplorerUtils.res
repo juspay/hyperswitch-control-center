@@ -58,18 +58,10 @@ let getFilterDimensions = (measure, ~dimensions: array<dimension>) =>
 let findDimension = (dimensions: array<dimension>, id) =>
   dimensions->Array.find(key => (key :> string) == id)
 
-let getColumnValue = (dict, column: dimension) => {
-  let key = (column :> string)
-  dict
-  ->getOptionString(key)
-  ->Option.orElse(dict->getOptionBool(key)->Option.map(getStringFromBool))
-  ->Option.getOr("")
-}
-
 let getRowFlow = (dict): flow =>
-  if dict->getColumnValue(#off_session) == "true" {
+  if dict->getBool((#off_session: dimension :> string), false) {
     #mit
-  } else if dict->getColumnValue(#setup_future_usage)->isNonEmptyString {
+  } else if dict->getString((#setup_future_usage: dimension :> string), "")->isNonEmptyString {
     #cit_saving
   } else {
     #cit
@@ -78,7 +70,7 @@ let getRowFlow = (dict): flow =>
 let getDimensionValue = (dict, dimension: dimension) =>
   switch dimension {
   | #flow => (dict->getRowFlow :> string)
-  | _ => dict->getColumnValue(dimension)
+  | _ => dict->getString((dimension :> string), "")
   }
 
 let getOutcomesOfStatus = (source: source, status) =>
@@ -119,14 +111,6 @@ let getValuesLabel = (values, ~split: array<dimension>, ~labelFor) =>
 
 let sourceFromString = id =>
   sources->Array.find(source => (source :> string) == id)->Option.getOr(#intent)
-
-let flowLabel = (flow: flow) =>
-  switch flow {
-  | #all => "All"
-  | #cit => "CIT"
-  | #cit_saving => "CIT saving card"
-  | #mit => "MIT"
-  }
 
 let flowFromString = id => flows->Array.find(flow => (flow :> string) == id)->Option.getOr(#all)
 
@@ -218,20 +202,3 @@ let getWindowDays = (startTime, endTime) => {
   let count = Math.Int.max(1, Math.ceil((endMs -. first) /. dayMs)->Float.toInt)
   Array.fromInitializer(~length=count, index => toIso(first +. index->Int.toFloat *. dayMs))
 }
-
-let getDimensionValueLabel = (
-  key: dimension,
-  value,
-  ~profileList: array<OMPSwitchTypes.ompListTypes>,
-) =>
-  switch (key, value) {
-  | (_, "") => "Not recorded"
-  | (#flow, _) => value->flowFromString->flowLabel
-  | (#profile_id, _) =>
-    profileList
-    ->Array.find(profile => profile.id == value)
-    ->mapOptionOrDefault(value, profile => profile.name)
-  | (#status | #refund_status | #refund_type | #dispute_stage, _) => value->snakeToTitle
-  | (#connector, _) => value->ConnectorUtils.getDisplayNameForConnector
-  | _ => value
-  }

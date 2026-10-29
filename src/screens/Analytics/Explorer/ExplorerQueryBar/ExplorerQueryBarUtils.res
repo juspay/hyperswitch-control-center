@@ -1,7 +1,6 @@
 open LogicUtils
 open ExplorerTypes
 open ExplorerCatalog
-open ExplorerUtils
 open ExplorerDescriptions
 
 let measureOptions = source =>
