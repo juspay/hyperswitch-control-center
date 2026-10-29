@@ -74,9 +74,13 @@ let getV2Url = (
         | None => Default(`${paymentsBaseURL}/${key_id}/get-revenue-recovery-intent`)
         }
       | None =>
+        let recoveryListPath = switch transactionEntity {
+        | #Profile => `${paymentsBaseURL}/profile/recovery-list`
+        | _ => `${paymentsBaseURL}/recovery-list`
+        }
         switch queryParameters {
-        | Some(queryParams) => Default(`${paymentsBaseURL}/recovery-list?${queryParams}`)
-        | None => Default(`${paymentsBaseURL}/recovery-list?limit=100`)
+        | Some(queryParams) => Default(`${recoveryListPath}?${queryParams}`)
+        | None => Default(`${recoveryListPath}?limit=100`)
         }
       }
     | _ => Default("")
@@ -120,6 +124,15 @@ let getV2Url = (
         | _ => Default(`v2/payments/aggregate?${queryParams}`)
         }
       | None => Default(``)
+      }
+    | _ => Default(``)
+    }
+  | RECOVERY_AGGREGATE =>
+    switch (methodType, queryParameters) {
+    | (Get, Some(queryParams)) =>
+      switch transactionEntity {
+      | #Profile => Default(`${paymentsBaseURL}/profile/recovery-aggregate?${queryParams}`)
+      | _ => Default(`${paymentsBaseURL}/recovery-aggregate?${queryParams}`)
       }
     | _ => Default(``)
     }
@@ -1737,6 +1750,11 @@ let useGetURL = () => {
         | #OFFER_CREATE =>
           switch methodType {
           | Post => Euler(`${offersBaseURL}/create`)
+          | _ => Default("")
+          }
+        | #OFFER_BIN_LIST_DOWNLOAD =>
+          switch methodType {
+          | Post => Euler(`${offersBaseURL}/csv-downloads`)
           | _ => Default("")
           }
         | #NONE => Default("")

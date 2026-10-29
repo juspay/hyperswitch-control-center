@@ -1,4 +1,6 @@
-type source = [#intent | #attempt]
+type domain = [#payments | #refunds | #disputes]
+
+type source = [#intent | #attempt | #refund | #dispute]
 
 type measure = [
   | #success_rate
@@ -10,9 +12,14 @@ type measure = [
   | #not_completed_rate
   | #processed_amount
   | #avg_ticket
+  | #lost_amount
 ]
 
-type selectionKey = [#source | #measure | #currency]
+type selectionKey = [#source | #measure | #currency | #split | #view | #from]
+
+type view = [#trend | #breakdown | #mix | #table]
+
+type grouping = Overall | Split
 
 type changeImpact =
   | Favorable
@@ -22,13 +29,32 @@ type changeImpact =
 type metric = [
   | #payment_intent_count
   | #payment_count
+  | #refund_count
+  | #dispute_status_metric
   | #payment_processed_amount
+  | #refund_processed_amount
+  | #total_amount_disputed
+  | #total_dispute_lost_amount
 ]
 
 type dimension = [
   | #status
+  | #connector
+  | #payment_method
+  | #payment_method_type
+  | #card_network
   | #authentication_type
+  | #error_reason
   | #currency
+  | #profile_id
+  | #routing_approach
+  | #client_source
+  | #client_version
+  | #refund_status
+  | #refund_type
+  | #refund_reason
+  | #refund_error_message
+  | #dispute_stage
 ]
 
 type authenticationType = [#three_ds | #no_three_ds]
@@ -85,27 +111,39 @@ type attemptStatus = [
   | #capture_review
 ]
 
+type refundStatus = [#success | #failure | #transaction_failure | #pending | #manual_review]
+
 type countField =
   | Total
   | Success
   | Failed
-  | Awaiting
+  | Excluded
   | AuthFailed
+  | Other
 
 type denominator =
   | AllRecords
-  | CompletedRecords
+  | EligibleRecords
+  | DecidedRecords
   | ThreeDsAttempts
+
+type amountField =
+  | Processed
+  | Lost
 
 type formula =
   | Rate(countField, denominator)
   | Count(countField)
-  | TotalAmount
+  | TotalAmount(amountField)
   | AmountPerSuccess
 
 type sourceConfig = {
+  domain: domain,
+  statusDimension: option<dimension>,
   countMetric: metric,
-  amountMetric: metric,
+  amountMetrics: array<metric>,
+  infoDomain: string,
+  dimensions: array<dimension>,
   measures: array<measure>,
 }
 
@@ -114,14 +152,33 @@ type counts = {
   success: float,
   failed: float,
   authFailed: float,
-  awaiting: float,
+  excluded: float,
   threeDsAttempts: float,
   amount: float,
+  lostAmount: float,
 }
 
-type question = {
+type group = {
+  values: array<string>,
+  current: counts,
+  previous: option<counts>,
+}
+
+type dailyPoint = {
+  groupKey: string,
+  day: string,
+  counts: counts,
+}
+
+type selection = {
   source: source,
   measure: measure,
+  split: array<dimension>,
+  splitOptions: array<dimension>,
+  filterOptions: array<dimension>,
+  filters: array<(dimension, array<string>)>,
+  drilledFrom: option<dimension>,
+  view: view,
   currency: string,
   startTime: string,
   endTime: string,
@@ -130,6 +187,8 @@ type question = {
 type responses = {
   currentRows: array<JSON.t>,
   previousRows: array<JSON.t>,
+  currentDaily: array<JSON.t>,
+  previousDaily: array<JSON.t>,
 }
 
 type dataset = {
@@ -139,4 +198,50 @@ type dataset = {
   inCurrencyPrevious: counts,
   amountCurrencies: array<string>,
   amountCurrency: string,
+  groups: array<group>,
+  topByVolume: array<group>,
+  topMeasured: array<group>,
+  unmeasured: array<(array<string>, counts)>,
+  currentDaily: Dict.t<dailyPoint>,
+  previousDaily: Dict.t<dailyPoint>,
 }
+
+type chartContext = {
+  selection: selection,
+  dataset: dataset,
+  labelFor: (dimension, string) => string,
+}
+
+type summaryLine =
+  | CurrencyLine
+  | SplitLine
+
+type outcomeRow = {
+  outcome: string,
+  count: float,
+  change: string,
+  share: float,
+}
+
+type outcomeColumn =
+  | OutcomeName
+  | OutcomeCount
+  | OutcomeChange
+  | OutcomeShare
+
+type groupRow = {
+  group: group,
+  labels: array<(dimension, string)>,
+  value: string,
+  change: string,
+  impact: changeImpact,
+  volume: float,
+  share: float,
+}
+
+type groupColumn =
+  | SplitColumn(dimension)
+  | MeasureColumn
+  | ChangeColumn
+  | VolumeColumn
+  | ShareColumn

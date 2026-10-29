@@ -16,7 +16,7 @@ MAX_SCAN=25
 # Last tag known to boot cleanly. Tried once as a last resort when auto-discovery is
 # exhausted, so that a run of broken recent tags does not fail the suite outright.
 # Bump this when a newer tag has been verified.
-KNOWN_GOOD_TAG="${HYPERSWITCH_KNOWN_GOOD_TAG:-2026.08.21.0}"
+KNOWN_GOOD_TAG="${HYPERSWITCH_KNOWN_GOOD_TAG:-2026.10.16.0}"
 
 # Optional override: pin a known-good tag and skip auto-discovery.
 # Useful when all of the most-recent tags fail to boot but an older tag is known to work.
@@ -91,13 +91,6 @@ try_tag() {
 
   # Pin the router image to the resolved tag.
   sed "s|${IMAGE_REPO}:standalone|${IMAGE_REPO}:${tag}|g" \
-    docker-compose.yml > docker-compose.tmp && mv docker-compose.tmp docker-compose.yml
-
-  # Remap host ports that clash with other services on a shared host.
-  sed -e 's|"5432:5432"|"25432:5432"|g' \
-      -e 's|"6379:6379"|"26379:6379"|g' \
-      -e 's|"8081:8080"|"28081:8080"|g' \
-      -e 's|"9050:9050"|"29050:9050"|g' \
     docker-compose.yml > docker-compose.tmp && mv docker-compose.tmp docker-compose.yml
 
   sed 's|apk add --no-cache curl jq yq && sh /seed_superposition.sh|apk add --no-cache curl jq yq bash \&\& bash /seed_superposition.sh|g' \

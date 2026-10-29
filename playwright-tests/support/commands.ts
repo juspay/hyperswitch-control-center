@@ -17,6 +17,8 @@ const _BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:9000";
 const API_URL = process.env.HYPERSWITCH_API_URL || "http://localhost:8080";
 const MAIL_URL = process.env.PLAYWRIGHT_MAIL_URL || "http://localhost:8025";
 const ADMIN_API_KEY = process.env.HYPERSWITCH_ADMIN_API_KEY || "test_admin";
+// Backend now reads the admin key from the Authorization header rather than `api-key`.
+const ADMIN_AUTHORIZATION = `admin-api-key=${ADMIN_API_KEY}`;
 
 // Extracts the JWT from dashboard localStorage after a successful UI login.
 export async function getJwtFromLocalStorage(page: Page): Promise<string> {
@@ -41,7 +43,7 @@ export async function signupUser(
   const response = await ctx.post(`${API_URL}/user/signup_with_merchant_id`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": ADMIN_API_KEY,
+      Authorization: ADMIN_AUTHORIZATION,
     },
     data: {
       email,
@@ -66,7 +68,7 @@ export async function loginUser(
   const response = await ctx.post(`${API_URL}/user/v2/signin`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": ADMIN_API_KEY,
+      Authorization: ADMIN_AUTHORIZATION,
     },
     data: { email, password },
   });
@@ -119,10 +121,9 @@ export async function createAPIKey(
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        "api-key": ADMIN_API_KEY,
-        ...(authorizationToken
-          ? { Authorization: `Bearer ${authorizationToken}` }
-          : {}),
+        Authorization: authorizationToken
+          ? `Bearer ${authorizationToken}`
+          : ADMIN_AUTHORIZATION,
       },
       data: {
         name: "API Key 1",
@@ -1344,18 +1345,9 @@ export async function createThreeDsExemptionAPI(
   }
 
   // profile_id rides inside the JWT payload (the dashboard mints it after
-  // login). Decode the middle JWT segment so the request body can include
-  // it the same way buildThreeDsExemptionPayloadBody does on the UI side.
-  const segments = token.split(".");
-  if (segments.length !== 3) {
-    throw new Error(
-      "createThreeDsExemptionAPI: invalid JWT format (expected 3 segments)",
-    );
-  }
-  const jwtPayload = JSON.parse(
-    Buffer.from(segments[1], "base64").toString("utf-8"),
-  ) as { profile_id?: string };
-  const profileId = jwtPayload.profile_id ?? "";
+  // login); the request body includes it the same way
+  // buildThreeDsExemptionPayloadBody does on the UI side.
+  const { profileId } = await jwtLineage(page);
 
   const name = overrides.name ?? "playwright_3ds_exemption";
   const description = overrides.description ?? "";
@@ -1463,7 +1455,7 @@ export async function signupAPI(
   const response = await ctx.post(`${API_URL}/user/signup_with_merchant_id`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": ADMIN_API_KEY,
+      Authorization: ADMIN_AUTHORIZATION,
     },
     data: {
       email: username,
@@ -1491,7 +1483,7 @@ export async function loginAPI(
   const response = await ctx.post(`${API_URL}/user/v2/signin`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": ADMIN_API_KEY,
+      Authorization: ADMIN_AUTHORIZATION,
     },
     data: { email: username, password },
   });
@@ -1883,7 +1875,7 @@ export async function createAuth(
   const response = await ctx.post(`${API_URL}/user/auth`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": ADMIN_API_KEY,
+      Authorization: ADMIN_AUTHORIZATION,
     },
     data: {
       owner_id: ownerId,
@@ -2196,6 +2188,42 @@ export async function signinFromMailInbox(page: Page): Promise<void> {
   }
 }
 
+// Reads org/merchant/profile ids straight from the dashboard's JWT in
+// localStorage. The token is written at login, so unlike the header's
+// merchant id text there is nothing to wait for. The payload is only
+// base64url-decoded, not verified — fine for picking ids in tests.
+export async function jwtLineage(
+  page: Page,
+): Promise<{ orgId: string; merchantId: string; profileId: string }> {
+  const token = await page.evaluate(() => {
+    const raw = window.localStorage.getItem("USER_INFO");
+    if (!raw) return "";
+    try {
+      return (JSON.parse(raw) as { token?: string }).token ?? "";
+    } catch {
+      return "";
+    }
+  });
+  if (!token) {
+    throw new Error(
+      "jwtLineage: no JWT in localStorage — make sure loginUI ran first",
+    );
+  }
+
+  const segments = token.split(".");
+  if (segments.length !== 3) {
+    throw new Error("jwtLineage: invalid JWT format (expected 3 segments)");
+  }
+  const payload = JSON.parse(
+    Buffer.from(segments[1], "base64url").toString("utf-8"),
+  ) as { org_id?: string; merchant_id?: string; profile_id?: string };
+  return {
+    orgId: payload.org_id ?? "",
+    merchantId: payload.merchant_id ?? "",
+    profileId: payload.profile_id ?? "",
+  };
+}
+
 export async function ompLineage(
   page: Page,
 ): Promise<{ orgId: string; merchantId: string; profileId: string }> {
@@ -2281,6 +2309,121 @@ export async function generateCerts() {
     certBase64: cert.toString("base64"),
     keyBase64: key.toString("base64"),
   };
+}
+
+// Stands in for Apple's developer portal: signs a dashboard-issued Apple Pay
+// CSR with a throwaway CA and returns the DER-encoded .cer. The backend reads
+// the merchant identifier from the subject UID.
+export function signApplePayCsr(
+  csr: string,
+  merchantIdentifier: string,
+): Buffer {
+  const certsDir = path.join(process.cwd(), "tmp-certs");
+  fs.mkdirSync(certsDir, { recursive: true });
+  const tmpDir = fs.mkdtempSync(path.join(certsDir, "csr-"));
+  try {
+    const csrPath = path.join(tmpDir, "apple_pay.csr");
+    const caKeyPath = path.join(tmpDir, "ca.key");
+    const caCertPath = path.join(tmpDir, "ca.pem");
+    const certPath = path.join(tmpDir, "apple_pay.cer");
+    fs.writeFileSync(csrPath, csr);
+
+    execFileSync(
+      "openssl",
+      [
+        "req",
+        "-x509",
+        "-newkey",
+        "ec",
+        "-pkeyopt",
+        "ec_paramgen_curve:prime256v1",
+        "-nodes",
+        "-keyout",
+        caKeyPath,
+        "-out",
+        caCertPath,
+        "-days",
+        "1",
+        "-subj",
+        "/CN=Playwright Test CA",
+      ],
+      { stdio: "ignore" },
+    );
+    execFileSync(
+      "openssl",
+      [
+        "x509",
+        "-req",
+        "-in",
+        csrPath,
+        "-CA",
+        caCertPath,
+        "-CAkey",
+        caKeyPath,
+        "-set_serial",
+        "1",
+        "-days",
+        "1",
+        "-subj",
+        `/UID=${merchantIdentifier}/CN=Merchant ID: ${merchantIdentifier}`,
+        "-outform",
+        "DER",
+        "-out",
+        certPath,
+      ],
+      { stdio: "ignore" },
+    );
+
+    return fs.readFileSync(certPath);
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+}
+
+// Creates an Apple Pay certificate resource end to end (CSR -> signed .cer
+// upload) for the logged-in user's merchant and returns its resource id.
+export async function createApplePayCertificateAPI(
+  page: Page,
+  merchantIdentifier: string,
+): Promise<string> {
+  const { merchantId, profileId } = await ompLineage(page);
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${await getJwtFromLocalStorage(page)}`,
+    "X-Merchant-Id": merchantId,
+    "X-Profile-Id": profileId,
+  };
+
+  const createResponse = await page.request.post(
+    `${API_URL}/hierarchical_resources`,
+    { headers, data: { type: "apple_pay_certificate" } },
+  );
+  if (!createResponse.ok()) {
+    const body = await createResponse.text();
+    throw new Error(
+      `createApplePayCertificateAPI create failed (${createResponse.status()}): ${body}`,
+    );
+  }
+  const resource = (await createResponse.json()) as {
+    id: string;
+    data: { apple_pay_certificate: { csr: string } };
+  };
+
+  const certificate = signApplePayCsr(
+    resource.data.apple_pay_certificate.csr,
+    merchantIdentifier,
+  );
+  const uploadResponse = await page.request.put(
+    `${API_URL}/hierarchical_resources/apple_pay_certificate/${resource.id}`,
+    { headers, data: { certificate: certificate.toString("base64") } },
+  );
+  if (!uploadResponse.ok()) {
+    const body = await uploadResponse.text();
+    throw new Error(
+      `createApplePayCertificateAPI upload failed (${uploadResponse.status()}): ${body}`,
+    );
+  }
+  return resource.id;
 }
 
 export async function safeScrollIntoView(
