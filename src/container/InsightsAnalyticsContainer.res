@@ -66,7 +66,6 @@ let make = () => {
     ~origin="analytics",
     ~isInsightsPage=true,
     ~enableCompareTo=Some(true),
-    ~range=6,
     ~comparisonKey,
     (),
   )

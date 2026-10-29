@@ -92,7 +92,7 @@ let initialFixedFilter = (): array<EntityType.initialFilters<'t>> => [
         ~showTime=true,
         ~disablePastDates=false,
         ~disableFutureDates=true,
-        ~predefinedDays=[Hour(1.0), Today, Yesterday, Day(2.0), Day(7.0), Day(30.0)],
+        ~predefinedDays=DateRangeUtils.standardPredefinedDays,
         ~numMonths=2,
         ~disableApply=false,
         ~dateRangeLimit=90,

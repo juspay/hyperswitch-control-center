@@ -1,5 +1,5 @@
 diff --git a/node_modules/@juspay/blend-design-system/dist/main.js b/node_modules/@juspay/blend-design-system/dist/main.js
-index 056766e..1b0f139 100644
+index 056766e..eb37627 100644
 --- a/node_modules/@juspay/blend-design-system/dist/main.js
 +++ b/node_modules/@juspay/blend-design-system/dist/main.js
 @@ -21903,7 +21903,7 @@ function yno() {
@@ -20,6 +20,24 @@ index 056766e..1b0f139 100644
      typeof Map == "function" && Map.prototype != null && typeof Map.prototype.forEach == "function" && typeof Set == "function" && Set.prototype != null && typeof Set.prototype.clear == "function" && typeof Set.prototype.forEach == "function" || console.error(
        "React depends on Map and Set built-in types. Make sure that you load a polyfill in older browsers. https://reactjs.org/link/react-polyfills"
      ), FK.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE = r, FK.createPortal = function(a, n) {
+@@ -89195,7 +89195,7 @@ const oK = {
+     0,
+     0,
+     0
+-  ), i = Math.abs(o.startDate.getTime() - V.getTime()) <= ft.TIMEZONE_TOLERANCE_HOURS * 60 * 60 * 1e3, K = o.endDate.getFullYear() === e.getFullYear() && o.endDate.getMonth() === e.getMonth();
++  ), i = Math.abs(o.startDate.getTime() - V.getTime()) <= ft.PRESET_DETECTION_TOLERANCE_MS, K = o.endDate.getFullYear() === e.getFullYear() && o.endDate.getMonth() === e.getMonth();
+   return i && K;
+ }, h1o = (o) => {
+   if (!o.endDate) return !1;
+@@ -89215,7 +89215,7 @@ const oK = {
+     59,
+     59,
+     999
+-  ), t = Math.abs(o.startDate.getTime() - i.getTime()) <= ft.TIMEZONE_TOLERANCE_HOURS * 60 * 60 * 1e3, q = Math.abs(o.endDate.getTime() - K.getTime()) <= ft.TIMEZONE_TOLERANCE_HOURS * 60 * 60 * 1e3;
++  ), t = Math.abs(o.startDate.getTime() - i.getTime()) <= ft.PRESET_DETECTION_TOLERANCE_MS, q = Math.abs(o.endDate.getTime() - K.getTime()) <= ft.PRESET_DETECTION_TOLERANCE_MS;
+   return t && q;
+ }, a1o = (o, e, l) => {
+   if (!o.startDate || !o.endDate)
 @@ -89230,10 +89230,34 @@ const oK = {
      return Pe.YESTERDAY;
    if (r1o(V))
