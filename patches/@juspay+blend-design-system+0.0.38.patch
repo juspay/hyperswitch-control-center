@@ -1,5 +1,5 @@
 diff --git a/node_modules/@juspay/blend-design-system/dist/main.js b/node_modules/@juspay/blend-design-system/dist/main.js
-index 056766e..1b0f139 100644
+index 056766e..07a7f23 100644
 --- a/node_modules/@juspay/blend-design-system/dist/main.js
 +++ b/node_modules/@juspay/blend-design-system/dist/main.js
 @@ -21903,7 +21903,7 @@ function yno() {
@@ -20,6 +20,33 @@ index 056766e..1b0f139 100644
      typeof Map == "function" && Map.prototype != null && typeof Map.prototype.forEach == "function" && typeof Set == "function" && Set.prototype != null && typeof Set.prototype.clear == "function" && typeof Set.prototype.forEach == "function" || console.error(
        "React depends on Map and Set built-in types. Make sure that you load a polyfill in older browsers. https://reactjs.org/link/react-polyfills"
      ), FK.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE = r, FK.createPortal = function(a, n) {
+@@ -88258,7 +88258,7 @@ const hC = 1440 * 60, Or = (o) => o.toString().padStart(2, "0"), Qm = (o, e, l)
+     i ? l.getSeconds() : 59
+   );
+ }, Rm = (o, e = !1, l, V = !1, i = !1, K = !1, t, q, r, U, h, a, n) => {
+-  if (V && o > l || i && o < l || U && Ni(o) < Ni(U) || h && Ni(o) > Ni(h) || a && a(o, q) || n && (q != null && q.startDate) && !q.endDate && Math.abs(
++  if (V && o > l || i && Ni(o) < Ni(l) || U && Ni(o) < Ni(U) || h && Ni(o) > Ni(h) || a && a(o, q) || n && (q != null && q.startDate) && !q.endDate && Math.abs(
+     Math.floor(
+       (Ni(o).getTime() - Ni(q.startDate).getTime()) / 864e5
+     )
+@@ -88333,7 +88333,7 @@ const hC = 1440 * 60, Or = (o) => o.toString().padStart(2, "0"), Qm = (o, e, l)
+     const g = e.startDate, S = Ni(o).getTime() - Ni(g).getTime(), Q = Math.floor(S / (1e3 * 60 * 60 * 24));
+     n = Math.abs(Q) > h;
+   }
+-  const p = !!(V && o > l || i && o < l || r && Ni(o) < Ni(r) || U && Ni(o) > Ni(U) || K && K(o, e) || n);
++  const p = !!(V && o > l || i && Ni(o) < Ni(l) || r && Ni(o) < Ni(r) || U && Ni(o) > Ni(U) || K && K(o, e) || n);
+   if (!e)
+     return {
+       isStart: !1,
+@@ -89053,7 +89053,7 @@ const oK = {
+   isValid: !1,
+   error: "backwardDays must be a non-negative number"
+ } : { isValid: !0 }, K1o = (o, e = !1, l, V = !1, i = !1, K, t = !1, q, r, U, h, a, n, p) => {
+-  if (V && o > l || i && o < l || h && Ni(o) < Ni(h) || a && Ni(o) > Ni(a) || n && n(o, r) || p && (r != null && r.startDate) && !r.endDate && Math.abs(
++  if (V && o > l || i && Ni(o) < Ni(l) || h && Ni(o) < Ni(h) || a && Ni(o) > Ni(a) || n && n(o, r) || p && (r != null && r.startDate) && !r.endDate && Math.abs(
+     Math.floor(
+       (Ni(o).getTime() - Ni(r.startDate).getTime()) / 864e5
+     )
 @@ -89230,10 +89230,34 @@ const oK = {
      return Pe.YESTERDAY;
    if (r1o(V))

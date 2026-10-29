@@ -44,7 +44,7 @@ module BlendDateRangeField = {
     let customPresets =
       predefinedDays
       ->filterPresetsByLimit(dateRangeLimit)
-      ->Array.map(day => toBlendPreset(day, ~disableFutureDates))
+      ->Array.map(day => toBlendPreset(day, ~disableFutureDates, ~disablePastDates))
 
     let (minDate, maxDate) = allowedRangeBounds(allowedDateRange)
 

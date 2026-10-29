@@ -115,6 +115,12 @@ export class Offers {
     );
   }
 
+  get tncInput(): Locator {
+    return this.input(
+      "Eg. Offer valid once per customer during the offer period",
+    );
+  }
+
   get benefitValueInput(): Locator {
     return this.input("Eg. 10");
   }
@@ -166,9 +172,14 @@ export class Offers {
 
   get currencySelect(): Locator {
     return this.page.getByRole("button", {
-      name: "Choose Currency",
+      name: "Choose Currencies",
       exact: true,
     });
+  }
+
+  // Defaults to the whole offer period.
+  get cardResetPeriodSelect(): Locator {
+    return this.page.getByRole("button", { name: "Offer Period", exact: true });
   }
 
   get validitySelect(): Locator {
@@ -190,8 +201,9 @@ export class Offers {
     return this.page.getByRole("searchbox", { name: "Search options..." });
   }
 
+  // Currencies is a multi select, so its options are checkbox rows.
   currencyOption(code: string): Locator {
-    return this.page.getByRole("menuitem", { name: code, exact: true });
+    return this.page.getByRole("option", { name: code, exact: true });
   }
 
   uploadedBinFile(fileName: string, binCount: number): Locator {
@@ -201,10 +213,7 @@ export class Offers {
   }
 
   get binListDescription(): Locator {
-    return this.page.getByText(
-      "Upload a CSV with a CARD_BIN header and one 6 to 9 digit BIN per row (up to 10000). Only the listed BINs will be eligible for this offer.",
-      { exact: true },
-    );
+    return this.page.getByText("Upload 6 to 9 digit BIN only", { exact: true });
   }
 
   get binFileInput(): Locator {
