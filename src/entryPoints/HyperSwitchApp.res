@@ -42,6 +42,21 @@ let make = () => {
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let {logoURL} = React.useContext(ThemeProvider.themeContext)
   let maintenanceAlert = featureFlagDetails.maintenanceAlert
+  // Shown on the default home and on the active product's landing page (ProductUtils.getProductUrl)
+  let showMaintenanceAlert = {
+    let productLandingPath =
+      ProductUtils.getProductUrl(~productType=activeProduct)
+      ->String.split("/")
+      ->Array.filter(LogicUtils.isNonEmptyString)
+      ->List.fromArray
+      ->urlPath
+    let currentPath = url.path->urlPath
+    maintenanceAlert->LogicUtils.isNonEmptyString &&
+      switch currentPath {
+      | list{"v2", "home"} | list{"v2", "recovery"} => true
+      | _ => currentPath == productLandingPath
+      }
+  }
   DecisionEngineHooks.useSyncDecisionEngineCutover()
   let hyperSwitchAppSidebars = SidebarHooks.useGetSidebarValuesForCurrentActive()
   let productSidebars = ProductsSidebarValues.useGetProductSideBarValues(~activeProduct)
@@ -234,22 +249,24 @@ let make = () => {
                   </div>
                   <div
                     className="w-full h-screen overflow-x-scroll xl:overflow-x-hidden overflow-y-scroll">
-                    <RenderIf condition={maintenanceAlert->LogicUtils.isNonEmptyString}>
-                      <AlertV2Binding
-                        alertType=Primary
-                        slot={{
-                          slot: <Icon
-                            name="nd-toast-info" size=20 className="text-nd_primary_blue-450"
-                          />,
-                        }}
-                        description=maintenanceAlert
-                      />
-                    </RenderIf>
                     <WorkflowSideDrawer />
                     <div
                       className={isDecisionEngineWorkspace
                         ? "flex flex-col min-h-full"
                         : "p-6 md:px-12 md:py-8 flex flex-col gap-8 max-w-fixedPageWidth min-h-full"}>
+                      <RenderIf condition={showMaintenanceAlert}>
+                        <div className="w-full">
+                          <AlertV2Binding
+                            alertType=Primary
+                            slot={{
+                              slot: <Icon
+                                name="nd-toast-info" size=20 className="text-nd_primary_blue-450"
+                              />,
+                            }}
+                            description=maintenanceAlert
+                          />
+                        </div>
+                      </RenderIf>
                       <ErrorBoundary>
                         {switch (activeProduct, url.path->urlPath) {
                         // /* DEFAULT HOME */
