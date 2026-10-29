@@ -284,6 +284,7 @@ module ReactWindowTableComponent = {
     }
 
     let filterPresent = heading->Array.find(head => head.showFilter)->Option.isSome
+    let scrollContainerRef = React.useRef(Nullable.null)
     let highlightEnabledFieldsArray = heading->Array.reduceWithIndex([], (acc, item, index) => {
       if item.highlightCellOnHover {
         let _ = Array.push(acc, index)
@@ -467,8 +468,10 @@ module ReactWindowTableComponent = {
     }
 
     <div
+      ref={scrollContainerRef->ReactDOM.Ref.domRef}
       className={` overflow-x-scroll ${scrollBarClass}`}
       style={minHeight: {filterPresent ? "30rem" : ""}}>
+      <StickyTableScrollbar containerRef=scrollContainerRef />
       <div
         className={`w-max	${widthClass} h-full border border-jp-gray-940 border-opacity-50 dark:border-jp-gray-960 rounded-lg ${tableBorderClass}`}
         colSpan=0>
