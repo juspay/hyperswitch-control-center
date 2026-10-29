@@ -47,8 +47,6 @@ let getMonthFromFloat = value => {
   months[valueInt]->Option.getOr(Jan)
 }
 module YearItem = {
-  @send external scrollIntoView: Dom.element => unit = "scrollIntoView"
-
   @react.component
   let make = (~tempYear, ~year, ~handleChangeMonthBy, ~setCurrDate, ~tempMonth) => {
     let isSelected = year->Int.toFloat === tempYear
@@ -57,7 +55,8 @@ module YearItem = {
     React.useEffect(() => {
       if isSelected {
         switch yearRef.current->Nullable.toOption {
-        | Some(element) => element->scrollIntoView
+        | Some(element) =>
+          element->DOMUtils.scrollIntoView({behavior: "auto", block: "start", inline: "nearest"})
         | None => ()
         }
       }
@@ -84,8 +83,6 @@ module YearItem = {
 }
 
 module MonthItem = {
-  @send external scrollIntoView: Dom.element => unit = "scrollIntoView"
-
   @react.component
   let make = (
     ~index,
@@ -101,7 +98,8 @@ module MonthItem = {
     React.useEffect(() => {
       if isSelected {
         switch monthRef.current->Nullable.toOption {
-        | Some(element) => element->scrollIntoView
+        | Some(element) =>
+          element->DOMUtils.scrollIntoView({behavior: "auto", block: "start", inline: "nearest"})
         | None => ()
         }
       }

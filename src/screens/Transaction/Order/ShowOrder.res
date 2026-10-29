@@ -654,30 +654,6 @@ module AuthenticationDetails = {
   }
 }
 
-module FraudRiskBanner = {
-  @react.component
-  let make = (~frmMessage: frmMessage, ~onReviewDetailsClick) => {
-    let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    <div
-      className="flex justify-between items-center w-full  p-4 rounded-md bg-white border border-[#C04141]/50 ">
-      <div className="flex gap-2">
-        <img alt="image" src={`/icons/redFlag.svg`} />
-        <p className="text-lightgray_background font-medium text-fs-16">
-          {`This payment is marked fraudulent by ${frmMessage.frm_name}.`->React.string}
-        </p>
-        <GatewayIcon
-          gateway={frmMessage.frm_name->String.toUpperCase} className="w-6 h-6 rounded-full"
-        />
-      </div>
-      <div
-        className={`${textColor.primaryNormal} font-semibold text-fs-16 cursor-pointer`}
-        onClick={_ => onReviewDetailsClick()}>
-        {"Review details"->React.string}
-      </div>
-    </div>
-  }
-}
-
 @react.component
 let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   open APIUtils
@@ -808,6 +784,13 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
 
   let breadCrumbLink = RouteUtils.getPath(~path="/payments", version)
   let (selectedTabIndex, setSelectedTabIndex) = React.useState(_ => 0)
+  let paymentDetailsTabsRef = React.useRef(Nullable.null)
+  let scrollToPaymentDetailsTabs = () =>
+    paymentDetailsTabsRef.current
+    ->Nullable.toOption
+    ->Option.forEach(element =>
+      element->DOMUtils.scrollIntoView({behavior: "smooth", block: "start", inline: "nearest"})
+    )
 
   let renderDetailsPanel = (~title, ~children) =>
     <div className="border border-nd_gray-200 rounded-lg overflow-hidden bg-nd_gray-0">
@@ -1141,8 +1124,11 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     </div>
     <RenderIf condition={orderData.frm_message.frm_status === "fraud"}>
       <FraudRiskBanner
-        frmMessage={orderData.frm_message}
-        onReviewDetailsClick={() => selectTabByTitle("FRM Details")}
+        frmName={orderData.frm_message.frm_name}
+        onReviewDetailsClick={() => {
+          selectTabByTitle("FRM Details")
+          scrollToPaymentDetailsTabs()
+        }}
       />
     </RenderIf>
     <RenderIf condition={showReviewStatusBanner}>
@@ -1162,13 +1148,15 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           openCaptureModal
           isNonRefundConnector={isNonRefundConnector(orderData.connector)}
         />
-        <Tabs
-          tabs=paymentDetailsTabs
-          initialIndex=selectedTabIndex
-          onTitleClick={index => setSelectedTabIndex(_ => index)}
-          variant=Underline
-          size=Md
-        />
+        <div ref={paymentDetailsTabsRef->ReactDOM.Ref.domRef}>
+          <Tabs
+            tabs=paymentDetailsTabs
+            initialIndex=selectedTabIndex
+            onTitleClick={index => setSelectedTabIndex(_ => index)}
+            variant=Underline
+            size=Md
+          />
+        </div>
       </div>
     </PageLoaderWrapper>
   </div>
