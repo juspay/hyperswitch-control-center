@@ -36,6 +36,7 @@ let make = () => {
     [
       ("language", (OffersTypes.English :> string)->JSON.Encode.string),
       ("calculation_rule", (OffersTypes.Percentage :> string)->JSON.Encode.string),
+      ("card_reset_period_type", (OffersTypes.OfferPeriod :> string)->JSON.Encode.string),
     ]->getJsonFromArrayOfJson
 
   <AccessControl authorization={userHasAccess(~groupAccess=OffersManage)}>
@@ -54,18 +55,20 @@ let make = () => {
           <FormSection title="Offer Details">
             <FieldRow fields=[offerCodeField, titleField] />
             <FieldRow fields=[displayTitleField, languageField] />
-            <FieldRow fields=[descriptionField] />
+            <FieldRow fields=[descriptionField, termsAndConditionsField] />
             <FieldRow fields=[validityField] />
             <FieldRow fields=[calculationRuleField, benefitValueField] />
-            <FieldRow fields=[maxAmountField] />
+            <MaxAmountRow />
             <FieldRow fields=[campaignAmountField, campaignCountField] />
           </FormSection>
           <FormSection title="Transaction Level Details">
-            <FieldRow fields=[currencyField] />
-            <FieldRow fields=[minOrderAmountField, maxOrderAmountField] />
+            <FieldRow fields=[currenciesField] />
+            <CurrencyAmountFields />
           </FormSection>
           <FormSection title="Payment Details">
-            <FieldRow fields=[amountPerCardField, countPerCardField] />
+            <FieldRow fields=[amountPerCardField]>
+              <CountPerCardFields />
+            </FieldRow>
             <BinListUpload />
           </FormSection>
           <FormRenderer.SubmitButton

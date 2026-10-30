@@ -2963,7 +2963,15 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
       overrides: {
         "Enter Connector label": "jpmorgan_default",
       },
-      fieldLabels: ["Client ID *", "Client Secret *"],
+      fieldLabels: [
+        "Client ID *",
+        "Certificate Thumbprint *",
+        "Private Key (Base64 encoded) *",
+        "Resource ID *",
+        "Connector label *",
+        "Company Name *",
+        "Product Name *",
+      ],
     },
     paymentSections: {
       Credit: {

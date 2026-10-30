@@ -64,7 +64,7 @@ let make = (~id) => {
           data=detail
           getHeading=OffersEntity.getOfferDetailsHeading
           getCell=OffersEntity.getOfferDetailsCell
-          detailsFields=OffersEntity.offerDetailsFields
+          detailsFields={detail->OffersEntity.offerDetailsFields}
         />
         <OfferInfoSection
           title="Payment Details"
