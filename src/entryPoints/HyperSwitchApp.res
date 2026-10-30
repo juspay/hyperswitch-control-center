@@ -30,6 +30,8 @@ let make = () => {
   let {fetchMerchantSpecificConfig} = MerchantSpecificConfigHook.useMerchantSpecificConfig()
   let {fetchUserGroupACL, hasAnyGroupAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchMerchantList = MerchantListHook.useFetchMerchantList()
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+  let {hasApiVersionAccess} = ProductAccessHook.useProductAccess()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let fetchUserMerchantDetails = MerchantDetailsHook.useFetchUserMerchantDetails()
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
@@ -71,6 +73,17 @@ let make = () => {
     }
   }
 
+  let handleApiVersionBlocked = async () => {
+    setDashboardPageState(_ => #HOME)
+    let merchantList = isInternalUser ? [] : await fetchMerchantList()
+    let fallbackMerchant =
+      merchantList->Array.find(merchant => merchant.productType == Some(Orchestration(V1)))
+    switch fallbackMerchant {
+    | Some(merchant) => await internalSwitch(~expectedMerchantId=Some(merchant.id))
+    | None => setScreenState(_ => PageLoaderWrapper.Error("This merchant isn't available."))
+    }
+  }
+
   let setUpDashboard = async () => {
     try {
       // NOTE: Treat groupACL map similar to screenstate
@@ -81,35 +94,39 @@ let make = () => {
         JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails
       )
       setActiveProductValue(UnknownProduct)
-      Window.connectorWasmInit()->ignore
-      // Initiate all independent api requests concurrently for performance improvement
-      let merchantDetailsFetch = fetchUserMerchantDetails(~version)
-      let merchantConfigFetch = fetchMerchantSpecificConfig()
-      let merchantListFetch = if !isInternalUser {
-        fetchMerchantList()
+      if !(version->hasApiVersionAccess) {
+        await handleApiVersionBlocked()
       } else {
-        Promise.resolve()
-      }
-      let userGroupACLFetch = fetchUserGroupACL()
-      // The full merchant account needs the account resource, so wait for the ACL
-      // and only fetch it for roles that hold it; everyone else keeps the defaults
-      let merchantAccountFetch = async () => {
-        let {resources} = await userGroupACLFetch
-        switch resources->Map.get(UserManagementTypes.Account) {
-        | Some(CommonAuthTypes.Access) =>
-          let _ = await fetchMerchantAccountDetails(~version)
-        | _ => ()
+        Window.connectorWasmInit()->ignore
+        // Initiate all independent api requests concurrently for performance improvement
+        let merchantDetailsFetch = fetchUserMerchantDetails(~version)
+        let merchantConfigFetch = fetchMerchantSpecificConfig()
+        let merchantListFetch = if !isInternalUser {
+          fetchMerchantList()
+        } else {
+          Promise.resolve([])
         }
+        let userGroupACLFetch = fetchUserGroupACL()
+        // The full merchant account needs the account resource, so wait for the ACL
+        // and only fetch it for roles that hold it; everyone else keeps the defaults
+        let merchantAccountFetch = async () => {
+          let {resources} = await userGroupACLFetch
+          switch resources->Map.get(UserManagementTypes.Account) {
+          | Some(CommonAuthTypes.Access) =>
+            let _ = await fetchMerchantAccountDetails(~version)
+          | _ => ()
+          }
+        }
+        let (productType, _, _, _, _) = await Promise.all5((
+          merchantDetailsFetch,
+          merchantConfigFetch,
+          merchantListFetch,
+          userGroupACLFetch,
+          merchantAccountFetch(),
+        ))
+        setActiveProductValue(productType)
+        setShowSideBar(_ => true)
       }
-      let (productType, _, _, _, _) = await Promise.all5((
-        merchantDetailsFetch,
-        merchantConfigFetch,
-        merchantListFetch,
-        userGroupACLFetch,
-        merchantAccountFetch(),
-      ))
-      setActiveProductValue(productType)
-      setShowSideBar(_ => true)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to setup dashboard!"))
     }
@@ -274,8 +291,7 @@ let make = () => {
 
                         | (_, list{"organization-chart"}) => <OrganisationChart />
                         | (_, list{"theme", ...remainingPath}) => <ThemeLanding remainingPath />
-                        | (_, list{"users", ..._})
-                          if featureFlagDetails.devModularityV2 && featureFlagDetails.devUsers =>
+                        | (_, list{"users", ..._}) if featureFlagDetails.devUsers =>
                           <AccessControl
                             isEnabled={version == V1}
                             authorization={userHasAccess(~groupAccess=UsersView)}>
@@ -290,6 +306,14 @@ let make = () => {
                           />
                         | (_, list{"unauthorized"}) =>
                           <UnauthorizedPage message="You don't have access to this module." />
+
+                        | (product, _)
+                          if !(
+                            product->ProductAccess.hasProductAccess(
+                              ~featureFlags=featureFlagDetails,
+                            )
+                          ) =>
+                          <UnauthorizedPage message="This product isn't available." />
 
                         | (OnBoarding(_), _) => <DefaultOnboardingPage />
                         /* RECON V1 PRODUCT */
