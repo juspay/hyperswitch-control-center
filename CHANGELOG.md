@@ -3,6 +3,28 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.10.30.0
+
+### Features
+
+- **WASM:** Add WASM For Peachpayments External Authentication ([#5770](https://github.com/juspay/hyperswitch-control-center/pull/5770)) ([`6450730`](https://github.com/juspay/hyperswitch-control-center/commit/64507303b8bb7279e9275a0ac539615fd66cb61c))
+
+### Bug Fixes
+
+- **offers:** Bring the create offer form closer to the offers dashboard and add BIN list view and download ([#5674](https://github.com/juspay/hyperswitch-control-center/pull/5674)) ([`f931a21`](https://github.com/juspay/hyperswitch-control-center/commit/f931a21c28a94bc0265251a3fcee8aea28551adb))
+
+### Testing
+
+- **playwright:** Send admin key via Authorization header and mask 2FA QR in snapshot ([#5773](https://github.com/juspay/hyperswitch-control-center/pull/5773)) ([`e2702c6`](https://github.com/juspay/hyperswitch-control-center/commit/e2702c6865145fc8a22e3b8bcff7e6a89571d66a))
+
+### Miscellaneous Tasks
+
+- Upgrade docker base image to node 24 ([#5767](https://github.com/juspay/hyperswitch-control-center/pull/5767)) ([`6249122`](https://github.com/juspay/hyperswitch-control-center/commit/6249122307d08968d1a83b212b96cf50989882f0))
+
+**Full Changelog:** [`2026.10.28.0...2026.10.30.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.28.0...2026.10.30.0)
+
+- - -
+
 ## 2026.10.28.0
 
 ### Features
