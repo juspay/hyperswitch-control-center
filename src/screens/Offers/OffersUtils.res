@@ -286,7 +286,8 @@ let parseBinListCsv = content =>
   ->Array.map(String.trim)
   ->Array.filter(row => %re("/^\d+$/")->RegExp.test(row))
 
-let binListCsvContent = bins => [cardBinFilterType]->Array.concat(bins)->Array.joinWith("\n")
+let binListCsvContent = bins =>
+  PapaParse.unparse({"fields": [cardBinFilterType], "data": bins->Array.map(bin => [bin])})
 
 let buildStatusUpdateBody = (~status: offerStatus) =>
   [("status", (status :> string)->JSON.Encode.string)]->getJsonFromArrayOfJson
