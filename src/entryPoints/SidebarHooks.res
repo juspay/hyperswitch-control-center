@@ -33,8 +33,6 @@ let useGetHsSidebarValues = () => {
     paymentLinkThemeConfigurator,
     vaultProcessor,
     surchargeProcessor,
-    devModularityV2,
-    devTheme,
     devVault,
     devUsers,
     devSuperposition,
@@ -119,8 +117,6 @@ let useGetHsSidebarValues = () => {
       ~checkUserEntity,
       ~complianceCertificate,
       ~hierarchicalConfigurations,
-      ~devModularityV2Enabled=devModularityV2,
-      ~devThemeEnabled=devTheme,
       ~devUsers,
       ~isCurrentMerchantPlatform,
     ),
@@ -129,47 +125,6 @@ let useGetHsSidebarValues = () => {
 }
 
 let useGetOrchestratorSidebars = () => useGetHsSidebarValues()
-
-let getAllProductsBasedOnFeatureFlags = (
-  ~featureFlagDetails,
-  ~isFeatureEnabledForAllowListMerchant,
-  ~merchantSpecificConfig: FeatureFlagUtils.merchantSpecificConfig,
-) => {
-  let products = [Orchestration(V1)]
-
-  if featureFlagDetails.devReconv2Product {
-    products->Array.push(Recon(V2))->ignore
-  }
-
-  if featureFlagDetails.devRecoveryV2Product {
-    products->Array.push(Recovery)->ignore
-  }
-
-  if featureFlagDetails.devVaultV2Product {
-    products->Array.push(Vault)->ignore
-  }
-
-  if featureFlagDetails.devHypersenseV2Product {
-    products->Array.push(CostObservability)->ignore
-  }
-
-  if featureFlagDetails.devIntelligentRoutingV2 {
-    products->Array.push(DynamicRouting)->ignore
-  }
-
-  if featureFlagDetails.devOrchestrationV2Product {
-    products->Array.push(Orchestration(V2))->ignore
-  }
-
-  if (
-    featureFlagDetails.devReconEngineV1 &&
-    isFeatureEnabledForAllowListMerchant(merchantSpecificConfig.devReconEngineV1)
-  ) {
-    products->Array.push(Recon(V1))->ignore
-  }
-
-  products
-}
 
 let useGetAllProductSections = (~products: array<productTypes>) => {
   open ProductUtils
@@ -207,17 +162,9 @@ let useGetSidebarProductModules = () => {
   let merchantList = Recoil.useRecoilValueFromAtom(merchantListAtom)
   let merchantListProducts =
     merchantList->Array.map(merchant => merchant.productType->Option.getOr(UnknownProduct))
-  let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let {
-    isFeatureEnabledForAllowListMerchant,
-    merchantSpecificConfig,
-  } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
+  let {hasProductAccess} = ProductAccessHook.useProductAccess()
 
-  let allProducts = getAllProductsBasedOnFeatureFlags(
-    ~featureFlagDetails,
-    ~isFeatureEnabledForAllowListMerchant,
-    ~merchantSpecificConfig,
-  )
+  let allProducts = ProductUtils.productSortOrder->Array.filter(hasProductAccess)
 
   let uniqueMerchantListProducts = merchantListProducts->Array.reduce([], (
     productList,
@@ -247,43 +194,39 @@ let useGetSidebarValuesForCurrentActive = () => {
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
   let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let defaultSidebar = []
-  if featureFlagDetails.devModularityV2 {
-    // show Home when modularity is enabled
+  defaultSidebar->Array.push(
+    Link({
+      name: "Home",
+      icon: "nd-home",
+      link: "/v2/home",
+      access: Access,
+      selectedIcon: "nd-fill-home",
+    }),
+  )
+
+  // Show Users only if devUsers flag is enabled
+  if featureFlagDetails.devUsers {
     defaultSidebar->Array.push(
       Link({
-        name: "Home",
-        icon: "nd-home",
-        link: "/v2/home",
+        name: "Users",
+        icon: "nd-user",
+        link: "/users",
         access: Access,
-        selectedIcon: "nd-fill-home",
-      }),
-    )
-
-    // Show Users only if devUsers flag is enabled
-    if featureFlagDetails.devUsers {
-      defaultSidebar->Array.push(
-        Link({
-          name: "Users",
-          icon: "nd-user",
-          link: "/users",
-          access: Access,
-          selectedIcon: "nd-user",
-        }),
-      )
-    }
-
-    // Show Theme only if devTheme flag is enabled
-    if featureFlagDetails.devTheme {
-      defaultSidebar->Array.push(ThemeSidebarValues.themeTopLevelLink(~userHasResourceAccess))
-    }
-
-    // Always show product header when modularity is enabled
-    defaultSidebar->Array.push(
-      CustomComponent({
-        component: <ProductHeaderComponent />,
+        selectedIcon: "nd-user",
       }),
     )
   }
+
+  // Show Theme only if devTheme flag is enabled
+  if featureFlagDetails.devTheme {
+    defaultSidebar->Array.push(ThemeSidebarValues.themeTopLevelLink(~userHasResourceAccess))
+  }
+
+  defaultSidebar->Array.push(
+    CustomComponent({
+      component: <ProductHeaderComponent />,
+    }),
+  )
 
   let sidebarValuesForProduct = switch activeProduct {
   | Orchestration(V1) => hsSidebars

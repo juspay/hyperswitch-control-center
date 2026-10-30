@@ -5,25 +5,7 @@ let emptyComponent = CustomComponent({
 
 let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => {
   open ProductUtils
-  let {
-    devReconv2Product,
-    devRecoveryV2Product,
-    devVaultV2Product,
-    devHypersenseV2Product,
-    devIntelligentRoutingV2,
-    devOrchestrationV2Product,
-    devReconEngineV1,
-  } =
-    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-
-  let {
-    isFeatureEnabledForAllowListMerchant,
-    merchantSpecificConfig,
-  } = MerchantSpecificConfigHook.useMerchantSpecificConfig()
-
-  let isDevReconEngineV1Enabled =
-    devReconEngineV1 &&
-    isFeatureEnabledForAllowListMerchant(merchantSpecificConfig.devReconEngineV1)
+  let {hasProductAccess} = ProductAccessHook.useProductAccess()
 
   let sideBarValues = [
     Link({
@@ -34,7 +16,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
     }),
   ]
 
-  if devReconv2Product {
+  if Recon(V2)->hasProductAccess {
     sideBarValues->Array.push(
       Link({
         name: Recon(V2)->getProductDisplayName,
@@ -45,7 +27,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
     )
   }
 
-  if devRecoveryV2Product {
+  if Recovery->hasProductAccess {
     sideBarValues->Array.push(
       Link({
         name: Recovery->getProductDisplayName,
@@ -56,7 +38,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
     )
   }
 
-  if devVaultV2Product {
+  if Vault->hasProductAccess {
     sideBarValues->Array.push(
       Link({
         name: Vault->getProductDisplayName,
@@ -66,7 +48,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       }),
     )
   }
-  if devHypersenseV2Product {
+  if CostObservability->hasProductAccess {
     sideBarValues->Array.push(
       Link({
         name: CostObservability->getProductDisplayName,
@@ -76,7 +58,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       }),
     )
   }
-  if devIntelligentRoutingV2 {
+  if DynamicRouting->hasProductAccess {
     sideBarValues->Array.push(
       Link({
         name: DynamicRouting->getProductDisplayName,
@@ -86,7 +68,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       }),
     )
   }
-  if devOrchestrationV2Product {
+  if Orchestration(V2)->hasProductAccess {
     sideBarValues->Array.push(
       Link({
         name: Orchestration(V2)->getProductDisplayName,
@@ -96,7 +78,7 @@ let useGetProductSideBarValues = (~activeProduct: ProductTypes.productTypes) => 
       }),
     )
   }
-  if isDevReconEngineV1Enabled {
+  if Recon(V1)->hasProductAccess {
     sideBarValues->Array.push(
       Link({
         name: Recon(V1)->getProductDisplayName,

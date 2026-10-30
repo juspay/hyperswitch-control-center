@@ -680,8 +680,6 @@ let settings = (
   ~checkUserEntity,
   ~complianceCertificate,
   ~hierarchicalConfigurations,
-  ~devModularityV2Enabled,
-  ~devThemeEnabled,
   ~devUsers,
   ~isCurrentMerchantPlatform,
 ) => {
@@ -697,15 +695,10 @@ let settings = (
   if hierarchicalConfigurations {
     settingsLinkArray->Array.push(hierarchicalConfigurationsSection(userHasResourceAccess))->ignore
   }
-  if !devModularityV2Enabled && devThemeEnabled {
-    settingsLinkArray
-    ->Array.push(ThemeSidebarValues.themeSublevelLinks(~userHasResourceAccess))
-    ->ignore
-  }
   if userHasAccess(~groupAccess=AccountManage) == Access {
     settingsLinkArray->Array.push(organizationSettings(userHasAccess, checkUserEntity))->ignore
   }
-  if !(devUsers && devModularityV2Enabled) {
+  if !devUsers {
     settingsLinkArray->Array.push(userManagement(userHasResourceAccess))->ignore
   }
 

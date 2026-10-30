@@ -10,14 +10,6 @@ let themeTopLevelLink = (~userHasResourceAccess) => {
     selectedIcon: "nd-overview-fill",
   })
 }
-let themeSublevelLinks = (~userHasResourceAccess) => {
-  SubLevelLink({
-    name: "Theme",
-    link: `/theme`,
-    access: userHasResourceAccess(~resourceAccess=Theme),
-    searchOptions: [("View theme", "")],
-  })
-}
 
 let themeSidebars = {
   let sidebar = [themeTopLevelLink]

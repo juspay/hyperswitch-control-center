@@ -43,15 +43,29 @@ let useFetchMerchantList = () => {
       )
       let v1MerchantResponse = await fetchDetails(v1MerchantListUrl)
 
-      let v2MerchantList = featureFlagDetails.devModularityV2 ? await v2MerchantListFetcher() : []
+      let v2MerchantList =
+        UserInfoTypes.V2->ProductAccess.hasApiVersionAccess(~featureFlags=featureFlagDetails)
+          ? await v2MerchantListFetcher()
+          : []
       let concatenatedList = v1MerchantResponse->getArrayFromJson([])->Array.concat(v2MerchantList)
       let response = concatenatedList->uniqueObjectFromArrayOfObjects(keyExtractorForMerchantid)
-      let concatenatedListTyped = response->getMappedValueFromArrayOfJson(merchantItemToObjMapper)
+      let concatenatedListTyped =
+        response
+        ->getMappedValueFromArrayOfJson(merchantItemToObjMapper)
+        ->Array.filter(merchant =>
+          ProductAccess.hasMerchantAccess(
+            ~version=merchant.version->Option.getOr(UserInfoTypes.V1),
+            ~product=merchant.productType->Option.getOr(ProductTypes.UnknownProduct),
+            ~featureFlags=featureFlagDetails,
+          )
+        )
       setMerchantList(_ => concatenatedListTyped)
+      concatenatedListTyped
     } catch {
     | _ => {
         setMerchantList(_ => [ompDefaultValue(merchantId, "")])
         showToast(~message="Failed to fetch merchant list", ~toastType=ToastError)
+        []
       }
     }
   }
