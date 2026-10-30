@@ -30,14 +30,8 @@ let make = (~showOnBoarding) => {
     None
   }, [url.search])
 
-  let convertArrayToCSV = arr => {
-    let headers = ReconReportUtils.getHeadersForCSV()
-    let csv =
-      arr
-      ->Array.map(row => row->Array.joinWith(","))
-      ->Array.joinWith("\n")
-    headers ++ "\n" ++ csv
-  }
+  let convertArrayToCSV = arr =>
+    PapaParse.unparse({"fields": ReconReportUtils.getHeadersForCSV(), "data": arr})
 
   let downloadReport = async () => {
     try {

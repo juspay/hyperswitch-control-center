@@ -25,9 +25,16 @@ let getReconStatusTypeFromString = (reconStatus: string) => {
   }
 }
 
-let getHeadersForCSV = () => {
-  "Order ID,Transaction ID,Payment Gateway,Payment Method,Txn Amount,Settlement Amount,Recon Status,Transaction Date"
-}
+let getHeadersForCSV = () => [
+  "Order ID",
+  "Transaction ID",
+  "Payment Gateway",
+  "Payment Method",
+  "Txn Amount",
+  "Settlement Amount",
+  "Recon Status",
+  "Transaction Date",
+]
 
 let generateDropdownOptionsCustomComponent: array<OMPSwitchTypes.ompListTypes> => array<
   SelectBox.dropdownOption,
