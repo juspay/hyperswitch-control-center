@@ -1792,7 +1792,6 @@ let useGetURL = () => {
       /* TO BE CHECKED */
       | INTEGRATION_DETAILS => Default(`user/get_sandbox_integration_details`)
       | SDK_PAYMENT => Default("payments")
-      | CHAT_BOT => Default(`chat/ai/data`)
 
       /* HIERARCHICAL CONFIGURATIONS (RESOURCES) */
       | RESOURCES =>

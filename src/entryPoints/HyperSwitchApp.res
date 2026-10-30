@@ -1,9 +1,7 @@
 @react.component
 let make = () => {
   open HSwitchUtils
-  open GlobalVars
   open APIUtils
-  open Typography
   open HyperswitchAtom
   open HyperswitchAppHelper
 
@@ -16,7 +14,6 @@ let make = () => {
     setDashboardPageState,
   } = React.useContext(GlobalProvider.defaultContext)
 
-  let mixpanelEvent = MixpanelHook.useSendEvent()
   let {activeProduct, setActiveProductValue} = React.useContext(
     ProductSelectionProvider.defaultContext,
   )
@@ -28,12 +25,12 @@ let make = () => {
   let (userGroupACL, setuserGroupACL) = Recoil.useRecoilState(userGroupACLAtom)
   let {getThemesJson} = React.useContext(ThemeProvider.themeContext)
   let {fetchMerchantSpecificConfig} = MerchantSpecificConfigHook.useMerchantSpecificConfig()
-  let {fetchUserGroupACL, hasAnyGroupAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {fetchUserGroupACL, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let fetchMerchantList = MerchantListHook.useFetchMerchantList()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let fetchUserMerchantDetails = MerchantDetailsHook.useFetchUserMerchantDetails()
   let fetchMerchantAccountDetails = MerchantDetailsHook.useFetchMerchantDetails()
-  let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
+  let {getCommonSessionDetails, getResolvedUserInfo} = React.useContext(
     UserInfoProvider.defaultContext,
   )
   let {roleId} = getResolvedUserInfo()
@@ -157,11 +154,6 @@ let make = () => {
   | _ => false
   }
 
-  let onAskPulseClick = () => {
-    mixpanelEvent(~eventName="ask_pulse_clicked")
-    RescriptReactRouter.push(appendDashboardPath(~url="/chat-bot"))
-  }
-
   <>
     <div>
       {switch dashboardPageState {
@@ -194,40 +186,6 @@ let make = () => {
                           </RenderIf>
                           <RenderIf condition={featureFlagDetails.devLaunchSage}>
                             <LaunchSageButton />
-                          </RenderIf>
-                          <RenderIf
-                            condition={featureFlagDetails.devAiChatBot &&
-                            // TODO: Remove `MerchantDetailsView` permission in future
-                            hasAnyGroupAccess(
-                              userHasAccess(~groupAccess=MerchantDetailsView),
-                              userHasAccess(~groupAccess=AccountView),
-                            ) == Access &&
-                            !checkUserEntity([#Profile]) &&
-                            merchantDetailsTypedValue.product_type == Orchestration(V1)}>
-                            <div
-                              onClick={_ => onAskPulseClick()}
-                              className="flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer  transition-all duration-200 shadow-sm relative hover:scale-105"
-                              style={ReactDOM.Style.make(
-                                ~background="linear-gradient(90deg, transparent 0%, #3b82f6 25%, transparent 50%, #3b82f6 75%, transparent 100%)",
-                                ~backgroundSize="200% 100%",
-                                ~animation="sparkleBorder 5s linear infinite",
-                                ~borderRadius="15px",
-                                ~padding="1px",
-                                (),
-                              )}>
-                              <div
-                                className="flex items-center gap-2 px-3 py-2 bg-nd_gray-100 dark:bg-gray-900 rounded-xl">
-                                <Icon name="stars" size=20 customIconColor="text-blue-500" />
-                                <span className={`${body.md.semibold} text-blue-500`}>
-                                  {"Ask Pulse"->React.string}
-                                </span>
-                              </div>
-                              <style>
-                                {React.string(
-                                  "@keyframes sparkleBorder { 0% { background-position: 0% 0%; } 100% { background-position: 200% 0%; } }",
-                                )}
-                              </style>
-                            </div>
                           </RenderIf>
                         </div>
                       </div>}
