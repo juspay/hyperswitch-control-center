@@ -156,8 +156,27 @@ let getCurrenciesByWeight = (source, measure, rows) =>
   ->Array.toSorted(((_, a), (_, b)) => compareLogic(a, b))
   ->Array.map(((currency, _)) => currency)
 
-let buildDataset = (selection, responses) => {
-  let {source, measure} = selection
+let getFlowCounts = (source, rows) =>
+  rows
+  ->Array.map(getDictFromJsonObject)
+  ->Array.reduce(Dict.make(), (acc, dict) => {
+    let flow = (dict->getRowFlow :> string)
+    acc->Dict.set(flow, acc->getValueFromDict(flow, 0.0) +. getRowCounts(source, dict).total)
+    acc
+  })
+
+let getRowsInFlow = (rows, ~flow: flow) =>
+  flow == #all ? rows : rows->Array.filter(json => json->getDictFromJsonObject->getRowFlow == flow)
+
+let buildDataset = (selection, allResponses) => {
+  let {source, measure, flow} = selection
+  let inFlow = rows => rows->getRowsInFlow(~flow)
+  let responses = {
+    currentRows: allResponses.currentRows->inFlow,
+    previousRows: allResponses.previousRows->inFlow,
+    currentDaily: allResponses.currentDaily->inFlow,
+    previousDaily: allResponses.previousDaily->inFlow,
+  }
   let needsCurrency = selection->needsCurrency
   let filteredCurrencies = selection->getSelectedFilterValues(#currency)
   let pickedCurrency =
@@ -242,6 +261,7 @@ let buildDataset = (selection, responses) => {
       : [],
     currentDaily: responses.currentDaily->dailyOf,
     previousDaily: responses.previousDaily->dailyOf,
+    flowCounts: hasFlows(source) ? getFlowCounts(source, allResponses.currentRows) : Dict.make(),
   }
 }
 

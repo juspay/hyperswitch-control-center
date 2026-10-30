@@ -9,6 +9,7 @@ let make = (~selection: selection, ~dataset: dataset, ~labelFor) => {
     [
       (selection.view :> string),
       selection->requestKey,
+      (selection.flow :> string),
       (selection.measure :> string),
       dataset.amountCurrency,
     ]->Array.joinWith("|")

@@ -6,6 +6,12 @@ let sources: array<source> = [#intent, #attempt, #refund, #dispute]
 
 let views: array<view> = [#trend, #breakdown, #mix, #table]
 
+let flows: array<flow> = [#all, #cit, #cit_saving, #mit]
+
+let flowColumns: array<dimension> = [#off_session, #setup_future_usage]
+
+let hasFlows = (source: source) => source == #intent
+
 let sourceConfig = (source: source) =>
   switch source {
   | #intent => {
@@ -255,8 +261,9 @@ let statusDimensions = sources->Array.filterMap(source => sourceConfig(source).s
 
 let suggestedNext = (source: source, key: option<dimension>): array<dimension> =>
   switch (source, key) {
-  | (#intent, Some(#status)) => [#currency, #profile_id]
-  | (#intent, _) => [#currency, #status]
+  | (#intent, Some(#flow)) => [#currency, #profile_id]
+  | (#intent, Some(#status)) => [#flow, #currency]
+  | (#intent, _) => [#flow, #currency, #status]
   | (#attempt, Some(#connector)) => [#payment_method_type, #error_reason]
   | (#attempt, Some(#payment_method)) => [#payment_method_type, #connector]
   | (#attempt, Some(#payment_method_type)) => [#connector, #card_network]
@@ -270,3 +277,62 @@ let suggestedNext = (source: source, key: option<dimension>): array<dimension> =
   | (#dispute, Some(#connector)) => [#dispute_stage, #currency]
   | (#dispute, _) => [#connector, #currency]
   }
+
+let presets: array<preset> = [
+  {
+    title: "How do CIT and MIT payments compare?",
+    source: #intent,
+    measure: #success_rate,
+    split: [#flow],
+    view: #trend,
+  },
+  {
+    title: "Are payments left unfinished?",
+    source: #intent,
+    measure: #not_completed_rate,
+    split: [#flow],
+    view: #breakdown,
+  },
+  {
+    title: "Which connector underperforms?",
+    source: #attempt,
+    measure: #success_rate,
+    split: [#connector],
+    view: #breakdown,
+  },
+  {
+    title: "Which errors are attempts failing with?",
+    source: #attempt,
+    measure: #failed,
+    split: [#error_reason, #connector],
+    view: #table,
+  },
+  {
+    title: "When did failures start?",
+    source: #attempt,
+    measure: #failure_rate,
+    split: [#connector],
+    view: #trend,
+  },
+  {
+    title: "Where does 3DS fail?",
+    source: #attempt,
+    measure: #three_ds_failure_rate,
+    split: [#card_network],
+    view: #breakdown,
+  },
+  {
+    title: "Why do refunds fail?",
+    source: #refund,
+    measure: #failed,
+    split: [#refund_error_message, #connector],
+    view: #table,
+  },
+  {
+    title: "Where are we losing disputes?",
+    source: #dispute,
+    measure: #failure_rate,
+    split: [#connector],
+    view: #breakdown,
+  },
+]

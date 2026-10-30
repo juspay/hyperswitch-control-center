@@ -7,14 +7,18 @@ open ExplorerData
 open ExplorerDescriptions
 open ExplorerChartsUtils
 
-let getFilterText = (context: chartContext) =>
-  context.selection.filters
+let getFilterText = (context: chartContext) => {
+  let {flow, filters} = context.selection
+  let flowFilter = flow == #all ? [] : [(#flow, [(flow :> string)])]
+  flowFilter
+  ->Array.concat(filters)
   ->Array.map(((key, values)) =>
     `${dimensionLabel(key)->String.toLowerCase} is ${values
       ->Array.map(value => context.labelFor(key, value))
       ->Array.joinWith(" or ")}`
   )
   ->Array.joinWith(" and ")
+}
 
 let getHeadline = (context: chartContext) => {
   let {selection, dataset} = context

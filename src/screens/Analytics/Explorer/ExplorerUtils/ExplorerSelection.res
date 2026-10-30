@@ -8,9 +8,14 @@ let sourceFromFilters = filterValueJson =>
 
 let selectionFromFilters = (filterValueJson, ~backendDimensions) => {
   let source = filterValueJson->sourceFromFilters
+  let flow = hasFlows(source)
+    ? filterValueJson->getString(filterKey(#flow), "")->flowFromString
+    : #all
   let measure = source->measureFromString(filterValueJson->getString(filterKey(#measure), ""))
   let dimensions = source->getOfferedDimensions(~backendDimensions)
-  let splitOptions = getSplitDimensions(measure, ~dimensions)
+  let flowDimensions: array<dimension> = hasFlows(source) ? [#flow] : []
+  let splitOptions =
+    (flow == #all ? flowDimensions : [])->Array.concat(getSplitDimensions(measure, ~dimensions))
   let filterOptions = getFilterDimensions(measure, ~dimensions)
   let filters =
     filterValueJson
@@ -25,6 +30,7 @@ let selectionFromFilters = (filterValueJson, ~backendDimensions) => {
     )
   {
     source,
+    flow,
     measure,
     split: filterValueJson
     ->getStrArrayFromDict(filterKey(#split), [])
@@ -34,7 +40,9 @@ let selectionFromFilters = (filterValueJson, ~backendDimensions) => {
     splitOptions,
     filterOptions,
     filters,
-    drilledFrom: dimensions->findDimension(filterValueJson->getString(filterKey(#from), "")),
+    drilledFrom: flowDimensions
+    ->Array.concat(dimensions)
+    ->findDimension(filterValueJson->getString(filterKey(#from), "")),
     view: filterValueJson->getString(filterKey(#view), "")->viewFromString,
     currency: filterValueJson->getString(filterKey(#currency), ""),
     startTime: filterValueJson->getString(HSAnalyticsUtils.startTimeFilterKey, ""),
@@ -73,8 +81,11 @@ let countGroupBy = (selection): array<dimension> => {
     sourceConfig(selection.source).statusDimension
     ->mapOptionOrDefault([], key => [key])
     ->Array.concat(threeDsColumn)
+    ->Array.concat(hasFlows(selection.source) ? flowColumns : [])
     ->Array.concat(needsCurrency(selection) ? [#currency] : [])
-  fixed->Array.concat(selection.split->Array.filter(key => !(fixed->Array.includes(key))))
+  fixed->Array.concat(
+    selection.split->Array.filter(key => key != #flow && !(fixed->Array.includes(key))),
+  )
 }
 
 let countMetrics = selection => {
@@ -180,10 +191,12 @@ let getFocusUpdate = (selection, group: group) =>
   group->isRecordedGroup
     ? Some(
         selection.split
-        ->Array.mapWithIndex((key, index) => (
-          getFilterUrlKey(key),
-          getFilterValueString([group.values->getValueFromArray(index, "")]),
-        ))
+        ->Array.mapWithIndex((key, index) => {
+          let value = group.values->getValueFromArray(index, "")
+          key == #flow
+            ? (filterKey(#flow), value)
+            : (getFilterUrlKey(key), getFilterValueString([value]))
+        })
         ->Array.concat(
           [
             (#split, "[]"),
@@ -209,3 +222,36 @@ let getSuggestionUpdate = (selection, key) =>
       selection->splitAt(Math.Int.min(selection.split->Array.length, 1), Some(key))->splitValue,
     ),
   ]->selectionUpdate
+
+let getFlowUpdate = (selection, id) =>
+  [
+    (#flow, id),
+    (
+      #split,
+      selection.split->Array.filter(key => key != #flow || id->flowFromString == #all)->splitValue,
+    ),
+  ]
+  ->Array.concat(selection.drilledFrom == Some(#flow) ? [(#from, "")] : [])
+  ->selectionUpdate
+
+let getPresetUpdate = (selection, preset: preset) =>
+  [
+    selection->getClearFiltersUpdate,
+    [
+      (#source, (preset.source :> string)),
+      (#flow, (#all: flow :> string)),
+      (#measure, (preset.measure :> string)),
+      (#split, preset.split->splitValue),
+      (#view, (preset.view :> string)),
+      (#from, ""),
+    ]->selectionUpdate,
+  ]->DictionaryUtils.mergeDicts
+
+let getActivePreset = selection =>
+  presets->Array.find(preset =>
+    preset.source == selection.source &&
+    selection.flow == #all &&
+    preset.measure == selection.measure &&
+    preset.split == selection.split &&
+    preset.view == selection.view
+  )

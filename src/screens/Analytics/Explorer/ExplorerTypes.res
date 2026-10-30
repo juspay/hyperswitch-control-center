@@ -2,6 +2,8 @@ type domain = [#payments | #refunds | #disputes]
 
 type source = [#intent | #attempt | #refund | #dispute]
 
+type flow = [#all | #cit | #cit_saving | #mit]
+
 type measure = [
   | #success_rate
   | #failure_rate
@@ -15,7 +17,7 @@ type measure = [
   | #lost_amount
 ]
 
-type selectionKey = [#source | #measure | #currency | #split | #view | #from]
+type selectionKey = [#source | #flow | #measure | #currency | #split | #view | #from]
 
 type view = [#trend | #breakdown | #mix | #table]
 
@@ -55,6 +57,9 @@ type dimension = [
   | #refund_reason
   | #refund_error_message
   | #dispute_stage
+  | #off_session
+  | #setup_future_usage
+  | #flow
 ]
 
 type authenticationType = [#three_ds | #no_three_ds]
@@ -170,8 +175,17 @@ type dailyPoint = {
   counts: counts,
 }
 
+type preset = {
+  title: string,
+  source: source,
+  measure: measure,
+  split: array<dimension>,
+  view: view,
+}
+
 type selection = {
   source: source,
+  flow: flow,
   measure: measure,
   split: array<dimension>,
   splitOptions: array<dimension>,
@@ -204,6 +218,7 @@ type dataset = {
   unmeasured: array<(array<string>, counts)>,
   currentDaily: Dict.t<dailyPoint>,
   previousDaily: Dict.t<dailyPoint>,
+  flowCounts: Dict.t<float>,
 }
 
 type chartContext = {
