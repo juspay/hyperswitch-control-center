@@ -225,16 +225,6 @@ let make = (~setScreenState) => {
         <DisputeTable />
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
-    | list{"chat-bot"} =>
-      <AccessControl
-        isEnabled={featureFlagDetails.devAiChatBot && !checkUserEntity([#Profile])}
-        // TODO: Remove `MerchantDetailsView` permission in future
-        authorization={hasAnyGroupAccess(
-          userHasAccess(~groupAccess=MerchantDetailsView),
-          userHasAccess(~groupAccess=AccountView),
-        )}>
-        <ChatBot />
-      </AccessControl>
     | list{"configuration-management-default-config"}
     | list{"configuration-management-overrides"}
     | list{"configuration-management-dimensions"}
