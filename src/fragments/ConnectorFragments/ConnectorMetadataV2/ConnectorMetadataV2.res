@@ -49,24 +49,15 @@ let make = (
     }
   }, [selectedConnector])
 
-  let keys =
-    connectorMetaDataFields
-    ->Dict.keysToArray
-    ->Array.filter(ele => !Array.includes(metaDataInputKeysToIgnore, ele))
+  let metadataValues = connectorInfo.metadata->JsonFlattenUtils.flattenObject(true)
   <>
-    {keys
-    ->Array.mapWithIndex((field, index) => {
-      let fields =
-        connectorMetaDataFields
-        ->getDictfromDict(field)
-        ->JSON.Encode.object
-        ->convertMapObjectToDict
-        ->CommonConnectorUtils.inputFieldMapper
-
+    {connectorMetaDataFields
+    ->getMetadataInputFields
+    ->Array.mapWithIndex((fields, index) => {
       let {\"type", name, label} = fields
 
       let value = switch \"type" {
-      | Text | Select | Toggle => connectorInfo.metadata->getDictFromJsonObject->getString(name, "")
+      | Text | Select | Toggle => metadataValues->getString(name, "")
       | _ => ""
       }
 
