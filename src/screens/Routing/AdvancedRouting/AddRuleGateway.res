@@ -42,10 +42,15 @@ let make = (~id, ~gatewayOptions, ~isFirst=false, ~isExpanded) => {
       if newSelectedOptions->Array.length === 0 {
         gateWaysInput.onChange([]->Identity.anyTypeToReactEvent)
       } else {
-        let gatewaysArr = newSelectedOptions->Array.map(item => {
+        let sharePercent = isDistribute ? 100 / newSelectedOptions->Array.length : 100
+        let gatewaysArr = newSelectedOptions->Array.mapWithIndex((item, i) => {
           open RoutingTypes
 
-          let sharePercent = isDistribute ? 100 / newSelectedOptions->Array.length : 100
+          let sharePercent = if i === newSelectedOptions->Array.length - 1 && isDistribute {
+            100 - sharePercent * i
+          } else {
+            sharePercent
+          }
           if isDistribute {
             {
               connector: {

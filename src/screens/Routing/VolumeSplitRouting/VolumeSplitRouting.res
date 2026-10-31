@@ -312,11 +312,9 @@ let make = (
         let distributionPercentageSum =
           distributionPercentages->Array.reduce(0., (sum, distribution) => sum +. distribution)
         let hasZero = distributionPercentages->Array.some(ele => ele === 0.)
-        let isDistributeChecked = !(distributionPercentages->Array.some(ele => ele === 100.0))
 
-        let isNotValid =
-          isDistributeChecked &&
-          (distributionPercentageSum > 100. || hasZero || distributionPercentageSum !== 100.)
+        // The router samples splits as relative weights, so they must total exactly 100
+        let isNotValid = hasZero || distributionPercentageSum !== 100.
 
         if isNotValid {
           Some("Distribution Percent not correct")
