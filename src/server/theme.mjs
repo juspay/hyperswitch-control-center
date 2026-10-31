@@ -1,6 +1,7 @@
 import * as Fs from "fs";
 
 const errorHandler = (res, errorMessage = "something went wrong") => {
+  if (res.headersSent) return;
   res.writeHead(500, { "Content-Type": "text/plain" });
   console.error(errorMessage);
   res.end("Internal Server Error");
