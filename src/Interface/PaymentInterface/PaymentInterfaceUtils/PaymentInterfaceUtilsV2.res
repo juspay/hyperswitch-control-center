@@ -266,6 +266,7 @@ let mapPaymentV2ToCommonType: order_v2 => PaymentInterfaceTypes.order = order =>
     merchant_id: order.merchant_id,
     net_amount: order.net_amount,
     surcharge_amount: order.surcharge_amount,
+    applied_offer: None,
     connector: order.connector,
     status: order.status,
     amount: order.amount,

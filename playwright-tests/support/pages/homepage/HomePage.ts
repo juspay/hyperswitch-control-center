@@ -1,4 +1,4 @@
-import { Page, Locator, expect } from "@playwright/test";
+import { Page, Locator, FrameLocator, expect } from "@playwright/test";
 
 export class HomePage {
   readonly page: Page;
@@ -292,7 +292,20 @@ export class HomePage {
   }
 
   get payButton(): Locator {
-    return this.page.locator('[data-button-for="payUSD100"]');
+    return this.page.getByTestId("sdk-pay-button");
+  }
+
+  // Button renders its label text verbatim into [data-button-text], so this is
+  // an exact, whitespace-free assertion target -- unlike the button's innerText,
+  // which also picks up icons and the loading-state label swap.
+  get payButtonLabel(): Locator {
+    return this.payButton.locator("[data-button-text]");
+  }
+
+  // Waits for the SDK preview to mount, then returns the Pay button's exact label.
+  async payButtonText(): Promise<string> {
+    await this.payButtonLabel.waitFor({ state: "attached", timeout: 60000 });
+    return (await this.payButtonLabel.getAttribute("data-button-text")) ?? "";
   }
 
   get paymentSuccessfulText(): Locator {
@@ -342,35 +355,33 @@ export class HomePage {
   }
 
   get sdkCardButton(): Locator {
-    return this.sdkIframe.contentFrame().getByRole("button", { name: "Card" });
-  }
-
-  // The SDK renders card inputs in a vault iframe nested inside the
-  // payment element iframe.
-  get sdkCardFieldsIframe(): Locator {
     return this.sdkIframe
       .contentFrame()
-      .locator(
-        'iframe[name="orca-payment-element-iframeRef-parent-card-inner-iframe-container"]',
-      );
+      .getByRole("button", { name: "Card" })
+      .first();
+  }
+
+  get sdkCardIframe(): Locator {
+    return this.sdkIframe
+      .contentFrame()
+      .locator('iframe[name*="card-inner-iframe-container"]');
+  }
+
+  // Frame that actually holds cardNoInput / expiryInput / cvvInput.
+  get sdkCardFrame(): FrameLocator {
+    return this.sdkCardIframe.contentFrame();
   }
 
   get sdkCardNoInput(): Locator {
-    return this.sdkCardFieldsIframe
-      .contentFrame()
-      .locator("[data-testid=cardNoInput]");
+    return this.sdkCardFrame.locator("[data-testid=cardNoInput]");
   }
 
   get sdkExpiryInput(): Locator {
-    return this.sdkCardFieldsIframe
-      .contentFrame()
-      .locator("[data-testid=expiryInput]");
+    return this.sdkCardFrame.locator("[data-testid=expiryInput]");
   }
 
   get sdkCvvInput(): Locator {
-    return this.sdkCardFieldsIframe
-      .contentFrame()
-      .locator("[data-testid=cvvInput]");
+    return this.sdkCardFrame.locator("[data-testid=cvvInput]");
   }
 
   get paymentFailedText(): Locator {
@@ -391,6 +402,7 @@ export class HomePage {
 
   async waitForSdkCardForm(): Promise<void> {
     await this.sdkCardButton.waitFor({ state: "visible", timeout: 10000 });
+    await this.sdkCardIframe.waitFor({ state: "attached", timeout: 15000 });
     await this.sdkCardNoInput.waitFor({ state: "visible", timeout: 15000 });
   }
 

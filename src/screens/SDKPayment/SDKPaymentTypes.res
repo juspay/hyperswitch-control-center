@@ -1,4 +1,7 @@
 type clientSecretStatus = InitialPreview | Loading | Success | Error
+
+type paymentElementEvent = SurchargeInfo | AppliedOffersInfo | UnknownEvent
+
 type address = {
   line1: string,
   line2: string,
