@@ -70,7 +70,7 @@ let make = () => {
   <div>
     {switch (isScriptLoaded, isHyperReady) {
     | (true, true) =>
-      <Elements options=elementOptions stripe={hyperPromise()}>
+      <Elements key=clientSecret options=elementOptions stripe={hyperPromise()}>
         <CheckoutForm />
       </Elements>
     | _ => React.null

@@ -1,3 +1,4 @@
+open LogicUtils
 open ExplorerTypes
 open ExplorerCatalog
 open ExplorerDescriptions
@@ -7,6 +8,17 @@ let measureOptions = source =>
     label: measureLabel(source, measure),
     value: (measure :> string),
     subLabel: measureDefinition(source, measure),
+  })
+
+let flowOptions = (dataset: dataset) =>
+  flows->Array.map((flow): MultiSelectBindings.selectMenuItemType => {
+    label: flowLabel(flow),
+    value: (flow :> string),
+    subLabel: flow == #all
+      ? flowDescription(flow)
+      : `${flowDescription(flow)} · ${dataset.flowCounts
+          ->getValueFromDict((flow :> string), 0.0)
+          ->formatNumberWithCommas}`,
   })
 
 let dimensionOptions = (source, dimensions: array<dimension>) =>
