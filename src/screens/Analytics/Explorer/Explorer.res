@@ -2,6 +2,7 @@ open LogicUtils
 open ExplorerTypes
 open ExplorerCatalog
 open ExplorerUtils
+open ExplorerDescriptions
 open ExplorerSelection
 open ExplorerHelper
 open NewAnalyticsHelper
@@ -89,14 +90,23 @@ let make = () => {
       setEditing(_ => None)
       [
         selection->getClearFiltersUpdate,
-        [(#source, (source :> string)), (#split, "[]")]->selectionUpdate,
+        [(#source, (source :> string)), (#flow, ""), (#split, "[]")]->selectionUpdate,
       ]
       ->DictionaryUtils.mergeDicts
       ->updateExistingKeys
     }
 
   <div className="flex flex-col gap-4">
-    <DomainTabs selection onSource=setSource />
+    <div className="flex flex-wrap items-end justify-between gap-3">
+      <DomainTabs selection onSource=setSource />
+      <PresetPicker
+        selection
+        onPreset={preset => {
+          setEditing(_ => None)
+          selection->getPresetUpdate(preset)->updateExistingKeys
+        }}
+      />
+    </div>
     <SourceTabs selection onSource=setSource />
     <ExplorerQueryBar
       selection

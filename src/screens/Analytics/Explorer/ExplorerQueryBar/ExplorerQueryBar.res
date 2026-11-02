@@ -1,6 +1,7 @@
 open Typography
 open LogicUtils
 open ExplorerTypes
+open ExplorerCatalog
 open ExplorerUtils
 open ExplorerDescriptions
 open ExplorerSelection
@@ -89,7 +90,18 @@ let make = (
         placeholder="Measure"
       />
       <QueryText text="for" />
-      <QueryText text={`all ${sourceNoun(source)},`} strong=true />
+      <RenderIf condition={hasFlows(source)}>
+        <QuerySelect
+          value={(selection.flow :> string)}
+          onChange={id => selection->getFlowUpdate(id)->onUpdate}
+          options={dataset->flowOptions}
+          placeholder="Flow"
+        />
+        <QueryText text={`${sourceNoun(source)},`} />
+      </RenderIf>
+      <RenderIf condition={!hasFlows(source)}>
+        <QueryText text={`all ${sourceNoun(source)},`} strong=true />
+      </RenderIf>
       <QueryText text="split by" />
       <QuerySelect
         value={splitIds->getValueFromArray(0, "")}
