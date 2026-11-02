@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.02.0
+
+### Features
+
+- **connectors:** Support currency-specific merchant IDs for JPMorgan ([#5775](https://github.com/juspay/hyperswitch-control-center/pull/5775)) ([`768337b`](https://github.com/juspay/hyperswitch-control-center/commit/768337b1afb717039e4ba9880230b0d2c3906b94))
+
+**Full Changelog:** [`2026.10.30.0...2026.11.02.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.30.0...2026.11.02.0)
+
+- - -
+
 ## 2026.10.30.0
 
 ### Features
