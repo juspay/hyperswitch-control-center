@@ -1,8 +1,11 @@
 import * as Fs from "fs";
 import toml from "@iarna/toml";
 
+const MAX_REQUEST_BODY_BYTES = 16 * 1024;
+
 // Helper function for error handling
 const errorHandler = (res, errorMessage = "something went wrong") => {
+  if (res.headersSent) return;
   res.writeHead(500, { "Content-Type": "text/plain" });
   console.error(errorMessage);
   res.end("Internal Server Error");
@@ -215,8 +218,22 @@ To Parse the request body
 const getRequestBody = (req) => {
   return new Promise((resolve, reject) => {
     let body = "";
-    req.on("data", (chunk) => (body += chunk.toString()));
-    req.on("end", () => resolve(JSON.parse(body)));
+    let receivedBytes = 0;
+    req.on("data", (chunk) => {
+      receivedBytes += chunk.length;
+      body += chunk.toString();
+      if (receivedBytes > MAX_REQUEST_BODY_BYTES) {
+        reject(new Error("Request body too large"));
+        req.destroy();
+      }
+    });
+    req.on("end", () => {
+      try {
+        resolve(JSON.parse(body));
+      } catch (err) {
+        reject(err);
+      }
+    });
     req.on("error", reject);
   });
 };
