@@ -146,6 +146,7 @@ module OrderInfo = {
               PaymentId,
               NetAmount,
               SurchargeAmount,
+              OfferAmount,
               ConnectorTransactionID,
               ErrorMessage,
             ]
@@ -1039,6 +1040,25 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       </div>,
     )
 
+  let renderOfferDetails = () =>
+    renderTabContent(
+      renderDetailsPanel(
+        ~title="Offer Details",
+        ~children=<ShowOrderDetails
+          data=orderData
+          getHeading=OrderEntity.getHeadingForOfferDetails
+          getCell=OrderEntity.getCellForOfferDetails
+          detailsFields=[AppliedOfferAmount, OfferEngineMerchantId, OfferId, OfferEngineTxnId]
+          isNonRefundConnector={isNonRefundConnector(orderData.connector)}
+          paymentStatus={orderData.status}
+          openRefundModal={() => ()}
+          widthClass="md:w-1/4 w-full min-w-0"
+          paymentId={orderData.payment_id}
+          border=""
+        />,
+      ),
+    )
+
   let paymentDetailsTabs: array<Tabs.tab> = []
 
   if (
@@ -1094,6 +1114,13 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     title: "FRM Details",
     renderContent: renderFrmDetails,
   })
+
+  if orderData.applied_offer->Option.isSome {
+    paymentDetailsTabs->Array.push({
+      title: "Offer Details",
+      renderContent: renderOfferDetails,
+    })
+  }
 
   let selectTabByTitle = title => {
     let tabIndex = paymentDetailsTabs->Array.findIndex(tab => tab.title === title)

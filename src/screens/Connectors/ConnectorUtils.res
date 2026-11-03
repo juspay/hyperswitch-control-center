@@ -2098,19 +2098,10 @@ let validateConnectorRequiredFields = (
     })
   }
 
-  let keys =
-    connectorMetaDataFields
-    ->Dict.keysToArray
-    ->Array.filter(ele => !Array.includes(ConnectorMetaDataUtils.metaDataInputKeysToIgnore, ele))
-
   {
-    keys->Array.forEach(field => {
-      let {\"type", name, required, label} =
-        connectorMetaDataFields
-        ->getDictfromDict(field)
-        ->JSON.Encode.object
-        ->convertMapObjectToDict
-        ->CommonConnectorUtils.inputFieldMapper
+    connectorMetaDataFields
+    ->ConnectorMetaDataUtils.getMetadataInputFields
+    ->Array.forEach(({\"type", name, required, label}) => {
       let key = `metadata.${name}`
       let value = switch \"type" {
       | Text | Select => valuesFlattenJson->getString(`${key}`, "")
@@ -2136,6 +2127,10 @@ let validateConnectorRequiredFields = (
       }
     })
   }
+
+  ConnectorMetaDataUtils.validateMetadataGroups(~connectorMetaDataFields, ~valuesFlattenJson)
+  ->Dict.toArray
+  ->Array.forEach(((key, error)) => newDict->Dict.set(key, error))
 
   connectorWebHookDetails
   ->Dict.keysToArray
