@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.03.0
+
+### Features
+
+- **analytics:** Add payment flows and preset questions to explorer ([#5651](https://github.com/juspay/hyperswitch-control-center/pull/5651)) ([`4f6fff7`](https://github.com/juspay/hyperswitch-control-center/commit/4f6fff75ecc0a8bd4854aae19cdb667d3158cb26))
+- **payments:** Show applied offer on payment details and net it off the SDK pay button ([#5684](https://github.com/juspay/hyperswitch-control-center/pull/5684)) ([`3460303`](https://github.com/juspay/hyperswitch-control-center/commit/3460303dfd5561a30be0a25369f2facb3981a93f))
+
+### Bug Fixes
+
+- **server:** Handle invalid and oversized request bodies on /config/merchant ([#5758](https://github.com/juspay/hyperswitch-control-center/pull/5758)) ([`e068c9a`](https://github.com/juspay/hyperswitch-control-center/commit/e068c9ae0cc74b5cc378295f5cc2da07d6ddce56))
+
+**Full Changelog:** [`2026.11.02.0...2026.11.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.02.0...2026.11.03.0)
+
+- - -
+
 ## 2026.11.02.0
 
 ### Features
