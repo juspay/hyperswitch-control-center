@@ -58,7 +58,20 @@ let getFilterDimensions = (measure, ~dimensions: array<dimension>) =>
 let findDimension = (dimensions: array<dimension>, id) =>
   dimensions->Array.find(key => (key :> string) == id)
 
-let getDimensionValue = (dict, dimension: dimension) => dict->getString((dimension :> string), "")
+let getRowFlow = (dict): flow =>
+  if dict->getBool((#off_session: dimension :> string), false) {
+    #mit
+  } else if dict->getString((#setup_future_usage: dimension :> string), "")->isNonEmptyString {
+    #cit_saving
+  } else {
+    #cit
+  }
+
+let getDimensionValue = (dict, dimension: dimension) =>
+  switch dimension {
+  | #flow => (dict->getRowFlow :> string)
+  | _ => dict->getString((dimension :> string), "")
+  }
 
 let getOutcomesOfStatus = (source: source, status) =>
   switch source {
@@ -98,6 +111,8 @@ let getValuesLabel = (values, ~split: array<dimension>, ~labelFor) =>
 
 let sourceFromString = id =>
   sources->Array.find(source => (source :> string) == id)->Option.getOr(#intent)
+
+let flowFromString = id => flows->Array.find(flow => (flow :> string) == id)->Option.getOr(#all)
 
 let domainFromString = id => domains->Array.find(domain => (domain :> string) == id)
 
@@ -187,19 +202,3 @@ let getWindowDays = (startTime, endTime) => {
   let count = Math.Int.max(1, Math.ceil((endMs -. first) /. dayMs)->Float.toInt)
   Array.fromInitializer(~length=count, index => toIso(first +. index->Int.toFloat *. dayMs))
 }
-
-let getDimensionValueLabel = (
-  key: dimension,
-  value,
-  ~profileList: array<OMPSwitchTypes.ompListTypes>,
-) =>
-  switch (key, value) {
-  | (_, "") => "Not recorded"
-  | (#profile_id, _) =>
-    profileList
-    ->Array.find(profile => profile.id == value)
-    ->mapOptionOrDefault(value, profile => profile.name)
-  | (#status | #refund_status | #refund_type | #dispute_stage, _) => value->snakeToTitle
-  | (#connector, _) => value->ConnectorUtils.getDisplayNameForConnector
-  | _ => value
-  }
