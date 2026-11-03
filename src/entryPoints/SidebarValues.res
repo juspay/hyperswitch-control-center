@@ -91,13 +91,13 @@ let alerts = (~userHasAccess) => {
   SubLevelLink({
     name: "Business Insights",
     link: `/alerts-business-insights`,
-    access: userHasAccess(~groupAccess=UserManagementTypes.AlertsView),
+    access: userHasAccess(~groupAccess=AlertsView),
     searchOptions: [("View alerts", "")],
   })
 }
 
 let alertsSection = (~isAlertsEnabled, ~userHasAccess) =>
-  isAlertsEnabled && userHasAccess(~groupAccess=UserManagementTypes.AlertsView) == Access
+  isAlertsEnabled && userHasAccess(~groupAccess=AlertsView) == Access
     ? Section({
         name: "Alerts",
         icon: "nd-alerts",
@@ -108,7 +108,7 @@ let alertsSection = (~isAlertsEnabled, ~userHasAccess) =>
     : emptyComponent
 
 let monitoringSection = (~isMonitoringEnabled, ~userHasAccess) =>
-  isMonitoringEnabled && userHasAccess(~groupAccess=UserManagementTypes.MonitoringView) == Access
+  isMonitoringEnabled && userHasAccess(~groupAccess=MonitoringView) == Access
     ? Section({
         name: "Monitoring",
         icon: "nd-analytics",
@@ -117,7 +117,7 @@ let monitoringSection = (~isMonitoringEnabled, ~userHasAccess) =>
         links: MonitoringUtils.destinations->Array.map(destination => SubLevelLink({
           name: destination->MonitoringUtils.getTitle,
           link: `/monitoring/${destination->MonitoringUtils.getId(~separator="-")}`,
-          access: userHasAccess(~groupAccess=UserManagementTypes.MonitoringView),
+          access: userHasAccess(~groupAccess=MonitoringView),
           searchOptions: [(destination->MonitoringUtils.getTitle, "")],
         })),
       })
