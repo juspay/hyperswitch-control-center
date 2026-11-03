@@ -87,29 +87,28 @@ let paymentLinks = userHasResourceAccess => {
   })
 }
 
-// TODO: gate with the dedicated alerts permission once it is added
-let alerts = {
+let alerts = (~userHasAccess) => {
   SubLevelLink({
     name: "Business Insights",
     link: `/alerts-business-insights`,
-    access: Access,
+    access: userHasAccess(~groupAccess=UserManagementTypes.AlertsView),
     searchOptions: [("View alerts", "")],
   })
 }
 
-let alertsSection = (~isAlertsEnabled) =>
-  isAlertsEnabled
+let alertsSection = (~isAlertsEnabled, ~userHasAccess) =>
+  isAlertsEnabled && userHasAccess(~groupAccess=UserManagementTypes.AlertsView) == Access
     ? Section({
         name: "Alerts",
         icon: "nd-alerts",
         selectedIcon: "nd-alerts-fill",
         showSection: true,
-        links: [alerts],
+        links: [alerts(~userHasAccess)],
       })
     : emptyComponent
 
-let monitoringSection = (~isMonitoringEnabled) =>
-  isMonitoringEnabled
+let monitoringSection = (~isMonitoringEnabled, ~userHasAccess) =>
+  isMonitoringEnabled && userHasAccess(~groupAccess=UserManagementTypes.MonitoringView) == Access
     ? Section({
         name: "Monitoring",
         icon: "nd-analytics",
@@ -118,7 +117,7 @@ let monitoringSection = (~isMonitoringEnabled) =>
         links: MonitoringUtils.destinations->Array.map(destination => SubLevelLink({
           name: destination->MonitoringUtils.getTitle,
           link: `/monitoring/${destination->MonitoringUtils.getId(~separator="-")}`,
-          access: Access,
+          access: userHasAccess(~groupAccess=UserManagementTypes.MonitoringView),
           searchOptions: [(destination->MonitoringUtils.getTitle, "")],
         })),
       })
