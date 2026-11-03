@@ -73,8 +73,11 @@ let useAlertsDictionary = () => {
   }
 }
 
-// Internal view-only users and internal admins can act on alerts
 let useAlertsManageAccess = (): CommonAuthTypes.authorization => {
+  open UserManagementUtils
   let {roleId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
-  roleId->HyperSwitchUtils.checkIsInternalUser ? Access : NoAccess
+  switch roleId->stringToVariantMapperInternalUser {
+  | InternalOperator | InternalAdmin => Access
+  | _ => NoAccess
+  }
 }

@@ -1,6 +1,6 @@
 type userManagementTypes = UsersTab | RolesTab
 
-type internalUserType = InternalViewOnly | InternalAdmin | NonInternal
+type internalUserType = InternalViewOnly | InternalOperator | InternalAdmin | NonInternal
 
 type admin = TenantAdmin | NonTenantAdmin
 
