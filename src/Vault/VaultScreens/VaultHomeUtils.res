@@ -5,8 +5,9 @@ module VaultActionItem = {
   @react.component
   let make = (~heading, ~img, ~action) => {
     let mixpanelEvent = MixpanelHook.useSendEvent()
-    <div
-      className="border rounded-xl p-3 flex items-center gap-4 group cursor-pointer justify-between py-3"
+    <ActionItem
+      heading
+      leftElement={<img alt={heading} src={img} />}
       onClick={_ => {
         switch action {
         | InternalRoute(route) =>
@@ -16,15 +17,8 @@ module VaultActionItem = {
             url->Window._open
           }
         }
-      }}>
-      <div className="flex items-center gap-2">
-        <img alt={heading} src={img} />
-        <div className="flex flex-col gap-1">
-          <p className="text-sm text-nd_gray-600 font-semibold"> {{heading}->React.string} </p>
-        </div>
-      </div>
-      <Icon name="nd-angle-right" size={16} className="group-hover:scale-125" />
-    </div>
+      }}
+    />
   }
 }
 let vaultActionArray = {

@@ -93,7 +93,7 @@ let make = () => {
           <p className={body.md.regular}>
             {"Contact us for further assistance on "->React.string}
             <a
-              href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
+              href=GlobalVars.hyperswitchSlackUrl
               className="text-nd_primary_blue-450 hover:underline cursor-pointer"
               target="_blank">
               {"Slack"->React.string}

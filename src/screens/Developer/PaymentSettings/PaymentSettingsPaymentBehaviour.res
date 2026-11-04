@@ -300,7 +300,7 @@ module AccountUpdaterSection = {
           </span>
           {". To enable this feature for your merchant account, please reach out to us on "->React.string}
           <a
-            href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
+            href=GlobalVars.hyperswitchSlackUrl
             className="text-primary hover:cursor-pointer hover:underline"
             target="_blank">
             {"Slack"->React.string}
@@ -520,7 +520,7 @@ let make = () => {
               : " To enable this feature for your merchant account, please reach out to us on "}`->React.string}
           <RenderIf condition={!featureFlagDetails.networkTokenization}>
             <a
-              href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
+              href=GlobalVars.hyperswitchSlackUrl
               className="text-primary hover:cursor-pointer hover:underline"
               target="_blank">
               {"Slack"->React.string}

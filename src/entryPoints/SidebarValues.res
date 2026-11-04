@@ -760,9 +760,9 @@ let paymentLinkTheme = {
 }
 
 let offers = userHasResourceAccess => {
-  SubLevelLink({
+  Link({
     name: "Offers",
-    iconTag: "newTag",
+    icon: "nd-discount",
     link: `/offers`,
     access: userHasResourceAccess(~resourceAccess=Offers),
     searchOptions: [("View offers", "")],
@@ -780,7 +780,6 @@ let developers = (
   let apiKeys = apiKeys(userHasResourceAccess)
   let webhooks = webhooks(userHasResourceAccess)
   let paymentSettings = paymentSettings(userHasResourceAccess)
-  let offers = offers(userHasResourceAccess)
 
   let links = if isCurrentMerchantPlatform {
     [paymentSettings, apiKeys, webhooks]
@@ -798,7 +797,6 @@ let developers = (
     if paymentLinkThemeConfigurator {
       defaultDevelopersOptions->Array.push(paymentLinkTheme)
     }
-    defaultDevelopersOptions->Array.push(offers)
     defaultDevelopersOptions
   }
 

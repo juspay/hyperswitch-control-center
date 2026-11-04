@@ -12,7 +12,7 @@ module CantFindProcessor = {
           ~eventName="vault_request_processor",
         ),
       )
-      "https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"->Window._open
+      GlobalVars.hyperswitchSlackUrl->Window._open
     }
     <RenderIf condition={showRequestConnectorBtn}>
       <div
