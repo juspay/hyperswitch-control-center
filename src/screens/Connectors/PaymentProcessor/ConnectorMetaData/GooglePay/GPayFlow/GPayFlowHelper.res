@@ -87,12 +87,12 @@ module Landing = {
     ~isPayViaSingleUseTokenSupported,
   ) => {
     open GPayFlowTypes
+    open GPayFlowUtils
 
     let form = ReactFinalForm.useForm()
 
     let handleConfirmClick = () => {
       if googlePayIntegrationType === #predecrypt {
-        open GPayFlowUtils
         form.change(
           "connector_wallets_details.google_pay.support_predecrypted_token",
           true->JSON.Encode.bool,

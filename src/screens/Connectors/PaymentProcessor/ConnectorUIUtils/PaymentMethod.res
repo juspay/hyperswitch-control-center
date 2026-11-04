@@ -14,42 +14,6 @@ let isSelectedAll = (
   }
 }
 
-let getPayViaSingleUseTokenField = (config, ~formValues, ~paymentMethodType) => {
-  open LogicUtils
-  let values = formValues->getDictFromJsonObject
-  let walletFlow: ConnectorTypes.walletFlow = switch paymentMethodType->ConnectorUtils.getPaymentMethodTypeFromString {
-  | ApplePay if values->ApplePayIntegrationUtils.isApplePayDecryptFlow => Decrypt
-  | GooglePay if values->GPayFlowUtils.isGooglePayDecryptFlow => Decrypt
-  | _ => Encrypt
-  }
-  let entry = config->getJsonObjectFromDict(paymentMethodType)->convertMapObjectToDict
-  entry->getStrArrayFromDict("flows", [])->Array.includes((walletFlow :> string))
-    ? Some(entry->CommonConnectorUtils.inputFieldMapper)
-    : None
-}
-
-let mapProviders = (paymentMethodsEnabled: array<ConnectorTypes.paymentMethodEnabled>, fn) =>
-  paymentMethodsEnabled->Array.map(paymentMethodObj => {
-    ...paymentMethodObj,
-    provider: ?paymentMethodObj.provider->Option.map(providers => providers->Array.map(fn)),
-  })
-
-let updatePayViaSingleUseToken = (paymentMethodsEnabled, ~paymentMethodType, ~value) =>
-  paymentMethodsEnabled->mapProviders(provider =>
-    provider.payment_method_type === paymentMethodType
-      ? {...provider, pay_via_single_use_token: value}
-      : provider
-  )
-
-let removeInapplicablePayViaSingleUseToken = (paymentMethodsEnabled, ~config, ~formValues) =>
-  paymentMethodsEnabled->mapProviders(provider =>
-    config
-    ->getPayViaSingleUseTokenField(~formValues, ~paymentMethodType=provider.payment_method_type)
-    ->Option.isSome
-      ? provider
-      : {...provider, pay_via_single_use_token: ?None}
-  )
-
 module PayViaSingleUseTokenInput = {
   open LogicUtils
   open Typography
@@ -85,6 +49,7 @@ module PayViaSingleUseTokenInput = {
 
 module CardRenderer = {
   open LogicUtils
+  open PaymentMethodUtils
   open ConnectorTypes
   open ConnectorUtils
   open AdditionalDetailsSidebar
@@ -166,7 +131,10 @@ module CardRenderer = {
       switch method->getAddedMethod {
       | Some(_) =>
         paymentMethodsEnabled
-        ->updatePayViaSingleUseToken(~paymentMethodType=method.payment_method_type, ~value)
+        ->updatePayViaSingleUseToken(
+          ~paymentMethodType=method.payment_method_type,
+          ~value=Some(value),
+        )
         ->updateDetails
       | None => setSelectedWallet(_ => {...method, pay_via_single_use_token: value})
       }
@@ -450,6 +418,14 @@ module CardRenderer = {
         "connector_wallets_details",
         valuesOnOpen->getJsonObjectFromDict("connector_wallets_details"),
       )
+      if selectedWallet->getAddedMethod->Option.isSome {
+        paymentMethodsEnabled
+        ->updatePayViaSingleUseToken(
+          ~paymentMethodType=selectedWallet.payment_method_type,
+          ~value=selectedWallet.pay_via_single_use_token,
+        )
+        ->updateDetails
+      }
       setSelectedWallet(_ => Dict.make()->itemProviderMapper)
     }
 

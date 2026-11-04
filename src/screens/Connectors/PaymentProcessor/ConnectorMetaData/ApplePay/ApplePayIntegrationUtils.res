@@ -288,10 +288,11 @@ let isApplePayDecryptFlow = values => {
   let isSimplifiedFlow =
     applePayCombined->getOptionObj((#simplified: applePayIntegrationType :> string))->Option.isSome
   let isProcessedAtHyperswitch =
-    (applePayCombined->sessionToken).payment_processing_details_at->mapOptionOrDefault(
-      false,
-      value => value->paymentProcessingMapper == #Hyperswitch,
-    )
+    applePayCombined
+    ->getDictfromDict((#manual: applePayIntegrationType :> string))
+    ->getDictfromDict("session_token_data")
+    ->getString("payment_processing_details_at", "")
+    ->paymentProcessingMapper == #Hyperswitch
 
   isPredecryptEnabled || isSimplifiedFlow || isProcessedAtHyperswitch
 }

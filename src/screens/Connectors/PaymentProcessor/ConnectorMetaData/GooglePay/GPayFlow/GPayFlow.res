@@ -58,9 +58,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
     connector->isNonEmptyString &&
       Window.getConnectorConfig(connector)
       ->getDictFromJsonObject
-      ->ConnectorUtils.getPayViaSingleUseTokenConfig
-      ->Dict.get("google_pay")
-      ->Option.isSome
+      ->ConnectorUtils.isPayViaSingleUseTokenInDecryptFlow(~paymentMethodType="google_pay")
   }, [connector])
 
   let setIntegrationType = () => {

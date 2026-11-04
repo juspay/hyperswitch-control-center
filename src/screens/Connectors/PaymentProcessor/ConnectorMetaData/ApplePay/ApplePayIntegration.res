@@ -267,9 +267,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
     connector->isNonEmptyString &&
       Window.getConnectorConfig(connector)
       ->getDictFromJsonObject
-      ->ConnectorUtils.getPayViaSingleUseTokenConfig
-      ->Dict.get("apple_pay")
-      ->Option.isSome
+      ->ConnectorUtils.isPayViaSingleUseTokenInDecryptFlow(~paymentMethodType="apple_pay")
   }, [connector])
 
   // TODO: Change this to get for both V1 and V2
