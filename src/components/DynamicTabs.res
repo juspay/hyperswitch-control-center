@@ -12,8 +12,6 @@ let getValueFromArrayTab = (tabsVal: array<tab>, index: int) => {
   }
 }
 type boundingClient = {x: int, right: int}
-type scrollIntoViewParams = {behavior: string, block: string, inline: string}
-@send external scrollIntoView: (Dom.element, scrollIntoViewParams) => unit = "scrollIntoView"
 @send external getBoundingClientRect: Dom.element => boundingClient = "getBoundingClientRect"
 
 let setTabScroll = (
@@ -166,7 +164,7 @@ module IndicationArrow = {
         refElement.current
         ->Nullable.toOption
         ->Option.forEach(input =>
-          input->(scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "nearest"}))
+          input->DOMUtils.scrollIntoView({behavior: "smooth", block: "nearest", inline: "nearest"})
         )
     }
     let roundness = side == "left" ? "rounded-tr-md ml-2" : "rounded-tl-md"
@@ -460,7 +458,7 @@ let make = (
         lastTabRef.current
         ->Nullable.toOption
         ->Option.forEach(input =>
-          input->(scrollIntoView(_, {behavior: "smooth", block: "nearest", inline: "start"}))
+          input->DOMUtils.scrollIntoView({behavior: "smooth", block: "nearest", inline: "start"})
         )
       }, 200)->ignore
     } else {
