@@ -9,9 +9,24 @@ let make = (~logoUrl: option<string>=?, ~faviconUrl: option<string>=?) => {
     ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
   )
   let formValues = formState.values->LogicUtils.getDictFromJsonObject
-  let (colorsFromForm, sidebarFromForm, buttonsFromForm) = getThemeFormValues(~formValues)
+  let (colorsFromForm, sidebarFromForm, buttonsFromForm, fontFromForm) = getThemeFormValues(
+    ~formValues,
+  )
 
-  <div className="bg-white rounded-lg overflow-hidden w-full shadow-xl h-full flex flex-col">
+  React.useEffect(() => {
+    ThemeUtils.loadThemeFont(fontFromForm)
+    None
+  }, [fontFromForm.family])
+
+  let fontStyle =
+    ReactDOM.Style.make(~fontFamily=fontFromForm.stack, ())->ReactDOM.Style.unsafeAddProp(
+      "--base-font-family",
+      fontFromForm.stack,
+    )
+
+  <div
+    className="bg-white rounded-lg overflow-hidden w-full shadow-xl h-full flex flex-col"
+    style=fontStyle>
     <MockBrowserChrome faviconUrl />
     <div className="flex flex-1 min-h-0">
       <MockOrgTiles sidebarFromForm orgs=mockValues.orgs />
