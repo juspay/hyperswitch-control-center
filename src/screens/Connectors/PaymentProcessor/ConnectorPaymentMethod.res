@@ -63,7 +63,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
         payment_methods_enabled: paymentMethodsEnabled,
       }
       let body = constructConnectorRequestBody(obj, values)
-      if connector->getConnectorNameTypeFromString == Processors(PAYSAFE) {
+      if stepsArr(~connector)->Array.includes(ConnectorTypes.CustomMetadata) {
         setInitialValues(_ => body)
         setCurrentStep(_ => ConnectorTypes.CustomMetadata)
       } else {

@@ -56,6 +56,11 @@ let make = (~setCurrentStep, ~setInitialValues, ~initialValues, ~isUpdateFlow) =
     connectorLabelDetailField,
     connectorAdditionalMerchantData,
   } = getConnectorFields(connectorDetails)
+  // Fields collected on the connector's own Metadata step are left out here
+  let connectorMetaDataFields =
+    connectorMetaDataFields->ConnectorMetaDataUtils.omitCustomMetadataStepKeys(
+      ~connector=connectorTypeFromName,
+    )
 
   let (showModal, setShowModal) = React.useState(_ => false)
 

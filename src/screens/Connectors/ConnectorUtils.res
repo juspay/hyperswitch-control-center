@@ -2845,7 +2845,8 @@ let connectorTypeFromConnectorName: string => connector = connectorName =>
 
 let stepsArr = (~connector) => {
   switch connector->getConnectorNameTypeFromString {
-  | Processors(PAYSAFE) => [IntegFields, PaymentMethods, CustomMetadata, SummaryAndTest]
+  | Processors(PAYSAFE)
+  | Processors(JPMORGAN) => [IntegFields, PaymentMethods, CustomMetadata, SummaryAndTest]
   // TODO: Gate webhook details on the WASM value. Blocked: useGetFilterDictFromUrl is initially empty when the WASM value is called.
   | Processors(SANTANDER) => [IntegFields, PaymentMethods, WebhookRegistration, SummaryAndTest]
   | _ => [IntegFields, PaymentMethods, SummaryAndTest]
