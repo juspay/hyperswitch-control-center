@@ -1,5 +1,12 @@
 type toolTipPosition = Top | Bottom | Left | Right | TopRight | TopLeft | BottomLeft | BottomRight
 
+@module("./ToolTipTrigger.js")
+external useAccessibleTrigger: (
+  React.element,
+  ReactDOM.style,
+  ReactEvent.Mouse.t => unit,
+) => React.element = "useAccessibleTrigger"
+
 @react.component
 let make = (
   ~description="",
@@ -51,6 +58,21 @@ let make = (
   let descriptionExists =
     description->LogicUtils.isNonEmptyString || descriptionComponent != React.null
 
+  let accessibleTrigger = useAccessibleTrigger(
+    triggerElement,
+    ReactDOM.Style.make(
+      ~display=fullWidth ? "flex" : "inline-flex",
+      ~width=fullWidth ? "100%" : "auto",
+      (),
+    ),
+    event => {
+      if visibleOnClick {
+        event->ReactEvent.Mouse.preventDefault
+        setIsOpen(_ => true)
+      }
+    },
+  )
+
   if !descriptionExists {
     triggerElement
   } else if visibleOnClick {
@@ -64,12 +86,12 @@ let make = (
       onOpenChange={v => setIsOpen(_ => v)}
       disableInteractive={!hoverOnToolTip}
       fullWidth>
-      triggerElement
+      accessibleTrigger
     </ToolTipBinding>
   } else {
     <ToolTipBinding
       content size=Lg ?side ?align delayDuration disableInteractive={!hoverOnToolTip} fullWidth>
-      triggerElement
+      accessibleTrigger
     </ToolTipBinding>
   }
 }
