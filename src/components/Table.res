@@ -583,9 +583,10 @@ module TableHeadingRow = {
     ~columnFilterRow,
     ~customizeColumnNewTheme=?,
     ~tableHeadingTextClass="",
+    ~stickyHeader=false,
   ) => {
     if headingArray->Array.length !== 0 {
-      <thead>
+      <thead className={stickyHeader ? "sticky top-0 z-20" : ""}>
         <tr>
           {headingArray
           ->Array.mapWithIndex((item, i) => {
@@ -627,6 +628,48 @@ module TableHeadingRow = {
       React.null
     }
   }
+}
+
+// Caps a table so its bottom edge (with the horizontal scrollbar) and the pagination below it fit in
+// the viewport, so wide tables can be scrolled sideways without scrolling the page first. The top is
+// measured as if every ancestor were scrolled to the top, so the cap only changes with the layout
+// above the table, not while scrolling. Tables that start below the fold (e.g. on detail pages) and
+// tables inside an iframe (the embedded app, whose frame is sized to its content) are left uncapped.
+let useViewportFitHeight = (ref: React.ref<Nullable.t<Dom.element>>, ~enabled) => {
+  let (maxHeight, setMaxHeight) = React.useState(_ => "")
+
+  React.useLayoutEffect(() => {
+    let window = Webapi.Dom.window
+    let isInIframe = window->Webapi.Dom.Window.self !== window->Webapi.Dom.Window.top
+    switch (enabled && !isInIframe, ref.current->Nullable.toOption) {
+    | (true, Some(element)) => {
+        let rec scrolledBy = (node, acc) =>
+          switch node->Webapi.Dom.Element.parentElement {
+          | Some(parent) => scrolledBy(parent, acc +. parent->Webapi.Dom.Element.scrollTop)
+          | None => acc
+          }
+        let measure = () => {
+          let top =
+            element->Webapi.Dom.Element.getBoundingClientRect->Webapi.Dom.DomRect.top +.
+              scrolledBy(element, 0.0)
+          let startsAboveFold = top < window->Webapi.Dom.Window.innerHeight->Int.toFloat
+          setMaxHeight(_ =>
+            startsAboveFold ? `max(calc(100vh - ${top->Float.toFixed}px - 7rem), 20rem)` : ""
+          )
+        }
+        measure()
+        let observer = DOMUtils.createResizeObserver(_ => measure())
+        Webapi.Dom.document
+        ->Webapi.Dom.Document.asHtmlDocument
+        ->Option.flatMap(Webapi.Dom.HtmlDocument.body)
+        ->Option.forEach(body => observer->DOMUtils.observeElement(body))
+        Some(() => observer->DOMUtils.disconnectObserver)
+      }
+    | _ => None
+    }
+  }, [enabled])
+
+  maxHeight
 }
 
 @react.component
@@ -671,6 +714,7 @@ let make = (
   ~filterDropdownClass=?,
   ~showHeading=true,
   ~maxTableHeight="",
+  ~fitToViewport=false,
   ~labelMargin="",
   ~customFilterRowStyle="",
   ~selectAllCheckBox=?,
@@ -818,6 +862,25 @@ let make = (
     ->React.array
   }
 
+  let tableContainerRef = React.useRef(Nullable.null)
+  // Frozen and customise-column tables render outside the scroll area, and column-filter and
+  // min-height tables turn the scroll area off, so none of them can scroll vertically inside the cap.
+  let viewportFitHeight = useViewportFitHeight(
+    tableContainerRef,
+    ~enabled=fitToViewport &&
+    maxTableHeight->LogicUtils.isEmptyString &&
+    frozenUpto == 0 &&
+    customizeColumnNewTheme->Option.isNone &&
+    !isHighchartLegend &&
+    !filterPresent &&
+    !isMinHeightRequired,
+  )
+  let maxTableHeight =
+    maxTableHeight->LogicUtils.isNonEmptyString ? maxTableHeight : viewportFitHeight
+  // A capped table scrolls vertically inside itself, so its horizontal scrollbar stays in view
+  // and the header is pinned to the top of the scroll area.
+  let isHeightCapped = maxTableHeight->LogicUtils.isNonEmptyString
+
   let renderTableHeadingRow = (headingArray, isFrozen, isCustomiseColumn, lastHeadingClass) => {
     let columnFilterRow = switch columnFilterRow {
     | Some(filterRows) =>
@@ -857,6 +920,7 @@ let make = (
       columnFilterRow
       ?customizeColumnNewTheme
       tableHeadingTextClass
+      stickyHeader=isHeightCapped
     />
   }
 
@@ -991,8 +1055,7 @@ let make = (
   }
     `
   let autoscrollcss = showAutoScroll ? "table-scrollbar" : ""
-  let verticalScroll = !showVerticalScroll ? "overflow-y-hidden" : ""
-  let scrollContainerRef = React.useRef(Nullable.null)
+  let verticalScroll = !showVerticalScroll && !isHeightCapped ? "overflow-y-hidden" : ""
   let frozenFirstColumnCss = if freezeFirstColumn {
     `
   .loadedTable th:first-child,
@@ -1035,6 +1098,7 @@ let make = (
     ""
   }
   <div
+    ref={tableContainerRef->ReactDOM.Ref.domRef}
     className={`flex flex-row items-stretch ${scrollBarClass} loadedTable ${parentMinWidthClass} ${customBorderClass->Option.getOr(
         parentBorderRadius,
       )}`}
@@ -1055,11 +1119,9 @@ let make = (
       <style> {React.string(frozenFirstColumnCss)} </style>
     </RenderIf>
     <div
-      ref={scrollContainerRef->ReactDOM.Ref.domRef}
       className={`flex-1 ${overflowClass} no-scrollbar rounded-lg ${childMinWidthClass} ${nonFrozenTableParentClass} ${autoscrollcss} ${verticalScroll} `}>
       nonFrozenTable
     </div>
-    <StickyTableScrollbar containerRef=scrollContainerRef />
     {switch customizeColumnNewTheme {
     | Some(customizeColumnObj) =>
       <RenderIf condition={customizeColumnObj.customizeColumnUi !== React.null}>

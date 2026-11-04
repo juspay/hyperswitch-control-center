@@ -47,7 +47,6 @@ let make = (
   } else {
     ""
   }
-  let scrollContainerRef = React.useRef(Nullable.null)
 
   let rowInfo: array<array<cell>> = {
     let a = rows->Array.mapWithIndex((data, i) => {
@@ -90,10 +89,8 @@ let make = (
   }
 
   <div
-    ref={scrollContainerRef->ReactDOM.Ref.domRef}
     className={`overflow ${scrollBarClass} ${tableClass}`} //replaced "overflow-auto" -> to be tested with master
     style={minHeight: {filterPresent ? "30rem" : ""}}>
-    <StickyTableScrollbar containerRef=scrollContainerRef />
     <AddDataAttributes attributes=[("data-expandable-table", title)]>
       <table className={`table-auto ${widthClass} h-full ${borderClass}`} colSpan=0>
         <RenderIf condition={heading->Array.length !== 0 && !isMobileView}>
