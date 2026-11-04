@@ -11,10 +11,9 @@ external make: (
   ~autoFocus: bool=?,
   ~onChange: string => unit=?,
   ~form: string=?,
-  ~placeholder: string=?,
   ~disabled: bool=?,
   ~name: string=?,
   ~id: string=?,
   ~required: bool=?,
   ~readOnly: bool=?,
-) => React.element = "OTPInput"
+) => React.element = "OTPInputV2"
