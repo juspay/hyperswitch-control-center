@@ -97,7 +97,13 @@ let make = () => {
   React.useEffect(() => {
     switch filters {
     | Some(dict) =>
-      buildQuery(~filters=dict, ~offset, ~limit=resultsPerPage, ~searchText)
+      buildQuery(
+        ~filters=dict,
+        ~offset,
+        ~limit=resultsPerPage,
+        ~searchText,
+        ~showStatusFilter=!isLiveMode,
+      )
       ->getPaymentsList
       ->ignore
     | None => ()

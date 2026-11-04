@@ -111,7 +111,13 @@ let initialFilters = (
 let initialFixedFilter = (~disable=false) => OrderUIUtils.initialFixedFilter(V2, ~disable)
 
 // Builds the query params for `recovery-list` from the applied filters
-let buildQuery = (~filters: Dict.t<JSON.t>, ~offset, ~limit, ~searchText) => {
+let buildQuery = (
+  ~filters: Dict.t<JSON.t>,
+  ~offset,
+  ~limit,
+  ~searchText,
+  ~showStatusFilter=true,
+) => {
   let query = Dict.make()
 
   filters
@@ -123,7 +129,12 @@ let buildQuery = (~filters: Dict.t<JSON.t>, ~offset, ~limit, ~searchText) => {
     | Array(arr) => arr->getStrArrayFromJsonArray->Array.joinWith(",")
     | _ => ""
     }
-    if formatted->isNonEmptyString && supportedFilterKeys->Array.includes(key) {
+    let isStatusKey = key == RevenueRecoveryOrderUtils.recoveryStatusFilterKey
+    if (
+      formatted->isNonEmptyString &&
+      supportedFilterKeys->Array.includes(key) &&
+      (showStatusFilter || !isStatusKey)
+    ) {
       query->Dict.set(key, formatted)
     }
   })
