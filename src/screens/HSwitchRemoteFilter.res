@@ -45,6 +45,25 @@ let getDateFilteredObject = (~range=7) => {
   }
 }
 
+// Ranges ending today were set to end at "now" (default range, presets, and calendar picks
+// clamped by disableFutureDates), so a refresh should move their end time forward to now.
+let shouldRollEndTimeToNow = (
+  ~endTime,
+  ~now,
+  ~isoStringToCustomTimeZone: string => TimeZoneHook.dateTimeString,
+) => {
+  let endTimeMs = endTime->Date.fromString->Date.getTime
+  let nowMs = now->Date.fromString->Date.getTime
+  let getCalendarDate = iso => {
+    let {year, month, date} = iso->isoStringToCustomTimeZone
+    `${year}-${month}-${date}`
+  }
+  endTime->LogicUtils.isNonEmptyString &&
+  !(endTimeMs->Float.isNaN) &&
+  endTimeMs < nowMs &&
+  endTime->getCalendarDate === now->getCalendarDate
+}
+
 let useSetInitialFilters = (
   ~updateExistingKeys,
   ~startTimeFilterKey,
@@ -205,6 +224,7 @@ module RemoteTableFilters = {
       FilterContext.filterContext->React.useContext
     let defaultFilters = {""->JSON.Encode.string}
     let showToast = ToastAdapter.useShowToast()
+    let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
 
     React.useEffect(() => {
       if filterValueJson->Dict.keysToArray->Array.length === 0 {
@@ -356,6 +376,29 @@ module RemoteTableFilters = {
       None
     }, [value->OrderTypes.getSortString, value.sortKey])
 
+    let refreshList = () => {
+      let currentEndTime = filterValueJson->getString(endTimeFilterKey, "")
+      let now = getDateFilteredObject().end_time
+      if shouldRollEndTimeToNow(~endTime=currentEndTime, ~now, ~isoStringToCustomTimeZone) {
+        // The filters-signature effect above picks this up and refetches from page 1
+        updateExistingKeys(Dict.fromArray([(endTimeFilterKey, now)]))
+      } else {
+        // Filters are unchanged, so hand over a fresh dict to retrigger the page's fetch effect
+        setFilters(_ => Some(filterValueJson->Dict.copy))
+        setOffset(_ => 0)
+      }
+    }
+
+    let refreshAction =
+      <button
+        type_="button"
+        ariaLabel="Refresh list"
+        onClick={_ => refreshList()}
+        className={`flex items-center gap-2 ${Typography.body.md.medium} text-nd_gray-700 border border-nd_gray-200 rounded-10-px px-3.5 h-9 bg-white`}>
+        <Icon name="sync-alt" size=14 />
+        {"Refresh"->React.string}
+      </button>
+
     let getAllFilter =
       filterValue
       ->Dict.toArray
@@ -392,6 +435,7 @@ module RemoteTableFilters = {
       clearFilters={() => reset()}
       title
       customFilterActions
+      refreshAction
     />
   }
 }

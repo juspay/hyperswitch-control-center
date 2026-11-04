@@ -116,6 +116,7 @@ let make = (
   ~customRightView=React.null,
   ~customLeftView=React.null,
   ~customFilterActions=React.null,
+  ~refreshAction=React.null,
   ~updateUrlWith=?,
   ~clearFilters=?,
   ~showClearFilter=true,
@@ -325,6 +326,7 @@ let make = (
                 fieldWrapperClass="p-0"
               />
             </RenderIf>
+            {refreshAction}
             <RenderIf condition={!isSmallScreen}>
               <PortalCapture key={`${title}OMPView`} name={`${title}OMPView`} />
             </RenderIf>
