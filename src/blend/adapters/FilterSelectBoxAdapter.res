@@ -27,7 +27,9 @@ let getSideFromDirection = direction => {
   }
 }
 
-let makeFilterItems = (options: array<dropdownOption>, ~selectedValues: array<string>) => {
+let makeFilterItems = (options: array<dropdownOption>, ~selectedValues: array<string>): array<
+  multiSelectV2GroupType,
+> => {
   let groups: Dict.t<array<dropdownOption>> = Dict.make()
   options->Array.forEach(opt => {
     let group = opt.optGroup->Option.getOr("-")
@@ -42,20 +44,26 @@ let makeFilterItems = (options: array<dropdownOption>, ~selectedValues: array<st
       let slot1 = getLeftSlot(opt.icon)
       let slot2 = getRightSlot(opt.icon)
       let isChecked = selectedValues->Array.includes(opt.value)
-      {
-        label: opt.label,
-        value: opt.value,
-        checked: isChecked,
-        ?slot1,
-        ?slot2,
-        disabled: ?opt.isDisabled,
-        tooltip: ?opt.description,
-      }
+
+      (
+        {
+          label: opt.label,
+          value: opt.value,
+          checked: isChecked,
+          ?slot1,
+          ?slot2,
+          disabled: ?opt.isDisabled,
+          tooltip: ?opt.description,
+        }: multiSelectV2ItemType
+      )
     })
-    {
-      groupLabel: ?(groupKey === "-" ? None : Some(groupKey)),
-      items,
-    }
+
+    (
+      {
+        groupLabel: ?(groupKey === "-" ? None : Some(groupKey)),
+        items,
+      }: multiSelectV2GroupType
+    )
   })
 }
 
@@ -118,15 +126,9 @@ module BlendMultiSelect = {
       None
     }, [input.value])
 
-    let handleChange = (value: string) => {
+    let handleChange = (values: array<string>) => {
       hasPendingChanges.current = true
-      setPendingValues(prev =>
-        if prev->Array.includes(value) {
-          prev->Array.filter(v => v !== value)
-        } else {
-          Array.concat(prev, [value])
-        }
-      )
+      setPendingValues(_ => values)
     }
 
     let onClearAllClick = () => {
@@ -154,21 +156,29 @@ module BlendMultiSelect = {
     let blendItems = makeFilterItems(options, ~selectedValues=pendingValues)
     <MultiSelectBindings
       selectedValues=pendingValues
-      onChange=handleChange
+      onSelectionChange=handleChange
       items=blendItems
       placeholder=buttonText
       disabled=isDisabled
-      fullWidth=fullLength
+      triggerDimensions={width: fullLength ? "100%" : "auto"}
       enableSelectAll=showSelectAll
-      ?customTrigger
+      customTrigger={customTrigger->Option.getOr(
+        MultiSelectBindings.Trigger.make(
+          ~items=blendItems,
+          ~selectedValues=pendingValues,
+          ~placeholder=buttonText,
+          ~disabled=isDisabled,
+          ~fullWidth=fullLength,
+          ~selectionTagType=showSelectionAsChips ? Text : Count,
+          (),
+        ),
+      )}
       primaryAction
       showActionButtons=true
       selectionTagType={showSelectionAsChips ? Text : Count}
       onClearAllClick
-      minMenuWidth=menuWidth
-      maxMenuWidth=menuWidth
-      ?alignment
-      ?side
+      menuDimensions={minWidth: menuWidth, maxWidth: menuWidth, maxHeight: 320}
+      menuPosition={?alignment, ?side}
     />
   }
 }
