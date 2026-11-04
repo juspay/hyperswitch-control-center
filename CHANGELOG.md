@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.04.0
+
+### Features
+
+- **alerts:** Gate alerts and monitoring on permission groups and add internal_operator role ([#5788](https://github.com/juspay/hyperswitch-control-center/pull/5788)) ([`f86dffc`](https://github.com/juspay/hyperswitch-control-center/commit/f86dffc1ee41395b1ff15cecff7fa73dd2b92d64))
+
+### Bug Fixes
+
+- **embeddable:** Fix connector list, clipped UI and dashboard-only links ([#5785](https://github.com/juspay/hyperswitch-control-center/pull/5785)) ([`cc3dc73`](https://github.com/juspay/hyperswitch-control-center/commit/cc3dc73ca00cb427586a3888b189fa7aeb522228))
+- **server:** Reject compressed static paths outside web root ([#5781](https://github.com/juspay/hyperswitch-control-center/pull/5781)) ([`a475339`](https://github.com/juspay/hyperswitch-control-center/commit/a475339975e8faa30b730dcb92899a94b05a0812))
+
+**Full Changelog:** [`2026.11.03.0...2026.11.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.03.0...2026.11.04.0)
+
+- - -
+
 ## 2026.11.03.0
 
 ### Features
