@@ -142,7 +142,6 @@ module BaseDropdown = {
     | _ => None
     }
     let selectedValues = input.value->getStrArrayFromJson
-    let selectedValue = input.value->getStringFromJson("")
 
     <>
       <RenderIf condition={useBlend && allowMultiSelect}>
@@ -176,7 +175,7 @@ module BaseDropdown = {
       </RenderIf>
       <RenderIf condition={useBlend && !allowMultiSelect}>
         {
-          let blendItems = SingleSelectWrapper.makeItems(options, ~deselectDisable, ~selectedValue)
+          let blendItems = SingleSelectWrapper.makeItems(options)
           let totalItems = blendItems->Array.reduce(0, (acc, g) => acc + g.items->Array.length)
           let computedEnableSearch = searchable->Option.getOr(false) || totalItems > 5
           <SingleSelectWrapper
@@ -416,7 +415,6 @@ let make = (
   | _ => None
   }
   let selectedValues = input.value->getStrArrayFromJson
-  let selectedValue = input.value->getStringFromJson("")
 
   <>
     <RenderIf condition={useBlend && allowMultiSelect}>
@@ -452,7 +450,7 @@ let make = (
     </RenderIf>
     <RenderIf condition={useBlend && !allowMultiSelect}>
       {
-        let blendItems = SingleSelectWrapper.makeItems(options, ~deselectDisable, ~selectedValue)
+        let blendItems = SingleSelectWrapper.makeItems(options)
         let totalItems = blendItems->Array.reduce(0, (acc, g) => acc + g.items->Array.length)
         let computedEnableSearch = searchable->Option.getOr(false) || totalItems > 5
         <SingleSelectWrapper
