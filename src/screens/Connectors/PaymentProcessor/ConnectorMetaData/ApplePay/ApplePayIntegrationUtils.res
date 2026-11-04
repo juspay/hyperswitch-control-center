@@ -282,14 +282,18 @@ let validatePaymentProcessingDetailsAt = data => {
   )
 }
 
-let isApplePayDecryptFlow = metadata => {
-  let applePayCombined = metadata->getDictfromDict("apple_pay_combined")
+let isApplePayDecryptFlow = values => {
+  let applePayCombined = values->getDictfromDict("metadata")->getDictfromDict("apple_pay_combined")
+  let isPredecryptEnabled = applePayCombined->getBool("support_predecrypted_token", false)
+  let isSimplifiedFlow =
+    applePayCombined->getOptionObj((#simplified: applePayIntegrationType :> string))->Option.isSome
+  let isProcessedAtHyperswitch =
+    (applePayCombined->sessionToken).payment_processing_details_at->mapOptionOrDefault(
+      false,
+      value => value->paymentProcessingMapper == #Hyperswitch,
+    )
 
-  applePayCombined->getBool("support_predecrypted_token", false) ||
-  applePayCombined->getOptionObj((#simplified: applePayIntegrationType :> string))->Option.isSome ||
-  (applePayCombined->sessionToken).payment_processing_details_at->Option.mapOr(false, value =>
-    value->paymentProcessingMapper == #Hyperswitch
-  )
+  isPredecryptEnabled || isSimplifiedFlow || isProcessedAtHyperswitch
 }
 
 let usesLinkHierarchicalResource = metadata => {

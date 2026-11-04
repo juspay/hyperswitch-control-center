@@ -299,16 +299,21 @@ let getGooglePayIntegrationTypeFromName = (name: string) => {
   }
 }
 
-let isGooglePayDecryptFlow = values =>
-  values
-  ->getDictfromDict("metadata")
-  ->getDictfromDict("google_pay")
-  ->getBool("support_predecrypted_token", false) ||
+let isGooglePayDecryptFlow = values => {
+  let isPredecryptEnabled =
+    values
+    ->getDictfromDict("metadata")
+    ->getDictfromDict("google_pay")
+    ->getBool("support_predecrypted_token", false)
+  let isDecryptedAtHyperswitch =
     values
     ->getDictfromDict("connector_wallets_details")
     ->getIntegrationTypeFromConnectorWalletDetailsGooglePay
     ->getGooglePayIntegrationTypeFromName
     ->isDirectFlow
+
+  isPredecryptEnabled || isDecryptedAtHyperswitch
+}
 
 let decryptionKeyOptions: array<SelectBox.dropdownOption> = [
   {label: "Provide custom certificates", value: "DIRECT"},
