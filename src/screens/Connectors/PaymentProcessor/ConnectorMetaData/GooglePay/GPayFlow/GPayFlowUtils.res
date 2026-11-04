@@ -300,14 +300,19 @@ let getGooglePayIntegrationTypeFromName = (name: string) => {
 }
 
 let isGooglePayDecryptFlow = values => {
+  let connectorWalletsDetails = values->getDictfromDict("connector_wallets_details")
   let isPredecryptEnabled =
-    values
-    ->getDictfromDict("metadata")
+    connectorWalletsDetails
     ->getDictfromDict("google_pay")
-    ->getBool("support_predecrypted_token", false)
+    ->getOptionBool("support_predecrypted_token")
+    ->Option.getOr(
+      values
+      ->getDictfromDict("metadata")
+      ->getDictfromDict("google_pay")
+      ->getBool("support_predecrypted_token", false),
+    )
   let isDecryptedAtHyperswitch =
-    values
-    ->getDictfromDict("connector_wallets_details")
+    connectorWalletsDetails
     ->getIntegrationTypeFromConnectorWalletDetailsGooglePay
     ->getGooglePayIntegrationTypeFromName
     ->isDirectFlow
