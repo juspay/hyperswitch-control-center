@@ -24,19 +24,19 @@ let getWalletFlow = (formValues, paymentMethodType): option<ConnectorTypes.walle
         ? Decrypt
         : Encrypt,
     )
-  | GooglePay =>
-    Some(
-      values->getDictfromDict("connector_wallets_details")->GPayFlowUtils.isGooglePayDecryptFlow
-        ? Decrypt
-        : Encrypt,
-    )
+  | GooglePay => Some(values->GPayFlowUtils.isGooglePayDecryptFlow ? Decrypt : Encrypt)
   | _ => None
   }
 }
 
+let getPayViaSingleUseTokenConfig = connectorConfig =>
+  connectorConfig
+  ->LogicUtils.getJsonObjectFromDict("pay_via_single_use_token")
+  ->LogicUtils.convertMapObjectToDict
+
 let getPayViaSingleUseTokenField = (config, ~formValues, ~paymentMethodType) => {
   open LogicUtils
-  let entry = config->getDictfromDict(paymentMethodType)
+  let entry = config->getJsonObjectFromDict(paymentMethodType)->convertMapObjectToDict
   getWalletFlow(formValues, paymentMethodType)
   ->Option.filter(flow => entry->getStrArrayFromDict("flows", [])->Array.includes((flow :> string)))
   ->Option.map(_ => entry->CommonConnectorUtils.inputFieldMapper)
@@ -66,9 +66,7 @@ let updatePayViaSingleUseToken = (
 let removeInapplicablePayViaSingleUseToken = (paymentMethodsEnabled, ~connector, ~formValues) => {
   open LogicUtils
   let config =
-    Window.getConnectorConfig(connector)
-    ->getDictFromJsonObject
-    ->getDictfromDict("pay_via_single_use_token")
+    Window.getConnectorConfig(connector)->getDictFromJsonObject->getPayViaSingleUseTokenConfig
   paymentMethodsEnabled->mapProviders((_, provider) =>
     config
     ->getPayViaSingleUseTokenField(~formValues, ~paymentMethodType=provider.payment_method_type)
@@ -98,12 +96,7 @@ module PayViaSingleUseTokenInput = {
 
     <div
       className="flex items-center justify-between gap-4 border border-nd_gray-150 rounded-lg p-4">
-      <div className="flex flex-col gap-1">
-        <p className={`${body.md.medium} text-nd_gray-700`}>
-          {method.payment_method_type->ConnectorUtils.getPaymentMethodDisplayName->React.string}
-        </p>
-        <p className={`${body.sm.regular} text-nd_gray-500`}> {field.label->React.string} </p>
-      </div>
+      <p className={`${body.md.medium} text-nd_gray-700`}> {field.label->React.string} </p>
       <SelectBoxAdapter.BaseDropdown
         allowMultiSelect=false
         buttonText=field.placeholder
@@ -144,13 +137,16 @@ module CardRenderer = {
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
     let form = ReactFinalForm.useForm()
-    let (meteDataInitialValues, connectorWalletsInitialValues) = React.useMemo(() => {
-      let formValues = formState.values->getDictFromJsonObject
+    let getWalletValues = values => {
+      let formValues = values->getDictFromJsonObject
       (
         formValues->getDictfromDict("metadata"),
         formValues->getDictfromDict("connector_wallets_details"),
       )
-    }, [])
+    }
+    let (walletValuesOnOpen, setWalletValuesOnOpen) = React.useState(_ =>
+      formState.values->getWalletValues
+    )
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (selectedWallet, setSelectedWallet) = React.useState(_ => Dict.make()->itemProviderMapper)
 
@@ -465,11 +461,9 @@ module CardRenderer = {
     let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P2, Medium))} text-grey-700 opacity-50`
 
     let removeSelectedWallet = () => {
-      form.change("metadata", meteDataInitialValues->Identity.genericTypeToJson)
-      form.change(
-        "connector_wallets_details",
-        connectorWalletsInitialValues->Identity.genericTypeToJson,
-      )
+      let (metadataOnOpen, connectorWalletsOnOpen) = walletValuesOnOpen
+      form.change("metadata", metadataOnOpen->Identity.genericTypeToJson)
+      form.change("connector_wallets_details", connectorWalletsOnOpen->Identity.genericTypeToJson)
       setSelectedWallet(_ => Dict.make()->itemProviderMapper)
     }
 
@@ -502,7 +496,9 @@ module CardRenderer = {
         ->Array.find(obj => checkPaymentMethodType(obj, configMethod))
         ->Option.getOr(configMethod)
 
-      if paymentMethod->getPaymentMethodFromString !== BankDebit {
+      setWalletValuesOnOpen(_ => form.getState().values->getWalletValues)
+
+      if paymentMethod->getPaymentMethodFromString !== BankDebit && !isSelected(method) {
         removeOrAddMethods(method)
       }
 
@@ -699,7 +695,27 @@ module CardRenderer = {
                 accordion={methodsWithAdditionalDetails->Array.map(value => {
                   let accordionElem: AccordionAdapter.accordion = {
                     title: value.payment_method_type,
-                    renderContent: (~currentAccordionState as _, ~closeAccordionFn) =>
+                    renderContent: (~currentAccordionState as _, ~closeAccordionFn) => <>
+                      {payViaSingleUseTokenMethods
+                      ->Array.find(((method, _)) =>
+                        method.payment_method_type === value.payment_method_type
+                      )
+                      ->Option.mapOr(React.null, ((method, field)) =>
+                        <div className="px-6 pt-6">
+                          <PayViaSingleUseTokenInput
+                            method
+                            field
+                            onChange={value =>
+                              paymentMethodsEnabled
+                              ->updatePayViaSingleUseToken(
+                                ~paymentMethod,
+                                ~paymentMethodType=method.payment_method_type,
+                                ~value,
+                              )
+                              ->updateDetails}
+                          />
+                        </div>
+                      )}
                       <AdditionalDetailsSidebar
                         key={`${value.payment_method_type}`}
                         method={Some(selectedWallet)}
@@ -710,7 +726,8 @@ module CardRenderer = {
                         onCloseClickCustomFun={removeSelectedWallet}
                         pmtName={value.payment_method_type}
                         closeAccordionFn
-                      />,
+                      />
+                    </>,
                     onItemExpandClick: handleOnItemExpandClick(value),
                     renderContentOnTop: Some(
                       () => {
@@ -749,27 +766,6 @@ module CardRenderer = {
             </div>
           </div>
         </RenderIf>
-        <RenderIf condition={payViaSingleUseTokenMethods->isNonEmptyArray}>
-          <div className="flex flex-col gap-4">
-            {payViaSingleUseTokenMethods
-            ->Array.map(((method, field)) =>
-              <PayViaSingleUseTokenInput
-                key={method.payment_method_type}
-                method
-                field
-                onChange={value =>
-                  paymentMethodsEnabled
-                  ->updatePayViaSingleUseToken(
-                    ~paymentMethod,
-                    ~paymentMethodType=method.payment_method_type,
-                    ~value,
-                  )
-                  ->updateDetails}
-              />
-            )
-            ->React.array}
-          </div>
-        </RenderIf>
       </div>
     </div>
   }
@@ -799,7 +795,7 @@ module PaymentMethodsRender = {
       )->getDictFromJsonObject
     }, [connector])
     let keys = pmts->Dict.keysToArray->Array.filter(val => !Array.includes(configKeysToIgnore, val))
-    let payViaSingleUseTokenConfig = pmts->getDictfromDict("pay_via_single_use_token")
+    let payViaSingleUseTokenConfig = pmts->getPayViaSingleUseTokenConfig
 
     <div className="flex flex-col gap-12">
       {keys

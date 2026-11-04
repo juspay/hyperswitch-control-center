@@ -1818,9 +1818,15 @@ let addMethod = (paymentMethodsEnabled, paymentMethod, method) => {
   | _ =>
     pmts->Array.forEach((val: paymentMethodEnabled) => {
       if val.payment_method_type->String.toLowerCase === paymentMethod->String.toLowerCase {
-        val.provider
-        ->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
-        ->Array.push(method)
+        let providers = val.provider->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
+        let isAlreadyAdded =
+          providers->Array.some(provider =>
+            provider.payment_method_type === method.payment_method_type &&
+              provider.payment_experience === method.payment_experience
+          )
+        if !isAlreadyAdded {
+          providers->Array.push(method)
+        }
       }
     })
   }
