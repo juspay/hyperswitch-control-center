@@ -19,6 +19,7 @@ let make = (
   let title = selection->viewTitle(~currency=dataset.amountCurrency)
   let setView = view => [(#view, view)]->selectionUpdate->onUpdate
   let suggestions = selection->getSplitSuggestions
+  let blankSplitNote = selection->ExplorerViewsUtils.getBlankSplitNote(dataset)
 
   <div className="rounded-xl border border-nd_br_gray-200 bg-nd_gray-0">
     <div
@@ -34,6 +35,9 @@ let make = (
       </div>
       <ViewTabs view=selection.view onViewChange=setView />
     </div>
+    <RenderIf condition={blankSplitNote->isNonEmptyString}>
+      <BlankSplitNote note=blankSplitNote />
+    </RenderIf>
     <div className="px-3 py-4">
       {switch (selection.view, grouping) {
       | (#trend | #breakdown | #table, Split) if dataset.groups->isEmptyArray =>

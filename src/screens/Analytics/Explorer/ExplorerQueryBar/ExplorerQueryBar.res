@@ -20,6 +20,7 @@ let make = (
 ) => {
   let {source, splitOptions} = selection
   let fetchFilterValues = ExplorerHooks.useFetchFilterValues()
+  let showToast = ToastAdapter.useShowToast()
   let (filterValuesByKey, setFilterValuesByKey) = React.useState(_ => Dict.make())
   let filterValuesKey = selection->getFilterValuesKey(~dimension=editing)
   let filterValues =
@@ -64,7 +65,13 @@ let make = (
         valuesByKey
       })
     } catch {
-    | _ => ()
+    | _ =>
+      showToast(
+        ~message=`Couldn't load ${dimensionLabel(
+            dimension,
+          )->String.toLowerCase} values. Close the filter and open it again to retry.`,
+        ~toastType=ToastError,
+      )
     }
   }
 

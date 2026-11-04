@@ -27,6 +27,7 @@ let make = (~selection: selection, ~dataset: dataset) => {
           ? formatChange(measure, current, previous)
           : unmeasurableNote(source, measure)}
         impact={isMeasurable ? getChangeImpact(measure, current, previous) : Neutral}
+        isComparable=isMeasurable
         primary={index == 0}
       />
     })
