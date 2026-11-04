@@ -3,6 +3,64 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.03.0
+
+### Features
+
+- **analytics:** Add payment flows and preset questions to explorer ([#5651](https://github.com/juspay/hyperswitch-control-center/pull/5651)) ([`4f6fff7`](https://github.com/juspay/hyperswitch-control-center/commit/4f6fff75ecc0a8bd4854aae19cdb667d3158cb26))
+- **payments:** Show applied offer on payment details and net it off the SDK pay button ([#5684](https://github.com/juspay/hyperswitch-control-center/pull/5684)) ([`3460303`](https://github.com/juspay/hyperswitch-control-center/commit/3460303dfd5561a30be0a25369f2facb3981a93f))
+
+### Bug Fixes
+
+- **server:** Handle invalid and oversized request bodies on /config/merchant ([#5758](https://github.com/juspay/hyperswitch-control-center/pull/5758)) ([`e068c9a`](https://github.com/juspay/hyperswitch-control-center/commit/e068c9ae0cc74b5cc378295f5cc2da07d6ddce56))
+
+**Full Changelog:** [`2026.11.02.0...2026.11.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.02.0...2026.11.03.0)
+
+- - -
+
+## 2026.11.02.0
+
+### Features
+
+- **connectors:** Support currency-specific merchant IDs for JPMorgan ([#5775](https://github.com/juspay/hyperswitch-control-center/pull/5775)) ([`768337b`](https://github.com/juspay/hyperswitch-control-center/commit/768337b1afb717039e4ba9880230b0d2c3906b94))
+
+**Full Changelog:** [`2026.10.30.0...2026.11.02.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.30.0...2026.11.02.0)
+
+- - -
+
+## 2026.10.30.0
+
+### Features
+
+- **WASM:** Add WASM For Peachpayments External Authentication ([#5770](https://github.com/juspay/hyperswitch-control-center/pull/5770)) ([`6450730`](https://github.com/juspay/hyperswitch-control-center/commit/64507303b8bb7279e9275a0ac539615fd66cb61c))
+
+### Bug Fixes
+
+- **offers:** Bring the create offer form closer to the offers dashboard and add BIN list view and download ([#5674](https://github.com/juspay/hyperswitch-control-center/pull/5674)) ([`f931a21`](https://github.com/juspay/hyperswitch-control-center/commit/f931a21c28a94bc0265251a3fcee8aea28551adb))
+
+### Testing
+
+- **playwright:** Send admin key via Authorization header and mask 2FA QR in snapshot ([#5773](https://github.com/juspay/hyperswitch-control-center/pull/5773)) ([`e2702c6`](https://github.com/juspay/hyperswitch-control-center/commit/e2702c6865145fc8a22e3b8bcff7e6a89571d66a))
+
+### Miscellaneous Tasks
+
+- Upgrade docker base image to node 24 ([#5767](https://github.com/juspay/hyperswitch-control-center/pull/5767)) ([`6249122`](https://github.com/juspay/hyperswitch-control-center/commit/6249122307d08968d1a83b212b96cf50989882f0))
+
+**Full Changelog:** [`2026.10.28.0...2026.10.30.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.28.0...2026.10.30.0)
+
+- - -
+
+## 2026.10.28.0
+
+### Features
+
+- **connectors:** Add mifinity payout processor ([#5692](https://github.com/juspay/hyperswitch-control-center/pull/5692)) ([`c4053e1`](https://github.com/juspay/hyperswitch-control-center/commit/c4053e192a9271f651aa18ca110924dffbbdf835))
+- Show maintenance alert only on home and overview pages ([#5756](https://github.com/juspay/hyperswitch-control-center/pull/5756)) ([`34ada92`](https://github.com/juspay/hyperswitch-control-center/commit/34ada92dbdaf93271e8263cef964dfc400582928))
+
+**Full Changelog:** [`2026.10.27.0...2026.10.28.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.10.27.0...2026.10.28.0)
+
+- - -
+
 ## 2026.10.27.0
 
 ### Features

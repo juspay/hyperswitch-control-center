@@ -1,8 +1,10 @@
 open Typography
+open LogicUtils
 open ExplorerTypes
 open ExplorerCatalog
 open ExplorerUtils
 open ExplorerDescriptions
+open ExplorerSelection
 
 module TabList = {
   @react.component
@@ -60,4 +62,37 @@ module SourceTabs = {
       </span>
     </div>
   }
+}
+
+module PresetPicker = {
+  @react.component
+  let make = (~selection: selection, ~onPreset) =>
+    <div className="flex items-center gap-2 pb-1">
+      <span className={`${body.md.regular} text-nd_gray-500`}>
+        {"Start with a question"->React.string}
+      </span>
+      <SingleSelectBinding
+        selected={selection->getActivePreset->mapOptionOrDefault("", preset => preset.title)}
+        onSelect={title =>
+          presets->Array.find(preset => preset.title == title)->Option.forEach(onPreset)}
+        items=[
+          {
+            items: presets->Array.map((preset): MultiSelectBindings.selectMenuItemType => {
+              label: preset.title,
+              value: preset.title,
+              subLabel: `${domainLabel(sourceConfig(preset.source).domain)} · ${measureLabel(
+                  preset.source,
+                  preset.measure,
+                )}`,
+              disableTruncation: true,
+            }),
+          },
+        ]
+        placeholder="Choose a question"
+        size=Sm
+        minMenuWidth=320
+        maxMenuWidth=380
+        alignment=End
+      />
+    </div>
 }

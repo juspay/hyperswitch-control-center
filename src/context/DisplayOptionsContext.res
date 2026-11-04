@@ -4,6 +4,7 @@ type displayOptions = {
   showOMPViews: bool,
   showGenerateReports: bool,
   showSavedViews: bool,
+  showDashboardLinks: bool,
 }
 
 let dashboardDisplayOptions = {
@@ -12,6 +13,7 @@ let dashboardDisplayOptions = {
   showOMPViews: true,
   showGenerateReports: true,
   showSavedViews: true,
+  showDashboardLinks: true,
 }
 
 let embeddableDisplayOptions = {
@@ -20,6 +22,7 @@ let embeddableDisplayOptions = {
   showOMPViews: false,
   showGenerateReports: false,
   showSavedViews: false,
+  showDashboardLinks: false,
 }
 
 let displayOptionsContext = React.createContext(dashboardDisplayOptions)

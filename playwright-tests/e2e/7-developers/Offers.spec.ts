@@ -106,15 +106,14 @@ async function expectCreateFormElements(offers: Offers) {
     "Offer Display Title",
     "Language",
     "Offer Description",
+    "Terms and Conditions",
     "Offer Validity",
     "Discount Type",
     "Discount Value",
     "Maximum Discount Amount",
     "Offer Campaign Amount",
     "Offer Campaign Count",
-    "Currency",
-    "Minimum Transaction Amount",
-    "Maximum Transaction Amount",
+    "Currencies",
     "Amount Per Unique Card",
     "Offer Count Per Unique Card",
     "Card BIN List",
@@ -127,12 +126,11 @@ async function expectCreateFormElements(offers: Offers) {
     offers.titleInput,
     offers.displayTitleInput,
     offers.descriptionInput,
+    offers.tncInput,
     offers.benefitValueInput,
     offers.maxAmountInput,
     offers.campaignAmountInput,
     offers.campaignCountInput,
-    offers.minOrderAmountInput,
-    offers.maxOrderAmountInput,
     offers.amountPerCardInput,
     offers.countPerCardInput,
   ]) {
@@ -141,10 +139,16 @@ async function expectCreateFormElements(offers: Offers) {
     await expect(input).toHaveValue("");
   }
 
-  // Language and Discount Type are pre-filled; Currency starts empty.
+  // Transaction amounts are per currency, so none render until one is picked.
+  await expect(offers.minOrderAmountInput).toHaveCount(0);
+  await expect(offers.maxOrderAmountInput).toHaveCount(0);
+
+  // Language, Discount Type and the per card period are pre-filled;
+  // Currencies starts empty.
   await expect(offers.languageSelect).toBeVisible();
   await expect(offers.discountTypeSelect).toBeVisible();
   await expect(offers.currencySelect).toBeVisible();
+  await expect(offers.cardResetPeriodSelect).toBeVisible();
   await expect(offers.validitySelect).toBeVisible();
 
   await expect(offers.binListDescription).toBeVisible();
@@ -179,7 +183,16 @@ async function fillCreateOfferForm(page: Page, offers: Offers) {
   await offers.currencySelect.click();
   await offers.currencySearchInput.fill("USD");
   await offers.currencyOption("USD").click();
+  await page.keyboard.press("Escape");
   await expect(offers.currencySelect).toHaveCount(0);
+
+  // Picking a currency renders its own transaction amount fields.
+  await expect(
+    offers.fieldLabel("Minimum Transaction Amount (USD)"),
+  ).toBeVisible();
+  await expect(
+    offers.fieldLabel("Maximum Transaction Amount (USD)"),
+  ).toBeVisible();
 
   await offers.minOrderAmountInput.fill("1000");
   await offers.maxOrderAmountInput.fill("10000");
@@ -210,7 +223,7 @@ test.describe("Offers", () => {
         const offers = new Offers(page);
 
         expect(listRequest.postDataJSON()).toMatchObject({
-          limit: 20,
+          limit: 10,
           offset: 0,
         });
         await expect(offers.searchOfferCodeInput).toBeVisible();
