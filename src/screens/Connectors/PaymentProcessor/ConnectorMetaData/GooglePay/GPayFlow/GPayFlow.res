@@ -106,7 +106,15 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
           closeAccordionFn
           update
         />
-      | #predecrypt => React.null
+      | #predecrypt =>
+        <CommonConnectorHelper.PreDecryptedTokenConfirm
+          description="Enable Google Pay by securely decrypting the Google Pay payment token on your end."
+          onCancel=closeModal
+          onProceed={() => {
+            let _ = update(predecryptMetadata)
+            closeAccordionFn()
+          }}
+        />
       }
     }}
   </PageLoaderWrapper>

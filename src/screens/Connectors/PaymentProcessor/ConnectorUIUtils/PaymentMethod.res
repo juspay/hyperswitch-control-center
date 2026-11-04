@@ -32,11 +32,6 @@ let getWalletFlow = (formValues, paymentMethodType) => {
   isDecryptFlow->Option.map((isDecrypt): ConnectorTypes.walletFlow => isDecrypt ? Decrypt : Encrypt)
 }
 
-let getPayViaSingleUseTokenConfig = connectorConfig => {
-  open LogicUtils
-  connectorConfig->getJsonObjectFromDict("pay_via_single_use_token")->convertMapObjectToDict
-}
-
 let getPayViaSingleUseTokenField = (config, ~formValues, ~paymentMethodType) => {
   open LogicUtils
   let entry = config->getJsonObjectFromDict(paymentMethodType)->convertMapObjectToDict
@@ -69,6 +64,7 @@ let updatePayViaSingleUseToken = (
 
 let removeInapplicablePayViaSingleUseToken = (paymentMethodsEnabled, ~connector, ~formValues) => {
   open LogicUtils
+  open ConnectorUtils
   let config =
     Window.getConnectorConfig(connector)->getDictFromJsonObject->getPayViaSingleUseTokenConfig
   paymentMethodsEnabled->mapProviders((_, provider) =>
@@ -174,9 +170,16 @@ module CardRenderer = {
       selectedMethod: paymentMethodConfigType,
     ) => obj.payment_method_type == selectedMethod.payment_method_type
 
-    let getPayViaSingleUseTokenMethod = (configMethod: paymentMethodConfigType) =>
-      standardProviders
-      ->Array.find(method => checkPaymentMethodType(method, configMethod))
+    let getAddedMethod = method =>
+      standardProviders->Array.find(obj => checkPaymentMethodType(obj, method))
+
+    let getPayViaSingleUseTokenMethod = (configMethod: paymentMethodConfigType) => {
+      let walletBeingConfigured = checkPaymentMethodType(selectedWallet, configMethod)
+        ? Some(selectedWallet)
+        : None
+      configMethod
+      ->getAddedMethod
+      ->Option.orElse(walletBeingConfigured)
       ->Option.flatMap(method =>
         payViaSingleUseTokenConfig
         ->getPayViaSingleUseTokenField(
@@ -185,11 +188,20 @@ module CardRenderer = {
         )
         ->Option.map(field => (method, field))
       )
+    }
 
-    let onPayViaSingleUseTokenChange = (~paymentMethodType) => value =>
-      paymentMethodsEnabled
-      ->updatePayViaSingleUseToken(~paymentMethod, ~paymentMethodType, ~value)
-      ->updateDetails
+    let onPayViaSingleUseTokenChange = (~method: paymentMethodConfigType) => value =>
+      switch method->getAddedMethod {
+      | Some(_) =>
+        paymentMethodsEnabled
+        ->updatePayViaSingleUseToken(
+          ~paymentMethod,
+          ~paymentMethodType=method.payment_method_type,
+          ~value,
+        )
+        ->updateDetails
+      | None => setSelectedWallet(_ => {...method, pay_via_single_use_token: value})
+      }
 
     let checkPaymentMethodTypeAndExperience = (
       obj: paymentMethodConfigType,
@@ -494,10 +506,7 @@ module CardRenderer = {
     }
 
     let handleOnItemExpandClick = configMethod => () => {
-      let method =
-        standardProviders
-        ->Array.find(obj => checkPaymentMethodType(obj, configMethod))
-        ->Option.getOr(configMethod)
+      let method = configMethod->getAddedMethod->Option.getOr(configMethod)
 
       setWalletValuesOnOpen(_ => form.getState().values->getWalletValues)
 
@@ -706,9 +715,7 @@ module CardRenderer = {
                           <PayViaSingleUseTokenInput
                             value=method.pay_via_single_use_token
                             field
-                            onChange={onPayViaSingleUseTokenChange(
-                              ~paymentMethodType=method.payment_method_type,
-                            )}
+                            onChange={onPayViaSingleUseTokenChange(~method)}
                           />
                         </div>
                       )}

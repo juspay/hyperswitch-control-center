@@ -315,6 +315,9 @@ let isGooglePayDecryptFlow = values => {
   isPredecryptEnabled || isDecryptedAtHyperswitch
 }
 
+let predecryptMetadata =
+  [("support_predecrypted_token", true->JSON.Encode.bool)]->getJsonFromArrayOfJson
+
 let decryptionKeyOptions: array<SelectBox.dropdownOption> = [
   {label: "Provide custom certificates", value: "DIRECT"},
   {label: "Use Hyperswitch managed certificates", value: "INTERNAL_GATEWAY"},

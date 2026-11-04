@@ -91,18 +91,20 @@ module Landing = {
 
     let handleConfirmClick = () => {
       if googlePayIntegrationType === #predecrypt {
+        open GPayFlowUtils
         form.change(
           "connector_wallets_details.google_pay.support_predecrypted_token",
           true->JSON.Encode.bool,
         )
-        let connectorWalletDetails =
-          [
-            ("support_predecrypted_token", true->JSON.Encode.bool),
-          ]->LogicUtils.getJsonFromArrayOfJson
-
-        form.change("metadata.google_pay", connectorWalletDetails)
-        let _ = update(connectorWalletDetails)
-        closeAccordionFn()
+        form.change("metadata.google_pay", predecryptMetadata)
+        if (
+          connector->ConnectorUtils.isPayViaSingleUseTokenSupported(~paymentMethodType="google_pay")
+        ) {
+          setGooglePayIntegrationStep(_ => Configure)
+        } else {
+          let _ = update(predecryptMetadata)
+          closeAccordionFn()
+        }
       } else {
         setGooglePayIntegrationStep(_ => Configure)
       }
