@@ -54,6 +54,15 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
     }
   }, [connector])
 
+  let isPayViaSingleUseTokenSupported = React.useMemo(() => {
+    connector->isNonEmptyString &&
+      Window.getConnectorConfig(connector)
+      ->getDictFromJsonObject
+      ->ConnectorUtils.getPayViaSingleUseTokenConfig
+      ->Dict.get("google_pay")
+      ->Option.isSome
+  }, [connector])
+
   let setIntegrationType = () => {
     if connector->isNonEmptyString {
       setGooglePayIntegrationType(_ => integrationType->getGooglePayIntegrationTypeFromName)
@@ -88,6 +97,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
         connector
         update
         closeAccordionFn
+        isPayViaSingleUseTokenSupported
       />
     | Configure =>
       switch googlePayIntegrationType {

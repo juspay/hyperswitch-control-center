@@ -115,6 +115,7 @@ module Landing = {
     ~setApplePayIntegrationType,
     ~update,
     ~closeAccordionFn,
+    ~isPayViaSingleUseTokenSupported,
   ) => {
     open ApplePayIntegrationTypes
     open ApplePayLandingHelper
@@ -150,9 +151,7 @@ module Landing = {
         | _ => ()
         }
 
-        if (
-          connector->ConnectorUtils.isPayViaSingleUseTokenSupported(~paymentMethodType="apple_pay")
-        ) {
+        if isPayViaSingleUseTokenSupported {
           setApplePayIntegrationSteps(_ => Configure)
         } else {
           let metadata =
@@ -264,6 +263,15 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
     }
   }, [connector])
 
+  let isPayViaSingleUseTokenSupported = React.useMemo(() => {
+    connector->isNonEmptyString &&
+      Window.getConnectorConfig(connector)
+      ->getDictFromJsonObject
+      ->ConnectorUtils.getPayViaSingleUseTokenConfig
+      ->Dict.get("apple_pay")
+      ->Option.isSome
+  }, [connector])
+
   // TODO: Change this to get for both V1 and V2
   let getProcessorDetails = async () => {
     try {
@@ -342,6 +350,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
             setApplePayIntegrationType
             update
             closeAccordionFn
+            isPayViaSingleUseTokenSupported
           />
         | Configure =>
           switch appleIntegrationType {

@@ -84,6 +84,7 @@ module Landing = {
     ~connector,
     ~update,
     ~closeAccordionFn,
+    ~isPayViaSingleUseTokenSupported,
   ) => {
     open GPayFlowTypes
 
@@ -97,9 +98,7 @@ module Landing = {
           true->JSON.Encode.bool,
         )
         form.change("metadata.google_pay", predecryptMetadata)
-        if (
-          connector->ConnectorUtils.isPayViaSingleUseTokenSupported(~paymentMethodType="google_pay")
-        ) {
+        if isPayViaSingleUseTokenSupported {
           setGooglePayIntegrationStep(_ => Configure)
         } else {
           let _ = update(predecryptMetadata)

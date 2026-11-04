@@ -1746,13 +1746,6 @@ let configKeysToIgnore = [
 let getPayViaSingleUseTokenConfig = connectorConfig =>
   connectorConfig->getJsonObjectFromDict("pay_via_single_use_token")->convertMapObjectToDict
 
-let isPayViaSingleUseTokenSupported = (connector, ~paymentMethodType) =>
-  Window.getConnectorConfig(connector)
-  ->getDictFromJsonObject
-  ->getPayViaSingleUseTokenConfig
-  ->Dict.get(paymentMethodType)
-  ->Option.isSome
-
 let verifyConnectorIgnoreField = [
   "business_country",
   "business_label",

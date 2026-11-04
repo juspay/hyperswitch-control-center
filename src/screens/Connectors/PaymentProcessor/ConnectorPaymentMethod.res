@@ -61,7 +61,9 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
       let obj: ConnectorTypes.wasmRequest = {
         connector,
         payment_methods_enabled: paymentMethodsEnabled->PaymentMethod.removeInapplicablePayViaSingleUseToken(
-          ~connector,
+          ~config=Window.getConnectorConfig(connector)
+          ->getDictFromJsonObject
+          ->getPayViaSingleUseTokenConfig,
           ~formValues=values,
         ),
       }

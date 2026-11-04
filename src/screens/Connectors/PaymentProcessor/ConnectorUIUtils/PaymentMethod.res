@@ -14,67 +14,41 @@ let isSelectedAll = (
   }
 }
 
-let getWalletValues = formValues => {
-  open LogicUtils
-  let values = formValues->getDictFromJsonObject
-  (values->getDictfromDict("metadata"), values->getDictfromDict("connector_wallets_details"))
-}
-
-let getWalletFlow = (formValues, paymentMethodType) => {
-  open LogicUtils
-  open ConnectorUtils
-  let values = formValues->getDictFromJsonObject
-  let isDecryptFlow = switch paymentMethodType->getPaymentMethodTypeFromString {
-  | ApplePay => Some(values->ApplePayIntegrationUtils.isApplePayDecryptFlow)
-  | GooglePay => Some(values->GPayFlowUtils.isGooglePayDecryptFlow)
-  | _ => None
-  }
-  isDecryptFlow->Option.map((isDecrypt): ConnectorTypes.walletFlow => isDecrypt ? Decrypt : Encrypt)
-}
-
 let getPayViaSingleUseTokenField = (config, ~formValues, ~paymentMethodType) => {
   open LogicUtils
+  let values = formValues->getDictFromJsonObject
+  let walletFlow: ConnectorTypes.walletFlow = switch paymentMethodType->ConnectorUtils.getPaymentMethodTypeFromString {
+  | ApplePay if values->ApplePayIntegrationUtils.isApplePayDecryptFlow => Decrypt
+  | GooglePay if values->GPayFlowUtils.isGooglePayDecryptFlow => Decrypt
+  | _ => Encrypt
+  }
   let entry = config->getJsonObjectFromDict(paymentMethodType)->convertMapObjectToDict
-  let flows = entry->getStrArrayFromDict("flows", [])
-  getWalletFlow(formValues, paymentMethodType)
-  ->Option.filter(flow => flows->Array.includes((flow :> string)))
-  ->Option.map(_ => entry->CommonConnectorUtils.inputFieldMapper)
+  entry->getStrArrayFromDict("flows", [])->Array.includes((walletFlow :> string))
+    ? Some(entry->CommonConnectorUtils.inputFieldMapper)
+    : None
 }
 
 let mapProviders = (paymentMethodsEnabled: array<ConnectorTypes.paymentMethodEnabled>, fn) =>
   paymentMethodsEnabled->Array.map(paymentMethodObj => {
     ...paymentMethodObj,
-    provider: ?paymentMethodObj.provider->Option.map(providers =>
-      providers->Array.map(provider => fn(paymentMethodObj, provider))
-    ),
+    provider: ?paymentMethodObj.provider->Option.map(providers => providers->Array.map(fn)),
   })
 
-let updatePayViaSingleUseToken = (
-  paymentMethodsEnabled,
-  ~paymentMethod,
-  ~paymentMethodType,
-  ~value,
-) =>
-  paymentMethodsEnabled->mapProviders((paymentMethodObj, provider) =>
-    paymentMethodObj.payment_method_type->String.toLowerCase ===
-      paymentMethod->String.toLowerCase && provider.payment_method_type === paymentMethodType
+let updatePayViaSingleUseToken = (paymentMethodsEnabled, ~paymentMethodType, ~value) =>
+  paymentMethodsEnabled->mapProviders(provider =>
+    provider.payment_method_type === paymentMethodType
       ? {...provider, pay_via_single_use_token: value}
       : provider
   )
 
-let removeInapplicablePayViaSingleUseToken = (paymentMethodsEnabled, ~connector, ~formValues) => {
-  open LogicUtils
-  open ConnectorUtils
-  let config =
-    Window.getConnectorConfig(connector)->getDictFromJsonObject->getPayViaSingleUseTokenConfig
-  paymentMethodsEnabled->mapProviders((_, provider) =>
+let removeInapplicablePayViaSingleUseToken = (paymentMethodsEnabled, ~config, ~formValues) =>
+  paymentMethodsEnabled->mapProviders(provider =>
     config
     ->getPayViaSingleUseTokenField(~formValues, ~paymentMethodType=provider.payment_method_type)
     ->Option.isSome
       ? provider
       : {...provider, pay_via_single_use_token: ?None}
   )
-}
 
 module PayViaSingleUseTokenInput = {
   open LogicUtils
@@ -134,9 +108,7 @@ module CardRenderer = {
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
     let form = ReactFinalForm.useForm()
-    let (walletValuesOnOpen, setWalletValuesOnOpen) = React.useState(_ =>
-      formState.values->getWalletValues
-    )
+    let (formValuesOnOpen, setFormValuesOnOpen) = React.useState(_ => formState.values)
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (selectedWallet, setSelectedWallet) = React.useState(_ => Dict.make()->itemProviderMapper)
 
@@ -194,11 +166,7 @@ module CardRenderer = {
       switch method->getAddedMethod {
       | Some(_) =>
         paymentMethodsEnabled
-        ->updatePayViaSingleUseToken(
-          ~paymentMethod,
-          ~paymentMethodType=method.payment_method_type,
-          ~value,
-        )
+        ->updatePayViaSingleUseToken(~paymentMethodType=method.payment_method_type, ~value)
         ->updateDetails
       | None => setSelectedWallet(_ => {...method, pay_via_single_use_token: value})
       }
@@ -476,9 +444,12 @@ module CardRenderer = {
     let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P2, Medium))} text-grey-700 opacity-50`
 
     let removeSelectedWallet = () => {
-      let (metadataOnOpen, connectorWalletsOnOpen) = walletValuesOnOpen
-      form.change("metadata", metadataOnOpen->Identity.genericTypeToJson)
-      form.change("connector_wallets_details", connectorWalletsOnOpen->Identity.genericTypeToJson)
+      let valuesOnOpen = formValuesOnOpen->getDictFromJsonObject
+      form.change("metadata", valuesOnOpen->getJsonObjectFromDict("metadata"))
+      form.change(
+        "connector_wallets_details",
+        valuesOnOpen->getJsonObjectFromDict("connector_wallets_details"),
+      )
       setSelectedWallet(_ => Dict.make()->itemProviderMapper)
     }
 
@@ -508,7 +479,7 @@ module CardRenderer = {
     let handleOnItemExpandClick = configMethod => () => {
       let method = configMethod->getAddedMethod->Option.getOr(configMethod)
 
-      setWalletValuesOnOpen(_ => form.getState().values->getWalletValues)
+      setFormValuesOnOpen(_ => form.getState().values)
 
       if paymentMethod->getPaymentMethodFromString !== BankDebit && !isSelected(method) {
         removeOrAddMethods(method)
