@@ -398,6 +398,13 @@ module CardRenderer = {
       }
     }
 
+    React.useEffect(() => {
+      methodsWithAdditionalDetails
+      ->Array.get(initialOpenIndex)
+      ->Option.forEach(method => handleOnItemExpandClick(method)())
+      None
+    }, [])
+
     <div className="flex flex-col gap-4 border rounded-md p-6">
       <div>
         <RenderIf
