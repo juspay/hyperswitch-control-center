@@ -1,4 +1,3 @@
-import { Console } from "console";
 import fs from "fs";
 import path from "path";
 
