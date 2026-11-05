@@ -42,11 +42,11 @@
     "@types/node": "^25.5.0",
     "@typescript-eslint/eslint-plugin": "^8.72.1",
     "@typescript-eslint/parser": "^8.72.1",
-    "compression-webpack-plugin": "^11.1.0",
-    "copy-webpack-plugin": "^9.0.0",
+    "compression-webpack-plugin": "^12.0.0",
+    "copy-webpack-plugin": "^14.0.0",
     "cross-env": "^7.0.3",
     "css-loader": "^5.0.1",
-    "css-minimizer-webpack-plugin": "^5.0.1",
+    "css-minimizer-webpack-plugin": "^8.0.0",
     "eslint": "10.14.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-unused-imports": "^4.4.1",
@@ -89,7 +89,7 @@
     "dayjs": "^1.10.4",
     "final-form": "^4.20.4",
     "framer-motion": "12.23.24",
-    "highcharts": "10.3.3",
+    "highcharts": "12.6.2",
     "highcharts-react-official": "^3.1.0",
     "js-datepicker": "^5.18.2",
     "js-sha256": "0.11.1",
@@ -114,6 +114,17 @@
   "overrides": {
     "superposition-embeddable-ui": {
       "@juspay/blend-design-system": "$@juspay/blend-design-system"
+    },
+    "fast-xml-parser": "^4.5.5",
+    "prismjs": "^1.30.0",
+    "compression": "^1.8.2",
+    "qs": "^6.16.1",
+    "uuid": "^11.1.1",
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "^11.0.1"
+    },
+    "ctrf": {
+      "glob": "^14.0.2"
     },
     "eslint": {
       "minimatch": "^11.0.1"

@@ -4,7 +4,7 @@ module VaultRequestProcessorCard = {
     let mixpanelEvent = MixpanelHook.useSendEvent()
     let handleClick = () => {
       mixpanelEvent(~eventName="vault_request_processor")
-      "https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"->Window._open
+      GlobalVars.supportMailtoUrl->Window.Location.assign
     }
     <div
       className="border p-4 bg-white rounded-lg flex flex-col gap-2 h-9.5-rem hover:bg-gray-50 hover:cursor-pointer"
