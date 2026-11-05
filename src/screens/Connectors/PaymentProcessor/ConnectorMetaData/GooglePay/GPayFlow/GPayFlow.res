@@ -122,7 +122,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
             let _ = update(predecryptMetadata)
             closeAccordionFn()
           }}>
-          <PayViaSingleUseTokenField connector />
+          <PayViaSingleUseTokenField connector fieldWrapperClass="flex flex-col" />
         </CommonConnectorHelper.PreDecryptedTokenConfirm>
       }
     }}

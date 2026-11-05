@@ -293,6 +293,8 @@ type walletFlow = | @as("decrypt") Decrypt | @as("encrypt") Encrypt
 
 type payViaSingleUseTokenWallet = [#apple_pay | #google_pay]
 
+type payViaSingleUseTokenValue = [#default | #enabled | #disabled]
+
 type paymentMethodConfigType = {
   payment_method_type: string,
   ...paymentMethodConfigCommonType,

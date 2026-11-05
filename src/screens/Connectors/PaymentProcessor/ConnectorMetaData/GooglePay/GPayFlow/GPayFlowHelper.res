@@ -160,7 +160,7 @@ module Landing = {
 
 module PayViaSingleUseTokenField = {
   @react.component
-  let make = (~connector) => {
+  let make = (~connector, ~fieldWrapperClass="flex flex-col pt-1 pl-2 pr-4") => {
     open LogicUtils
     let paymentMethodType = (#google_pay: ConnectorTypes.payViaSingleUseTokenWallet :> string)
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
@@ -181,6 +181,9 @@ module PayViaSingleUseTokenField = {
     )
     ->mapOptionOrDefault(React.null, field =>
       <FormRenderer.FieldRenderer
+        labelClass={`${Typography.body.md.semibold} text-nd_gray-800`}
+        labelPadding="pb-2"
+        fieldWrapperClass
         field={CommonConnectorHelper.payViaSingleUseTokenInput(~field, ~paymentMethodType)}
       />
     )

@@ -384,7 +384,9 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
                     ->update
                   closeAccordionFn()
                 }}>
-                <ApplePayIntegrationHelper.PayViaSingleUseTokenField connector />
+                <ApplePayIntegrationHelper.PayViaSingleUseTokenField
+                  connector fieldWrapperClass="flex flex-col"
+                />
               </CommonConnectorHelper.PreDecryptedTokenConfirm>
             </div>
           }

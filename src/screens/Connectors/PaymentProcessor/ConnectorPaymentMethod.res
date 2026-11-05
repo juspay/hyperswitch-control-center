@@ -53,13 +53,17 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
   }, [connector])
 
   let formInitialValues = React.useMemo(() => {
+    let config =
+      connector->isNonEmptyString
+        ? Window.getConnectorConfig(connector)->getDictFromJsonObject->getPayViaSingleUseTokenConfig
+        : Dict.make()
     let dict = initialValues->getDictFromJsonObject->Dict.copy
     dict->Dict.set(
       "pay_via_single_use_token",
-      initialValues->PaymentMethodUtils.getPayViaSingleUseTokenValues,
+      initialValues->PaymentMethodUtils.getPayViaSingleUseTokenValues(~config),
     )
     dict->JSON.Encode.object
-  }, [initialValues])
+  }, (initialValues, connector))
 
   let mixpanelEventName = isUpdateFlow ? "processor_step2_onUpdate" : "processor_step2"
 

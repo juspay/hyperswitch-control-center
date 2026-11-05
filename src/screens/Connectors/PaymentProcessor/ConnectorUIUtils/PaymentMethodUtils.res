@@ -24,20 +24,32 @@ let mapProviders = (paymentMethodsEnabled: array<paymentMethodEnabled>, fn) =>
     provider: ?paymentMethodObj.provider->Option.map(providers => providers->Array.map(fn)),
   })
 
-let getPayViaSingleUseTokenValues = initialValues =>
-  initialValues
-  ->getDictFromJsonObject
-  ->getArrayFromDict("payment_methods_enabled", [])
-  ->Array.flatMap(paymentMethod =>
-    paymentMethod->getDictFromJsonObject->getArrayFromDict("payment_method_types", [])
-  )
-  ->Array.filterMap(paymentMethodType => {
-    let dict = paymentMethodType->getDictFromJsonObject
-    dict
-    ->getOptionString("pay_via_single_use_token")
-    ->Option.map(value => (dict->getString("payment_method_type", ""), value->JSON.Encode.string))
-  })
+let getPayViaSingleUseTokenValues = (initialValues, ~config) => {
+  let savedValues =
+    initialValues
+    ->getDictFromJsonObject
+    ->getArrayFromDict("payment_methods_enabled", [])
+    ->Array.flatMap(paymentMethod =>
+      paymentMethod->getDictFromJsonObject->getArrayFromDict("payment_method_types", [])
+    )
+    ->Array.filterMap(paymentMethodType => {
+      let dict = paymentMethodType->getDictFromJsonObject
+      dict
+      ->getOptionString("pay_via_single_use_token")
+      ->Option.map(value => (dict->getString("payment_method_type", ""), value))
+    })
+    ->Dict.fromArray
+  config
+  ->Dict.keysToArray
+  ->Array.map(paymentMethodType => (
+    paymentMethodType,
+    savedValues
+    ->Dict.get(paymentMethodType)
+    ->Option.getOr((#default: payViaSingleUseTokenValue :> string))
+    ->JSON.Encode.string,
+  ))
   ->getJsonFromArrayOfJson
+}
 
 let applyPayViaSingleUseToken = (paymentMethodsEnabled, ~config, ~formValues) => {
   let values = formValues->getDictFromJsonObject->getDictfromDict("pay_via_single_use_token")
