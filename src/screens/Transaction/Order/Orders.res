@@ -75,11 +75,6 @@ let make = (~previewOnly=false) => {
   let pageDetail = pageDetailDict->getValueFromDict(tableTitle, defaultValue)
   let resultsPerPage = pageDetail.resultsPerPage
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let (refreshList, refreshKey) = TableRefreshHooks.useListRefresh(
-    ~setOffset,
-    ~startTimeKey=startTimeFilterKey(version),
-    ~endTimeKey=endTimeFilterKey(version),
-  )
   let {filterValueJson, updateExistingKeys, reset, setfilterKeys} = React.useContext(
     FilterContext.filterContext,
   )
@@ -228,7 +223,7 @@ let make = (~previewOnly=false) => {
       fetchOrders()
     }
     None
-  }, (offset, filters, searchText, resultsPerPage, refreshKey))
+  }, (offset, filters, searchText, resultsPerPage))
 
   let handleSourceChange = (newSource: paymentListSource) => {
     HSLocalStorage.setPaymentListSourceInLocalStorage((newSource :> string))
@@ -261,7 +256,6 @@ let make = (~previewOnly=false) => {
       message="No results found"
       renderType=ExtendDateUI
       handleClick=handleExtendDateButtonClick
-      onRefresh=?{previewOnly ? None : Some(refreshList)}
     />
   let hasSearchText = searchText->isNonEmptyString
   let filtersUI = React.useMemo(() => {
@@ -390,7 +384,7 @@ let make = (~previewOnly=false) => {
           totalResults={previewOnly ? orderData->Array.length : totalCount}
           offset
           setOffset
-          onRefresh=?{previewOnly ? None : Some(refreshList)}
+          onRefresh=?{previewOnly ? None : Some(fetchOrders)}
           currentFetchCount={orderData->Array.length}
           customColumnMapper
           defaultColumns

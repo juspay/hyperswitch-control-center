@@ -12,7 +12,7 @@ let make = () => {
   let (statusWithCount, setStatusWithCount) = React.useState(_ => Dict.make())
   let (total, setTotal) = React.useState(_ => 0)
   let statusKey = RevenueRecoveryOrderUtils.recoveryStatusFilterKey
-  let refreshSignal = Recoil.useRecoilValueFromAtom(TableRefreshHooks.refreshSignalAtom)
+  let refreshSignal = Recoil.useRecoilValueFromAtom(HyperswitchAtom.tableRefreshSignalAtom)
 
   // falls back to the default range until a date is picked
   let (startTime, endTime) = React.useMemo(() => {

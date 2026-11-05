@@ -99,7 +99,7 @@ let make = (
     getStartAndEndTime(filterValueJson, version)
   }, (filterValue, version))
 
-  let refreshSignal = Recoil.useRecoilValueFromAtom(TableRefreshHooks.refreshSignalAtom)
+  let refreshSignal = Recoil.useRecoilValueFromAtom(HyperswitchAtom.tableRefreshSignalAtom)
 
   let aggregateRequestKey = React.useMemo(() => {
     [

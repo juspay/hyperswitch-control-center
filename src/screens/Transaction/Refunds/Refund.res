@@ -16,11 +16,6 @@ let make = () => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Refunds")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let (refreshList, refreshKey) = TableRefreshHooks.useListRefresh(
-    ~setOffset,
-    ~startTimeKey=startTimeFilterKey,
-    ~endTimeKey=endTimeFilterKey,
-  )
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
   let {getCommonSessionDetails, getResolvedUserInfo, checkUserEntity} = React.useContext(
     UserInfoProvider.defaultContext,
@@ -46,7 +41,6 @@ let make = () => {
       message="No results found"
       renderType=ExtendDateUI
       handleClick=handleExtendDateButtonClick
-      onRefresh=refreshList
     />
   }
   let hasSearchText = searchText->isNonEmptyString
@@ -91,7 +85,7 @@ let make = () => {
       fetchRefunds()
     }
     None
-  }, (offset, filters, searchText, refreshKey))
+  }, (offset, filters, searchText))
 
   let {generateReport, transactionView} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -156,7 +150,7 @@ let make = () => {
           totalResults={totalCount}
           offset
           setOffset
-          onRefresh=refreshList
+          onRefresh=fetchRefunds
           currentFetchCount={refundData->Array.length}
           defaultColumns={RefundEntity.defaultColumns}
           customColumnMapper=TableAtoms.refundsMapDefaultCols

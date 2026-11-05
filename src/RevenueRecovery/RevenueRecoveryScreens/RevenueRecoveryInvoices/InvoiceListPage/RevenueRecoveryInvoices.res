@@ -28,11 +28,6 @@ let make = () => {
   let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let startTimeKey = OrderUIUtils.startTimeFilterKey(V2)
   let endTimeKey = OrderUIUtils.endTimeFilterKey(V2)
-  let (refreshList, refreshKey) = TableRefreshHooks.useListRefresh(
-    ~setOffset,
-    ~startTimeKey,
-    ~endTimeKey,
-  )
   let startTime = filterValueJson->getString(startTimeKey, "")
 
   let portalNodes = PortalState.portalNodes->Recoil.useRecoilValueFromAtom
@@ -98,7 +93,7 @@ let make = () => {
     }
   }
 
-  React.useEffect(() => {
+  let fetchInvoices = () =>
     switch filters {
     | Some(dict) =>
       buildQuery(~filters=dict, ~offset, ~limit=resultsPerPage, ~searchText)
@@ -106,8 +101,11 @@ let make = () => {
       ->ignore
     | None => ()
     }
+
+  React.useEffect(() => {
+    fetchInvoices()
     None
-  }, (offset, filters, searchText, resultsPerPage, transactionEntity, refreshKey))
+  }, (offset, filters, searchText, resultsPerPage, transactionEntity))
 
   let customUI =
     <NoDataFound
@@ -115,7 +113,6 @@ let make = () => {
       message="No results found"
       renderType=ExtendDateUI
       handleClick=handleExtendDateButtonClick
-      onRefresh=refreshList
     />
 
   let filtersUI = React.useMemo(() => {
@@ -168,7 +165,7 @@ let make = () => {
           totalResults={totalCount}
           offset
           setOffset
-          onRefresh=refreshList
+          onRefresh=fetchInvoices
           currentFetchCount={revenueRecoveryData->Array.length}
           customColumnMapper=TableAtoms.revenueRecoveryMapDefaultCols
           defaultColumns={RevenueRecoveryEntity.defaultColumns}

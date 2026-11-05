@@ -1,9 +1,13 @@
 // Ignores repeat clicks for a moment so double-clicks don't fire overlapping list requests
 let refreshCooldownMs = 800
 
+// Refetches the list from page 1 with the same filters and search. A rolling date preset
+// (e.g. "Last 30 mins") is moved forward to now; the new dates refetch the list and counts.
 @react.component
-let make = (~onRefresh) => {
+let make = (~offset, ~setOffset, ~onRefresh) => {
   open Typography
+  let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
+  let setRefreshSignal = Recoil.useSetRecoilState(HyperswitchAtom.tableRefreshSignalAtom)
   let (isCoolingDown, setIsCoolingDown) = React.useState(_ => false)
 
   React.useEffect(() => {
@@ -15,10 +19,19 @@ let make = (~onRefresh) => {
     }
   }, [isCoolingDown])
 
+  let refresh = () =>
+    switch filterValueJson->DateRangePresetUtils.getRolledRange {
+    | Some(rolledRange) => updateExistingKeys(rolledRange)
+    | None =>
+      setRefreshSignal(prev => prev + 1)
+      // Lists already refetch when the offset changes, so fetch directly only on page 1
+      offset === 0 ? onRefresh() : setOffset(_ => 0)
+    }
+
   let handleClick = _ => {
     if !isCoolingDown {
       setIsCoolingDown(_ => true)
-      onRefresh()
+      refresh()
     }
   }
 

@@ -20,18 +20,13 @@ let make = () => {
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
   let pageDetail = pageDetailDict->Dict.get("customers")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
-  let (refreshList, refreshKey) = TableRefreshHooks.useListRefresh(
-    ~setOffset,
-    ~startTimeKey=startTimeFilterKey,
-    ~endTimeKey=endTimeFilterKey,
-  )
   let (total, setTotal) = React.useState(_ => 100)
   let limit = 20
   let (lastApiCallParams, setLastApiCallParams) = React.useState(_ => "")
   let (lastFilterState, setLastFilterState) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->JSON.stringify
   )
-  let getCustomersList = async searchValue => {
+  let getCustomersList = async (~skipDuplicateCheck=false, searchValue) => {
     try {
       setScreenState(_ => Loading)
 
@@ -58,12 +53,10 @@ let make = () => {
         ~convertToLocal=false,
       )
 
-      // refreshKey lets a manual refresh through the duplicate-request check
-      let requestKey = `${queryParams}|${refreshKey->Int.toString}`
-      if requestKey === lastApiCallParams {
+      if !skipDuplicateCheck && queryParams === lastApiCallParams {
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
-        setLastApiCallParams(_ => requestKey)
+        setLastApiCallParams(_ => queryParams)
 
         let customersUrl = getURL(
           ~entityName=V1(CUSTOMERS_COUNT),
@@ -107,8 +100,7 @@ let make = () => {
     }
   }
 
-  let customUI =
-    <NoDataFound message="No results found" renderType={Painting} onRefresh=refreshList />
+  let customUI = <NoDataFound message="No results found" renderType={Painting} />
 
   React.useEffect(() => {
     let currentFilterState = {
@@ -134,7 +126,7 @@ let make = () => {
       getCustomersList(searchText)->ignore
     }
     None
-  }, (filterValueJson, offset, searchText, refreshKey))
+  }, (filterValueJson, offset, searchText))
 
   <div>
     <PageUtils.PageHeading title="Customers" subTitle="View all customers" />
@@ -173,7 +165,7 @@ let make = () => {
             totalResults=total
             offset
             setOffset
-            onRefresh=refreshList
+            onRefresh={() => getCustomersList(~skipDuplicateCheck=true, searchText)->ignore}
             currentFetchCount={customersData->Array.length}
             defaultColumns={defaultColumns}
             customColumnMapper={TableAtoms.customersMapDefaultCols}

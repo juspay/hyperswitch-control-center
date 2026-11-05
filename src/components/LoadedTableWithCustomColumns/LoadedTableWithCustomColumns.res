@@ -105,20 +105,33 @@ let make = (
       {chooseCols}
     </div>
 
+  // Refresh shares the column button's slot so it sits between the OMP view selector and it
+  let refreshButton = switch onRefresh {
+  | Some(onRefresh) if totalResults > 0 => <TableRefreshButton offset setOffset onRefresh />
+  | _ => React.null
+  }
+  let showRefresh = refreshButton != React.null
+  let hideColumnButton = hideCustomisableColumnButton || !showColumnCustomisation
+
   let customizeColumn =
-    <RenderIf condition={!hideRightTitleElement}>
+    <RenderIf condition={showRefresh || !hideRightTitleElement}>
       <Portal to={`${title}CustomizeColumn`}>
-        <Button
-          leftIcon=Button.CustomIcon(<Icon name=customizeColumnButtonIcon size=16 />)
-          buttonType=SecondaryFilled
-          buttonSize=Small
-          onClick={_ => setShowColumnSelector(_ => true)}
-          customButtonStyle="!rounded !bg-white !h-10 !text-black !w-10"
-        />
+        <div className="flex items-center gap-2">
+          {refreshButton}
+          <RenderIf condition={!hideRightTitleElement && !hideColumnButton}>
+            <Button
+              leftIcon=Button.CustomIcon(<Icon name=customizeColumnButtonIcon size=16 />)
+              buttonType=SecondaryFilled
+              buttonSize=Small
+              onClick={_ => setShowColumnSelector(_ => true)}
+              customButtonStyle="!rounded !bg-white !h-10 !text-black !w-10"
+            />
+          </RenderIf>
+        </div>
       </Portal>
     </RenderIf>
 
-  let rightTitleElement = !previewOnly ? customizeColumn : React.null
+  let rightTitleElement = !previewOnly || showRefresh ? customizeColumn : React.null
 
   <LoadedTable
     visibleColumns
@@ -136,7 +149,6 @@ let make = (
     resultsPerPage
     setOffset
     handleRefetch
-    ?onRefresh
     ?onEntityClick
     ?downloadCsv
     filters=filt
@@ -174,7 +186,7 @@ let make = (
     noScrollbar
     remoteSortEnabled
     showAutoScroll
-    hideCustomisableColumnButton={hideCustomisableColumnButton || !showColumnCustomisation}
+    hideCustomisableColumnButton={hideColumnButton && !showRefresh}
     ?customSeparation
     ?visitedRows
     ?checkBoxProps

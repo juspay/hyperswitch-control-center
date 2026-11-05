@@ -3,6 +3,8 @@
 open LogicUtils
 
 type presetSelection = {
+  startKey: string,
+  endKey: string,
   preset: string,
   startTime: string,
   endTime: string,
@@ -14,38 +16,45 @@ let dayInMs = 24.0 *. hourInMs
 
 let defaultRangePresetId = (~range) => `default_last_${range->Int.toString}_days`
 
-let getStorageKey = (~startKey, ~endKey) => `dateRangePreset-${startKey}-${endKey}`
+// One sessionStorage entry holds the last picked preset for every pair of date filter keys
+let storageKey = "dateRangePresets"
+
+let getPresetSelections = () =>
+  try {
+    SessionStorage.sessionStorage.getItem(storageKey)
+    ->Nullable.toOption
+    ->Option.mapOr(Dict.make(), value => value->safeParse->getDictFromJsonObject)
+  } catch {
+  | _ => Dict.make()
+  }
+
+let itemToObjMapper = dict => {
+  startKey: dict->getString("startKey", ""),
+  endKey: dict->getString("endKey", ""),
+  preset: dict->getString("preset", ""),
+  startTime: dict->getString("startTime", ""),
+  endTime: dict->getString("endTime", ""),
+}
 
 let savePresetSelection = (~startKey, ~endKey, ~preset, ~startTime, ~endTime) => {
   try {
-    let value =
+    let selections = getPresetSelections()
+    selections->Dict.set(
+      `${startKey}:${endKey}`,
       [
+        ("startKey", startKey->JSON.Encode.string),
+        ("endKey", endKey->JSON.Encode.string),
         ("preset", preset->JSON.Encode.string),
         ("startTime", startTime->JSON.Encode.string),
         ("endTime", endTime->JSON.Encode.string),
-      ]
-      ->getJsonFromArrayOfJson
-      ->JSON.stringify
-    SessionStorage.sessionStorage.setItem(getStorageKey(~startKey, ~endKey), value)
+      ]->getJsonFromArrayOfJson,
+    )
+    SessionStorage.sessionStorage.setItem(
+      storageKey,
+      selections->JSON.Encode.object->JSON.stringify,
+    )
   } catch {
   | _ => ()
-  }
-}
-
-let getPresetSelection = (~startKey, ~endKey) => {
-  try {
-    SessionStorage.sessionStorage.getItem(getStorageKey(~startKey, ~endKey))
-    ->Nullable.toOption
-    ->Option.map(value => {
-      let dict = value->safeParse->getDictFromJsonObject
-      {
-        preset: dict->getString("preset", ""),
-        startTime: dict->getString("startTime", ""),
-        endTime: dict->getString("endTime", ""),
-      }
-    })
-  } catch {
-  | _ => None
   }
 }
 
@@ -115,25 +124,29 @@ let getRollingRange = (preset, ~now) => {
 
 let formatDate = date => date->Date.toISOString->TimeZoneHook.formattedISOString(filterDateFormat)
 
-// The new (start, end) for a refresh, also stored as the preset's latest range. None when the
-// range isn't a rolling preset (custom, Yesterday, Last month) or was changed after it was picked.
-let getRolledRange = (~filterValueJson, ~startKey, ~endKey) => {
-  let currentStart = filterValueJson->getString(startKey, "")
-  let currentEnd = filterValueJson->getString(endKey, "")
+// The filter keys to update for a refresh, with the new range also stored as the preset's
+// latest. None when the range isn't a rolling preset (custom, Yesterday, Last month) or was
+// changed after it was picked.
+let getRolledRange = filterValueJson =>
+  getPresetSelections()
+  ->Dict.valuesToArray
+  ->Array.map(json => json->getDictFromJsonObject->itemToObjMapper)
+  ->Array.findMap(({startKey, endKey, preset, startTime, endTime}) => {
+    let currentStart = filterValueJson->getString(startKey, "")
+    let currentEnd = filterValueJson->getString(endKey, "")
 
-  switch getPresetSelection(~startKey, ~endKey) {
-  | Some({preset, startTime, endTime})
-    if currentStart->isSameInstant(startTime) && currentEnd->isSameInstant(endTime) =>
-    preset
-    ->getRollingRange(~now=Date.make())
-    ->Option.map(((start, end)) => (start->formatDate, end->formatDate))
-    ->Option.flatMap(((start, end)) => {
-      let hasMoved = !(start->isSameInstant(currentStart) && end->isSameInstant(currentEnd))
-      if hasMoved {
-        savePresetSelection(~startKey, ~endKey, ~preset, ~startTime=start, ~endTime=end)
-      }
-      hasMoved ? Some((start, end)) : None
-    })
-  | _ => None
-  }
-}
+    if currentStart->isSameInstant(startTime) && currentEnd->isSameInstant(endTime) {
+      preset
+      ->getRollingRange(~now=Date.make())
+      ->Option.map(((start, end)) => (start->formatDate, end->formatDate))
+      ->Option.flatMap(((start, end)) => {
+        let hasMoved = !(start->isSameInstant(currentStart) && end->isSameInstant(currentEnd))
+        if hasMoved {
+          savePresetSelection(~startKey, ~endKey, ~preset, ~startTime=start, ~endTime=end)
+        }
+        hasMoved ? Some(Dict.fromArray([(startKey, start), (endKey, end)])) : None
+      })
+    } else {
+      None
+    }
+  })

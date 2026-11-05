@@ -153,7 +153,6 @@ let make = (
   ~offset,
   ~setOffset,
   ~handleRefetch=?,
-  ~onRefresh=?,
   ~entity: EntityType.entityType<'colType, 't>,
   ~onEntityClick=?,
   ~onEntityDoubleClick=?,
@@ -985,13 +984,6 @@ let make = (
             {tableActionElements}
           </RenderIf>
           <RenderIf condition={!hideCustomisableColumnButton}> customizeColumnsButtons </RenderIf>
-          {switch onRefresh {
-          | Some(onRefresh) =>
-            <div className={`ml-auto ${filterBottomPadding}`}>
-              <TableRefreshButton onRefresh />
-            </div>
-          | None => React.null
-          }}
         </div>
       </div>
       {if dataLoading {
