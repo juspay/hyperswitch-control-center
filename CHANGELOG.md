@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.05.0
+
+### Features
+
+- **connectors:** Add `pay_via_single_use_token` config for apple pay and google pay ([#5789](https://github.com/juspay/hyperswitch-control-center/pull/5789)) ([`44302c8`](https://github.com/juspay/hyperswitch-control-center/commit/44302c87d16982ecccf746ceeb3f5fee2cfb3c57))
+
+**Full Changelog:** [`2026.11.04.0...2026.11.05.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.04.0...2026.11.05.0)
+
+- - -
+
 ## 2026.11.04.0
 
 ### Features
