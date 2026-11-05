@@ -16,6 +16,11 @@ let make = () => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Payouts")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
+  let (refreshList, refreshKey) = TableRefreshHooks.useListRefresh(
+    ~setOffset,
+    ~startTimeKey=startTimeFilterKey,
+    ~endTimeKey=endTimeFilterKey,
+  )
   let {generateReport, email, transactionView} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {updateTransactionEntity} = OMPSwitchHooks.useUserInfo()
@@ -42,6 +47,7 @@ let make = () => {
       message="No results found"
       renderType=ExtendDateUI
       handleClick=handleExtendDateButtonClick
+      onRefresh=refreshList
     />
   }
 
@@ -81,7 +87,7 @@ let make = () => {
       fetchPayouts()
     }
     None
-  }, (offset, filters, searchText))
+  }, (offset, filters, searchText, refreshKey))
 
   <ErrorBoundary>
     <div className="min-h-[50vh]">
@@ -140,6 +146,7 @@ let make = () => {
           totalResults={totalCount}
           offset
           setOffset
+          onRefresh=refreshList
           currentFetchCount={payoutData->Array.length}
           defaultColumns={PayoutsEntity.defaultColumns}
           customColumnMapper=TableAtoms.payoutsMapDefaultCols

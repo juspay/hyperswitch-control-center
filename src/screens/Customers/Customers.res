@@ -12,6 +12,7 @@ let make = () => {
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
   let pageDetail = pageDetailDict->Dict.get("customers")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
+  let (refreshList, refreshKey) = TableRefreshHooks.useListRefresh(~setOffset)
   let (total, setTotal) = React.useState(_ => 100)
   let limit = 20 // each api calls will return 50 results
 
@@ -72,7 +73,8 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
-  let customUI = <NoDataFound message="No results found" renderType={Painting} />
+  let customUI =
+    <NoDataFound message="No results found" renderType={Painting} onRefresh=refreshList />
 
   let handleSearch = (searchValue: string) => {
     setSearchText(_ => searchValue)
@@ -93,7 +95,7 @@ let make = () => {
   React.useEffect(() => {
     getCustomersList(searchText)->ignore
     None
-  }, [offset])
+  }, (offset, refreshKey))
   <>
     <PageUtils.PageHeading
       title="Customers" subTitle="View all customers" customHeadingStyle="mb-8"
@@ -118,6 +120,7 @@ let make = () => {
         totalResults=total
         offset
         setOffset
+        onRefresh=refreshList
         currentFetchCount={customersData->Array.length}
         defaultColumns={defaultColumns}
         customColumnMapper={TableAtoms.customersMapDefaultCols}

@@ -13,6 +13,7 @@ let make = (
   ~offset,
   ~setOffset,
   ~handleRefetch=() => (),
+  ~onRefresh=?,
   ~entity: EntityType.entityType<'colType, 't>,
   ~onEntityClick=?,
   ~currentFetchCount,
@@ -135,6 +136,7 @@ let make = (
     resultsPerPage
     setOffset
     handleRefetch
+    ?onRefresh
     ?onEntityClick
     ?downloadCsv
     filters=filt

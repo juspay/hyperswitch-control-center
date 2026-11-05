@@ -10,6 +10,7 @@ let make = (
   ~customBorderClass="",
   ~customMessageCss="",
   ~handleClick=?,
+  ~onRefresh=?,
 ) => {
   let prefix = LogicUtils.useUrlPrefix()
   let isMobileView = MatchMedia.useMobileChecker()
@@ -127,6 +128,13 @@ let make = (
             | None => React.null
             }}
           </div>
+        }}
+        {switch onRefresh {
+        | Some(onRefresh) =>
+          <div className="flex justify-center pb-4">
+            <TableRefreshButton onRefresh />
+          </div>
+        | None => React.null
         }}
       </div>
     </div>}

@@ -39,6 +39,7 @@ let make: (
   ~offset: int,
   ~setOffset: ('c => int) => unit,
   ~handleRefetch: unit => unit=?,
+  ~onRefresh: unit => unit=?,
   ~entity: EntityType.entityType<'a, 'b>,
   ~onEntityClick: 'b => unit=?,
   ~onEntityDoubleClick: 'b => unit=?,

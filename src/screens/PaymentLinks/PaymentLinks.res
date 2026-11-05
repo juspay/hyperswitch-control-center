@@ -15,6 +15,11 @@ let make = () => {
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get("Payment Links")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
+  let (refreshList, refreshKey) = TableRefreshHooks.useListRefresh(
+    ~setOffset,
+    ~startTimeKey=startTimeFilterKey,
+    ~endTimeKey=endTimeFilterKey,
+  )
   let {orgId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let startTime = filterValueJson->getString("start_time", "")
@@ -99,7 +104,7 @@ let make = () => {
       fetchPaymentLinks()
     }
     None
-  }, (offset, filters))
+  }, (offset, filters, refreshKey))
 
   <div className="min-h-50-vh">
     <div className="flex justify-between items-center">
@@ -134,6 +139,7 @@ let make = () => {
         message="No results found"
         renderType=ExtendDateUI
         handleClick=handleExtendDateButtonClick
+        onRefresh=refreshList
       />}>
       <LoadedTableWithCustomColumns
         hideTitle=true
@@ -145,6 +151,7 @@ let make = () => {
         totalResults={totalCount}
         offset
         setOffset
+        onRefresh=refreshList
         currentFetchCount={paymentLinksData->Array.length}
         onEntityClick={paymentLink =>
           GlobalVars.appendDashboardPath(

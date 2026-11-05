@@ -20,6 +20,11 @@ let make = () => {
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
   let pageDetail = pageDetailDict->Dict.get("customers")->Option.getOr(defaultValue)
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
+  let (refreshList, refreshKey) = TableRefreshHooks.useListRefresh(
+    ~setOffset,
+    ~startTimeKey=startTimeFilterKey,
+    ~endTimeKey=endTimeFilterKey,
+  )
   let (total, setTotal) = React.useState(_ => 100)
   let limit = 20
   let (lastApiCallParams, setLastApiCallParams) = React.useState(_ => "")
@@ -53,10 +58,12 @@ let make = () => {
         ~convertToLocal=false,
       )
 
-      if queryParams === lastApiCallParams {
+      // refreshKey lets a manual refresh through the duplicate-request check
+      let requestKey = `${queryParams}|${refreshKey->Int.toString}`
+      if requestKey === lastApiCallParams {
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
-        setLastApiCallParams(_ => queryParams)
+        setLastApiCallParams(_ => requestKey)
 
         let customersUrl = getURL(
           ~entityName=V1(CUSTOMERS_COUNT),
@@ -100,7 +107,8 @@ let make = () => {
     }
   }
 
-  let customUI = <NoDataFound message="No results found" renderType={Painting} />
+  let customUI =
+    <NoDataFound message="No results found" renderType={Painting} onRefresh=refreshList />
 
   React.useEffect(() => {
     let currentFilterState = {
@@ -126,7 +134,7 @@ let make = () => {
       getCustomersList(searchText)->ignore
     }
     None
-  }, (filterValueJson, offset, searchText))
+  }, (filterValueJson, offset, searchText, refreshKey))
 
   <div>
     <PageUtils.PageHeading title="Customers" subTitle="View all customers" />
@@ -165,6 +173,7 @@ let make = () => {
             totalResults=total
             offset
             setOffset
+            onRefresh=refreshList
             currentFetchCount={customersData->Array.length}
             defaultColumns={defaultColumns}
             customColumnMapper={TableAtoms.customersMapDefaultCols}

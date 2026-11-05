@@ -13,6 +13,11 @@ let make = () => {
   let (hasNext, setHasNext) = React.useState(_ => false)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (offset, setOffset) = React.useState(_ => 0)
+  let (refreshList, refreshKey) = TableRefreshHooks.useListRefresh(
+    ~setOffset,
+    ~startTimeKey=startTimeFilterKey,
+    ~endTimeKey=endTimeFilterKey,
+  )
   let (filters, setFilters) = React.useState(_ => None)
   let (transactionViewStatuses, setTransactionViewStatuses) = React.useState(_ => [])
 
@@ -102,7 +107,7 @@ let make = () => {
       getDisputesList()->ignore
     }
     None
-  }, (offset, filters, searchText))
+  }, (offset, filters, searchText, refreshKey))
 
   let customUI =
     <NoDataFound
@@ -110,6 +115,7 @@ let make = () => {
       message="No results found"
       renderType=ExtendDateUI
       handleClick=handleExtendDateButtonClick
+      onRefresh=refreshList
     />
 
   let filtersUI =
@@ -173,6 +179,7 @@ let make = () => {
           totalResults={disputesData->Array.length}
           offset
           setOffset
+          onRefresh=refreshList
           currentFetchCount={disputesData->Array.length}
           showPagination=false
           bottomActions={<PrevNextPaginationButtons

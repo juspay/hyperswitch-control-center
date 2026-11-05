@@ -28,6 +28,11 @@ type customPresetConfig = {
 
 type dateFormatConfig = {includeTime: bool}
 
+type presetSelectionData = {
+  preset: string,
+  dateRange: dateRange,
+}
+
 module PresetsConfig = {
   type t
   external fromCustomConfig: customPresetConfig => t = "%identity"
@@ -39,6 +44,7 @@ module PresetsConfig = {
 external make: (
   ~value: dateRange=?,
   ~onChange: dateRange => unit=?,
+  ~onPresetSelection: presetSelectionData => unit=?,
   ~showDateTimePicker: bool=?,
   ~isDisabled: bool=?,
   ~disableFutureDates: bool=?,
