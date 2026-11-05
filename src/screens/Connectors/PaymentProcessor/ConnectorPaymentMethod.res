@@ -52,6 +52,15 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
     None
   }, [connector])
 
+  let formInitialValues = React.useMemo(() => {
+    let dict = initialValues->getDictFromJsonObject->Dict.copy
+    dict->Dict.set(
+      "pay_via_single_use_token",
+      initialValues->PaymentMethodUtils.getPayViaSingleUseTokenValues,
+    )
+    dict->JSON.Encode.object
+  }, [initialValues])
+
   let mixpanelEventName = isUpdateFlow ? "processor_step2_onUpdate" : "processor_step2"
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
@@ -60,7 +69,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
       setScreenState(_ => Loading)
       let obj: ConnectorTypes.wasmRequest = {
         connector,
-        payment_methods_enabled: paymentMethodsEnabled->PaymentMethodUtils.removeInapplicablePayViaSingleUseToken(
+        payment_methods_enabled: paymentMethodsEnabled->PaymentMethodUtils.applyPayViaSingleUseToken(
           ~config=Window.getConnectorConfig(connector)
           ->getDictFromJsonObject
           ->getPayViaSingleUseTokenConfig,
@@ -112,7 +121,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
     Nullable.null
   }
   <PageLoaderWrapper screenState>
-    <Form onSubmit initialValues={initialValues}>
+    <Form onSubmit initialValues={formInitialValues}>
       <div className="flex flex-col">
         <div className="flex justify-between border-b p-2 md:px-10 md:py-6">
           <div className="flex gap-2 items-center">

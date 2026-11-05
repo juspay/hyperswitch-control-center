@@ -195,6 +195,7 @@ let make = (
         )}
       />
     </RenderIf>
+    <PayViaSingleUseTokenField connector />
     <RenderIf condition={featureFlagDetails.isLiveMode && featureFlagDetails.complianceCertificate}>
       {switch connector->ConnectorUtils.getConnectorNameTypeFromString {
       | Processors(STRIPE) =>

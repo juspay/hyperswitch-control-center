@@ -14,42 +14,8 @@ let isSelectedAll = (
   }
 }
 
-module PayViaSingleUseTokenInput = {
-  open LogicUtils
-  open Typography
-
-  @react.component
-  let make = (~value, ~field: CommonConnectorTypes.inputField, ~onChange) => {
-    let input: ReactFinalForm.fieldRenderPropsInput = {
-      name: field.name,
-      onBlur: _ => (),
-      onChange: ev => onChange(ev->Identity.formReactEventToString),
-      onFocus: _ => (),
-      value: value->Option.getOr("default")->JSON.Encode.string,
-      checked: true,
-    }
-
-    <div
-      className="flex items-center justify-between gap-4 border border-nd_gray-150 rounded-lg p-4">
-      <p className={`${body.md.medium} text-nd_gray-700`}> {field.label->React.string} </p>
-      <SelectBoxAdapter.BaseDropdown
-        allowMultiSelect=false
-        buttonText=field.placeholder
-        input
-        options={field.options->Array.map((option): SelectBox.dropdownOption => {
-          label: option->snakeToTitle,
-          value: option,
-        })}
-        hideMultiSelectButtons=true
-        deselectDisable=true
-      />
-    </div>
-  }
-}
-
 module CardRenderer = {
   open LogicUtils
-  open PaymentMethodUtils
   open ConnectorTypes
   open ConnectorUtils
   open AdditionalDetailsSidebar
@@ -66,7 +32,6 @@ module CardRenderer = {
     ~connector,
     ~initialValues,
     ~isUpdateFlow,
-    ~payViaSingleUseTokenConfig,
     ~connectorType=Processor,
   ) => {
     let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
@@ -109,35 +74,6 @@ module CardRenderer = {
 
     let getAddedMethod = method =>
       standardProviders->Array.find(obj => checkPaymentMethodType(obj, method))
-
-    let getPayViaSingleUseTokenMethod = (configMethod: paymentMethodConfigType) => {
-      let walletBeingConfigured = checkPaymentMethodType(selectedWallet, configMethod)
-        ? Some(selectedWallet)
-        : None
-      configMethod
-      ->getAddedMethod
-      ->Option.orElse(walletBeingConfigured)
-      ->Option.flatMap(method =>
-        payViaSingleUseTokenConfig
-        ->getPayViaSingleUseTokenField(
-          ~formValues=formState.values,
-          ~paymentMethodType=method.payment_method_type,
-        )
-        ->Option.map(field => (method, field))
-      )
-    }
-
-    let onPayViaSingleUseTokenChange = (~method: paymentMethodConfigType) => value =>
-      switch method->getAddedMethod {
-      | Some(_) =>
-        paymentMethodsEnabled
-        ->updatePayViaSingleUseToken(
-          ~paymentMethodType=method.payment_method_type,
-          ~value=Some(value),
-        )
-        ->updateDetails
-      | None => setSelectedWallet(_ => {...method, pay_via_single_use_token: value})
-      }
 
     let checkPaymentMethodTypeAndExperience = (
       obj: paymentMethodConfigType,
@@ -418,14 +354,10 @@ module CardRenderer = {
         "connector_wallets_details",
         valuesOnOpen->getJsonObjectFromDict("connector_wallets_details"),
       )
-      if selectedWallet->getAddedMethod->Option.isSome {
-        paymentMethodsEnabled
-        ->updatePayViaSingleUseToken(
-          ~paymentMethodType=selectedWallet.payment_method_type,
-          ~value=selectedWallet.pay_via_single_use_token,
-        )
-        ->updateDetails
-      }
+      form.change(
+        "pay_via_single_use_token",
+        valuesOnOpen->getJsonObjectFromDict("pay_via_single_use_token"),
+      )
       setSelectedWallet(_ => Dict.make()->itemProviderMapper)
     }
 
@@ -654,18 +586,7 @@ module CardRenderer = {
                 accordion={methodsWithAdditionalDetails->Array.map(value => {
                   let accordionElem: AccordionAdapter.accordion = {
                     title: value.payment_method_type,
-                    renderContent: (~currentAccordionState as _, ~closeAccordionFn) => <>
-                      {value
-                      ->getPayViaSingleUseTokenMethod
-                      ->mapOptionOrDefault(React.null, ((method, field)) =>
-                        <div className="px-6 pt-6">
-                          <PayViaSingleUseTokenInput
-                            value=method.pay_via_single_use_token
-                            field
-                            onChange={onPayViaSingleUseTokenChange(~method)}
-                          />
-                        </div>
-                      )}
+                    renderContent: (~currentAccordionState as _, ~closeAccordionFn) =>
                       <AdditionalDetailsSidebar
                         key={`${value.payment_method_type}`}
                         method={Some(selectedWallet)}
@@ -676,8 +597,7 @@ module CardRenderer = {
                         onCloseClickCustomFun={removeSelectedWallet}
                         pmtName={value.payment_method_type}
                         closeAccordionFn
-                      />
-                    </>,
+                      />,
                     onItemExpandClick: handleOnItemExpandClick(value),
                     renderContentOnTop: Some(
                       () => {
@@ -745,7 +665,6 @@ module PaymentMethodsRender = {
       )->getDictFromJsonObject
     }, [connector])
     let keys = pmts->Dict.keysToArray->Array.filter(val => !Array.includes(configKeysToIgnore, val))
-    let payViaSingleUseTokenConfig = pmts->getPayViaSingleUseTokenConfig
 
     <div className="flex flex-col gap-12">
       {keys
@@ -764,7 +683,6 @@ module PaymentMethodsRender = {
               connector
               initialValues
               isUpdateFlow
-              payViaSingleUseTokenConfig
               connectorType
             />
           </div>
@@ -780,7 +698,6 @@ module PaymentMethodsRender = {
               connector
               initialValues
               isUpdateFlow
-              payViaSingleUseTokenConfig
               connectorType
             />
           </div>

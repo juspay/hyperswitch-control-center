@@ -24,18 +24,35 @@ let mapProviders = (paymentMethodsEnabled: array<paymentMethodEnabled>, fn) =>
     provider: ?paymentMethodObj.provider->Option.map(providers => providers->Array.map(fn)),
   })
 
-let updatePayViaSingleUseToken = (paymentMethodsEnabled, ~paymentMethodType, ~value) =>
-  paymentMethodsEnabled->mapProviders(provider =>
-    provider.payment_method_type === paymentMethodType
-      ? {...provider, pay_via_single_use_token: ?value}
-      : provider
+let getPayViaSingleUseTokenValues = initialValues =>
+  initialValues
+  ->getDictFromJsonObject
+  ->getArrayFromDict("payment_methods_enabled", [])
+  ->Array.flatMap(paymentMethod =>
+    paymentMethod->getDictFromJsonObject->getArrayFromDict("payment_method_types", [])
   )
+  ->Array.filterMap(paymentMethodType => {
+    let dict = paymentMethodType->getDictFromJsonObject
+    dict
+    ->getOptionString("pay_via_single_use_token")
+    ->Option.map(value => (dict->getString("payment_method_type", ""), value->JSON.Encode.string))
+  })
+  ->getJsonFromArrayOfJson
 
-let removeInapplicablePayViaSingleUseToken = (paymentMethodsEnabled, ~config, ~formValues) =>
+let applyPayViaSingleUseToken = (paymentMethodsEnabled, ~config, ~formValues) => {
+  let values = formValues->getDictFromJsonObject->getDictfromDict("pay_via_single_use_token")
   paymentMethodsEnabled->mapProviders(provider => {
     let paymentMethodType = provider.payment_method_type
-    let isInapplicable =
-      config->getPayViaSingleUseTokenEntry(~paymentMethodType)->Option.isSome &&
-        config->getPayViaSingleUseTokenField(~formValues, ~paymentMethodType)->Option.isNone
-    isInapplicable ? {...provider, pay_via_single_use_token: ?None} : provider
+    switch config->getPayViaSingleUseTokenEntry(~paymentMethodType) {
+    | Some(_) => {
+        ...provider,
+        pay_via_single_use_token: ?(
+          config
+          ->getPayViaSingleUseTokenField(~formValues, ~paymentMethodType)
+          ->Option.flatMap(_ => values->getOptionString(paymentMethodType))
+        ),
+      }
+    | None => provider
+    }
   })
+}

@@ -360,6 +360,7 @@ let make = (
         )}
       />
     </RenderIf>
+    <ApplePayIntegrationHelper.PayViaSingleUseTokenField connector />
     <div className="w-full flex gap-2 justify-end">
       <Button
         text="Go Back"

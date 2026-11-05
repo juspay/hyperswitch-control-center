@@ -1752,10 +1752,13 @@ let getPayViaSingleUseTokenEntry = (payViaSingleUseTokenConfig, ~paymentMethodTy
 let isPayViaSingleUseTokenFlow = (entry, walletFlow: walletFlow) =>
   entry->getStrArrayFromDict("flows", [])->Array.includes((walletFlow :> string))
 
-let isPayViaSingleUseTokenInDecryptFlow = (connectorConfig, ~paymentMethodType) =>
+let isPayViaSingleUseTokenInDecryptFlow = (
+  connectorConfig,
+  ~paymentMethodType: payViaSingleUseTokenWallet,
+) =>
   connectorConfig
   ->getPayViaSingleUseTokenConfig
-  ->getPayViaSingleUseTokenEntry(~paymentMethodType)
+  ->getPayViaSingleUseTokenEntry(~paymentMethodType=(paymentMethodType :> string))
   ->mapOptionOrDefault(false, entry => entry->isPayViaSingleUseTokenFlow(Decrypt))
 
 let verifyConnectorIgnoreField = [

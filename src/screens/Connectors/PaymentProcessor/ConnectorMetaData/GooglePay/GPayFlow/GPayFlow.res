@@ -58,7 +58,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
     connector->isNonEmptyString &&
       Window.getConnectorConfig(connector)
       ->getDictFromJsonObject
-      ->ConnectorUtils.isPayViaSingleUseTokenInDecryptFlow(~paymentMethodType="google_pay")
+      ->ConnectorUtils.isPayViaSingleUseTokenInDecryptFlow(~paymentMethodType=#google_pay)
   }, [connector])
 
   let setIntegrationType = () => {
@@ -121,8 +121,9 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
           onProceed={() => {
             let _ = update(predecryptMetadata)
             closeAccordionFn()
-          }}
-        />
+          }}>
+          <PayViaSingleUseTokenField connector />
+        </CommonConnectorHelper.PreDecryptedTokenConfirm>
       }
     }}
   </PageLoaderWrapper>

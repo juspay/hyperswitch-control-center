@@ -267,7 +267,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
     connector->isNonEmptyString &&
       Window.getConnectorConfig(connector)
       ->getDictFromJsonObject
-      ->ConnectorUtils.isPayViaSingleUseTokenInDecryptFlow(~paymentMethodType="apple_pay")
+      ->ConnectorUtils.isPayViaSingleUseTokenInDecryptFlow(~paymentMethodType=#apple_pay)
   }, [connector])
 
   // TODO: Change this to get for both V1 and V2
@@ -383,8 +383,9 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
                     ->JSON.Encode.object
                     ->update
                   closeAccordionFn()
-                }}
-              />
+                }}>
+                <ApplePayIntegrationHelper.PayViaSingleUseTokenField connector />
+              </CommonConnectorHelper.PreDecryptedTokenConfirm>
             </div>
           }
         | Verify =>

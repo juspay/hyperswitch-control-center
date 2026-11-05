@@ -157,3 +157,32 @@ module Landing = {
     </div>
   }
 }
+
+module PayViaSingleUseTokenField = {
+  @react.component
+  let make = (~connector) => {
+    open LogicUtils
+    let paymentMethodType = (#google_pay: ConnectorTypes.payViaSingleUseTokenWallet :> string)
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let payViaSingleUseTokenConfig = React.useMemo(() => {
+      connector->isNonEmptyString
+        ? Window.getConnectorConfig(connector)
+          ->getDictFromJsonObject
+          ->ConnectorUtils.getPayViaSingleUseTokenConfig
+        : Dict.make()
+    }, [connector])
+
+    payViaSingleUseTokenConfig
+    ->PaymentMethodUtils.getPayViaSingleUseTokenField(
+      ~formValues=formState.values,
+      ~paymentMethodType,
+    )
+    ->mapOptionOrDefault(React.null, field =>
+      <FormRenderer.FieldRenderer
+        field={CommonConnectorHelper.payViaSingleUseTokenInput(~field, ~paymentMethodType)}
+      />
+    )
+  }
+}
