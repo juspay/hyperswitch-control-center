@@ -1746,13 +1746,17 @@ let configKeysToIgnore = [
 let getPayViaSingleUseTokenConfig = connectorConfig =>
   connectorConfig->getJsonObjectFromDict("pay_via_single_use_token")->convertMapObjectToDict
 
+let getPayViaSingleUseTokenEntry = (payViaSingleUseTokenConfig, ~paymentMethodType) =>
+  payViaSingleUseTokenConfig->Dict.get(paymentMethodType)->Option.map(convertMapObjectToDict)
+
+let isPayViaSingleUseTokenFlow = (entry, walletFlow: walletFlow) =>
+  entry->getStrArrayFromDict("flows", [])->Array.includes((walletFlow :> string))
+
 let isPayViaSingleUseTokenInDecryptFlow = (connectorConfig, ~paymentMethodType) =>
   connectorConfig
   ->getPayViaSingleUseTokenConfig
-  ->getJsonObjectFromDict(paymentMethodType)
-  ->convertMapObjectToDict
-  ->getStrArrayFromDict("flows", [])
-  ->Array.includes((Decrypt: walletFlow :> string))
+  ->getPayViaSingleUseTokenEntry(~paymentMethodType)
+  ->mapOptionOrDefault(false, entry => entry->isPayViaSingleUseTokenFlow(Decrypt))
 
 let verifyConnectorIgnoreField = [
   "business_country",

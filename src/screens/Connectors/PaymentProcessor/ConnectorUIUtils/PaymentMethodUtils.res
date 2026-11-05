@@ -1,8 +1,8 @@
 open LogicUtils
 open ConnectorTypes
+open ConnectorUtils
 
 let getPayViaSingleUseTokenField = (config, ~formValues, ~paymentMethodType) => {
-  open ConnectorUtils
   open ApplePayIntegrationUtils
   open GPayFlowUtils
   open CommonConnectorUtils
@@ -12,10 +12,10 @@ let getPayViaSingleUseTokenField = (config, ~formValues, ~paymentMethodType) => 
   | GooglePay if values->isGooglePayDecryptFlow => Decrypt
   | _ => Encrypt
   }
-  let entry = config->getJsonObjectFromDict(paymentMethodType)->convertMapObjectToDict
-  entry->getStrArrayFromDict("flows", [])->Array.includes((walletFlow :> string))
-    ? Some(entry->inputFieldMapper)
-    : None
+  config
+  ->getPayViaSingleUseTokenEntry(~paymentMethodType)
+  ->Option.filter(entry => entry->isPayViaSingleUseTokenFlow(walletFlow))
+  ->Option.map(inputFieldMapper)
 }
 
 let mapProviders = (paymentMethodsEnabled: array<paymentMethodEnabled>, fn) =>
@@ -32,10 +32,10 @@ let updatePayViaSingleUseToken = (paymentMethodsEnabled, ~paymentMethodType, ~va
   )
 
 let removeInapplicablePayViaSingleUseToken = (paymentMethodsEnabled, ~config, ~formValues) =>
-  paymentMethodsEnabled->mapProviders(provider =>
-    config
-    ->getPayViaSingleUseTokenField(~formValues, ~paymentMethodType=provider.payment_method_type)
-    ->Option.isSome
-      ? provider
-      : {...provider, pay_via_single_use_token: ?None}
-  )
+  paymentMethodsEnabled->mapProviders(provider => {
+    let paymentMethodType = provider.payment_method_type
+    let isInapplicable =
+      config->getPayViaSingleUseTokenEntry(~paymentMethodType)->Option.isSome &&
+        config->getPayViaSingleUseTokenField(~formValues, ~paymentMethodType)->Option.isNone
+    isInapplicable ? {...provider, pay_via_single_use_token: ?None} : provider
+  })
