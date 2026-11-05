@@ -88,7 +88,7 @@
     "dayjs": "^1.10.4",
     "final-form": "^4.20.4",
     "framer-motion": "12.23.24",
-    "highcharts": "10.3.3",
+    "highcharts": "12.6.2",
     "highcharts-react-official": "^3.1.0",
     "js-datepicker": "^5.18.2",
     "js-sha256": "0.11.1",
