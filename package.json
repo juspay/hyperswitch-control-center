@@ -107,12 +107,6 @@
     "react-window": "^1.8.8",
     "recoil": "^0.1.2",
     "rescript-webapi": "0.10.0",
-    "superposition-embeddable-ui": "https://github.com/juspay/superposition-embeddable-ui/releases/download/v0.1.5/superposition-embeddable-ui-0.1.5.tgz",
     "tailwindcss": "^3.0.0"
-  },
-  "overrides": {
-    "superposition-embeddable-ui": {
-      "@juspay/blend-design-system": "$@juspay/blend-design-system"
-    }
   }
 }

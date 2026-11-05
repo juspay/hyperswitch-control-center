@@ -96,6 +96,7 @@ let make: (
   ~customMoneyStyle: string=?,
   ~ellipseClass: string=?,
   ~checkBoxProps: checkBoxProps=?,
+  ~checkBoxColumnWidth: string=?,
   ~selectedRowColor: string=?,
   ~paginationClass: string=?,
   ~lastHeadingClass: string=?,

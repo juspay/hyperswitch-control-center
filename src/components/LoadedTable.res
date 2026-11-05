@@ -210,6 +210,7 @@ let make = (
   ~customMoneyStyle="",
   ~ellipseClass="",
   ~checkBoxProps: checkBoxProps=checkBoxPropDefaultVal,
+  ~checkBoxColumnWidth=?,
   ~selectedRowColor=?,
   ~paginationClass="",
   ~lastHeadingClass="",
@@ -389,7 +390,14 @@ let make = (
 
   if checkBoxProps.showCheckBox {
     heading
-    ->Array.unshift(Table.makeHeaderInfo(~key="select", ~title="", ~showMultiSelectCheckBox=true))
+    ->Array.unshift(
+      Table.makeHeaderInfo(
+        ~key="select",
+        ~title="",
+        ~showMultiSelectCheckBox=true,
+        ~customWidth=?checkBoxColumnWidth,
+      ),
+    )
     ->ignore
   }
 

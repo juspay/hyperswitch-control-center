@@ -300,6 +300,12 @@ let useGetURL = () => {
         | (Get, Some(queryParams)) => Default(`blocklist/count?${queryParams}`)
         | _ => Default("")
         }
+      | SUPERPOSITION =>
+        let path = id->Option.getOr("")
+        switch queryParameters {
+        | Some(query) if query->isNonEmptyString => Default(`v1/superposition/${path}?${query}`)
+        | _ => Default(`v1/superposition/${path}`)
+        }
       | BLOCKLIST_LOOKUP =>
         switch (methodType, queryParameters) {
         | (Get, Some(queryParams)) => Default(`blocklist/lookup?${queryParams}`)
@@ -2051,11 +2057,12 @@ let useGetMethod = (~showErrorToast=true) => {
   let {xFeatureRoute, forceCookies, sendV1DummyApiKeyHeader} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
-  async (url, ~version=UserInfoTypes.V1, ~signal=?) => {
+  async (url, ~headers=Dict.make(), ~version=UserInfoTypes.V1, ~signal=?) => {
     try {
       let res = await fetchApi(
         url,
         ~method_=Get,
+        ~headers,
         ~xFeatureRoute,
         ~forceCookies,
         ~sendV1DummyApiKeyHeader,
