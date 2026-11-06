@@ -3,7 +3,6 @@ open LogicUtils
 let tableTitle = "RecoveryInvoices"
 
 let recoveryFilterKeys: array<RevenueRecoveryOrderTypes.recoveryFilterKey> = [
-  #recovery_status,
   #merchant_connector_id,
   #payment_method_type,
   #payment_method_subtype,
@@ -18,26 +17,6 @@ let paymentMethodFilterKeys: array<RevenueRecoveryOrderTypes.paymentMethodFilter
   #payment_method_type,
   #payment_method_subtype,
 ]
-
-let recoveryStatusFilter = (): EntityType.initialFilters<'t> => {
-  field: FormRenderer.makeFieldInfo(
-    ~label="status",
-    ~name=RevenueRecoveryOrderUtils.recoveryStatusFilterKey,
-    ~customInput=InputFields.filterMultiSelectInput(
-      ~options=RevenueRecoveryOrderUtils.recoveryStatusFilterOptions
-      ->Array.map(option => (option :> string))
-      ->FilterSelectBox.makeOptions(~isTitle=true),
-      ~buttonText="Select Status",
-      ~showSelectionAsChips=false,
-      ~searchable=true,
-      ~showToolTip=true,
-      ~showNameAsToolTip=true,
-      ~customButtonStyle="bg-none",
-      (),
-    ),
-  ),
-  localFilter: None,
-}
 
 // Connector filter shows the connector label and sends the merchant connector id
 let connectorLabelFilter = (json): EntityType.initialFilters<'t> => {
@@ -79,8 +58,15 @@ let connectorLabelFilter = (json): EntityType.initialFilters<'t> => {
   }
 }
 
-// Status, connector label, payment method type and subtype
-let initialFilters = (json, filterValues, removeKeys, filterKeys, setfilterKeys, version) => {
+// Connector label, where it applies, payment method type and subtype
+let getInitialFilters = (~showConnectorFilter) => (
+  json,
+  filterValues,
+  removeKeys,
+  filterKeys,
+  setfilterKeys,
+  version,
+) => {
   let paymentMethodFilters = OrderUIUtils.initialFilters(
     json,
     filterValues,
@@ -93,7 +79,9 @@ let initialFilters = (json, filterValues, removeKeys, filterKeys, setfilterKeys,
     ->Array.map(key => (key :> string))
     ->Array.includes(item.field.inputNames->getValueFromArray(0, ""))
   )
-  [recoveryStatusFilter(), connectorLabelFilter(json)]->Array.concat(paymentMethodFilters)
+  showConnectorFilter
+    ? [connectorLabelFilter(json)]->Array.concat(paymentMethodFilters)
+    : paymentMethodFilters
 }
 
 let initialFixedFilter = (~disable=false) => OrderUIUtils.initialFixedFilter(V2, ~disable)

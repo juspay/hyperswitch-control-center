@@ -241,6 +241,7 @@ let make = () => {
                           {logoElement}
                           <ProfileSwitch />
                           <LiveMode />
+                          <RevenueRecoveryProfileHelper.ModelChip />
                         </div>
                       }
                       midUiActions={<TestMode />}

@@ -13,7 +13,7 @@ let make = () => {
     UserInfoProvider.defaultContext,
   )
   let {transactionEntity} = getResolvedUserInfo()
-  let {merchantId, orgId, profileId} = getCommonSessionDetails()
+  let {merchantId, orgId} = getCommonSessionDetails()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
@@ -24,11 +24,18 @@ let make = () => {
   let (filters, setFilters) = React.useState(_ => None)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ => [])
-  let {generateReport, email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {generateReport, email, isLiveMode} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let startTimeKey = OrderUIUtils.startTimeFilterKey(V2)
   let endTimeKey = OrderUIUtils.endTimeFilterKey(V2)
   let startTime = filterValueJson->getString(startTimeKey, "")
+  // The merchant makes the transactions on the external model, so there are no connectors to filter by
+  let showConnectorFilter = !(
+    HyperswitchAtom.recoveryProfileAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->RevenueRecoveryProfileUtils.isExternalModel
+  )
 
   let portalNodes = PortalState.portalNodes->Recoil.useRecoilValueFromAtom
   let hasOmpViewPortal = portalNodes->getOptionValFromDict(`${tableTitle}OMPView`)->Option.isSome
@@ -118,7 +125,7 @@ let make = () => {
       setFilters
       endTimeFilterKey=endTimeKey
       startTimeFilterKey=startTimeKey
-      initialFilters
+      initialFilters={getInitialFilters(~showConnectorFilter)}
       initialFixedFilter={_version => initialFixedFilter(~disable=searchText->isNonEmptyString)}
       setOffset
       submitInputOnEnter=true
@@ -140,9 +147,8 @@ let make = () => {
           <GenerateReport entityName={V2(REVENUE_RECOVERY_REPORT)} />
         </RenderIf>
       </div>
-      <RevenueRecoveryStatusCounts />
       {filtersUI}
-      <RenderIf condition={hasOmpViewPortal}>
+      <RenderIf condition={hasOmpViewPortal && !isLiveMode}>
         <Portal to={`${tableTitle}OMPView`}>
           <OMPSwitchHelper.OMPViews
             views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}
@@ -156,7 +162,7 @@ let make = () => {
         <LoadedTableWithCustomColumns
           title=tableTitle
           actualData=revenueRecoveryData
-          entity={RevenueRecoveryEntity.revenueRecoveryEntity(merchantId, orgId, profileId)}
+          entity={RevenueRecoveryEntity.revenueRecoveryEntity(merchantId, orgId)}
           resultsPerPage
           showSerialNumber=true
           totalResults={totalCount}

@@ -81,6 +81,7 @@ dev_alt_payment_methods=false
 dev_modularity_v2=true
 dev_recon_v2_product=false
 dev_recovery_v2_product=false
+dev_recovery_external_trigger=false
 dev_vault_v2_product=false
 dev_hypersense_v2_product=false
 dev_intelligent_routing_v2=false
