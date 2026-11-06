@@ -217,15 +217,19 @@ To Parse the request body
 // Get request body
 const getRequestBody = (req) => {
   return new Promise((resolve, reject) => {
+    const tooLargeError = new Error("Request body too large");
+    tooLargeError.statusCode = 413;
+    if (Number(req.headers["content-length"]) > MAX_REQUEST_BODY_BYTES) {
+      return reject(tooLargeError);
+    }
     let body = "";
     let receivedBytes = 0;
     req.on("data", (chunk) => {
       receivedBytes += chunk.length;
-      body += chunk.toString();
       if (receivedBytes > MAX_REQUEST_BODY_BYTES) {
-        reject(new Error("Request body too large"));
-        req.destroy();
+        return reject(tooLargeError);
       }
+      body += chunk.toString();
     });
     req.on("end", () => {
       try {
@@ -262,6 +266,12 @@ const merchantConfigHandler = async (
   } catch (error) {
     if (process.env.NODE_ENV === "development") {
       console.log(error);
+    }
+    if (error.statusCode === 413) {
+      console.error(error.message);
+      res.writeHead(413, { "Content-Type": "text/plain", Connection: "close" });
+      res.end("Payload Too Large");
+      return;
     }
     errorHandler(res, "Server Error");
   }
