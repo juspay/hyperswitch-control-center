@@ -76,6 +76,12 @@ let getConnectorDisplayList = (~isLiveMode, list: JSON.t): connectorDisplayList 
       ~connectorType=SurchargeProcessor,
       ~fallback=surchargeProcessorList,
     ),
+    frmProcessorsList: resolveConnectorListFromConfig(
+      ~connectorDict,
+      ~key="frmProcessors",
+      ~connectorType=FRMPlayer,
+      ~fallback=FRMInfo.frmList,
+    ),
     taxProcessorsList: resolveConnectorListFromConfig(
       ~connectorDict,
       ~key="taxProcessors",

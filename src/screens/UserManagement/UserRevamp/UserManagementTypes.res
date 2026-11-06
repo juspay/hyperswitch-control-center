@@ -1,6 +1,6 @@
 type userManagementTypes = UsersTab | RolesTab
 
-type internalUserType = InternalViewOnly | InternalAdmin | NonInternal
+type internalUserType = InternalViewOnly | InternalOperator | InternalAdmin | NonInternal
 
 type admin = TenantAdmin | NonTenantAdmin
 
@@ -33,6 +33,12 @@ type groupAccessType =
   | ReconExceptionsManage
   | ConfigurationsView
   | ConfigurationsManage
+  | OffersView
+  | OffersManage
+  | AlertsView
+  | AlertsManage
+  | MonitoringView
+  | MonitoringManage
   | UnknownGroupAccess(string)
 
 type resourceAccessType =
@@ -61,6 +67,9 @@ type resourceAccessType =
   | ReconTransaction
   | ReconRule
   | SuperpositionConfigs
+  | Offers
+  | Alert
+  | Monitoring
   | UnknownResourceAccess(string)
 
 open CommonAuthTypes
@@ -92,6 +101,12 @@ type groupAccessJsonType = {
   reconExceptionsManage: authorization,
   configurationsView: authorization,
   configurationsManage: authorization,
+  offersView: authorization,
+  offersManage: authorization,
+  alertsView: authorization,
+  alertsManage: authorization,
+  monitoringView: authorization,
+  monitoringManage: authorization,
 }
 
 type getInfoType = {

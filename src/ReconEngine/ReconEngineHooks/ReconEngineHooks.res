@@ -73,6 +73,31 @@ let useGetCursorPage = (
   }
 }
 
+let useGetTransactionEntryWithStatus = () => {
+  let getEntries = useGetCursorPage(
+    ~hyperswitchReconType=#PROCESSED_ENTRIES_LIST,
+    ~itemMapper=ReconEngineTransactionsUtils.transactionsEntryItemToObjMapperFromDict,
+  )
+
+  async (~primaryTransactionId, ~status: ReconEngineTypes.entryStatus) => {
+    let page = await getEntries(
+      ~body=ReconEngineTransactionsUtils.buildEntriesListBody(
+        ~primaryTransactionId,
+        ~accountIds=[],
+        ~sortBy=defaultCursorSortBy,
+        ~direction=#next,
+        ~filterValueJson=[
+          ("status", [(status :> string)]->getJsonFromArrayOfString),
+        ]->Dict.fromArray,
+        ~searchType=ReconEngineTransactionsTypes.UnknownEntrySearchType,
+        ~searchText="",
+        ~limit=1,
+      ),
+    )
+    page.items->Array.get(0)
+  }
+}
+
 let useGetAccounts = () => {
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
@@ -313,6 +338,27 @@ let useGetTransformationConfig = () => {
       await fetchDetails(url)
     } catch {
     | _ => Exn.raiseError("Something went wrong")
+    }
+  }
+}
+
+let useFetchBusinessProfile = () => {
+  let getURL = useGetURL()
+  let fetchDetails = useGetMethod(~showErrorToast=false)
+  let setBusinessProfile = ReconEngineAtoms.businessProfileAtom->Recoil.useSetRecoilState
+
+  async () => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~methodType=Get,
+        ~hyperswitchReconType=#RECON_ENGINE_BUSINESS_PROFILE,
+      )
+      let res = await fetchDetails(url)
+      let businessProfile = res->getDictFromJsonObject->reconBusinessProfileItemToObjMapper
+      setBusinessProfile(_ => Some(businessProfile))
+    } catch {
+    | _ => setBusinessProfile(_ => None)
     }
   }
 }

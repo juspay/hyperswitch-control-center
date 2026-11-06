@@ -8,7 +8,7 @@ let make = () => {
   switch url.path->HSwitchUtils.urlPath {
   | list{"v1", "recon-engine", "pipelines", ...remainingPath} =>
     <AccessControl
-      isEnabled={featureFlagDetails.devReconEngineV1 && featureFlagDetails.devReconEnginePipelines}
+      isEnabled={featureFlagDetails.devReconEngineV1}
       authorization={userHasAccess(~groupAccess=ReconSourcesView)}>
       <FilterContext key="recon-engine-pipelines" index="recon-engine-pipelines">
         <EntityScaffold

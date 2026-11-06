@@ -1134,6 +1134,29 @@ module BaseSelectButton = {
   }
 }
 
+let selectBoxScrollbarCss = `
+  @supports (-webkit-appearance: none) {
+    .selectbox-scrollbar {
+     scrollbar-width: auto;
+      scrollbar-color: #CACFD8;
+    }
+    .selectbox-scrollbar::-webkit-scrollbar {
+      display: block;
+      overflow: scroll;
+      height: 5px;
+      width: 5px;
+    }
+    .selectbox-scrollbar::-webkit-scrollbar-thumb {
+      background-color: #CACFD8;
+      border-radius: 3px;
+    }
+
+    .selectbox-scrollbar::-webkit-scrollbar-track {
+      display: none;
+    }
+  }
+`
+
 module RenderListItemInBaseRadio = {
   @react.component
   let make = (
@@ -1249,28 +1272,6 @@ module RenderListItemInBaseRadio = {
       })
       ->React.array
 
-    let selectBoxScrollbarCss = `
-      @supports (-webkit-appearance: none) {
-        .selectbox-scrollbar {
-         scrollbar-width: auto;
-          scrollbar-color: #CACFD8;
-        }
-        .selectbox-scrollbar::-webkit-scrollbar {
-          display: block;
-          overflow: scroll;
-          height: 5px;
-          width: 5px;
-        }
-        .selectbox-scrollbar::-webkit-scrollbar-thumb {
-          background-color: #CACFD8;
-          border-radius: 3px;
-        }
-
-        .selectbox-scrollbar::-webkit-scrollbar-track {
-          display: none;
-        }
-      }
-    `
     let (className, styleElement) = switch (customScrollStyle, isHorizontal) {
     | (None, false) => ("", React.null)
     | (Some(style), false) => (
@@ -1314,28 +1315,44 @@ let getHashMappedOptionValues = (options: array<dropdownOptionWithoutOptional>) 
   hashMappedOptions
 }
 
-let getSortedKeys = (hashMappedOptions, ~reverseSort=false, ~customSortOrder=?) => {
+let getSortedKeys = (
+  hashMappedOptions,
+  ~reverseSort=false,
+  ~customSortOrder=?,
+  ~selectedGroup=?,
+) => {
   let keys = hashMappedOptions->Dict.keysToArray
+  let isSelectedGroup = key => selectedGroup->Option.mapOr(false, group => group === key)
 
   switch customSortOrder {
   | Some(order) =>
     keys->Array.toSorted((a, b) => {
-      let aIndex = order->Array.findIndex(item => item === a)
-      let bIndex = order->Array.findIndex(item => item === b)
+      switch (a->isSelectedGroup, b->isSelectedGroup) {
+      | (true, false) => -1.
+      | (false, true) => 1.
+      | (_, _) =>
+        let aIndex = order->Array.findIndex(item => item === a)
+        let bIndex = order->Array.findIndex(item => item === b)
 
-      switch (aIndex, bIndex) {
-      | (-1, -1) => String.compare(a, b)
-      | (-1, _) => 1.
-      | (_, -1) => -1.
-      | (_, _) => Float.fromInt(aIndex - bIndex)
+        switch (aIndex, bIndex) {
+        | (-1, -1) => String.compare(a, b)
+        | (-1, _) => 1.
+        | (_, -1) => -1.
+        | (_, _) => Float.fromInt(aIndex - bIndex)
+        }
       }
     })
   | None =>
     keys->Array.toSorted((a, b) => {
-      switch (a, b) {
-      | ("-", _) => 1.
-      | (_, "-") => -1.
-      | (_, _) => reverseSort ? String.compare(b, a) : String.compare(a, b)
+      switch (a->isSelectedGroup, b->isSelectedGroup) {
+      | (true, false) => -1.
+      | (false, true) => 1.
+      | (_, _) =>
+        switch (a, b) {
+        | ("-", _) => 1.
+        | (_, "-") => -1.
+        | (_, _) => reverseSort ? String.compare(b, a) : String.compare(a, b)
+        }
       }
     })
   }
@@ -1398,8 +1415,22 @@ module BaseRadio = {
     let isNonGrouped =
       hashMappedOptions->Dict.get("-")->Option.getOr([])->Array.length === options->Array.length
 
+    let selectedGroup = if shouldDisplaySelectedOnTop {
+      value
+      ->JSON.Decode.string
+      ->Option.flatMap(str => options->Array.find(option => option.value === str))
+      ->Option.map(option => option.optGroup)
+    } else {
+      None
+    }
+
     let (optgroupKeys, setOptgroupKeys) = React.useState(_ =>
-      getSortedKeys(hashMappedOptions, ~reverseSort=reverseSortGroupKeys, ~customSortOrder?)
+      getSortedKeys(
+        hashMappedOptions,
+        ~reverseSort=reverseSortGroupKeys,
+        ~customSortOrder?,
+        ~selectedGroup?,
+      )
     )
 
     let (searchString, setSearchString) = React.useState(() => "")
@@ -1512,13 +1543,19 @@ module BaseRadio = {
             hashMappedSearchedOptions,
             ~reverseSort=reverseSortGroupKeys,
             ~customSortOrder?,
+            ~selectedGroup?,
           )
           setOptgroupKeys(_ => optgroupKeysForSearch)
           options
         }
       } else {
         setOptgroupKeys(_ =>
-          getSortedKeys(hashMappedOptions, ~reverseSort=reverseSortGroupKeys, ~customSortOrder?)
+          getSortedKeys(
+            hashMappedOptions,
+            ~reverseSort=reverseSortGroupKeys,
+            ~customSortOrder?,
+            ~selectedGroup?,
+          )
         )
         options
       }
@@ -1590,8 +1627,8 @@ module BaseRadio = {
             customSelectionIcon
           />
         } else {
-          <>
-            {optgroupKeys
+          let groupedList =
+            optgroupKeys
             ->Array.mapWithIndex((ele, index) => {
               <React.Fragment key={index->Int.toString}>
                 <h2 className="py-1.5 pl-3 font-semibold text-nd_gray-400 text-xs leading-14">
@@ -1619,12 +1656,20 @@ module BaseRadio = {
                   textEllipsisForDropDownOptions
                   isHorizontal
                   customMarginStyleOfListItem="ml-8 mx-3 py-2 gap-2"
-                  ?customScrollStyle
                   shouldDisplaySelectedOnTop
                 />
               </React.Fragment>
             })
-            ->React.array}
+            ->React.array
+          <>
+            {switch customScrollStyle {
+            | Some(style) =>
+              <div className={`${style} selectbox-scrollbar`}>
+                <style> {React.string(selectBoxScrollbarCss)} </style>
+                groupedList
+              </div>
+            | None => groupedList
+            }}
             <div className="sticky bottom-0">
               <span> {bottomComponent} </span>
             </div>

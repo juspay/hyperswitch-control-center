@@ -13,6 +13,9 @@ type event
 external event: string => event = "Event"
 @send external dispatchEvent: ('a, event) => unit = "dispatchEvent"
 @send external postMessage: (window, JSON.t, string) => unit = "postMessage"
+
+type messageEventData = {data: JSON.t, origin: string}
+external toMessageEvent: Webapi.Dom.Event.t => messageEventData = "%identity"
 @get external keyCode: 'a => int = "keyCode"
 @send external querySelectorAll: (document, string) => array<Dom.element> = "querySelectorAll"
 @send external setAttribute: (Dom.element, string, string) => unit = "setAttribute"

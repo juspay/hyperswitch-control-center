@@ -4,13 +4,15 @@ open AdditionalDetailsSidebarHelper
 module DirectFlowLandingCard = {
   @react.component
   let make = (~setGooglePayIntegrationType, ~googlePayIntegrationType) => {
-    let shadowClass =
-      googlePayIntegrationType === #direct ? "shadow-cardSelectedShadow" : "shadow-md"
+    let isSelected = googlePayIntegrationType->GPayFlowUtils.isDirectFlow
+    let shadowClass = isSelected ? "shadow-cardSelectedShadow" : "shadow-md"
 
-    <div className="cursor-pointer" onClick={_ => setGooglePayIntegrationType(_ => #direct)}>
+    <div
+      className="cursor-pointer"
+      onClick={_ => !isSelected ? setGooglePayIntegrationType(_ => #direct) : ()}>
       <Card
         heading="Direct"
-        isSelected={googlePayIntegrationType === #direct}
+        isSelected
         customCardHeaderStyle={`border rounded-md !bg-white ${shadowClass}`}>
         <div className={`${body.md.medium}  text-nd_gray-400 mt-2`}>
           {"Google Pay Decryption at Hyperswitch: Unlock from PSP dependency."->React.string}
@@ -82,8 +84,10 @@ module Landing = {
     ~connector,
     ~update,
     ~closeAccordionFn,
+    ~isPayViaSingleUseTokenSupported,
   ) => {
     open GPayFlowTypes
+    open GPayFlowUtils
 
     let form = ReactFinalForm.useForm()
 
@@ -93,14 +97,13 @@ module Landing = {
           "connector_wallets_details.google_pay.support_predecrypted_token",
           true->JSON.Encode.bool,
         )
-        let connectorWalletDetails =
-          [
-            ("support_predecrypted_token", true->JSON.Encode.bool),
-          ]->LogicUtils.getJsonFromArrayOfJson
-
-        form.change("metadata.google_pay", connectorWalletDetails)
-        let _ = update(connectorWalletDetails)
-        closeAccordionFn()
+        form.change("metadata.google_pay", predecryptMetadata)
+        if isPayViaSingleUseTokenSupported {
+          setGooglePayIntegrationStep(_ => Configure)
+        } else {
+          let _ = update(predecryptMetadata)
+          closeAccordionFn()
+        }
       } else {
         setGooglePayIntegrationStep(_ => Configure)
       }
@@ -119,7 +122,8 @@ module Landing = {
           <PaymentGatewayFlowLandingCard setGooglePayIntegrationType googlePayIntegrationType />
           <PaymentGatewayPreDecryptFlow setGooglePayIntegrationType googlePayIntegrationType />
         </>
-      | Processors(IMERCHANTSOLUTIONS) =>
+      | Processors(IMERCHANTSOLUTIONS)
+      | Processors(REVOLV3) =>
         <>
           <p className={body.md.semibold}> {"Choose Configuration Method"->React.string} </p>
           <PaymentGatewayPreDecryptFlow setGooglePayIntegrationType googlePayIntegrationType />
@@ -151,5 +155,37 @@ module Landing = {
         />
       </div>
     </div>
+  }
+}
+
+module PayViaSingleUseTokenField = {
+  @react.component
+  let make = (~connector, ~fieldWrapperClass="flex flex-col pt-1 pl-2 pr-4") => {
+    open LogicUtils
+    let paymentMethodType = (#google_pay: ConnectorTypes.payViaSingleUseTokenWallet :> string)
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let payViaSingleUseTokenConfig = React.useMemo(() => {
+      connector->isNonEmptyString
+        ? Window.getConnectorConfig(connector)
+          ->getDictFromJsonObject
+          ->ConnectorUtils.getPayViaSingleUseTokenConfig
+        : Dict.make()
+    }, [connector])
+
+    payViaSingleUseTokenConfig
+    ->PaymentMethodUtils.getPayViaSingleUseTokenField(
+      ~formValues=formState.values,
+      ~paymentMethodType,
+    )
+    ->mapOptionOrDefault(React.null, field =>
+      <FormRenderer.FieldRenderer
+        labelClass={`${Typography.body.md.semibold} text-nd_gray-800`}
+        labelPadding="pb-2"
+        fieldWrapperClass
+        field={CommonConnectorHelper.payViaSingleUseTokenInput(~field, ~paymentMethodType)}
+      />
+    )
   }
 }

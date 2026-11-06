@@ -26,6 +26,7 @@ type addToastOptions = {
   actionButton?: actionButton,
   duration?: int,
   position?: snackbarPosition,
+  wrap?: bool,
 }
 
 @module("@juspay/blend-design-system") @react.component

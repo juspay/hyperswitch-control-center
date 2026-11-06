@@ -1,5 +1,6 @@
 type entityName =
   | CONNECTOR
+  | CONNECTOR_WEBHOOK
   | ROUTING
   | MERCHANT_ACCOUNT
   | ORGANIZATION_RETRIEVE
@@ -10,6 +11,8 @@ type entityName =
   | DISPUTE_FILTERS
   | PAYOUTS
   | PAYOUTS_FILTERS
+  | PAYMENT_LINKS
+  | PAYMENT_LINK_CREATE
   | ANALYTICS_FILTERS
   | ANALYTICS_PAYMENTS
   | ANALYTICS_DISPUTES
@@ -91,11 +94,21 @@ type entityName =
   | THREE_DS_EXEMPTION_RULES
   | THREE_DS_EXEMPTION_DELETE_RULE
   | HYPERSWITCH_RECON
+  | OFFERS
+  | ALERTS
+  | MONITORING_SESSION
   | CHAT_BOT
   | OIDC_AUTHORIZE
   | PAYMENTS_LIST
   | BLOCKLIST_BATCH
   | BLOCKLIST
+  | BLOCKLIST_COUNT
+  | BLOCKLIST_LOOKUP
+  | RESOURCES
+  | RESOURCES_LIST
+  | RESOURCES_LINK
+  | BLOCKLIST_EXPORT
+  | BLOCKLIST_CLONE
 
 type v2entityNameType =
   | CUSTOMERS
@@ -109,9 +122,11 @@ type v2entityNameType =
   | RETRIEVE_PAYMENT_METHOD
   | V2_ORDER_FILTERS
   | V2_ORDERS_AGGREGATE
+  | RECOVERY_AGGREGATE
   | USERS
   | TOTAL_TOKEN_COUNT
   | MERCHANT_ACCOUNT
+  | USER_MERCHANT_DETAILS
   | PROCESS_TRACKER
   | API_KEYS
   | BUSINESS_PROFILE
@@ -123,6 +138,7 @@ type hypersenseType = [#TOKEN | #HOME | #NONE]
 
 type hyperswitchReconType = [
   | #ACCOUNTS_LIST
+  | #PROCESSED_ENTRIES_LIST
   | #PROCESSED_ENTRIES_LIST_WITH_ACCOUNT
   | #PROCESSED_ENTRIES_LIST_WITH_TRANSACTION
   | #PROCESSING_ENTRIES_LIST
@@ -152,10 +168,24 @@ type hyperswitchReconType = [
   | #OVERVIEW_RULES_TIME_SERIES
   | #RULE_ACCOUNT_BREAKDOWN
   | #STAGING_ENTRIES_OVERVIEW
+  | #RECON_ENGINE_STATUS
+  | #RECON_ENGINE_BUSINESS_PROFILE
   | #GENERATE_TRANSACTION_REPORT
   | #GENERATE_EXCEPTION_REPORT
   | #NONE
 ]
+
+type offersType = [
+  | #OFFERS_LIST
+  | #OFFER_DETAIL
+  | #OFFER_CREATE
+  | #OFFER_STATUS_UPDATE
+  | #OFFER_DELETE
+  | #OFFER_BIN_LIST_DOWNLOAD
+  | #NONE
+]
+
+type alertsType = [#ALERTS_LIST | #ALERTS_DICTIONARY | #ALERTS_DETAILS | #ALERTS_SAVE | #NONE]
 
 type userType = [
   | #CONNECT_ACCOUNT
@@ -171,6 +201,7 @@ type userType = [
   | #GROUP_ACCESS_INFO
   | #ROLE_INFO
   | #MERCHANT_DATA
+  | #MERCHANT_DETAILS
   | #USER_DATA
   | #USER_DELETE
   | #USER_UPDATE
@@ -227,15 +258,21 @@ type getUrlTypes = (
   ~entityName: entityTypeWithVersion,
   ~methodType: Fetch.requestMethod,
   ~id: option<string>=?,
+  ~idType: option<string>=?,
   ~connector: option<string>=?,
   ~userType: userType=?,
   ~userRoleTypes: userRoleTypes=?,
   ~hyperswitchReconType: hyperswitchReconType=?,
+  ~offersType: offersType=?,
+  ~alertsType: alertsType=?,
   ~hypersenseType: hypersenseType=?,
   ~queryParameters: option<string>=?,
 ) => string
 
-// Olap = on the infra OLAP allowlist, gets `olap_prefix`; Default = normal API path.
+// Olap = on the infra OLAP allowlist, served from `olap_url`;
+// Euler = euler-hosted service (offer-engine), served from `euler_url`;
+// Default = normal API path.
 type endpoint =
   | Olap(string)
+  | Euler(string)
   | Default(string)

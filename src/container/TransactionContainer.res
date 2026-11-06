@@ -6,7 +6,7 @@ let make = () => {
 
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {transactionEntity} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
-  let {payOut} = featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {payOut, paymentLinkOperations} = featureFlagAtom->Recoil.useRecoilValueFromAtom
   <div key={(transactionEntity :> string)}>
     {switch url.path->urlPath {
     | list{"payments", ...remainingPath} =>
@@ -58,6 +58,19 @@ let make = () => {
             renderList={() => <Disputes />}
             renderCustomWithOMP={(id, profileId, merchantId, orgId) =>
               <ShowDisputes id profileId merchantId orgId />}
+          />
+        </FilterContext>
+      </AccessControl>
+    | list{"payment-links", ...remainingPath} =>
+      <AccessControl
+        isEnabled={paymentLinkOperations}
+        authorization={userHasAccess(~groupAccess=OperationsView)}>
+        <FilterContext key="payment-links" index="payment-links">
+          <EntityScaffold
+            entityName="PaymentLinks"
+            remainingPath
+            access=Access
+            renderList={() => <PaymentLinks />}
           />
         </FilterContext>
       </AccessControl>

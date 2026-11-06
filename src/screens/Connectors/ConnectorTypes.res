@@ -1,5 +1,11 @@
 type steps =
-  IntegFields | PaymentMethods | CustomMetadata | SummaryAndTest | Preview | AutomaticFlow
+  | IntegFields
+  | PaymentMethods
+  | CustomMetadata
+  | SummaryAndTest
+  | Preview
+  | AutomaticFlow
+  | WebhookRegistration
 type connectorIntegrationField = {
   placeholder?: string,
   label?: string,
@@ -147,6 +153,15 @@ type processorTypes =
   | CITIGATE
   | ILIXIUM
   | WORLDPAYRAFT
+  | ETISALAT
+  | MERCHANTE
+  | SAFERPAY
+  | JPMORGAN_ORBITAL
+  | D24
+  | PAYNEARME
+  | PAYDOTCOM
+  | ELAVON_PG
+  | GLOBALPAYMENTS_HEARTLAND
 
 type payoutProcessorTypes =
   | ADYEN
@@ -168,6 +183,8 @@ type payoutProcessorTypes =
   | TRUSTLY
   | SANTANDER
   | DEUTSCHEBANK
+  | GOTYME
+  | MIFINITY
 
 type threeDsAuthenticatorTypes =
   | THREEDSECUREIO
@@ -181,12 +198,13 @@ type frmTypes =
   | Signifyd
   | Riskifyed
   | CybersourceDecisionManager
+  | SanlamPayshield
 
 type pmAuthenticationProcessorTypes = PLAID
 
 type taxProcessorTypes = TAXJAR
 
-type billingProcessorTypes = CHARGEBEE | STRIPE_BILLING | CUSTOMBILLING
+type billingProcessorTypes = CHARGEBEE | STRIPE_BILLING | RECURLY | CUSTOMBILLING
 
 type vaultProcessorTypes = VGS
 
@@ -268,7 +286,14 @@ type paymentMethodConfigCommonType = {
   recurring_enabled: option<bool>,
   installment_payment_enabled: option<bool>,
   payment_experience: option<string>,
+  pay_via_single_use_token?: string,
 }
+
+type walletFlow = | @as("decrypt") Decrypt | @as("encrypt") Encrypt
+
+type payViaSingleUseTokenWallet = [#apple_pay | #google_pay]
+
+type payViaSingleUseTokenValue = [#default | #enabled | #disabled]
 
 type paymentMethodConfigType = {
   payment_method_type: string,

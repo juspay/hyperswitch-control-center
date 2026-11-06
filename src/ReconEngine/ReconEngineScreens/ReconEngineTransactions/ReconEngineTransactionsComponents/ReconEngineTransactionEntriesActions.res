@@ -190,7 +190,9 @@ let make = (~entry: ReconEngineTypes.entryType) => {
       childClass="relative h-full">
       <div className="h-full relative p-6">
         <div className="flex flex-col overflow-y-auto max-h-full pb-16">
-          <LineageContent entry />
+          <RenderIf condition={showModal}>
+            <LineageContent entry />
+          </RenderIf>
         </div>
         <div className="absolute bottom-0 left-0 right-0 bg-white p-4">
           <Button

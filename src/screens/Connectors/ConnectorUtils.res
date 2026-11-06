@@ -15,6 +15,7 @@ let getStepName = step => {
   | Preview => "Preview"
   | CustomMetadata => "Metadata"
   | AutomaticFlow => "AutomaticFlow"
+  | WebhookRegistration => "Register Webhook"
   }
 }
 // Any connector added to these lists must also be added to the matching
@@ -42,6 +43,8 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(TRUSTLY),
   PayoutProcessor(SANTANDER),
   PayoutProcessor(DEUTSCHEBANK),
+  PayoutProcessor(GOTYME),
+  PayoutProcessor(MIFINITY),
 ]
 
 let payoutConnectorListForLive: array<connectorTypes> = [
@@ -199,6 +202,15 @@ let connectorList: array<connectorTypes> = [
   Processors(CITIGATE),
   Processors(ILIXIUM),
   Processors(WORLDPAYRAFT),
+  Processors(ETISALAT),
+  Processors(MERCHANTE),
+  Processors(SAFERPAY),
+  Processors(JPMORGAN_ORBITAL),
+  Processors(D24),
+  Processors(PAYNEARME),
+  Processors(PAYDOTCOM),
+  Processors(ELAVON_PG),
+  Processors(GLOBALPAYMENTS_HEARTLAND),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -708,8 +720,12 @@ let stripeBillingInfo = {
   description: "Stripe Billing connector enables automated subscription management, invoicing, and recurring payments using Stripe's billing infrastructure.",
 }
 
+let recurlyInfo = {
+  description: "Recurly is a subscription management and billing platform that automates recurring billing, invoicing, and payment recovery for subscription businesses.",
+}
+
 let customBillingInfo = {
-  description: "Stripe Billing connector enables automated subscription management, invoicing, and recurring payments using Stripe's billing infrastructure.",
+  description: "Custom Billing lets you connect your own in-house billing system for subscription management and invoicing, without needing credentials from a third-party billing platform.",
 }
 
 let nexixpayInfo = {
@@ -767,8 +783,57 @@ let worldpayraftInfo = {
   description: "Native RAFT is Worldpay's RESTful API for direct access to their core authorization processing platform, supporting credit, debit, gift card, and alternate payment methods for enterprise merchants in the USA.",
 }
 
+let etisalatInfo = {
+  description: "Etisalat Payment Gateway (EPG) REST is Etisalat's JSON/REST API for UAE merchants, supporting 3DS and non-3DS card payments, capture, reversal, refund, tokenization, and UAE Central Bank processing.",
+}
+
+let merchanteInfo = {
+  description: "MerchantE Payment Gateway is a REST API for credit card processing — authorization, capture, settlement, refunds, voids, and AVS/CVV verification — with tokenized Card-on-File (CIT/MIT) recurring payments and Apple Pay/Google Pay support.",
+}
+
+let saferpayInfo = {
+  description: "Saferpay is a secure e-commerce payment gateway supporting domestic and international online payments.",
+}
+
+let jpmorganOrbitalInfo = {
+  description: "J.P. Morgan Orbital is a payment gateway for securely processing online card payments.",
+}
+
+let d24Info = {
+  description: "D24 is a payment platform for accepting deposits and issuing cashouts through local payment methods.",
+}
+
+let paynearmeInfo = {
+  description: "PayNearMe is a US payments platform for bill pay and iGaming, offering card, ACH and cash payments.",
+}
+
+let paydotcomInfo = {
+  description: "Pay.com is a REST-based payment gateway supporting card charges, holds, refunds and 3DS authentication.",
+}
+
+let elavonPgInfo = {
+  description: "Elavon Payment Gateway provides REST APIs for online, in-app and in-person payments and transaction management.",
+}
+
+let globalpaymentsHeartlandInfo = {
+  description: "Global Payments Heartland uses the Portico gateway API to process card and other payment transactions.",
+}
+
 let signifydInfo = {
   description: "One platform to protect the entire shopper journey end-to-end",
+  validate: [
+    {
+      placeholder: "Enter API Key",
+      label: "API Key",
+      name: "connector_account_details.api_key",
+      isRequired: true,
+      encodeToBase64: false,
+    },
+  ],
+}
+
+let sanlamPayshieldInfo = {
+  description: "Fraud and risk management with Sanlam Payshield",
   validate: [
     {
       placeholder: "Enter API Key",
@@ -935,6 +1000,10 @@ let absaInfo = {
   description: "Absa Bank is a leading African financial services provider offering a wide range of banking and payment solutions.",
 }
 
+let gotymeInfo = {
+  description: "GoTyme enables fast, secure, real-time payouts to customers and businesses across South Africa through PayShap, with immediate processing and payment status updates.",
+}
+
 let getConnectorNameString = (connector: processorTypes) =>
   switch connector {
   | ABSA => "absa_sanlam"
@@ -1056,6 +1125,15 @@ let getConnectorNameString = (connector: processorTypes) =>
   | CITIGATE => "citigate"
   | ILIXIUM => "ilixium"
   | WORLDPAYRAFT => "worldpayraft"
+  | ETISALAT => "etisalat"
+  | MERCHANTE => "merchante"
+  | SAFERPAY => "saferpay"
+  | JPMORGAN_ORBITAL => "jpmorgan_orbital"
+  | D24 => "d24"
+  | PAYNEARME => "paynearme"
+  | PAYDOTCOM => "paydotcom"
+  | ELAVON_PG => "elavon_pg"
+  | GLOBALPAYMENTS_HEARTLAND => "globalpayments_heartland"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
@@ -1079,6 +1157,8 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | TRUSTLY => "trustly"
   | SANTANDER => "santander"
   | DEUTSCHEBANK => "deutschebank"
+  | GOTYME => "gotyme_sanlam"
+  | MIFINITY => "mifinity"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -1096,6 +1176,7 @@ let getFRMNameString = (frm: frmTypes) => {
   | Signifyd => "signifyd"
   | Riskifyed => "riskified"
   | CybersourceDecisionManager => "cybersourcedecisionmanager"
+  | SanlamPayshield => "sanlam_payshield"
   }
 }
 
@@ -1117,6 +1198,7 @@ let getBillingProcessorNameString = (billingProcessor: billingProcessorTypes) =>
   switch billingProcessor {
   | CHARGEBEE => "chargebee"
   | STRIPE_BILLING => "stripebilling"
+  | RECURLY => "recurly"
   | CUSTOMBILLING => "custombilling"
   }
 }
@@ -1273,6 +1355,15 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "citigate" => Processors(CITIGATE)
     | "ilixium" => Processors(ILIXIUM)
     | "worldpayraft" => Processors(WORLDPAYRAFT)
+    | "etisalat" => Processors(ETISALAT)
+    | "merchante" => Processors(MERCHANTE)
+    | "saferpay" => Processors(SAFERPAY)
+    | "jpmorgan_orbital" => Processors(JPMORGAN_ORBITAL)
+    | "d24" => Processors(D24)
+    | "paynearme" => Processors(PAYNEARME)
+    | "paydotcom" => Processors(PAYDOTCOM)
+    | "elavon_pg" => Processors(ELAVON_PG)
+    | "globalpayments_heartland" => Processors(GLOBALPAYMENTS_HEARTLAND)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
@@ -1296,6 +1387,8 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "trustly" => PayoutProcessor(TRUSTLY)
     | "santander" => PayoutProcessor(SANTANDER)
     | "deutschebank" => PayoutProcessor(DEUTSCHEBANK)
+    | "gotyme_sanlam" => PayoutProcessor(GOTYME)
+    | "mifinity" => PayoutProcessor(MIFINITY)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -1312,6 +1405,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     switch connector {
     | "riskified" => FRM(Riskifyed)
     | "signifyd" => FRM(Signifyd)
+    | "sanlam_payshield" => FRM(SanlamPayshield)
     | "cybersourcedecisionmanager" => FRM(CybersourceDecisionManager)
     | _ => UnknownConnector("Not known")
     }
@@ -1329,6 +1423,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     switch connector {
     | "chargebee" => BillingProcessor(CHARGEBEE)
     | "stripebilling" => BillingProcessor(STRIPE_BILLING)
+    | "recurly" => BillingProcessor(RECURLY)
     | "custombilling" => BillingProcessor(CUSTOMBILLING)
     | _ => UnknownConnector("Not known")
     }
@@ -1466,6 +1561,15 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | CITIGATE => citigateInfo
   | ILIXIUM => ilixiumInfo
   | WORLDPAYRAFT => worldpayraftInfo
+  | ETISALAT => etisalatInfo
+  | MERCHANTE => merchanteInfo
+  | SAFERPAY => saferpayInfo
+  | JPMORGAN_ORBITAL => jpmorganOrbitalInfo
+  | D24 => d24Info
+  | PAYNEARME => paynearmeInfo
+  | PAYDOTCOM => paydotcomInfo
+  | ELAVON_PG => elavonPgInfo
+  | GLOBALPAYMENTS_HEARTLAND => globalpaymentsHeartlandInfo
   }
 }
 
@@ -1490,6 +1594,8 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | TRUSTLY => trustlyInfo
   | SANTANDER => santanderInfo
   | DEUTSCHEBANK => deutscheBankInfo
+  | GOTYME => gotymeInfo
+  | MIFINITY => mifinityInfo
   }
 }
 
@@ -1505,6 +1611,7 @@ let getThreedsAuthenticatorInfo = threeDsAuthenticator =>
 let getFrmInfo = frm =>
   switch frm {
   | Signifyd => signifydInfo
+  | SanlamPayshield => sanlamPayshieldInfo
   | Riskifyed => riskifyedInfo
   | CybersourceDecisionManager => cyberSourceDecisionManagerInfo
   }
@@ -1527,6 +1634,7 @@ let getBillingProcessorInfo = (billingProcessor: ConnectorTypes.billingProcessor
   switch billingProcessor {
   | CHARGEBEE => chargebeeInfo
   | STRIPE_BILLING => stripeBillingInfo
+  | RECURLY => recurlyInfo
   | CUSTOMBILLING => customBillingInfo
   }
 }
@@ -1578,6 +1686,7 @@ let itemProviderMapper: dict<JSON.t> => ConnectorTypes.paymentMethodConfigType =
     installment_payment_enabled: dict->getOptionBool("installment_payment_enabled"),
     payment_experience: dict->getOptionString("payment_experience"),
     card_networks: dict->getStrArrayFromDict("card_networks", []),
+    pay_via_single_use_token: ?dict->getOptionString("pay_via_single_use_token"),
   }
 }
 
@@ -1631,7 +1740,26 @@ let configKeysToIgnore = [
   "additional_merchant_data",
   "connector_wallets_details",
   "connector_webhook_register_details",
+  "pay_via_single_use_token",
 ]
+
+let getPayViaSingleUseTokenConfig = connectorConfig =>
+  connectorConfig->getJsonObjectFromDict("pay_via_single_use_token")->convertMapObjectToDict
+
+let getPayViaSingleUseTokenEntry = (payViaSingleUseTokenConfig, ~paymentMethodType) =>
+  payViaSingleUseTokenConfig->Dict.get(paymentMethodType)->Option.map(convertMapObjectToDict)
+
+let isPayViaSingleUseTokenFlow = (entry, walletFlow: walletFlow) =>
+  entry->getStrArrayFromDict("flows", [])->Array.includes((walletFlow :> string))
+
+let isPayViaSingleUseTokenInDecryptFlow = (
+  connectorConfig,
+  ~paymentMethodType: payViaSingleUseTokenWallet,
+) =>
+  connectorConfig
+  ->getPayViaSingleUseTokenConfig
+  ->getPayViaSingleUseTokenEntry(~paymentMethodType=(paymentMethodType :> string))
+  ->mapOptionOrDefault(false, entry => entry->isPayViaSingleUseTokenFlow(Decrypt))
 
 let verifyConnectorIgnoreField = [
   "business_country",
@@ -1708,9 +1836,15 @@ let addMethod = (paymentMethodsEnabled, paymentMethod, method) => {
   | _ =>
     pmts->Array.forEach((val: paymentMethodEnabled) => {
       if val.payment_method_type->String.toLowerCase === paymentMethod->String.toLowerCase {
-        val.provider
-        ->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
-        ->Array.push(method)
+        let providers = val.provider->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
+        let isAlreadyAdded =
+          providers->Array.some(provider =>
+            provider.payment_method_type === method.payment_method_type &&
+              provider.payment_experience === method.payment_experience
+          )
+        if !isAlreadyAdded {
+          providers->Array.push(method)
+        }
       }
     })
   }
@@ -1847,8 +1981,11 @@ let getDisableConnectorPayloadV2 = (connectorType, previousConnectorState, merch
 let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) => {
   switch (connector, fieldName) {
   | (Processors(ADYEN), "merchant_secret") => true
-  | (BillingProcessor(CHARGEBEE) | BillingProcessor(STRIPE_BILLING), "merchant_secret") => true
-  | (BillingProcessor(CHARGEBEE) | BillingProcessor(STRIPE_BILLING), "additional_secret") => true
+  | (
+      BillingProcessor(CHARGEBEE) | BillingProcessor(STRIPE_BILLING) | BillingProcessor(RECURLY),
+      "merchant_secret",
+    ) => true
+  | (BillingProcessor(CHARGEBEE), "additional_secret") => true
   | _ => false
   }
 }
@@ -1857,6 +1994,13 @@ let checkAuthKeyMapRequiredFields = (connector: connectorTypes, fieldName) => {
   switch (connector, fieldName) {
   | (Processors(PAYLOAD), "processing_account_id") => false
   | _ => true
+  }
+}
+
+let checkIsPemField = (connector: connectorTypes, fieldName: string) => {
+  switch (connector, fieldName) {
+  | (PayoutProcessor(DEUTSCHEBANK), "api_secret" | "key2") => true
+  | _ => false
   }
 }
 
@@ -1992,19 +2136,10 @@ let validateConnectorRequiredFields = (
     })
   }
 
-  let keys =
-    connectorMetaDataFields
-    ->Dict.keysToArray
-    ->Array.filter(ele => !Array.includes(ConnectorMetaDataUtils.metaDataInputKeysToIgnore, ele))
-
   {
-    keys->Array.forEach(field => {
-      let {\"type", name, required, label} =
-        connectorMetaDataFields
-        ->getDictfromDict(field)
-        ->JSON.Encode.object
-        ->convertMapObjectToDict
-        ->CommonConnectorUtils.inputFieldMapper
+    connectorMetaDataFields
+    ->ConnectorMetaDataUtils.getMetadataInputFields
+    ->Array.forEach(({\"type", name, required, label}) => {
       let key = `metadata.${name}`
       let value = switch \"type" {
       | Text | Select => valuesFlattenJson->getString(`${key}`, "")
@@ -2030,6 +2165,10 @@ let validateConnectorRequiredFields = (
       }
     })
   }
+
+  ConnectorMetaDataUtils.validateMetadataGroups(~connectorMetaDataFields, ~valuesFlattenJson)
+  ->Dict.toArray
+  ->Array.forEach(((key, error)) => newDict->Dict.set(key, error))
 
   connectorWebHookDetails
   ->Dict.keysToArray
@@ -2482,6 +2621,15 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | CITIGATE => "Citigate"
   | ILIXIUM => "Ilixium"
   | WORLDPAYRAFT => "Worldpay Raft"
+  | ETISALAT => "Etisalat"
+  | MERCHANTE => "MerchantE"
+  | SAFERPAY => "Saferpay"
+  | JPMORGAN_ORBITAL => "JP Morgan Orbital"
+  | D24 => "D24"
+  | PAYNEARME => "PayNearMe"
+  | PAYDOTCOM => "Pay.com"
+  | ELAVON_PG => "Elavon Payment Gateway (EPG)"
+  | GLOBALPAYMENTS_HEARTLAND => "Global Payments (Heartland)"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
@@ -2505,6 +2653,8 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | TRUSTLY => "Trustly"
   | SANTANDER => "Santander"
   | DEUTSCHEBANK => "Deutsche Bank"
+  | GOTYME => "GoTyme"
+  | MIFINITY => "MiFinity"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
@@ -2520,6 +2670,7 @@ let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
 let getDisplayNameForFRMConnector = frmConnector =>
   switch frmConnector {
   | Signifyd => "Signifyd"
+  | SanlamPayshield => "Sanlam Payshield"
   | Riskifyed => "Riskified"
   | CybersourceDecisionManager => "Cybersource Decision Manager"
   }
@@ -2540,7 +2691,8 @@ let getDisplayNameForBillingProcessor = billingProcessor => {
   switch billingProcessor {
   | CHARGEBEE => "Chargebee"
   | STRIPE_BILLING => "Stripe Billing"
-  | CUSTOMBILLING => "Custom"
+  | RECURLY => "Recurly"
+  | CUSTOMBILLING => "Custom Billing"
   }
 }
 
@@ -2732,6 +2884,8 @@ let connectorTypeFromConnectorName: string => connector = connectorName =>
 let stepsArr = (~connector) => {
   switch connector->getConnectorNameTypeFromString {
   | Processors(PAYSAFE) => [IntegFields, PaymentMethods, CustomMetadata, SummaryAndTest]
+  // TODO: Gate webhook details on the WASM value. Blocked: useGetFilterDictFromUrl is initially empty when the WASM value is called.
+  | Processors(SANTANDER) => [IntegFields, PaymentMethods, WebhookRegistration, SummaryAndTest]
   | _ => [IntegFields, PaymentMethods, SummaryAndTest]
   }
 }
@@ -2745,7 +2899,8 @@ let checkIfPredecryptFlowEnabledForApplePay = connector => {
   | Processors(NMI)
   | Processors(STRIPE)
   | Processors(WORLDPAYXML)
-  | Processors(IMERCHANTSOLUTIONS) => true
+  | Processors(IMERCHANTSOLUTIONS)
+  | Processors(REVOLV3) => true
   | _ => false
   }
 }
@@ -2759,7 +2914,8 @@ let checkIfPredecryptFlowEnabledForGooglePay = connector => {
   | Processors(NMI)
   | Processors(STRIPE)
   | Processors(WORLDPAYXML)
-  | Processors(IMERCHANTSOLUTIONS) => true
+  | Processors(IMERCHANTSOLUTIONS)
+  | Processors(REVOLV3) => true
   | _ => false
   }
 }

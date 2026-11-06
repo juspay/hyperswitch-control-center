@@ -2,39 +2,23 @@ open SuperpositionTypes
 open SuperpositionBindings
 open LogicUtils
 
-let displayConfigs = [
-  ShouldPerformEligibility,
-  ShouldCallPMModularService,
-  EnableExtendedCardBin,
-  ShouldStoreEligibilityCheckDataForAuthentication,
-]
-
-let getConfigFolder = config =>
-  switch config {
-  | ShouldPerformEligibility
-  | EnableExtendedCardBin
-  | ShouldStoreEligibilityCheckDataForAuthentication =>
-    Some(Payments)
-  | ShouldCallPMModularService => None
-  }
-
-let getConfigKey = config =>
-  config
-  ->getConfigFolder
-  ->mapOptionOrDefault((config :> string), folder => `${(folder :> string)}.${(config :> string)}`)
+let getConfigKey = ({folder, name}: HyperSwitchConfigTypes.superpositionDisplayConfig) =>
+  folder->mapOptionOrDefault(name, folder => `${folder}.${name}`)
 
 let getDimensionsForFixedContext = dimensionEntity =>
   switch dimensionEntity {
-  | Org => "organization_id"
-  | Merchant => "processor_merchant_id"
-  | Profile => "profile_id"
+  | OrganizationId => "organization_id"
+  | ProcessorMerchantId => "processor_merchant_id"
+  | ProviderMerchantId => "provider_merchant_id"
+  | ProfileID => "profile_id"
   }
 
-let getScopeContext = (~orgId, ~merchantId, ~profileId) =>
+let getScopeContext = (~orgId, ~processorMerchantId, ~profileId, ~providerMerchantId) =>
   [
-    (getDimensionsForFixedContext(Org), JSON.Encode.string(orgId)),
-    (getDimensionsForFixedContext(Merchant), JSON.Encode.string(merchantId)),
-    (getDimensionsForFixedContext(Profile), JSON.Encode.string(profileId)),
+    (getDimensionsForFixedContext(OrganizationId), JSON.Encode.string(orgId)),
+    (getDimensionsForFixedContext(ProcessorMerchantId), JSON.Encode.string(processorMerchantId)),
+    (getDimensionsForFixedContext(ProviderMerchantId), JSON.Encode.string(providerMerchantId)),
+    (getDimensionsForFixedContext(ProfileID), JSON.Encode.string(profileId)),
   ]->Dict.fromArray
 
 let leftSearchTablePageConfig: tablePageConfig = {
@@ -48,7 +32,9 @@ let defaultTableConfig: tableConfig = {
   audit: leftSearchTablePageConfig,
 }
 
-let defaultFiltersConfig: filtersConfig = {
+let getFiltersConfig = (
+  displayConfigs: array<HyperSwitchConfigTypes.superpositionDisplayConfig>,
+): filtersConfig => {
   defaultConfigPrefix: displayConfigs->Array.map(getConfigKey),
 }
 

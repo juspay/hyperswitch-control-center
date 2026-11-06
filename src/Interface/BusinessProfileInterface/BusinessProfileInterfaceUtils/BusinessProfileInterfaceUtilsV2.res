@@ -10,6 +10,20 @@ let constructWebhookDetailsObject = webhookDetailsDict => {
   payment_created_enabled: webhookDetailsDict->getOptionBool("payment_created_enabled"),
   payment_succeeded_enabled: webhookDetailsDict->getOptionBool("payment_succeeded_enabled"),
   payment_failed_enabled: webhookDetailsDict->getOptionBool("payment_failed_enabled"),
+  payment_statuses_enabled: webhookDetailsDict->getOptionStrArrayFromDict(
+    "payment_statuses_enabled",
+  ),
+  refund_statuses_enabled: webhookDetailsDict->getOptionStrArrayFromDict("refund_statuses_enabled"),
+  payout_statuses_enabled: webhookDetailsDict->getOptionStrArrayFromDict("payout_statuses_enabled"),
+  dispute_statuses_enabled: webhookDetailsDict->getOptionStrArrayFromDict(
+    "dispute_statuses_enabled",
+  ),
+  mandate_statuses_enabled: webhookDetailsDict->getOptionStrArrayFromDict(
+    "mandate_statuses_enabled",
+  ),
+  invoice_statuses_enabled: webhookDetailsDict->getOptionStrArrayFromDict(
+    "invoice_statuses_enabled",
+  ),
 }
 
 let constructAuthConnectorObject = authConnectorDict => {
@@ -24,6 +38,24 @@ let constructWebhookDetailsRequestObject: _ => webhookDetailsRequest_v2 = webhoo
   webhook_url: webhookDetailsDict
   ->getOptionString("webhook_url")
   ->convertOptionalStringToOptionalJson,
+  payment_statuses_enabled: webhookDetailsDict
+  ->getOptionStrArrayFromDict("payment_statuses_enabled")
+  ->convertOptionalStrArrayToOptionalJson,
+  refund_statuses_enabled: webhookDetailsDict
+  ->getOptionStrArrayFromDict("refund_statuses_enabled")
+  ->convertOptionalStrArrayToOptionalJson,
+  payout_statuses_enabled: webhookDetailsDict
+  ->getOptionStrArrayFromDict("payout_statuses_enabled")
+  ->convertOptionalStrArrayToOptionalJson,
+  dispute_statuses_enabled: webhookDetailsDict
+  ->getOptionStrArrayFromDict("dispute_statuses_enabled")
+  ->convertOptionalStrArrayToOptionalJson,
+  mandate_statuses_enabled: webhookDetailsDict
+  ->getOptionStrArrayFromDict("mandate_statuses_enabled")
+  ->convertOptionalStrArrayToOptionalJson,
+  invoice_statuses_enabled: webhookDetailsDict
+  ->getOptionStrArrayFromDict("invoice_statuses_enabled")
+  ->convertOptionalStrArrayToOptionalJson,
 }
 let mapV2AuthConnectorDetailsToCommonType: option<authConnectorDetailsType_v2> => option<
   BusinessProfileInterfaceTypes.authConnectorDetailsType,
@@ -93,6 +125,12 @@ let mapV2WebhookDetailsToCommonType: webhookDetails_v2 => BusinessProfileInterfa
     payment_created_enabled: webhookDetailsRecord.payment_created_enabled,
     payment_succeeded_enabled: webhookDetailsRecord.payment_succeeded_enabled,
     payment_failed_enabled: webhookDetailsRecord.payment_failed_enabled,
+    payment_statuses_enabled: webhookDetailsRecord.payment_statuses_enabled,
+    refund_statuses_enabled: webhookDetailsRecord.refund_statuses_enabled,
+    payout_statuses_enabled: webhookDetailsRecord.payout_statuses_enabled,
+    dispute_statuses_enabled: webhookDetailsRecord.dispute_statuses_enabled,
+    mandate_statuses_enabled: webhookDetailsRecord.mandate_statuses_enabled,
+    invoice_statuses_enabled: webhookDetailsRecord.invoice_statuses_enabled,
   }
 }
 

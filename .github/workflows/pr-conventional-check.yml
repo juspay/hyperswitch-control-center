@@ -102,6 +102,8 @@ jobs:
   pr_title_check:
     name: Verify PR title follows conventional commit standards
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
 
     steps:
       - name: Verify PR title follows conventional commit standards

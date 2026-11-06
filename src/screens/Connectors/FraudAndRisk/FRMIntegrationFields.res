@@ -74,7 +74,7 @@ let make = (
   ~retrievedValues=None,
   ~setInitialValues,
   ~isUpdateFlow,
-  ~updateMerchantDetails,
+  ~updateBusinessProfileDetails,
 ) => {
   open FRMUtils
   open FRMInfo
@@ -142,7 +142,7 @@ let make = (
   let setFRMValues = async body => {
     try {
       let response = await updateDetails(frmUrl, body, Post)
-      let _ = await updateMerchantDetails()
+      let _ = await updateBusinessProfileDetails()
       let _ = await fetchConnectorListResponse()
       setInitialValues(_ => response)
       setCurrentStep(prev => prev->getNextStep)

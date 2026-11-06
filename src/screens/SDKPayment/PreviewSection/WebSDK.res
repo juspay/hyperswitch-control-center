@@ -8,9 +8,8 @@ let make = () => {
   let (isScriptLoaded, setIsScriptLoaded) = React.useState(() => false)
   let (isHyperReady, setIsHyperReady) = React.useState(() => false)
 
-  let publishableKey = Recoil.useRecoilValueFromAtom(
-    HyperswitchAtom.merchantDetailsValueAtom,
-  ).publishable_key
+  let merchantDetails = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantDetailsValueAtom)
+  let publishableKey = merchantDetails.publishable_key
 
   let clientSecret = paymentResult->getDictFromJsonObject->getString("client_secret", "")
   let themeConfig = sdkThemeInitialValues->getDictFromJsonObject
@@ -71,7 +70,7 @@ let make = () => {
   <div>
     {switch (isScriptLoaded, isHyperReady) {
     | (true, true) =>
-      <Elements options=elementOptions stripe={hyperPromise()}>
+      <Elements key=clientSecret options=elementOptions stripe={hyperPromise()}>
         <CheckoutForm />
       </Elements>
     | _ => React.null

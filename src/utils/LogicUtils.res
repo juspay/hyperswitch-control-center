@@ -482,6 +482,15 @@ let stringReplaceAll = (str, old, new) => {
   str->String.split(old)->Array.joinWith(new)
 }
 
+let getNormalizedPemValue = value =>
+  value
+  ->stringReplaceAll("\\r\\n", "\n")
+  ->stringReplaceAll("\\n", "\n")
+  ->String.split("\n")
+  ->Array.map(String.trim)
+  ->Array.joinWith("\n")
+  ->String.trim
+
 let getUniqueArray = (arr: array<'t>) => {
   arr->Array.map(item => (item, ""))->Dict.fromArray->Dict.keysToArray
 }
@@ -535,6 +544,17 @@ let formatAmount = (amount, currency) => {
 
   `${currency} ${addCommas(amount->Int.toString)}`
 }
+
+let formatNumberWithCommas = (value, ~digits=0) =>
+  Intl.NumberFormat.makeWithLocaleAndOptions(
+    "en-US",
+    {"minimumFractionDigits": digits, "maximumFractionDigits": digits},
+  )->Intl.NumberFormat.format(value)
+
+let calculatePercentage = (part, whole) => whole > 0.0 ? part /. whole *. 100.0 : 0.0
+
+let getPercentageChange = (current, previous) =>
+  previous > 0.0 ? Some((current -. previous) /. previous *. 100.0) : None
 
 let getObjectArrayFromJson = json => {
   json->getArrayFromJson([])->Array.map(getDictFromJsonObject)

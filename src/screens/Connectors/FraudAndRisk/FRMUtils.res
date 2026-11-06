@@ -80,9 +80,34 @@ let validate = (~values, ~selectedFRMInfo: ConnectorTypes.integrationFields) => 
   errors->JSON.Encode.object
 }
 
-let parseConnectorConfig = (connector: ConnectorTypes.connectorPayloadCommonType) => {
+let isSupportedFRMPaymentMethod = (
+  ~selectedFRMName: ConnectorTypes.connectorTypes,
+  ~connectorType: ConnectorTypes.connectorTypeVariants,
+  ~paymentMethod: ConnectorTypes.paymentMethod,
+) => {
+  open ConnectorTypes
+  switch (selectedFRMName, connectorType, paymentMethod) {
+  | (FRM(SanlamPayshield), PaymentProcessor, BankDebit)
+  | (FRM(SanlamPayshield), PayoutProcessor, BankTransfer) => true
+  | (FRM(SanlamPayshield), _, _) => false
+  | (FRM(_), PaymentProcessor, Card) => true
+  | _ => false
+  }
+}
+
+let parseConnectorConfig = (
+  connector: ConnectorTypes.connectorPayloadCommonType,
+  ~selectedFRMName,
+) => {
   let connectorName = connector.connector_name
-  let connectorPaymentMethods = connector.payment_methods_enabled
+  let connectorPaymentMethods =
+    connector.payment_methods_enabled->Array.filter(item =>
+      isSupportedFRMPaymentMethod(
+        ~selectedFRMName,
+        ~connectorType=connector.connector_type,
+        ~paymentMethod=item.payment_method_type->getPaymentMethodFromString,
+      )
+    )
   let pmDict = Dict.make()
 
   let sortedArray = connectorPaymentMethods->Array.toSorted((a, b) => {
@@ -137,20 +162,31 @@ let updateConfigDict = (configDict, connectorName, paymentMethodsDict) => {
 
 let filterConnectorArrayByPaymentMethod = (
   ~connectorList: array<ConnectorTypes.connectorPayloadCommonType>,
+  ~selectedFRMName,
 ) => {
   let filteredArray = connectorList->Array.filter(connector => {
     connector.payment_methods_enabled->Array.some(item =>
-      item.payment_method_type->getPaymentMethodFromString == Card
+      isSupportedFRMPaymentMethod(
+        ~selectedFRMName,
+        ~connectorType=connector.connector_type,
+        ~paymentMethod=item.payment_method_type->getPaymentMethodFromString,
+      )
     )
   })
   filteredArray
 }
 
-let getConnectorConfig = (connectors: array<ConnectorTypes.connectorPayloadCommonType>) => {
+let getConnectorConfig = (
+  connectors: array<ConnectorTypes.connectorPayloadCommonType>,
+  ~selectedFRMName,
+) => {
   let configDict = Dict.make()
-  let filteredConnectors = filterConnectorArrayByPaymentMethod(~connectorList=connectors)
+  let filteredConnectors = filterConnectorArrayByPaymentMethod(
+    ~connectorList=connectors,
+    ~selectedFRMName,
+  )
   filteredConnectors->Array.forEach(connector => {
-    let (connectorName, paymentMethodsDict) = connector->parseConnectorConfig
+    let (connectorName, paymentMethodsDict) = connector->parseConnectorConfig(~selectedFRMName)
     updateConfigDict(configDict, connectorName, paymentMethodsDict)
   })
 
@@ -186,7 +222,6 @@ let generateFRMPaymentMethodsConfig = (paymentMethodsDict): array<
   open ConnectorTypes
   paymentMethodsDict
   ->Dict.keysToArray
-  ->Array.filter(item => item->getPaymentMethodFromString == Card)
   ->Array.map(paymentMethodName => {
     {
       payment_method: paymentMethodName,

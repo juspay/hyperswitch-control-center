@@ -1,0 +1,419 @@
+open CurrencyUtils
+open LogicUtils
+open OffersTypes
+open OffersUtils
+
+let allLanguages = [English, Arabic, French, Portuguese, Russian, Ukrainian]
+
+let languageOptions = allLanguages->Array.map((language): SelectBox.dropdownOption => {
+  label: language->languageToDisplayName,
+  value: (language :> string),
+})
+
+let calculationRuleOptions: array<SelectBox.dropdownOption> = [
+  {label: "Percentage", value: (Percentage :> string)},
+  {label: "Absolute", value: (Absolute :> string)},
+  {label: "Fixed Effective Amount", value: (FixedEffectiveAmount :> string)},
+]
+
+let currencyOptions =
+  currencyList
+  ->Array.map(getCurrencyCodeStringFromVariant)
+  ->Array.filter(code => code->getCurrencyTypeFromString == TwoDecimal)
+  ->Array.map((code): SelectBox.dropdownOption => {label: code, value: code})
+
+let resetPeriodUnitToOptionLabel = unit =>
+  switch unit {
+  | OfferPeriod => "Offer Period"
+  | Hour => "Hour (60 Minutes)"
+  | Day => "Day (24 Hours)"
+  | Week => "Week (7 Days)"
+  | Month => "Month (30 Days)"
+  | CalendarDay => "Calendar Day"
+  | CalendarMonth => "Calendar Month"
+  }
+
+let secondsPerHour = 3600
+let secondsPerDay = 24 * secondsPerHour
+let secondsPerWeek = 7 * secondsPerDay
+let secondsPerMonth = 30 * secondsPerDay
+
+let minOrderAmountKey = currency => `min_order_amount_${currency}`
+let maxOrderAmountKey = currency => `max_order_amount_${currency}`
+
+let offerFormValuesMapper = (dict): offerFormValues => {
+  offerCode: dict->getString("offer_code", ""),
+  title: dict->getString("title", ""),
+  displayTitle: dict->getString("display_title", ""),
+  description: dict->getString("description", ""),
+  termsAndConditions: dict->getString("tnc", ""),
+  language: dict->getString("language", "")->languageFromString,
+  startTime: dict->getString("start_time", ""),
+  endTime: dict->getString("end_time", ""),
+  calculationRule: dict->getString("calculation_rule", "")->calculationRuleFromString,
+  benefitValue: dict->getFloat("benefit_value", 0.0),
+  maxAmount: dict->getOptionFloat("max_amount"),
+  currencies: dict
+  ->getStrArrayFromDict("currencies", [])
+  ->Array.map(name => {
+    name,
+    minOrderAmount: dict->getOptionFloat(name->minOrderAmountKey),
+    maxOrderAmount: dict->getOptionFloat(name->maxOrderAmountKey),
+  }),
+  campaignAmount: dict->getOptionFloat("campaign_amount"),
+  campaignCount: dict->getOptionInt("campaign_count"),
+  amountPerCard: dict->getOptionFloat("amount_per_card"),
+  countPerCard: dict->getOptionInt("count_per_card"),
+  cardResetPeriodUnit: dict->getString("card_reset_period_type", "")->resetPeriodUnitFromString,
+  cardBins: dict->getStrArrayFromDict("card_bins", []),
+  binListMode: dict->getBool("bin_list_blacklist", false) ? Blacklist : Whitelist,
+}
+
+let maxBinRows = 10000
+let binPattern = %re("/^\d{6,9}$/")
+
+let parseBinCsv = content => {
+  let bins =
+    content
+    ->String.split("\n")
+    ->Array.map(String.trim)
+    ->Array.filter(isNonEmptyString)
+  let bins = switch bins->Array.get(0) {
+  | Some(header) if header->String.toUpperCase == cardBinFilterType =>
+    bins->Array.sliceToEnd(~start=1)
+  | _ => bins
+  }
+
+  if bins->isEmptyArray {
+    Error("The file has no BINs")
+  } else if bins->Array.length > maxBinRows {
+    Error(`Upload at most ${maxBinRows->Int.toString} BINs`)
+  } else if bins->Array.some(bin => !(binPattern->RegExp.test(bin))) {
+    Error("Upload 6 to 9 digit BINs only, one per row")
+  } else if bins->removeDuplicate->Array.length !== bins->Array.length {
+    Error("The file has duplicate BINs")
+  } else {
+    Ok(bins)
+  }
+}
+
+let requiredFieldError = "This field is required"
+let positiveValueError = "Enter a value greater than 0"
+
+let firstError = errors => errors->Array.filterMap(error => error)->Array.get(0)
+
+let requiredString = getValue => formValues =>
+  getValue(formValues)->isEmptyString ? Some(requiredFieldError) : None
+
+let positiveAmount = getAmount => formValues =>
+  getAmount(formValues) <= 0.0 ? Some(positiveValueError) : None
+
+let optionalPositiveAmount = getAmount => formValues =>
+  getAmount(formValues)->Option.flatMap(amount => amount <= 0.0 ? Some(positiveValueError) : None)
+
+let optionalPositiveCount = getCount => formValues =>
+  getCount(formValues)->Option.flatMap(count => count < 1 ? Some(positiveValueError) : None)
+
+let multiCurrencyError = "Not supported when the offer has more than one currency"
+
+let singleCurrencyOnly = getAmount => (formValues: offerFormValues) =>
+  formValues.currencies->Array.length > 1 && getAmount(formValues)->Option.isSome
+    ? Some(multiCurrencyError)
+    : None
+
+let amountLimitRule = getAmount => formValues =>
+  firstError([
+    optionalPositiveAmount(getAmount)(formValues),
+    singleCurrencyOnly(getAmount)(formValues),
+  ])
+
+let maxAmountRule = (formValues: offerFormValues) =>
+  switch formValues.calculationRule {
+  | Percentage => amountLimitRule(values => values.maxAmount)(formValues)
+  | _ => None
+  }
+
+let languageRule = (formValues: offerFormValues) =>
+  switch formValues.language {
+  | UnknownLanguage(_) => Some(requiredFieldError)
+  | _ => None
+  }
+
+let discountTypeRule = (formValues: offerFormValues) =>
+  switch formValues.calculationRule {
+  | UnknownCalculationRule(_) => Some(requiredFieldError)
+  | Absolute | FixedEffectiveAmount if formValues.currencies->Array.length > 1 =>
+    Some(multiCurrencyError)
+  | _ => None
+  }
+
+let benefitValueRule = (formValues: offerFormValues) =>
+  firstError([
+    positiveAmount(values => values.benefitValue)(formValues),
+    switch formValues.calculationRule {
+    | Percentage if formValues.benefitValue > 100.0 => Some("Percentage cannot exceed 100")
+    | _ => None
+    },
+  ])
+
+let endTimeRule = (formValues: offerFormValues) =>
+  firstError([
+    requiredString(values => values.endTime)(formValues),
+    formValues.startTime->isNonEmptyString && formValues.endTime <= formValues.startTime
+      ? Some("End time must be after the start time")
+      : None,
+    formValues.endTime->Date.fromString->Date.getTime < Date.now()
+      ? Some("End time should be greater than or equal to now")
+      : None,
+  ])
+
+let currenciesRule = (formValues: offerFormValues) =>
+  formValues.currencies->isEmptyArray ? Some(requiredFieldError) : None
+
+let minOrderAmountRule = (~hasMinimumOfOne, currency: currencyConstraint) =>
+  switch currency.minOrderAmount {
+  | None => Some(requiredFieldError)
+  | Some(amount) if amount <= 0.0 => Some(positiveValueError)
+  | Some(amount) if !hasMinimumOfOne && amount < 1.0 => Some("Cannot be less than 1")
+  | _ => None
+  }
+
+let maxOrderAmountRule = (currency: currencyConstraint) =>
+  switch (currency.maxOrderAmount, currency.minOrderAmount) {
+  | (Some(maxAmount), _) if maxAmount <= 0.0 => Some(positiveValueError)
+  | (Some(maxAmount), Some(minAmount)) if maxAmount < minAmount =>
+    Some("Maximum amount must be greater than the minimum amount")
+  | _ => None
+  }
+
+let offerDetailsRules: array<offerFormRule> = [
+  ("offer_code", requiredString(values => values.offerCode)),
+  ("title", requiredString(values => values.title)),
+  ("language", languageRule),
+  ("start_time", requiredString(values => values.startTime)),
+  ("end_time", endTimeRule),
+  ("calculation_rule", discountTypeRule),
+  ("benefit_value", benefitValueRule),
+  ("max_amount", maxAmountRule),
+  ("campaign_amount", amountLimitRule(values => values.campaignAmount)),
+  ("campaign_count", optionalPositiveCount(values => values.campaignCount)),
+]
+
+let transactionDetailsRules = (formValues: offerFormValues): array<offerFormRule> => {
+  let hasMinimumOfOne =
+    formValues.currencies->Array.some(currency => currency.minOrderAmount->Option.getOr(0.0) >= 1.0)
+
+  [("currencies", currenciesRule)]->Array.concat(
+    formValues.currencies->Array.flatMap((currency): array<offerFormRule> => [
+      (currency.name->minOrderAmountKey, _ => currency->minOrderAmountRule(~hasMinimumOfOne)),
+      (currency.name->maxOrderAmountKey, _ => currency->maxOrderAmountRule),
+    ]),
+  )
+}
+
+let offerDurationInSeconds = (~startTime, ~endTime) =>
+  ((endTime->Date.fromString->Date.getTime -. startTime->Date.fromString->Date.getTime) /. 1000.0)
+    ->Float.toInt
+
+let resetPeriodUnitOptionsForDuration = durationInSeconds =>
+  allResetPeriodUnits
+  ->Array.filter(unit =>
+    switch unit {
+    | Week => durationInSeconds >= 6 * secondsPerDay
+    | Month => durationInSeconds >= 29 * secondsPerDay
+    | _ => true
+    }
+  )
+  ->Array.map((unit): SelectBox.dropdownOption => {
+    label: unit->resetPeriodUnitToOptionLabel,
+    value: (unit :> string),
+  })
+
+let paymentDetailsRules: array<offerFormRule> = [
+  ("amount_per_card", amountLimitRule(values => values.amountPerCard)),
+  ("count_per_card", optionalPositiveCount(values => values.countPerCard)),
+]
+
+let validateOfferForm = values => {
+  let formValues = values->getDictFromJsonObject->offerFormValuesMapper
+
+  [offerDetailsRules, formValues->transactionDetailsRules, paymentDetailsRules]
+  ->Array.flat
+  ->Array.filterMap(((fieldName, rule)) =>
+    rule(formValues)->Option.map(error => (fieldName, error->JSON.Encode.string))
+  )
+  ->getJsonFromArrayOfJson
+}
+
+let buildCounter = (
+  ~scope,
+  ~valueType: counterValueType,
+  ~value,
+  ~resetPeriod,
+  ~resetFrequencyUnit="SECOND",
+) =>
+  [
+    ("type", scope->counterDimensions->getJsonFromArrayOfString),
+    ("value_type", (valueType :> string)->JSON.Encode.string),
+    ("operator", "MAX"->JSON.Encode.string),
+    ("value", value->JSON.Encode.string),
+    ("reset_period", resetPeriod->Int.toString->JSON.Encode.string),
+    ("reset_frequency_unit", resetFrequencyUnit->JSON.Encode.string),
+  ]->getJsonFromArrayOfJson
+
+let buildAmountCounter = (~scope, ~resetPeriod, amount) =>
+  buildCounter(~scope, ~valueType=AmountLimit, ~value=amount->Float.toString, ~resetPeriod)
+
+let buildCountCounter = (~scope, ~resetPeriod, ~resetFrequencyUnit=?, count) =>
+  buildCounter(
+    ~scope,
+    ~valueType=CountLimit,
+    ~value=count->Int.toString,
+    ~resetPeriod,
+    ~resetFrequencyUnit?,
+  )
+
+let resetPeriodInSeconds = (unit, ~offerDuration) =>
+  switch unit {
+  | OfferPeriod => offerDuration
+  | Hour => secondsPerHour
+  | Day => secondsPerDay
+  | Week => secondsPerWeek
+  | Month => secondsPerMonth
+  | CalendarDay | CalendarMonth => 1
+  }
+
+let resetFrequencyUnit = unit =>
+  switch unit {
+  | CalendarDay | CalendarMonth => (unit :> string)
+  | _ => "SECOND"
+  }
+
+let cardResetPeriodMetadata = (unit: resetPeriodUnit) => {
+  let metadata = [("cardResetPeriodType", (unit :> string)->JSON.Encode.string)]->Dict.fromArray
+  metadata->setOptionInt(
+    "cardResetPeriod",
+    switch unit {
+    | OfferPeriod => None
+    | _ => Some(1)
+    },
+  )
+  metadata->JSON.Encode.object
+}
+
+let cardInstrument = [("payment_method_type", "CARD"->JSON.Encode.string)]->getJsonFromArrayOfJson
+
+let cardBinFilters = (~binListMode: binListMode, bins) =>
+  [
+    (
+      (binListMode :> string)->String.toLowerCase,
+      [
+        [
+          ("type", cardBinFilterType->JSON.Encode.string),
+          ("list", bins->getJsonFromArrayOfString),
+          ("is_value_uploaded", true->JSON.Encode.bool),
+        ]->getJsonFromArrayOfJson,
+      ]->JSON.Encode.array,
+    ),
+  ]->getJsonFromArrayOfJson
+
+let buildCreateBody = (~merchantId, formValues: offerFormValues) => {
+  let resetPeriod = offerDurationInSeconds(
+    ~startTime=formValues.startTime,
+    ~endTime=formValues.endTime,
+  )
+  let hasCardConfig =
+    formValues.amountPerCard->Option.isSome ||
+    formValues.countPerCard->Option.isSome ||
+    formValues.cardBins->isNonEmptyArray
+
+  let counters =
+    [
+      formValues.campaignAmount->Option.map(buildAmountCounter(~scope=Campaign, ~resetPeriod, _)),
+      formValues.campaignCount->Option.map(buildCountCounter(~scope=Campaign, ~resetPeriod, _)),
+      formValues.amountPerCard->Option.map(buildAmountCounter(~scope=PerCard, ~resetPeriod, _)),
+      formValues.countPerCard->Option.map(
+        buildCountCounter(
+          ~scope=PerCard,
+          ~resetPeriod=formValues.cardResetPeriodUnit->resetPeriodInSeconds(
+            ~offerDuration=resetPeriod,
+          ),
+          ~resetFrequencyUnit=formValues.cardResetPeriodUnit->resetFrequencyUnit,
+          _,
+        ),
+      ),
+    ]->Array.filterMap(counter => counter)
+
+  let currencies = formValues.currencies->Array.map(currency => {
+    let currencyDict = [("name", currency.name->JSON.Encode.string)]->Dict.fromArray
+    currencyDict->setOptionString(
+      "min_order_amount",
+      currency.minOrderAmount->Option.map(Float.toString),
+    )
+    currencyDict->setOptionString(
+      "max_order_amount",
+      currency.maxOrderAmount->Option.map(Float.toString),
+    )
+    currencyDict->JSON.Encode.object
+  })
+
+  let benefit =
+    [
+      ("type", "DISCOUNT"->JSON.Encode.string),
+      ("calculation_rule", (formValues.calculationRule :> string)->JSON.Encode.string),
+      ("value", formValues.benefitValue->JSON.Encode.float),
+    ]->Dict.fromArray
+  benefit->setOptionFloat(
+    "max_amount",
+    switch formValues.calculationRule {
+    | Percentage => formValues.maxAmount
+    | _ => None
+    },
+  )
+
+  let ruleDsl =
+    [
+      ("order", [("currency", currencies->JSON.Encode.array)]->getJsonFromArrayOfJson),
+      ("benefits", [benefit->JSON.Encode.object]->JSON.Encode.array),
+    ]->Dict.fromArray
+  ruleDsl->setOptionArray("counters", counters->getNonEmptyArray)
+  ruleDsl->setOptionArray("payment_instrument", hasCardConfig ? Some([cardInstrument]) : None)
+  ruleDsl->setOptionJson(
+    "filters",
+    formValues.cardBins
+    ->getNonEmptyArray
+    ->Option.map(cardBinFilters(~binListMode=formValues.binListMode, _)),
+  )
+
+  let description = [("title", formValues.title->JSON.Encode.string)]->Dict.fromArray
+  description->setOptionString("display_title", formValues.displayTitle->getNonEmptyString)
+  description->setOptionString("description", formValues.description->getNonEmptyString)
+  description->setOptionString("tnc", formValues.termsAndConditions->getNonEmptyString)
+
+  let body =
+    [
+      ("merchant_id", merchantId->JSON.Encode.string),
+      ("offer_code", formValues.offerCode->JSON.Encode.string),
+      ("offer_description", description->JSON.Encode.object),
+      ("language", (formValues.language :> string)->JSON.Encode.string),
+      (
+        "ui_configs",
+        [
+          ("auto_apply", "true"->JSON.Encode.string),
+          ("should_validate", "true"->JSON.Encode.string),
+          ("is_hidden", "false"->JSON.Encode.string),
+        ]->getJsonFromArrayOfJson,
+      ),
+      ("start_time", formValues.startTime->JSON.Encode.string),
+      ("end_time", formValues.endTime->JSON.Encode.string),
+      ("application_mode", "ORDER"->JSON.Encode.string),
+      ("rule_dsl", ruleDsl->JSON.Encode.object),
+    ]->Dict.fromArray
+  body->setOptionJson(
+    "metadata",
+    formValues.countPerCard->Option.map(_ =>
+      formValues.cardResetPeriodUnit->cardResetPeriodMetadata
+    ),
+  )
+  body->JSON.Encode.object
+}

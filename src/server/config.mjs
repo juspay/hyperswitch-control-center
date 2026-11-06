@@ -1,8 +1,11 @@
 import * as Fs from "fs";
 import toml from "@iarna/toml";
 
+const MAX_REQUEST_BODY_BYTES = 16 * 1024;
+
 // Helper function for error handling
 const errorHandler = (res, errorMessage = "something went wrong") => {
+  if (res.headersSent) return;
   res.writeHead(500, { "Content-Type": "text/plain" });
   console.error(errorMessage);
   res.end("Internal Server Error");
@@ -52,6 +55,19 @@ function updateConnectorListWithEnv(connectorListConfig, domain, tableName) {
     result[key] = checkEnvValues(envVar, connectorListConfig[key]);
   }
   return result;
+}
+
+// Update superposition display configs using environment variables
+function updateSuperpositionConfigWithEnv(superpositionConfig, domain) {
+  domain = domain || "default";
+  const envVar =
+    process.env[`${domain}__superposition_configs__display_configs`];
+  return {
+    ...superpositionConfig,
+    display_configs: checkEnvValues(envVar, superpositionConfig.display_configs)
+      .map((key) => key.trim())
+      .filter((key) => key.length > 0),
+  };
 }
 
 function processConfigList(configList, body, domain, listType) {
@@ -170,6 +186,13 @@ const configHandler = async (
         "connector_clone",
       );
     }
+    if (merchantConfig && merchantConfig["superposition_configs"]) {
+      merchantConfig["superposition_configs"] =
+        updateSuperpositionConfigWithEnv(
+          merchantConfig["superposition_configs"],
+          domain,
+        );
+    }
     if (merchantConfig && merchantConfig["merchant_config"]) {
       delete merchantConfig["merchant_config"];
     }
@@ -179,7 +202,7 @@ const configHandler = async (
       "Access-Control-Allow-Origin": "*",
     });
     res.end(JSON.stringify(merchantConfig));
-  } catch (error) {
+  } catch {
     errorHandler(res, "Server Error");
   }
 };
@@ -195,8 +218,22 @@ To Parse the request body
 const getRequestBody = (req) => {
   return new Promise((resolve, reject) => {
     let body = "";
-    req.on("data", (chunk) => (body += chunk.toString()));
-    req.on("end", () => resolve(JSON.parse(body)));
+    let receivedBytes = 0;
+    req.on("data", (chunk) => {
+      receivedBytes += chunk.length;
+      body += chunk.toString();
+      if (receivedBytes > MAX_REQUEST_BODY_BYTES) {
+        reject(new Error("Request body too large"));
+        req.destroy();
+      }
+    });
+    req.on("end", () => {
+      try {
+        resolve(JSON.parse(body));
+      } catch (err) {
+        reject(err);
+      }
+    });
     req.on("error", reject);
   });
 };
@@ -229,4 +266,4 @@ const merchantConfigHandler = async (
     errorHandler(res, "Server Error");
   }
 };
-export { configHandler, merchantConfigHandler };
+export { configHandler, merchantConfigHandler, updateConfigWithEnv };

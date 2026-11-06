@@ -9,6 +9,7 @@ import { generateMerchantName } from "./helper";
 import { SignInPage } from "./pages/auth/SignInPage";
 import { SignUpPage } from "./pages/auth/SignUpPage";
 import { ResetPasswordPage } from "./pages/auth/ResetPasswordPage";
+import { HomePage } from "./pages/homepage/HomePage";
 import { execFileSync } from "child_process";
 import fs from "fs";
 import path from "path";
@@ -17,6 +18,8 @@ const _BASE_URL = process.env.PLAYWRIGHT_BASE_URL || "http://localhost:9000";
 const API_URL = process.env.HYPERSWITCH_API_URL || "http://localhost:8080";
 const MAIL_URL = process.env.PLAYWRIGHT_MAIL_URL || "http://localhost:8025";
 const ADMIN_API_KEY = process.env.HYPERSWITCH_ADMIN_API_KEY || "test_admin";
+// Backend now reads the admin key from the Authorization header rather than `api-key`.
+const ADMIN_AUTHORIZATION = `admin-api-key=${ADMIN_API_KEY}`;
 
 // Extracts the JWT from dashboard localStorage after a successful UI login.
 export async function getJwtFromLocalStorage(page: Page): Promise<string> {
@@ -41,7 +44,7 @@ export async function signupUser(
   const response = await ctx.post(`${API_URL}/user/signup_with_merchant_id`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": ADMIN_API_KEY,
+      Authorization: ADMIN_AUTHORIZATION,
     },
     data: {
       email,
@@ -66,7 +69,7 @@ export async function loginUser(
   const response = await ctx.post(`${API_URL}/user/v2/signin`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": ADMIN_API_KEY,
+      Authorization: ADMIN_AUTHORIZATION,
     },
     data: { email, password },
   });
@@ -119,10 +122,9 @@ export async function createAPIKey(
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        "api-key": ADMIN_API_KEY,
-        ...(authorizationToken
-          ? { Authorization: `Bearer ${authorizationToken}` }
-          : {}),
+        Authorization: authorizationToken
+          ? `Bearer ${authorizationToken}`
+          : ADMIN_AUTHORIZATION,
       },
       data: {
         name: "API Key 1",
@@ -1012,6 +1014,52 @@ export async function mockPaymentSummaryAmounts(
   );
 }
 
+// Shape of the `applied_offer` block the offer engine returns on a payment.
+// Every field is optional so tests can cover the partial responses the UI has
+// to tolerate (missing amount, blank ids).
+export type AppliedOfferMock = {
+  offer_engine_merchant_id?: string;
+  offer_engine_txn_id?: string;
+  offer_id?: string;
+  offer_amount: number;
+  currency: string;
+};
+
+// Inject an `applied_offer` block into the payment-detail response so the Offer
+// Details tab and the Summary "Offer Amount" field can be asserted without an
+// offer engine in the test environment.
+//
+// The mappers read `applied_offer` from the response ROOT in every API shape --
+// V1 (PaymentInterfaceUtilsV1), V2 (PaymentInterfaceUtilsV2) and the common
+// mapper (PaymentInterfaceUtils) all call `dict->getAppliedOffer` on the top
+// level dict, unlike net_amount/surcharge_amount which V2 nests inside
+// amount_details. So injecting at the root covers both shapes.
+//
+// Pass `null` to assert the absent-offer branch (no Offer Details tab).
+export async function mockPaymentAppliedOffer(
+  page: Page,
+  paymentId: string,
+  appliedOffer: AppliedOfferMock | null,
+): Promise<void> {
+  await page.route(
+    new RegExp(`/payments/${paymentId}(\\?|$)`),
+    async (route) => {
+      if (route.request().method() !== "GET") {
+        await route.continue();
+        return;
+      }
+
+      const response = await route.fetch();
+      const json = await response.json();
+
+      await route.fulfill({
+        response,
+        json: { ...json, applied_offer: appliedOffer },
+      });
+    },
+  );
+}
+
 export async function createRefundAPI(
   merchantId: string,
   paymentId: string,
@@ -1302,6 +1350,132 @@ export async function createSurchargeAPI(
   return { name };
 }
 
+// Makes the hosted SDK emit the `surchargeInfo` / `appliedOffersInfo` events
+// that the Pay button total is derived from (CheckoutForm.res).
+//
+// Those events come from `POST /payments/{id}/eligibility`, the only response
+// carrying surcharge and offer details. The SDK asks for it only when the
+// payment method list tells it to, and `GET /payments/{id}/client` returns
+// `sdk_next_action.next_action: "confirm"` by default -- so the surcharge and
+// offer paths are unreachable without flipping that to `eligibility_check`
+// first. Both routes are needed: one to make the SDK ask, one to answer.
+//
+// `surchargeAmount` is in major units, matching the SDK's
+// displayTotalSurchargeAmount; offer amounts are in minor units, matching
+// MinorUnit on EligibleOffer. Register before the SDK iframe mounts (i.e.
+// before clicking Show preview).
+export async function mockSdkEligibilityAPI(
+  page: Page,
+  options: {
+    surchargeAmount?: number;
+    offers?: Array<{ amountMinor: number; currency: string; code?: string }>;
+  } = {},
+): Promise<void> {
+  const { surchargeAmount, offers = [] } = options;
+
+  // Record the events the SDK posts up to the dashboard so a test can wait for
+  // one to have been delivered. Needed when the expected total is the
+  // undiscounted amount: toHaveAttribute would match that on its first poll,
+  // before the event arrived, and so could never fail. Installed by evaluate
+  // rather than addInitScript because the SDK mounts into the page the tests
+  // are already on, without a navigation.
+  await page.evaluate(() => {
+    const store = window as unknown as { __sdkEvents?: string[] };
+    if (store.__sdkEvents) return;
+    store.__sdkEvents = [];
+    window.addEventListener("message", (event) => {
+      let data: unknown = event.data;
+      if (typeof data === "string") {
+        try {
+          data = JSON.parse(data);
+        } catch {
+          return;
+        }
+      }
+      const eventName =
+        data && typeof data === "object"
+          ? (data as { eventName?: string }).eventName
+          : undefined;
+      if (eventName) store.__sdkEvents?.push(eventName);
+    });
+  });
+
+  await page.route("**/payments/*/client?*", async (route) => {
+    const response = await route.fetch();
+    const json = await response.json();
+    json.sdk_next_action = {
+      next_action: "eligibility_check",
+      should_block_confirm: false,
+    };
+    await route.fulfill({ response, json });
+  });
+
+  const eligibleOffers = offers.map((offer, index) => ({
+    offer_quote_id: `playwright_quote_${index + 1}`,
+    offer_amount: offer.amountMinor,
+    currency: offer.currency,
+    code: offer.code ?? `PLAYWRIGHT_OFFER_${index + 1}`,
+    title: "Playwright offer",
+    description: "Offer injected by the Playwright eligibility mock",
+  }));
+
+  await page.route("**/payments/*/eligibility", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        payment_id: "pay_playwright_eligibility",
+        sdk_next_action: {
+          next_action: "confirm",
+          should_block_confirm: false,
+        },
+        surcharge_details:
+          surchargeAmount === undefined
+            ? null
+            : {
+                surcharge: {
+                  type: "fixed",
+                  value: Math.round(surchargeAmount * 100),
+                },
+                tax_on_surcharge: null,
+                display_surcharge_amount: surchargeAmount,
+                display_tax_on_surcharge_amount: 0,
+                display_total_surcharge_amount: surchargeAmount,
+                surcharge_percentage: null,
+              },
+        // The SDK narrows the event to the uplifted quotes, so every offer the
+        // caller wants emitted has to be listed as uplifted as well as eligible.
+        ...(eligibleOffers.length > 0 && {
+          offer_details: {
+            uplifted_offer_quote_ids: eligibleOffers.map(
+              (offer) => offer.offer_quote_id,
+            ),
+            eligible_offers: eligibleOffers,
+          },
+        }),
+      }),
+    });
+  });
+}
+
+// Waits until the SDK has posted `eventName` up to the dashboard, so an
+// assertion that follows is checked against a state the event has reached.
+// Requires mockSdkEligibilityAPI to have installed the recorder.
+export async function waitForSdkEvent(
+  page: Page,
+  eventName: string,
+  timeout = 20000,
+): Promise<void> {
+  await page.waitForFunction(
+    (name) =>
+      (
+        (window as unknown as { __sdkEvents?: string[] }).__sdkEvents ?? []
+      ).includes(name),
+    eventName,
+    { timeout },
+  );
+}
+
 // Seeds an active 3DS exemption rule via the routing API so spec tests can
 // assert against real backend data without driving the form UI.
 //
@@ -1344,18 +1518,9 @@ export async function createThreeDsExemptionAPI(
   }
 
   // profile_id rides inside the JWT payload (the dashboard mints it after
-  // login). Decode the middle JWT segment so the request body can include
-  // it the same way buildThreeDsExemptionPayloadBody does on the UI side.
-  const segments = token.split(".");
-  if (segments.length !== 3) {
-    throw new Error(
-      "createThreeDsExemptionAPI: invalid JWT format (expected 3 segments)",
-    );
-  }
-  const jwtPayload = JSON.parse(
-    Buffer.from(segments[1], "base64").toString("utf-8"),
-  ) as { profile_id?: string };
-  const profileId = jwtPayload.profile_id ?? "";
+  // login); the request body includes it the same way
+  // buildThreeDsExemptionPayloadBody does on the UI side.
+  const { profileId } = await jwtLineage(page);
 
   const name = overrides.name ?? "playwright_3ds_exemption";
   const description = overrides.description ?? "";
@@ -1463,7 +1628,7 @@ export async function signupAPI(
   const response = await ctx.post(`${API_URL}/user/signup_with_merchant_id`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": ADMIN_API_KEY,
+      Authorization: ADMIN_AUTHORIZATION,
     },
     data: {
       email: username,
@@ -1491,7 +1656,7 @@ export async function loginAPI(
   const response = await ctx.post(`${API_URL}/user/v2/signin`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": ADMIN_API_KEY,
+      Authorization: ADMIN_AUTHORIZATION,
     },
     data: { email: username, password },
   });
@@ -1883,7 +2048,7 @@ export async function createAuth(
   const response = await ctx.post(`${API_URL}/user/auth`, {
     headers: {
       "Content-Type": "application/json",
-      "api-key": ADMIN_API_KEY,
+      Authorization: ADMIN_AUTHORIZATION,
     },
     data: {
       owner_id: ownerId,
@@ -1958,9 +2123,10 @@ export async function fillConnectorFields(
     overrides?: Record<string, string>;
   },
 ): Promise<void> {
+  // textarea covers the multi-line credential fields, e.g. the deutschebank payout PEM fields
   const inputs = page
     .locator(
-      '.grid.grid-cols-2 input[type="text"], .grid.grid-cols-2 input[type="number"]',
+      '.grid.grid-cols-2 input[type="text"], .grid.grid-cols-2 input[type="number"], .grid.grid-cols-2 textarea',
     )
     .locator("visible=true");
 
@@ -1988,7 +2154,10 @@ export async function assertPaymentMethodTypes(
   >,
 ): Promise<void> {
   for (const section of Object.values(sections)) {
-    const sectionHeader = page.getByText(section.label, { exact: true });
+    // D24 uses "Card Redirect" for both the heading and its method label.
+    const sectionHeader = page
+      .getByText(section.label, { exact: true })
+      .first();
     await expect(sectionHeader).toBeVisible({
       timeout: 5000,
     });
@@ -2099,15 +2268,16 @@ export async function processPaymentSdkUI(page: Page): Promise<void> {
 
   await page.waitForTimeout(2000);
 
-  const iframe = page.frameLocator("iframe").first();
-  const cardInput = iframe.locator("[data-testid=cardNoInput]");
-  await cardInput.waitFor({ state: "visible", timeout: 20000 });
-  await cardInput.fill("4242424242424242");
-  await iframe.locator("[data-testid=expiryInput]").fill("0127");
-  const cvvInput = iframe.locator("[data-testid=cvvInput]");
-  await cvvInput.waitFor({ state: "attached", timeout: 10000 });
-  await cvvInput.scrollIntoViewIfNeeded();
-  await cvvInput.fill("492");
+  // Card fields live in a frame nested inside the payment element frame, so
+  // go through the page object rather than the first iframe on the page.
+  const homePage = new HomePage(page);
+  await homePage.sdkCardIframe.waitFor({ state: "attached", timeout: 20000 });
+  await homePage.sdkCardNoInput.waitFor({ state: "visible", timeout: 20000 });
+  await homePage.sdkCardNoInput.fill("4242424242424242");
+  await homePage.sdkExpiryInput.fill("0127");
+  await homePage.sdkCvvInput.waitFor({ state: "attached", timeout: 10000 });
+  await homePage.sdkCvvInput.scrollIntoViewIfNeeded();
+  await homePage.sdkCvvInput.fill("492");
 
   await page.locator("[data-button-for=payUSD77]").click();
   await expect(page.getByText("Payment Successful")).toBeAttached();
@@ -2192,6 +2362,42 @@ export async function signinFromMailInbox(page: Page): Promise<void> {
   }
 }
 
+// Reads org/merchant/profile ids straight from the dashboard's JWT in
+// localStorage. The token is written at login, so unlike the header's
+// merchant id text there is nothing to wait for. The payload is only
+// base64url-decoded, not verified — fine for picking ids in tests.
+export async function jwtLineage(
+  page: Page,
+): Promise<{ orgId: string; merchantId: string; profileId: string }> {
+  const token = await page.evaluate(() => {
+    const raw = window.localStorage.getItem("USER_INFO");
+    if (!raw) return "";
+    try {
+      return (JSON.parse(raw) as { token?: string }).token ?? "";
+    } catch {
+      return "";
+    }
+  });
+  if (!token) {
+    throw new Error(
+      "jwtLineage: no JWT in localStorage — make sure loginUI ran first",
+    );
+  }
+
+  const segments = token.split(".");
+  if (segments.length !== 3) {
+    throw new Error("jwtLineage: invalid JWT format (expected 3 segments)");
+  }
+  const payload = JSON.parse(
+    Buffer.from(segments[1], "base64url").toString("utf-8"),
+  ) as { org_id?: string; merchant_id?: string; profile_id?: string };
+  return {
+    orgId: payload.org_id ?? "",
+    merchantId: payload.merchant_id ?? "",
+    profileId: payload.profile_id ?? "",
+  };
+}
+
 export async function ompLineage(
   page: Page,
 ): Promise<{ orgId: string; merchantId: string; profileId: string }> {
@@ -2211,6 +2417,7 @@ export async function ompLineage(
   } catch (e) {
     throw new Error(
       `ompLineage: Failed to parse USER_INFO from localStorage: ${(e as Error).message}`,
+      { cause: e },
     );
   }
 
@@ -2277,6 +2484,121 @@ export async function generateCerts() {
     certBase64: cert.toString("base64"),
     keyBase64: key.toString("base64"),
   };
+}
+
+// Stands in for Apple's developer portal: signs a dashboard-issued Apple Pay
+// CSR with a throwaway CA and returns the DER-encoded .cer. The backend reads
+// the merchant identifier from the subject UID.
+export function signApplePayCsr(
+  csr: string,
+  merchantIdentifier: string,
+): Buffer {
+  const certsDir = path.join(process.cwd(), "tmp-certs");
+  fs.mkdirSync(certsDir, { recursive: true });
+  const tmpDir = fs.mkdtempSync(path.join(certsDir, "csr-"));
+  try {
+    const csrPath = path.join(tmpDir, "apple_pay.csr");
+    const caKeyPath = path.join(tmpDir, "ca.key");
+    const caCertPath = path.join(tmpDir, "ca.pem");
+    const certPath = path.join(tmpDir, "apple_pay.cer");
+    fs.writeFileSync(csrPath, csr);
+
+    execFileSync(
+      "openssl",
+      [
+        "req",
+        "-x509",
+        "-newkey",
+        "ec",
+        "-pkeyopt",
+        "ec_paramgen_curve:prime256v1",
+        "-nodes",
+        "-keyout",
+        caKeyPath,
+        "-out",
+        caCertPath,
+        "-days",
+        "1",
+        "-subj",
+        "/CN=Playwright Test CA",
+      ],
+      { stdio: "ignore" },
+    );
+    execFileSync(
+      "openssl",
+      [
+        "x509",
+        "-req",
+        "-in",
+        csrPath,
+        "-CA",
+        caCertPath,
+        "-CAkey",
+        caKeyPath,
+        "-set_serial",
+        "1",
+        "-days",
+        "1",
+        "-subj",
+        `/UID=${merchantIdentifier}/CN=Merchant ID: ${merchantIdentifier}`,
+        "-outform",
+        "DER",
+        "-out",
+        certPath,
+      ],
+      { stdio: "ignore" },
+    );
+
+    return fs.readFileSync(certPath);
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+}
+
+// Creates an Apple Pay certificate resource end to end (CSR -> signed .cer
+// upload) for the logged-in user's merchant and returns its resource id.
+export async function createApplePayCertificateAPI(
+  page: Page,
+  merchantIdentifier: string,
+): Promise<string> {
+  const { merchantId, profileId } = await ompLineage(page);
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${await getJwtFromLocalStorage(page)}`,
+    "X-Merchant-Id": merchantId,
+    "X-Profile-Id": profileId,
+  };
+
+  const createResponse = await page.request.post(
+    `${API_URL}/hierarchical_resources`,
+    { headers, data: { type: "apple_pay_certificate" } },
+  );
+  if (!createResponse.ok()) {
+    const body = await createResponse.text();
+    throw new Error(
+      `createApplePayCertificateAPI create failed (${createResponse.status()}): ${body}`,
+    );
+  }
+  const resource = (await createResponse.json()) as {
+    id: string;
+    data: { apple_pay_certificate: { csr: string } };
+  };
+
+  const certificate = signApplePayCsr(
+    resource.data.apple_pay_certificate.csr,
+    merchantIdentifier,
+  );
+  const uploadResponse = await page.request.put(
+    `${API_URL}/hierarchical_resources/apple_pay_certificate/${resource.id}`,
+    { headers, data: { certificate: certificate.toString("base64") } },
+  );
+  if (!uploadResponse.ok()) {
+    const body = await uploadResponse.text();
+    throw new Error(
+      `createApplePayCertificateAPI upload failed (${uploadResponse.status()}): ${body}`,
+    );
+  }
+  return resource.id;
 }
 
 export async function safeScrollIntoView(

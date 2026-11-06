@@ -32,6 +32,7 @@ let make = (~previewOnly=false) => {
   let {merchantId, orgId, version} = getCommonSessionDetails()
 
   let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {showSavedViews} = DisplayOptionsContext.useDisplayOptions()
 
   //enablement of open search
   let isOpenSearchEnabled =
@@ -280,7 +281,7 @@ let make = (~previewOnly=false) => {
       </div>
 
     let savedViewsAction =
-      <RenderIf condition={devSavedViews}>
+      <RenderIf condition={devSavedViews && showSavedViews}>
         <SavedViewsComponent version entity=savedViewsEntity />
       </RenderIf>
 
@@ -317,7 +318,7 @@ let make = (~previewOnly=false) => {
       }}
       version
     />
-  }, (searchText, version, isAdvancedView, devSavedViews))
+  }, (searchText, version, isAdvancedView, devSavedViews, showSavedViews))
 
   let tableEntity = isAdvancedView
     ? openSearchOrderEntity(merchantId, orgId, ~devSortEnabled)

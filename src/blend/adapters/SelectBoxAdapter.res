@@ -170,6 +170,7 @@ module BaseDropdown = {
             side=?blendSide
             minMenuWidth={minMenuWidth->Option.getOr(300)}
             maxMenuWidth={maxMenuWidth->Option.getOr(300)}
+            menuFooter=?bottomComponent
           />
         }
       </RenderIf>
@@ -197,6 +198,7 @@ module BaseDropdown = {
             side=?blendSide
             ?minMenuWidth
             ?maxMenuWidth
+            menuFooter=?bottomComponent
           />
         }
       </RenderIf>
@@ -391,6 +393,7 @@ let make = (
   ~onClearAllClick: option<unit => unit>=?,
   ~variant: option<MultiSelectBindings.selectMenuItemVariant>=?,
   ~selectionTagType: option<MultiSelectBindings.selectionTagType>=?,
+  ~enableVirtualization: option<bool>=?,
 ) => {
   let isBlendEnabled = BlendContext.useBlendEnabled()
 
@@ -441,6 +444,9 @@ let make = (
           side=?blendSide
           minMenuWidth={minMenuWidth->Option.getOr(300)}
           maxMenuWidth={maxMenuWidth->Option.getOr(300)}
+          enableSearch=?searchable
+          searchPlaceholder=?searchInputPlaceHolder
+          ?enableVirtualization
         />
       }
     </RenderIf>

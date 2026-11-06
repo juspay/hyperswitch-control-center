@@ -6,6 +6,12 @@ type webhookDetails_v2 = {
   payment_created_enabled: option<bool>,
   payment_succeeded_enabled: option<bool>,
   payment_failed_enabled: option<bool>,
+  payment_statuses_enabled: option<array<string>>,
+  refund_statuses_enabled: option<array<string>>,
+  payout_statuses_enabled: option<array<string>>,
+  dispute_statuses_enabled: option<array<string>>,
+  mandate_statuses_enabled: option<array<string>>,
+  invoice_statuses_enabled: option<array<string>>,
 }
 type authConnectorDetailsType_v2 = {
   authentication_connectors: option<array<JSON.t>>,
@@ -32,7 +38,15 @@ type profileEntityRequestType_v2 = {
   is_network_tokenization_enabled: option<JSON.t>,
   split_txns_enabled: option<JSON.t>,
 }
-type webhookDetailsRequest_v2 = {webhook_url: option<JSON.t>}
+type webhookDetailsRequest_v2 = {
+  webhook_url: option<JSON.t>,
+  payment_statuses_enabled: option<JSON.t>,
+  refund_statuses_enabled: option<JSON.t>,
+  payout_statuses_enabled: option<JSON.t>,
+  dispute_statuses_enabled: option<JSON.t>,
+  mandate_statuses_enabled: option<JSON.t>,
+  invoice_statuses_enabled: option<JSON.t>,
+}
 
 type profileEntity_v2 = {
   profile_id: string,

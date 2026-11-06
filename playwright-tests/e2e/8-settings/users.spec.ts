@@ -566,6 +566,11 @@ test.describe("Users - Details", () => {
 
       await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
+      // Merchant details are fetched after bootstrap, so the value lands a beat
+      // after login. Wait for it rather than reading straight away.
+      await expect(homePage.merchantID.nth(0)).not.toBeEmpty({
+        timeout: 20000,
+      });
       const merchantId = (await homePage.merchantID.nth(0).textContent()) ?? "";
       expect(merchantId, "merchantId should be readable from header").not.toBe(
         "",

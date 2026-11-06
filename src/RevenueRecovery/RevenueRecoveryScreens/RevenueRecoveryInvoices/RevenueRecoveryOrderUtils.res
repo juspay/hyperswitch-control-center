@@ -1,13 +1,14 @@
 let statusVariantMapper: string => RevenueRecoveryOrderTypes.recoveryInvoiceStatus = statusLabel =>
   switch statusLabel->String.toUpperCase {
-  | "SUCCEEDED" | "RECOVERED" => Recovered
+  | "RECOVERED" => Recovered
+  | "SUCCEEDED" => Succeeded
+  | "CANCELLED" => Cancelled
   | "SCHEDULED" => Scheduled
-  | "FAILED" | "TERMINATED" | "CANCELLED" => Terminated
+  | "FAILED" | "TERMINATED" => Terminated
   | "PROCESSING" => Processing
   | "QUEUED" => Queued
-  | "NOPICKED" => NoPicked
   | "MONITORING" => Monitoring
-  | "PARTIALLYCAPTURED" => PartiallyRecovered
+  | "PARTIALLYCAPTURED" | "PARTIALLY_RECOVERED" => PartiallyRecovered
   | "PARTIALLYCAPTUREDANDPROCESSING" => PartiallyCapturedAndProcessing
   | _ => Other(statusLabel)
   }
@@ -15,8 +16,9 @@ let statusVariantMapper: string => RevenueRecoveryOrderTypes.recoveryInvoiceStat
 let statusStringMapper: RevenueRecoveryOrderTypes.recoveryInvoiceStatus => string = statusLabel =>
   switch statusLabel {
   | Recovered => "Recovered"
+  | Succeeded => "Succeeded"
+  | Cancelled => "Cancelled"
   | Scheduled => "Scheduled"
-  | NoPicked => "NoPicked"
   | Processing => "Processing"
   | Terminated => "Terminated"
   | Monitoring => "Monitoring"
@@ -59,3 +61,34 @@ let convertScheduleTimeToUTC = (scheduleTime: string) => {
     scheduleTime
   }
 }
+
+// Invoices in these statuses have no retries left to show
+let finalStatuses: array<RevenueRecoveryOrderTypes.recoveryInvoiceStatus> = [
+  Recovered,
+  Succeeded,
+  Cancelled,
+  Terminated,
+]
+
+let recoveryStatusFilterKey = (#recovery_status: RevenueRecoveryOrderTypes.recoveryFilterKey :> string)
+
+// Statuses shown as count cards above the list
+let recoveryMetricStatuses: array<RevenueRecoveryOrderTypes.recoveryMetricStatus> = [
+  #monitoring,
+  #scheduled,
+  #succeeded,
+  #partially_recovered,
+  #terminated,
+  #cancelled,
+]
+
+let recoveryStatusFilterOptions: array<RevenueRecoveryOrderTypes.recoveryStatusFilterOption> = [
+  #succeeded,
+  #scheduled,
+  #processing,
+  #queued,
+  #monitoring,
+  #terminated,
+  #cancelled,
+  #partially_recovered,
+]

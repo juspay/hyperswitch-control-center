@@ -109,10 +109,17 @@ type colType =
   | UnifiedCode
   | UnifiedMessage
 
+type offerDetailsColType =
+  | AppliedOfferAmount
+  | OfferEngineMerchantId
+  | OfferId
+  | OfferEngineTxnId
+
 type summaryColType =
   | Created
   | NetAmount
   | SurchargeAmount
+  | OfferAmount
   | LastUpdated
   | PaymentId
   | Currency
@@ -283,6 +290,14 @@ type basePaymentListFilter = [
 ]
 
 type frmStatus = [#APPROVE | #REJECT]
+
+type manualUpdateStatus =
+  | @as("succeeded") Succeeded
+  | @as("failed") Failed
+  | @as("partially_captured") PartiallyCaptured
+  | @as("requires_capture") RequiresCapture
+  | @as("partially_authorized_and_requires_capture") PartiallyAuthorizedAndRequiresCapture
+  | @as("partially_captured_and_capturable") PartiallyCapturedAndCapturable
 
 let getSortString = (value: LoadedTable.sortOb) =>
   switch value.sortType {

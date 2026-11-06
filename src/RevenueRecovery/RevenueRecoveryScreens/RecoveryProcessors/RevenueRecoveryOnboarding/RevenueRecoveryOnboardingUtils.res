@@ -1,5 +1,9 @@
 open RevenueRecoveryOnboardingTypes
 
+// Fixed for now, not configurable by the merchant
+let hardDeclineTotalRetries = 0
+let defaultGracePeriodDays = 30
+
 let getMainStepName = step => {
   switch step {
   | #connectProcessor => "Connect Processor"
@@ -27,8 +31,16 @@ let getIcon = step => {
   }
 }
 
+let requiresProcessorReference = billingConnector =>
+  switch billingConnector->ConnectorUtils.getConnectorNameTypeFromString(
+    ~connectorType=ConnectorTypes.BillingProcessor,
+  ) {
+  | ConnectorTypes.BillingProcessor(CUSTOMBILLING) | ConnectorTypes.UnknownConnector(_) => false
+  | _ => true
+  }
+
 open VerticalStepIndicatorTypes
-let getSections = isLiveMode => {
+let getSections = (~isLiveMode, ~billingConnector) => {
   let platformSubsectionsDefaultSteps = [
     {
       id: (#selectAPlatform: revenueRecoverySubsections :> string),
@@ -40,7 +52,7 @@ let getSections = isLiveMode => {
     },
   ]
 
-  if !isLiveMode {
+  if !isLiveMode || billingConnector->requiresProcessorReference {
     platformSubsectionsDefaultSteps->Array.push({
       id: (#processorSetUp: revenueRecoverySubsections :> string),
       name: #processorSetUp->getStepName,
@@ -93,23 +105,23 @@ let defaultStepBilling = {
 }
 
 open VerticalStepIndicatorUtils
-let getNextStep = (currentStep: step, isLiveMode): option<step> => {
-  findNextStep(getSections(isLiveMode), currentStep)
+let getNextStep = (currentStep: step, ~isLiveMode, ~billingConnector): option<step> => {
+  findNextStep(getSections(~isLiveMode, ~billingConnector), currentStep)
 }
 
-let getPreviousStep = (currentStep: step, isLiveMode): option<step> => {
-  findPreviousStep(getSections(isLiveMode), currentStep)
+let getPreviousStep = (currentStep: step, ~isLiveMode, ~billingConnector): option<step> => {
+  findPreviousStep(getSections(~isLiveMode, ~billingConnector), currentStep)
 }
 
-let onNextClick = (currentStep, setNextStep, isLiveMode) => {
-  switch getNextStep(currentStep, isLiveMode) {
+let onNextClick = (currentStep, setNextStep, ~isLiveMode, ~billingConnector) => {
+  switch getNextStep(currentStep, ~isLiveMode, ~billingConnector) {
   | Some(nextStep) => setNextStep(_ => nextStep)
   | None => ()
   }
 }
 
-let onPreviousClick = (currentStep, setNextStep, isLiveMode) => {
-  switch getPreviousStep(currentStep, isLiveMode) {
+let onPreviousClick = (currentStep, setNextStep, ~isLiveMode, ~billingConnector) => {
+  switch getPreviousStep(currentStep, ~isLiveMode, ~billingConnector) {
   | Some(previousStep) => setNextStep(_ => previousStep)
   | None => ()
   }
@@ -148,17 +160,20 @@ module PageWrapper = {
 
 open ConnectorTypes
 let billingConnectorList: array<connectorTypes> = [
-  BillingProcessor(CHARGEBEE),
   BillingProcessor(CUSTOMBILLING),
+  BillingProcessor(CHARGEBEE),
+  BillingProcessor(RECURLY),
+  BillingProcessor(STRIPE_BILLING),
 ]
 
-let prodBillingConnectorList: array<connectorTypes> = [BillingProcessor(CUSTOMBILLING)]
+let prodBillingConnectorList: array<connectorTypes> = [
+  BillingProcessor(CUSTOMBILLING),
+  BillingProcessor(CHARGEBEE),
+  BillingProcessor(RECURLY),
+  BillingProcessor(STRIPE_BILLING),
+]
 
 let billingConnectorProdList: array<BillingProcessorsUtils.optionType> = [
-  {
-    name: "Recurly",
-    icon: "/assets/recurly-logo.png",
-  },
   {
     name: "Recharge",
     icon: "/assets/recharge-logo.png",
@@ -166,10 +181,6 @@ let billingConnectorProdList: array<BillingProcessorsUtils.optionType> = [
   {
     name: "Zoura",
     icon: "/assets/zoura-logo.png",
-  },
-  {
-    name: "Stripe Billing",
-    icon: "/assets/Gateway/STRIPEBILLING.svg",
   },
 ]
 
@@ -224,13 +235,6 @@ let features: array<feature> = [
     iconColor: "text-nd_orange-300",
     title: "ML-Powered Retry Engine",
     description: "Minimizes recurring payment failures using data and machine learning for optimized retries.",
-  },
-  {
-    icon: "nd-settings",
-    bgColor: "bg-nd_purple-200",
-    iconColor: "text-nd_purple-300",
-    title: "Configurable Retry Strategies",
-    description: "Customize recovery plans via dashboard with 20+ parameters.",
   },
   {
     icon: "recovery-home",

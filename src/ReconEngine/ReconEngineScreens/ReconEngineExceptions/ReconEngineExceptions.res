@@ -14,6 +14,7 @@ let make = () => {
   let getAccounts = ReconEngineHooks.useGetAccounts()
   let getReconRuleList = ReconEngineHooks.useGetReconRuleList()
   let mixpanelEvent = MixpanelHook.useSendEvent()
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
 
   let onTitleClick = idx => {
     let url =
@@ -81,10 +82,11 @@ let make = () => {
       <div className="flex flex-row items-center gap-4">
         <PortalCapture name=ReconEngineFilterUtils.globalDateFilterPortalName customStyle="-mt-1" />
         <div className="flex-shrink-0">
-          <Button
+          <ACLButton
             text="Generate Report"
             buttonType=Primary
             buttonSize=Large
+            authorization={userHasAccess(~groupAccess=ReconExceptionsView)}
             buttonState={selectedRule->Option.isSome ? Normal : Disabled}
             onClick={_ => {
               setReportModal(_ => true)

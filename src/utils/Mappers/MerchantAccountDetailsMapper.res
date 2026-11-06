@@ -1,4 +1,16 @@
 open HSwitchSettingTypes
+let getProductAndAccountType = (valuesDict, ~version) => {
+  open LogicUtils
+  let product_type =
+    getString(valuesDict, "product_type", "")->ProductUtils.getProductVariantFromString(~version)
+  let merchant_account_type =
+    getString(valuesDict, "merchant_account_type", "")->OMPSwitchUtils.ompTypeMapper
+  (product_type, merchant_account_type)
+}
+
+let getUserMerchantDetails = (values: JSON.t, ~version=UserInfoTypes.V1) =>
+  values->LogicUtils.getDictFromJsonObject->getProductAndAccountType(~version)
+
 let getMerchantDetails = (values: JSON.t, ~version=UserInfoTypes.V1) => {
   open LogicUtils
   let valuesDict = values->getDictFromJsonObject
@@ -18,6 +30,8 @@ let getMerchantDetails = (values: JSON.t, ~version=UserInfoTypes.V1) => {
 
       info
     })
+
+  let (product_type, merchant_account_type) = valuesDict->getProductAndAccountType(~version)
 
   let payload: merchantPayload = {
     merchant_name: valuesDict->getOptionString("merchant_name"),
@@ -54,14 +68,8 @@ let getMerchantDetails = (values: JSON.t, ~version=UserInfoTypes.V1) => {
       "redirect_to_merchant_with_http_post",
       true,
     ),
-    product_type: getString(
-      valuesDict,
-      "product_type",
-      "",
-    )->ProductUtils.getProductVariantFromString(~version),
-    merchant_account_type: valuesDict
-    ->getString("merchant_account_type", "")
-    ->OMPSwitchUtils.ompTypeMapper,
+    product_type,
+    merchant_account_type,
   }
   payload
 }

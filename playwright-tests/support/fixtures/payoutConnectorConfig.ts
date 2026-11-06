@@ -208,6 +208,23 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
     },
   },
 
+  gotyme_sanlam: {
+    label: "gotyme_sanlam",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "gotyme_sanlam_default",
+      },
+      fieldLabels: ["API Key *", "Profile Id *", "Source verification key"],
+    },
+    paymentSections: {
+      BankTransfer: {
+        label: "Bank Transfer",
+        methods: ["payshap", "payshap_proxy"],
+      },
+    },
+  },
+
   loonio: {
     label: "loonio",
     fields: {
@@ -221,6 +238,27 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
       BankRedirect: {
         label: "Bank Redirect",
         methods: ["interac"],
+      },
+    },
+  },
+
+  mifinity: {
+    label: "mifinity",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "mifinity_default",
+      },
+      fieldLabels: ["key *"],
+    },
+    paymentSections: {
+      Wallet: {
+        label: "Wallet",
+        methods: ["mifinity"],
+      },
+      BankTransfer: {
+        label: "Bank Transfer",
+        methods: ["sepa_bank_transfer"],
       },
     },
   },

@@ -87,7 +87,7 @@ module ClearFilters = {
 let getStrFromJson = (key, val) => {
   switch val->JSON.Classify.classify {
   | String(str) => str
-  | Array(array) => array->Array.length > 0 ? `[${array->Array.joinWithUnsafe(",")}]` : ""
+  | Array(array) => array->Array.length > 0 ? `[${array->UrlFetchUtils.getFilterArrayString}]` : ""
   | Number(num) => key === "offset" ? "0" : num->Float.toInt->Int.toString
   | _ => ""
   }

@@ -1,5 +1,9 @@
 import { test, expect } from "@playwright/test";
-import { generateUniqueEmail } from "../support/helper";
+import {
+  generateUniqueEmail,
+  scrollIntoViewStable,
+  waitForAnimationsToFinish,
+} from "../support/helper";
 import {
   signupUser,
   loginUI,
@@ -138,20 +142,32 @@ test.describe("Visual Testing - Payment Operations", () => {
       maxDiffPixelRatio: 0.01,
     });
 
+    // The Attempts table is its own tab on the payment details page
+    // (ShowOrder.res builds paymentDetailsTabs), so it is not in the DOM while
+    // the events-and-logs tab is selected. Select it before expanding a row.
+    const paymentAttemptsTab =
+      paymentOperations.paymentDetailsTab("Payment Attempts");
+    await paymentAttemptsTab.click();
+    await expect(paymentAttemptsTab).toHaveAttribute("aria-selected", "true");
+
     await paymentOperations.firstAttemptRowExpander.click();
     await expect(paymentOperations.connectorTransactionIdInTable).toBeVisible();
-    await paymentOperations.connectorTransactionIdInTable.scrollIntoViewIfNeeded();
+    await scrollIntoViewStable(
+      paymentOperations.connectorTransactionIdInTable,
+      "center",
+    );
     await expect(page).toHaveScreenshot("payment-attempt-details.png", {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.01,
     });
 
-    await expect(paymentOperations.refundsSectionBlock).toContainText(
-      "Refunds",
-    );
+    // Refunds is also its own tab; the table only renders once it is selected.
+    const refundsTab = paymentOperations.paymentDetailsTab("Refunds");
+    await paymentOperations.paymentDetailsTab("Refunds").click();
+    await expect(refundsTab).toHaveAttribute("aria-selected", "true");
     await paymentOperations.refundCell(1, 1).click();
-    await paymentOperations.refundReasonField.scrollIntoViewIfNeeded();
+    await scrollIntoViewStable(paymentOperations.refundReasonField, "center");
     await expect(page).toHaveScreenshot("payment-refund-details.png", {
       fullPage: true,
       animations: "disabled",
@@ -159,34 +175,43 @@ test.describe("Visual Testing - Payment Operations", () => {
     });
 
     await paymentOperations.customerDetailsSection.click();
-    await paymentOperations
-      .customerEmailTestId("abc@test.com")
-      .nth(3)
-      .scrollIntoViewIfNeeded();
+    await waitForAnimationsToFinish(page);
+    await scrollIntoViewStable(
+      paymentOperations.customerEmailTestId("abc@test.com").nth(3),
+      "center",
+    );
     await expect(page).toHaveScreenshot("payment-customer-details.png", {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.01,
     });
 
-    await paymentOperations.morePaymentDetailsSection.click();
-    await paymentOperations.paymentMethodDetailsSection.scrollIntoViewIfNeeded();
-    await expect(page).toHaveScreenshot("payment-more-payment-details.png", {
-      fullPage: true,
-      animations: "disabled",
-      maxDiffPixelRatio: 0.01,
-    });
-
+    // Payment Method Details is a tab; Payment Metadata is a collapsed
+    // accordion inside it (rendered because createPaymentAPI sends metadata).
+    const paymentMethodDetailsTab = paymentOperations.paymentDetailsTab(
+      "Payment Method Details",
+    );
+    await paymentMethodDetailsTab.click();
+    await expect(paymentMethodDetailsTab).toHaveAttribute(
+      "aria-selected",
+      "true",
+    );
     await paymentOperations.paymentMetadataSection.click();
-    await paymentOperations.frmDetailsSection.scrollIntoViewIfNeeded();
-    await expect(page).toHaveScreenshot("payment-payment-metadata.png", {
+    await waitForAnimationsToFinish(page);
+    await scrollIntoViewStable(paymentOperations.paymentMetadataSection);
+    await expect(page).toHaveScreenshot("payment-method-details.png", {
       fullPage: true,
       animations: "disabled",
       maxDiffPixelRatio: 0.01,
     });
 
-    await paymentOperations.frmDetailsSection.click();
-    await paymentOperations.merchantDecisionField.scrollIntoViewIfNeeded();
+    const frmDetailsTab = paymentOperations.paymentDetailsTab("FRM Details");
+    await frmDetailsTab.click();
+    await expect(frmDetailsTab).toHaveAttribute("aria-selected", "true");
+    await scrollIntoViewStable(
+      paymentOperations.merchantDecisionField,
+      "center",
+    );
     await expect(page).toHaveScreenshot("payment-frm-details.png", {
       fullPage: true,
       animations: "disabled",
@@ -327,7 +352,16 @@ test.describe("Visual Testing - Refund Operations", () => {
 
     await refundOperations.addRefundButton.click();
     await refundOperations.refundAmountInput.fill("12.34");
+    // The refund row is stored as Pending until the dummy connector replies
+    // (after its refund_duration sleep) and flips it to Succeeded. Wait for
+    // the create call to finish so the list always shows the final status.
+    const refundResponse = page.waitForResponse(
+      (res) =>
+        res.request().method() === "POST" &&
+        new URL(res.url()).pathname.endsWith("/refunds"),
+    );
     await refundOperations.initiateRefundButton.click();
+    await refundResponse;
 
     await homePage.refundOperations.click();
 
@@ -345,7 +379,7 @@ test.describe("Visual Testing - Refund Operations", () => {
       maxDiffPixelRatio: 0.01,
     });
 
-    await refundOperations.paymentSectionText.scrollIntoViewIfNeeded();
+    await scrollIntoViewStable(refundOperations.paymentSectionText);
     await expect(page).toHaveScreenshot("refund-details-2.png", {
       fullPage: true,
       animations: "disabled",
@@ -421,7 +455,8 @@ test.describe("Visual Testing - Payout Operations", () => {
     });
 
     await paymentOperations.customerDetailsSection.click();
-    await paymentOperations.payoutMethodText.scrollIntoViewIfNeeded();
+    await expect(paymentOperations.payoutMethodText).toBeVisible();
+    await scrollIntoViewStable(paymentOperations.customerDetailsSection);
 
     await expect(page).toHaveScreenshot("payout-details-2.png", {
       fullPage: true,
@@ -430,7 +465,8 @@ test.describe("Visual Testing - Payout Operations", () => {
     });
 
     await paymentOperations.morePayoutDetailsSection.click();
-    await paymentOperations.payoutErrorCodeText.scrollIntoViewIfNeeded();
+    await expect(paymentOperations.payoutErrorCodeText).toBeVisible();
+    await scrollIntoViewStable(paymentOperations.morePayoutDetailsSection);
 
     await expect(page).toHaveScreenshot("payout-details-3.png", {
       fullPage: true,
@@ -440,8 +476,8 @@ test.describe("Visual Testing - Payout Operations", () => {
 
     await paymentOperations.payoutMethodDetailsSection.click();
     await paymentOperations.payoutMetadataSection.click();
-
-    await paymentOperations.payoutMetadataJsonText.scrollIntoViewIfNeeded();
+    await expect(paymentOperations.payoutMetadataJsonText).toBeVisible();
+    await scrollIntoViewStable(paymentOperations.payoutMetadataSection);
     await expect(page).toHaveScreenshot("payout-details-4.png", {
       fullPage: true,
       animations: "disabled",

@@ -927,8 +927,7 @@ let make = (
   let dataId = title->String.split("-")->Array.get(0)->Option.getOr("")
   <AddDataAttributes attributes=[("data-loaded-table", dataId)]>
     <div className={`w-full ${loadedTableParentClass}`}>
-      <div className=addDataAttributesClass style={zIndex: "2"}>
-        //removed "sticky" -> to be tested with master
+      <div className=addDataAttributesClass>
         <div
           className={`flex flex-row justify-between items-center` ++ (
             hideTitle ? "" : ` mt-4 mb-2`

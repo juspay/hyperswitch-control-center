@@ -92,7 +92,8 @@ type seriesObj = {
 type series = array<seriesObj>
 
 type info = {index: int}
-type point = {color: string, x: string, y: float, point: info, key: string}
+type pointSeries = {name: string}
+type point = {color: string, x: string, y: float, point: info, key: string, series?: pointSeries}
 type pointFormatter = {points: array<point>}
 type yAxisFormatter = {value: int}
 

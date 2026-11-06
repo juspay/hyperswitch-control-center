@@ -54,6 +54,13 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
     }
   }, [connector])
 
+  let isPayViaSingleUseTokenSupported = React.useMemo(() => {
+    connector->isNonEmptyString &&
+      Window.getConnectorConfig(connector)
+      ->getDictFromJsonObject
+      ->ConnectorUtils.isPayViaSingleUseTokenInDecryptFlow(~paymentMethodType=#google_pay)
+  }, [connector])
+
   let setIntegrationType = () => {
     if connector->isNonEmptyString {
       setGooglePayIntegrationType(_ => integrationType->getGooglePayIntegrationTypeFromName)
@@ -88,6 +95,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
         connector
         update
         closeAccordionFn
+        isPayViaSingleUseTokenSupported
       />
     | Configure =>
       switch googlePayIntegrationType {
@@ -95,11 +103,27 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
         <GPayPaymentGatewayFlow
           googlePayFields googlePayIntegrationType closeModal connector closeAccordionFn update
         />
-      | #direct =>
+      | #direct
+      | #internal_gateway =>
         <GPayDirectFlow
-          googlePayFields googlePayIntegrationType closeModal connector closeAccordionFn update
+          googlePayFields
+          googlePayIntegrationType
+          setGooglePayIntegrationType
+          closeModal
+          connector
+          closeAccordionFn
+          update
         />
-      | #predecrypt => React.null
+      | #predecrypt =>
+        <CommonConnectorHelper.PreDecryptedTokenConfirm
+          description="Enable Google Pay by securely decrypting the Google Pay payment token on your end."
+          onCancel=closeModal
+          onProceed={() => {
+            let _ = update(predecryptMetadata)
+            closeAccordionFn()
+          }}>
+          <PayViaSingleUseTokenField connector fieldWrapperClass="flex flex-col" />
+        </CommonConnectorHelper.PreDecryptedTokenConfirm>
       }
     }}
   </PageLoaderWrapper>

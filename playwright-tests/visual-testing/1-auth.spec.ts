@@ -154,10 +154,13 @@ test.describe("Visual Testing - Auth Pages", () => {
     );
     await expect(signinPage.skip2FAButton).toBeVisible();
     await expect(signinPage.enable2FA).toBeVisible();
+    // QR encodes a per-user TOTP secret, so it differs on every run.
+    await expect(signinPage.qrCode2FA).toBeVisible();
 
     await expect(page).toHaveScreenshot("auth-2fa-setup-new-user-page.png", {
       fullPage: true,
       animations: "disabled",
+      mask: [signinPage.qrCode2FA],
     });
   });
 

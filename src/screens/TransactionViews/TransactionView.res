@@ -53,6 +53,9 @@ let make = (
   let {updateExistingKeys, removeKeys, filterValueJson, filterValue, filterKeys, setfilterKeys} =
     FilterContext.filterContext->React.useContext
   let {devClickhouseAggregate} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
+  let isClickhouseAggregateEnabled =
+    devClickhouseAggregate && userHasResourceAccess(~resourceAccess=Analytics) === Access
   let (aggregateResponse, setAggregateResponse) = React.useState(_ =>
     Dict.make()->JSON.Encode.object
   )
@@ -99,11 +102,11 @@ let make = (
   let aggregateRequestKey = React.useMemo(() => {
     [
       (transactionEntity :> string),
-      devClickhouseAggregate->getStringFromBool,
+      isClickhouseAggregateEnabled->getStringFromBool,
       startTime,
       endTime,
     ]->Array.joinWith(":")
-  }, (transactionEntity, devClickhouseAggregate, startTime, endTime))
+  }, (transactionEntity, isClickhouseAggregateEnabled, startTime, endTime))
 
   let loadAggregateCounts = async () => {
     try {
@@ -118,7 +121,7 @@ let make = (
         let response = await updateDetails(url, body, Post)
         setAggregateResponse(_ => response->sankeyResponseToStatusWithCount)
       } else {
-        switch (devClickhouseAggregate, getClickhouseAggregateMetric(entity)) {
+        switch (isClickhouseAggregateEnabled, getClickhouseAggregateMetric(entity)) {
         | (true, Some(metricConfig)) =>
           let url = buildAggregateMetricsUrl(~metricConfig, ~transactionEntity)
           let body = buildAggregateMetricsBody(

@@ -31,69 +31,6 @@ module ConnectorConnectSummary = {
   }
 }
 
-module HardDeclineRetryConfiguration = {
-  open Typography
-  open LocalStorage
-
-  @react.component
-  let make = () => {
-    let (budgetValue, setBudgetValue) = React.useState(_ => 1600)
-
-    React.useEffect(() => {
-      setItem("hard_decline_budget", budgetValue->Int.toString)
-      None
-    }, [])
-
-    let input: ReactFinalForm.fieldRenderPropsInput = {
-      name: "hard_decline_budget",
-      value: budgetValue->JSON.Encode.int,
-      onChange: ev => {
-        let value = ev->Identity.formReactEventToString
-        setBudgetValue(_ => value->Int.fromString->Option.getOr(0))
-        setItem("hard_decline_budget", value)
-      },
-      onBlur: _ => (),
-      onFocus: _ => (),
-      checked: false,
-    }
-
-    <div className="flex flex-col gap-5">
-      <div className="bg-nd_gray-50 border border-nd_br_gray-200 rounded-lg p-5">
-        <div className="flex items-center gap-2 mb-3">
-          <Icon name="nd_light_bulb" size=20 className="text-nd_gray-600" />
-          <div className={heading.xs.semibold}> {"Hard Declines Budget"->React.string} </div>
-        </div>
-        <div className={`${body.md.regular} text-nd_gray-700 mb-4`}>
-          {"Some card declines (e.g. lost/stolen or AVS mismatch) are still salvageable—but they need extra 'retry power' like switching gateways or using backup networks."->React.string}
-        </div>
-        <div className="flex flex-col gap-3">
-          <div className="flex items-start gap-2">
-            <Icon name="check-black" size=16 className="text-nd_green-400 mt-0.5 flex-shrink-0" />
-            <div className={`${body.md.regular} text-nd_gray-700`}>
-              {"Pick how much you're willing to spend each month (e.g. $500)."->React.string}
-            </div>
-          </div>
-          <div className="flex items-start gap-2">
-            <Icon name="check-black" size=16 className="text-nd_green-400 mt-0.5 flex-shrink-0" />
-            <div className={`${body.md.regular} text-nd_gray-700`}>
-              {"We only use it when our system sees a >50% chance of success."->React.string}
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="flex flex-col gap-2">
-        <div className={`${body.lg.medium} text-nd_gray-700`}>
-          {"Suggested Budget"->React.string}
-        </div>
-        {InputFields.numericTextInput(
-          ~customStyle="w-full border border-nd_br_gray-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-0.5 focus:ring-nd_primary_blue-400 focus:border-nd_primary_blue-400",
-          ~removeLeadingZeroes=true,
-        )(~input, ~placeholder="$ 1600")}
-      </div>
-    </div>
-  }
-}
-
 @react.component
 let make = (
   ~initialValues,
@@ -119,10 +56,10 @@ let make = (
             </div>
             <div>
               <div className="text-nd_gray-700 font-medium flex gap-1 w-fit align-center">
-                {"Start Retry After"->React.string}
+                {"Start of recovery"->React.string}
                 <span className="text-red-900 mb-0.5"> {"*"->React.string} </span>
                 <ToolTip
-                  description="Sets the number of failed attempts that will be monitored before initiating retry scheduling"
+                  description="After how many external retries (retries done by the billing engine) should the recovery process start"
                   toolTipFor={<div className="cursor-pointer">
                     <Icon name="info-vacant" size=13 />
                   </div>}
@@ -144,10 +81,10 @@ let make = (
             </div>
             <div>
               <div className="text-nd_gray-700 font-medium flex gap-1 w-fit">
-                {"Max Retry Attempts"->React.string}
+                {"Total retries"->React.string}
                 <span className="text-red-900 mb-0.5"> {"*"->React.string} </span>
                 <ToolTip
-                  description="Defines the maximum number of retry attempts before the system stops trying."
+                  description="The total number of retries, including external retries, that should be done within the grace period"
                   toolTipFor={<div className="cursor-pointer">
                     <Icon name="info-vacant" size=13 />
                   </div>}
@@ -167,11 +104,28 @@ let make = (
                 />
               </div>
             </div>
-            <div className="flex flex-col gap-5 mt-3">
-              <div className={heading.sm.semibold}>
-                {"Hard decline retry Configuration"->React.string}
+            <div className="flex flex-col gap-1">
+              <div className={`text-nd_gray-700 flex gap-1 w-fit ${body.md.medium}`}>
+                {"Grace period (days)"->React.string}
+                <span className="text-red-900 mb-0.5"> {"*"->React.string} </span>
+                <ToolTip
+                  description="The number of days within which the retries are performed for an invoice"
+                  toolTipFor={<div className="cursor-pointer">
+                    <Icon name="info-vacant" size=13 />
+                  </div>}
+                  toolTipPosition=ToolTip.Top
+                />
               </div>
-              <HardDeclineRetryConfiguration />
+              <FormRenderer.FieldRenderer
+                labelClass="font-semibold !text-hyperswitch_black"
+                field={FormRenderer.makeFieldInfo(
+                  ~label="",
+                  ~name="feature_metadata.revenue_recovery.grace_period_days",
+                  ~toolTipPosition=Right,
+                  ~customInput=InputFields.numericTextInput(~customStyle="border rounded-xl"),
+                  ~placeholder="ex 30",
+                )}
+              />
             </div>
           </div>
           <RenderIf

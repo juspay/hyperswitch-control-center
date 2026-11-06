@@ -38,6 +38,10 @@ let getStatusBadgeColor = (status: string) => {
       "Recovered successfully",
     )
   | #FAILURE => ("bg-nd_red-50 text-nd_red-500 border border-nd_red-200 ", "Failed")
+  | #PARTIAL_CHARGED => (
+      "bg-nd_yellow-50 text-nd_yellow-700 border border-nd_yellow-300",
+      "Partially recovered",
+    )
   | _ => ("bg-nd_orange-150 text-nd_orange-300 border border-nd_orange-300", "Pending")
   }
 }
@@ -46,6 +50,7 @@ let getTimelineDotColor = (status: string) => {
   switch status->HSwitchOrderUtils.paymentAttemptStatusVariantMapper {
   | #CHARGED => "bg-nd_green-500"
   | #FAILURE => "bg-nd_red-500"
+  | #PARTIAL_CHARGED => "bg-nd_yellow-500"
   | _ => "bg-nd_orange-300"
   }
 }

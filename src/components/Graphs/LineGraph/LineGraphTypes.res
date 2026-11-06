@@ -52,7 +52,7 @@ type plotSeries = {states: states}
 type marker = {
   ...enabled,
 }
-type line = {marker: marker}
+type line = {marker: marker, connectNulls?: bool}
 type plotOptions = {line: line, series: plotSeries}
 type labels = {
   formatter: pointFormatter => string,

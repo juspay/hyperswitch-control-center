@@ -25,7 +25,11 @@ let make = (
         | ThreeDsAuthenticator => Window.getAuthenticationConnectorConfig(connector)
         | PMAuthenticationProcessor => Window.getPMAuthenticationProcessorConfig(connector)
         | TaxProcessor => Window.getTaxProcessorConfig(connector)
-        | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connector)
+        | BillingProcessor =>
+          BillingProcessorsUtils.getConnectorConfig(
+            connector,
+            ~wasmConfig=Window.getBillingConnectorConfig(connector->LogicUtils.capitalizeString),
+          )
         | VaultProcessor => Window.getConnectorConfig(connector)
         | SurchargeProcessor => Window.getSurchargeProcessorConfig(connector)
         | FRMPlayer => JSON.Encode.null

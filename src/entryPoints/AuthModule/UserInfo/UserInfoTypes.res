@@ -1,5 +1,6 @@
 type entity = [#Tenant | #Organization | #Merchant | #Profile]
 type version = V1 | V2
+type offerEngineCredentialSource = [#None | #Application | #Merchant]
 
 /*
  This type should always have the common info that is required for both embeddable and normal user
@@ -21,6 +22,7 @@ type userInfo = {
   verificationDaysLeft: option<int>,
   userEntity: entity,
   themeId: string,
+  offerEngineCredentialSource: offerEngineCredentialSource,
   mutable transactionEntity: entity,
   mutable analyticsEntity: entity,
   ...commonInfoType,

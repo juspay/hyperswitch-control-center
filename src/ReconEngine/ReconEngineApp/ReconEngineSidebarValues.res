@@ -4,7 +4,6 @@ open UserManagementTypes
 let reconEngineSidebars = (
   ~userHasResourceAccess: (~resourceAccess: resourceAccessType) => CommonAuthTypes.authorization,
   ~userHasAccess: (~groupAccess: groupAccessType) => CommonAuthTypes.authorization,
-  ~isReconEnginePipelinesEnabled: bool,
 ) => {
   let reconOverview = Link({
     name: "Overview",
@@ -73,11 +72,8 @@ let reconEngineSidebars = (
     Heading({name: "Monitor"}),
     reconTransactions,
     reconTransformedEntries,
+    reconPipelines,
   ]
-
-  if isReconEnginePipelinesEnabled {
-    sidebars->Array.push(reconPipelines)
-  }
 
   sidebars->Array.push(Heading({name: "Configure"}))
   sidebars->Array.push(reconRuleCreation)

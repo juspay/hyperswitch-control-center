@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
 
 export class PaymentSettings {
   readonly page: Page;
@@ -34,6 +34,13 @@ export class PaymentSettings {
     return this.page.locator("text=Payment Behaviour");
   }
 
+  get webhookConfigurationTab(): Locator {
+    return this.page.getByRole("tab", {
+      name: "Webhook Configuration",
+      exact: true,
+    });
+  }
+
   get threeDSTab(): Locator {
     return this.page.locator("text=3DS");
   }
@@ -48,6 +55,16 @@ export class PaymentSettings {
 
   get paymentLinkTab(): Locator {
     return this.page.getByText("Payment Link", { exact: true });
+  }
+
+  get blockListTab(): Locator {
+    return this.page.getByRole("tab", { name: "Block List", exact: true });
+  }
+
+  paymentMethodBlockingAccordion(label: string): Locator {
+    return this.page.getByRole("button").filter({
+      has: this.page.getByText(label, { exact: true }),
+    });
   }
 
   get vaultTab(): Locator {
@@ -121,6 +138,83 @@ export class PaymentSettings {
     return this.page.getByPlaceholder("Enter Webhook URL");
   }
 
+  // Webhook Configuration Tab Elements
+  get webhookConfigurationHeading(): Locator {
+    return this.page.getByText("Event Configuration", { exact: true });
+  }
+
+  webhookEventClassAccordion(label: string): Locator {
+    return this.page.getByRole("button").filter({
+      has: this.page.getByText(label, { exact: true }),
+    });
+  }
+
+  webhookStatusesDropdown(resourceLabel: string): Locator {
+    return this.page.getByRole("button", {
+      name: `Select ${resourceLabel} Statuses`,
+    });
+  }
+
+  get webhookUrlError(): Locator {
+    return this.page.getByText("Please Enter Valid Webhook URL");
+  }
+
+  get failedToUpdateToast(): Locator {
+    return this.page.locator('[data-id="Failed to update"]');
+  }
+
+  async selectWebhookStatuses(
+    eventClass: string,
+    resourceLabel: string,
+    statusLabels: string[],
+  ): Promise<void> {
+    await this.webhookEventClassAccordion(eventClass).click();
+    await this.webhookStatusesDropdown(resourceLabel).click();
+    for (const label of statusLabels) {
+      await this.dropdownSearchInput.fill(label);
+      await this.dropdownOptionByLabel(label).click();
+    }
+    await this.page.keyboard.press("Escape");
+    await expect(this.page.getByRole("listbox")).toHaveCount(0);
+    await this.webhookEventClassAccordion(eventClass).click();
+    // Wait for the collapse so the next class's dropdown is the only match.
+    await expect(this.webhookStatusesDropdown(resourceLabel)).toHaveCount(0);
+  }
+
+  // Account Updater Section
+  get accountUpdaterHeading(): Locator {
+    return this.page.getByText("Account Updater", { exact: true });
+  }
+
+  get accountUpdaterSection(): Locator {
+    return this.page
+      .locator("div")
+      .filter({ has: this.accountUpdaterHeading })
+      .filter({
+        has: this.page.getByRole("link", { name: "support.global@juspay.io" }),
+      })
+      .last();
+  }
+
+  get accountUpdaterDescription(): Locator {
+    return this.accountUpdaterSection.getByText(
+      /Account Updater keeps stored cards current/,
+    );
+  }
+
+  get accountUpdaterSupportEmailLink(): Locator {
+    return this.accountUpdaterSection.getByRole("link", {
+      name: "support.global@juspay.io",
+    });
+  }
+
+  accountUpdaterNetworkIcon(gateway: "VISA" | "MASTERCARD"): Locator {
+    return this.accountUpdaterSection.getByRole("img", {
+      name: gateway,
+      exact: true,
+    });
+  }
+
   get merchantCategoryCodeDropdown(): Locator {
     return this.page.getByRole("button", { name: "Select Option" });
   }
@@ -147,6 +241,52 @@ export class PaymentSettings {
       })
       .last()
       .getByRole("button", { name: "Select Card Types" });
+  }
+
+  // Scoped to visible wrappers: every accordion (Card, Apple Pay, Google Pay)
+  // renders the same field labels, so only the expanded one should match.
+  paymentMethodBlockingField(label: string): Locator {
+    return this.page
+      .locator("[data-component-field-wrapper]")
+      .filter({ has: this.page.locator(`[data-form-label="${label}"]`) })
+      .filter({ visible: true });
+  }
+
+  paymentMethodBlockingDropdown(label: string): Locator {
+    return this.paymentMethodBlockingField(label).getByRole("button").first();
+  }
+
+  paymentMethodBlockingToggle(label: string): Locator {
+    return this.paymentMethodBlockingField(label)
+      .locator("[data-bool-value]")
+      .first();
+  }
+
+  dropdownOptionByLabel(label: string): Locator {
+    return this.page.getByRole("option", { name: label, exact: true });
+  }
+
+  dropdownOptionCheckbox(label: string): Locator {
+    return this.dropdownOptionByLabel(label).getByRole("checkbox");
+  }
+
+  get dropdownSearchInput(): Locator {
+    return this.page.getByRole("searchbox", { name: "Search options..." });
+  }
+
+  async selectPaymentMethodBlockingOption(
+    fieldLabel: string,
+    optionLabel: string,
+    { search = false }: { search?: boolean } = {},
+  ): Promise<void> {
+    await this.paymentMethodBlockingDropdown(fieldLabel).click();
+    if (search) {
+      await this.dropdownSearchInput.fill(optionLabel);
+    }
+    await this.dropdownOptionByLabel(optionLabel).click();
+    await this.page.keyboard.press("Escape");
+    // Wait for the close animation so the next dropdown's listbox is unique.
+    await expect(this.page.getByRole("listbox")).toHaveCount(0);
   }
 
   get maxAutoRetriesInput(): Locator {
@@ -425,6 +565,7 @@ export class PaymentSettings {
   async clickTab(
     tabName:
       | "paymentBehaviour"
+      | "webhookConfiguration"
       | "3ds"
       | "customHeaders"
       | "metadataHeaders"
@@ -432,6 +573,7 @@ export class PaymentSettings {
   ): Promise<void> {
     const tabs: Record<string, Locator> = {
       paymentBehaviour: this.paymentBehaviourTab,
+      webhookConfiguration: this.webhookConfigurationTab,
       "3ds": this.threeDSTab,
       customHeaders: this.customHeadersTab,
       metadataHeaders: this.metadataHeadersTab,

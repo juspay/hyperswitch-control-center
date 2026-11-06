@@ -25,6 +25,11 @@ let businessProfileFromIdAtomInterface = Recoil.atom(
 
 let themeListAtom: Recoil.recoilAtom<JSON.t> = Recoil.atom("themeListAtom", JSON.Encode.null)
 
+let decisionEngineCutoverAtom: Recoil.recoilAtom<option<(string, option<bool>)>> = Recoil.atom(
+  "decisionEngineCutoverAtom",
+  None,
+)
+
 let enumVariantAtom = Recoil.atom("enumVariantDetails", "")
 
 let featureFlagAtom = FeatureFlagAtom.featureFlagAtom

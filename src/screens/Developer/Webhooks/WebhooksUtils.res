@@ -158,17 +158,6 @@ let itemToObjectMapperAttemptsTable: dict<JSON.t> => attemptTable = dict => {
 
 let (startTimeFilterKey, endTimeFilterKey) = ("start_time", "end_time")
 
-let getAllowedDateRange = {
-  let endDate = Date.now()->Js.Date.fromFloat->DateTimeUtils.toUtc->DayJs.getDayJsForJsDate //->Date.toISOString->JSON.Encode.string
-  let startDate = endDate.subtract(3, "day")
-
-  let dateObject: Calendar.dateObj = {
-    startDate: startDate.toString(),
-    endDate: endDate.toString(),
-  }
-  dateObject
-}
-
 let initialFixedFilter = () => [
   (
     {
@@ -197,7 +186,6 @@ let initialFixedFilter = () => [
           ~numMonths=2,
           ~disableApply=false,
           ~dateRangeLimit=3,
-          ~allowedDateRange=getAllowedDateRange,
         ),
         ~inputFields=[],
         ~isRequired=false,

@@ -153,6 +153,7 @@ module ModalOverlay = {
     ~isBackdropBlurReq=true,
     ~addAttributeId="",
     ~alignModal,
+    ~zIndexClass="z-40",
   ) => {
     let isMobileView = MatchMedia.useMatchMedia("(max-width: 700px)")
     let mobileClass = isMobileView ? "flex flex-col " : ""
@@ -167,8 +168,6 @@ module ModalOverlay = {
           | None => ""
           }
         : `:${addAttributeId}`
-
-    let zIndexClass = "z-40"
 
     <AddDataAttributes attributes=[("data-component", `modal` ++ attributeId)]>
       {noBackDrop
@@ -226,10 +225,12 @@ let make = (
   ~customIcon=None,
   ~alignModal="justify-end",
   ~modalHeaderIconSize=35,
+  ~zIndexClass="z-40",
   ~modalDescriptionClass="",
 ) => {
   let showBorderBottom = borderBottom
   let _ = revealFrom
+  let modalTarget = FullPageModalContext.useModalTarget(~showModal)
 
   let headerTextClass = headerTextClass->getHeaderTextClass
 
@@ -283,17 +284,7 @@ let make = (
 
   let animationClass = showModal->getAnimationClass
 
-  <ModalOverlay
-    showModal
-    handleOverlayClick
-    paddingClass
-    modalHeading
-    modalPosition
-    noBackDrop
-    isBackdropBlurReq
-    alignModal
-    addAttributeId>
-    // <Reveal showReveal=showModal revealFrom>
+  let modalContent =
     <ModalContent
       handleContainerClick
       bgClass
@@ -341,6 +332,25 @@ let make = (
         React.null
       }}
     </ModalContent>
-    // </Reveal>
-  </ModalOverlay>
+
+  let modalWithOverlay =
+    <ModalOverlay
+      showModal
+      handleOverlayClick
+      paddingClass
+      modalHeading
+      modalPosition
+      noBackDrop
+      isBackdropBlurReq
+      alignModal
+      addAttributeId
+      zIndexClass>
+      modalContent
+    </ModalOverlay>
+
+  switch modalTarget {
+  | Inline => modalWithOverlay
+  | Waiting => React.null
+  | Portal(root) => ReactDOM.createPortal(modalWithOverlay, root)
+  }
 }
