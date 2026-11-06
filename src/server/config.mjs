@@ -224,18 +224,14 @@ const getRequestBody = (req) => {
     }
     let body = "";
     let receivedBytes = 0;
-    let isTooLarge = false;
     req.on("data", (chunk) => {
-      if (isTooLarge) return;
       receivedBytes += chunk.length;
       if (receivedBytes > MAX_REQUEST_BODY_BYTES) {
-        isTooLarge = true;
         return reject(tooLargeError);
       }
       body += chunk.toString();
     });
     req.on("end", () => {
-      if (isTooLarge) return;
       try {
         resolve(JSON.parse(body));
       } catch (err) {
@@ -271,7 +267,7 @@ const merchantConfigHandler = async (
     if (process.env.NODE_ENV === "development") {
       console.log(error);
     }
-    if (error.statusCode === 413 && !res.headersSent) {
+    if (error.statusCode === 413) {
       console.error(error.message);
       res.writeHead(413, { "Content-Type": "text/plain", Connection: "close" });
       res.end("Payload Too Large");
