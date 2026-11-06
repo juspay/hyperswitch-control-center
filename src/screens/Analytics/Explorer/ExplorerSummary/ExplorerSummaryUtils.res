@@ -82,18 +82,21 @@ let getRateSplitLine = (context: chartContext, ~by) => {
   }
 }
 
-let getAmountSplitLine = (context: chartContext, ~by) => {
+let getTotalSplitLine = (context: chartContext, ~by) => {
   let {selection, dataset} = context
   let {source, measure} = selection
   let (counts, _) = dataset->getMeasureCounts(measure)
-  let top = context->getGroupsByMeasure->getValueFromArray(0, Dict.make()->groupItemToObjMapper)
-  let value = formatValue(source, measure, top.current, ~currency=dataset.amountCurrency)
-  measure == #avg_ticket
-    ? `By ${by}, ${context->groupLabel(top)} is the highest at ${value}.`
-    : `By ${by}, ${context->groupLabel(top)} is the largest at ${value}, ${calculatePercentage(
-          getMeasureValue(source, measure, top.current),
-          getMeasureValue(source, measure, counts),
-        )->formatPercentage} of the ${isAmount(measure) ? "total amount" : "total"}.`
+  switch context->getGroupsByMeasure->Array.filter(isRecordedGroup)->Array.get(0) {
+  | Some(top) =>
+    let value = formatValue(source, measure, top.current, ~currency=dataset.amountCurrency)
+    measure == #avg_ticket
+      ? `By ${by}, ${context->groupLabel(top)} is the highest at ${value}.`
+      : `By ${by}, ${context->groupLabel(top)} is the largest at ${value}, ${calculatePercentage(
+            getMeasureValue(source, measure, top.current),
+            getMeasureValue(source, measure, counts),
+          )->formatPercentage} of the ${isAmount(measure) ? "total amount" : "total"}.`
+  | None => ""
+  }
 }
 
 let getSplitLine = (context: chartContext) => {
@@ -105,7 +108,7 @@ let getSplitLine = (context: chartContext) => {
   } else {
     let by =
       split->Array.map(key => dimensionLabel(key)->String.toLowerCase)->Array.joinWith(" and ")
-    isRate(measure) ? context->getRateSplitLine(~by) : context->getAmountSplitLine(~by)
+    isRate(measure) ? context->getRateSplitLine(~by) : context->getTotalSplitLine(~by)
   }
 }
 
