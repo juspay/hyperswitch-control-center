@@ -637,7 +637,7 @@ let make = (
   let {email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
   let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
   let (exploredModules, unexploredModules) = useGetSidebarProductModules()
-  let {devModularityV2, devSidebarV2, devTheme, devUsers} =
+  let {devSidebarV2, devTheme, devUsers} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
   let (openItem, setOpenItem) = React.useState(_ => "")
@@ -843,7 +843,7 @@ let make = (
               style={height: `calc(100vh - ${verticalOffset})`}>
               <style> {sidebarScrollbarCss->React.string} </style>
               <div className="p-3 pt-0">
-                <RenderIf condition={devModularityV2 && exploredSidebars->Array.length > 0}>
+                <RenderIf condition={exploredSidebars->Array.length > 0}>
                   <div className="flex flex-col gap-2 mb-2">
                     <Link to_={GlobalVars.appendDashboardPath(~url="/v2/home")}>
                       <div
