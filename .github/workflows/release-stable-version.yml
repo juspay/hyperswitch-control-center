@@ -93,7 +93,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Hotfix tags are cut from hotfix branches, so only regular tags must be on `main`
       - name: Check if the tag is on main
         shell: bash
         env:
