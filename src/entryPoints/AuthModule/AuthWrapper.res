@@ -76,9 +76,6 @@ let make = (~children) => {
     open CommonAuthUtils
     try {
       let tokenFromUrl = url.search->getDictFromUrlSearchParams->Dict.get("token")
-      if tokenFromUrl->Option.isSome {
-        Window.History.replaceState(Nullable.null, "", Window.Location.pathName)
-      }
       let url = getURL(~entityName=V1(USERS), ~userType=#FROM_EMAIL, ~methodType=Post)
       switch tokenFromUrl {
       | Some(token) => {
