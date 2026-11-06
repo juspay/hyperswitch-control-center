@@ -30,6 +30,175 @@ module EditSectionHeader = {
   }
 }
 
+module RecoveryApiKeysTable = {
+  @react.component
+  let make = () => {
+    <div className="px-2">
+      <KeyManagementHelper.ApiKeysTable
+        dataNotFoundComponent={<div className="p-1">
+          <div
+            className={`h-56 -my-1 -mx-2 border-2 flex justify-center items-center border-dashed opacity-70 rounded-lg p-5 m-7`}>
+            {"No API Keys Available"->React.string}
+          </div>
+        </div>}
+      />
+    </div>
+  }
+}
+
+// The external model keeps its limits on the profile, as it has no billing connector to hold them
+module CancelEditButton = {
+  @react.component
+  let make = (~initialValues, ~onCancel) => {
+    let form = ReactFinalForm.useForm()
+    <Button
+      text="Cancel"
+      onClick={_ => {
+        form.reset(initialValues->Nullable.make)
+        onCancel()
+      }}
+      buttonType={Secondary}
+      buttonSize={Small}
+      customButtonStyle="w-fit"
+    />
+  }
+}
+
+module ProfileRetriesConfiguration = {
+  open LogicUtils
+  open RevenueRecoveryProfileUtils
+  @react.component
+  let make = (~retryConfig, ~onProfileSaved) => {
+    let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile(~version=V2)
+    let showToast = ToastAdapter.useShowToast()
+    let (isEditMode, setIsEditMode) = React.useState(_ => false)
+    let initialValues = React.useMemo(() => getRetryConfigInitialValues(retryConfig), [retryConfig])
+    let savedConfig = retryConfig->Option.getOr(getDefaultRetryConfig())
+    let savedMode = RevenueRecoveryProfileHelper.useSavedRetryMode()
+    let (selectedMode, setSelectedMode) = React.useState(_ => savedMode)
+    let confirmModeChange = RevenueRecoveryProfileHelper.useConfirmModeChange()
+
+    let startEditing = () => {
+      setSelectedMode(_ => savedMode)
+      setIsEditMode(_ => true)
+    }
+
+    let save = async values => {
+      try {
+        let body = values->getDictFromJsonObject->Dict.copy
+        if selectedMode != savedMode {
+          body->Dict.set(
+            retryAlgorithmKey,
+            selectedMode->getRetryAlgorithmValue->JSON.Encode.string,
+          )
+        }
+        let response = await updateBusinessProfile(~body=body->JSON.Encode.object)
+        onProfileSaved(response->mapJsonToRecoveryProfile)
+        setIsEditMode(_ => false)
+        showToast(~message="Retries configuration updated", ~toastType=ToastState.ToastSuccess)
+      } catch {
+      // The update hook has already shown the error toast
+      | _ => ()
+      }
+    }
+
+    let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
+      if selectedMode != savedMode {
+        confirmModeChange(~mode=selectedMode, ~onConfirm=() => save(values)->ignore)
+      } else {
+        await save(values)
+      }
+      Nullable.null
+    }
+
+    let renderValue = (~label, ~value, ~hint=?) =>
+      <div className="flex flex-col gap-2">
+        <div className="flex gap-2 items-center">
+          <h4 className="text-nd_gray-400"> {label->React.string} </h4>
+          {switch hint {
+          | Some(description) => <RevenueRecoveryProfileHelper.InfoHint description />
+          | None => React.null
+          }}
+        </div>
+        <p> {value->React.string} </p>
+      </div>
+
+    <Form onSubmit initialValues validate=validateRetryConfig>
+      <div className="flex flex-col gap-7 px-2">
+        <div className="flex justify-end">
+          <div>
+            <RenderIf condition={isEditMode}>
+              <div className="flex gap-4">
+                <CancelEditButton initialValues onCancel={() => setIsEditMode(_ => false)} />
+                <FormRenderer.SubmitButton
+                  text="Save" buttonSize={Small} customSubmitButtonStyle="w-fit"
+                />
+              </div>
+            </RenderIf>
+            <RenderIf condition={!isEditMode}>
+              <div className="flex gap-2 items-center cursor-pointer" onClick={_ => startEditing()}>
+                <Icon name="nd-edit" size=14 />
+                <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
+              </div>
+            </RenderIf>
+          </div>
+        </div>
+        {isEditMode
+          ? <RevenueRecoveryProfileHelper.RetryConfigFields>
+              <RevenueRecoveryProfileHelper.RetryModeSelector
+                selectedMode onChange={mode => setSelectedMode(_ => mode)}
+              />
+            </RevenueRecoveryProfileHelper.RetryConfigFields>
+          : <div className={RevenueRecoveryProfileHelper.retryGridClass}>
+              {renderValue(
+                ~label="Start of recovery",
+                ~hint=RevenueRecoveryProfileHelper.startOfRecoveryHint,
+                ~value=savedConfig->getInt(retryThresholdKey, 0)->Int.toString,
+              )}
+              {renderValue(
+                ~label="Total retries",
+                ~hint=RevenueRecoveryProfileHelper.totalRetriesHint,
+                ~value=savedConfig->getInt(maxRetryCountKey, 0)->Int.toString,
+              )}
+              {renderValue(
+                ~label="Total retries for hard declines",
+                ~hint=RevenueRecoveryProfileHelper.hardDeclineRetriesHint,
+                ~value=savedConfig->getInt(maxHardDeclineRetriesKey, 0)->Int.toString,
+              )}
+              {renderValue(
+                ~label="Grace Period",
+                ~value=`${savedConfig
+                  ->getInt(
+                    gracePeriodDaysKey,
+                    RevenueRecoveryOnboardingUtils.defaultGracePeriodDays,
+                  )
+                  ->Int.toString} days`,
+              )}
+              // Reads the saved value, as the form can still hold edits discarded with Cancel
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-2 items-center">
+                  <h4 className="text-nd_gray-400"> {"Partial Authorization"->React.string} </h4>
+                  <RevenueRecoveryProfileHelper.InfoHint
+                    description=RevenueRecoveryProfileHelper.partialAuthorizationHint
+                  />
+                </div>
+                <SwitchAdapter
+                  isSelected={savedConfig->getBool(enablePartialAuthorizationKey, false)}
+                  setIsSelected={_ => ()}
+                  isDisabled=true
+                  toggleBorder="border-green-950"
+                  toggleEnableColor="bg-green-950"
+                />
+              </div>
+              <RevenueRecoveryProfileHelper.RetryModeSelector
+                selectedMode=savedMode isDisabled=true onChange={_ => ()}
+              />
+            </div>}
+      </div>
+    </Form>
+  }
+}
+
 // Custom billing has no external platform, so payment webhooks are configured here
 module WebhooksConfiguration = {
   @react.component
@@ -296,17 +465,7 @@ module BillingConnectorDetails = {
           </RenderIf>
         </div>
         {switch connectorName->getConnectorNameTypeFromString(~connectorType=BillingProcessor) {
-        | BillingProcessor(CUSTOMBILLING) =>
-          <div className="px-2">
-            <KeyManagementHelper.ApiKeysTable
-              dataNotFoundComponent={<div className="p-1">
-                <div
-                  className={`h-56 -my-1 -mx-2 border-2 flex justify-center items-center border-dashed opacity-70 rounded-lg p-5 m-7`}>
-                  {"No API Keys Available"->React.string}
-                </div>
-              </div>}
-            />
-          </div>
+        | BillingProcessor(CUSTOMBILLING) => <RecoveryApiKeysTable />
         | _ =>
           <Form onSubmit initialValues validate=validateMandatoryField>
             <div className="flex flex-col gap-12">
@@ -608,14 +767,26 @@ module RetriesConfiguration = {
   open LogicUtils
   open APIUtils
   @react.component
-  let make = (~removeFieldsFromResponse, ~merchantId) => {
+  let make = (~removeFieldsFromResponse, ~merchantId, ~onProfileSaved) => {
+    open RevenueRecoveryProfileUtils
     let getURL = useGetURL()
     let fetchDetails = useGetMethod()
     let updateAPIHook = useUpdateMethod(~showErrorToast=false)
+    let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile(~version=V2)
+    let {devRecoveryExternalTrigger} =
+      HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let showToast = ToastAdapter.useShowToast()
     let (screenState, setScreenState) = React.useState(_ => Loading)
     let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
     let (isEditMode, setIsEditMode) = React.useState(_ => false)
+    let savedMode = RevenueRecoveryProfileHelper.useSavedRetryMode()
+    let (selectedMode, setSelectedMode) = React.useState(_ => savedMode)
+    let confirmModeChange = RevenueRecoveryProfileHelper.useConfirmModeChange()
+
+    let startEditing = () => {
+      setSelectedMode(_ => savedMode)
+      setIsEditMode(_ => true)
+    }
 
     let billingConnectorListFromRecoil = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=BillingProcessor,
@@ -676,7 +847,7 @@ module RetriesConfiguration = {
         RevenueRecoveryOnboardingUtils.defaultGracePeriodDays,
       )
 
-    let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
+    let save = async values => {
       try {
         setScreenState(_ => Loading)
         let connectorUrl = getURL(
@@ -690,6 +861,16 @@ module RetriesConfiguration = {
         )
         let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put, ~version=V2)
         setInitialValues(_ => response->removeFieldsFromResponse)
+
+        // The mode is on the profile, not the connector
+        if selectedMode != savedMode {
+          let body =
+            [(retryAlgorithmKey, selectedMode->getRetryAlgorithmValue->JSON.Encode.string)]
+            ->Dict.fromArray
+            ->JSON.Encode.object
+          let profile = await updateBusinessProfile(~body)
+          onProfileSaved(profile->mapJsonToRecoveryProfile)
+        }
         setIsEditMode(_ => false)
         showToast(~message="Retries configuration updated", ~toastType=ToastState.ToastSuccess)
         setScreenState(_ => Success)
@@ -698,6 +879,14 @@ module RetriesConfiguration = {
           setScreenState(_ => Success)
           showToast(~message="Failed to update", ~toastType=ToastState.ToastError)
         }
+      }
+    }
+
+    let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
+      if selectedMode != savedMode {
+        confirmModeChange(~mode=selectedMode, ~onConfirm=() => save(values)->ignore)
+      } else {
+        await save(values)
       }
       Nullable.null
     }
@@ -803,15 +992,17 @@ module RetriesConfiguration = {
               </RenderIf>
               <RenderIf condition={!isEditMode}>
                 <div
-                  className="flex gap-2 items-center cursor-pointer"
-                  onClick={_ => setIsEditMode(_ => true)}>
+                  className="flex gap-2 items-center cursor-pointer" onClick={_ => startEditing()}>
                   <Icon name="nd-edit" size=14 />
                   <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
                 </div>
               </RenderIf>
             </div>
           </div>
-          <div className="grid grid-cols-2 px-2 gap-10 max-w-3xl">
+          <div
+            className={devRecoveryExternalTrigger
+              ? `${RevenueRecoveryProfileHelper.retryGridClass} px-2`
+              : "grid grid-cols-2 px-2 gap-10 max-w-3xl"}>
             <div className="flex flex-col gap-2 ">
               <RenderIf condition={!isEditMode}>
                 <div className="flex gap-2 items-center">
@@ -857,7 +1048,8 @@ module RetriesConfiguration = {
               </RenderIf>
             </div>
             // Read-only until the backend supports updates
-            <div className="flex flex-col gap-2 ">
+            <div
+              className={`flex flex-col gap-2 ${devRecoveryExternalTrigger ? "order-last" : ""}`}>
               <h4 className="text-nd_gray-400 "> {"Partial Authorization"->React.string} </h4>
               <FormRenderer.FieldRenderer
                 field={FormRenderer.makeFieldInfo(
@@ -868,6 +1060,15 @@ module RetriesConfiguration = {
                 )}
               />
             </div>
+            <RenderIf condition={devRecoveryExternalTrigger}>
+              <div className="order-last">
+                <RevenueRecoveryProfileHelper.RetryModeSelector
+                  selectedMode={isEditMode ? selectedMode : savedMode}
+                  isDisabled={!isEditMode}
+                  onChange={mode => setSelectedMode(_ => mode)}
+                />
+              </div>
+            </RenderIf>
             <div className="flex flex-col gap-2 ">
               <div className="flex gap-2 items-center">
                 <h4 className="text-nd_gray-400 ">
@@ -905,7 +1106,10 @@ module RetriesConfiguration = {
 }
 
 @react.component
-let make = () => {
+let make = (
+  ~recoveryProfile: option<RevenueRecoveryProfileTypes.recoveryProfile>,
+  ~onProfileSaved,
+) => {
   open LogicUtils
   let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let (paymentConnectorId, setPaymentConnectorId) = React.useState(_ => "")
@@ -957,7 +1161,7 @@ let make = () => {
       title: "Retries Configuration",
       renderContent: () => {
         <div className="flex flex-col gap-20 mt-10">
-          <RetriesConfiguration removeFieldsFromResponse merchantId />
+          <RetriesConfiguration removeFieldsFromResponse merchantId onProfileSaved />
         </div>
       },
     })
@@ -978,6 +1182,40 @@ let make = () => {
       },
     })
   }
+
+  // No connector to show or configure on the external model, so it only has profile level settings
+  let tabs: array<Tabs.tab> =
+    recoveryProfile->RevenueRecoveryProfileUtils.isExternalModel
+      ? [
+          {
+            title: "API Keys",
+            renderContent: () => {
+              <div className="flex flex-col gap-20 mt-10">
+                <RecoveryApiKeysTable />
+              </div>
+            },
+          },
+          {
+            title: "Retries Configuration",
+            renderContent: () => {
+              <div className="flex flex-col gap-20 mt-10">
+                <ProfileRetriesConfiguration
+                  retryConfig={recoveryProfile->Option.flatMap(profile => profile.retryConfig)}
+                  onProfileSaved
+                />
+              </div>
+            },
+          },
+          {
+            title: "Webhooks",
+            renderContent: () => {
+              <p className={`${body.md.regular} text-nd_gray-500 mt-10 px-2`}>
+                {"Webhooks are not enabled yet."->React.string}
+              </p>
+            },
+          },
+        ]
+      : tabs
 
   <div className="flex flex-col -ml-2">
     <div className="flex justify-between px-2 items-end">

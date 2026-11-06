@@ -11,6 +11,7 @@ let getV2Url = (
   ~merchantId,
   ~transactionEntity,
   ~queryParameters: option<string>=None,
+  ~isLiveMode=false,
 ): endpoint => {
   let connectorBaseURL = "v2/connector-accounts"
   let paymentsBaseURL = "v2/payments"
@@ -74,8 +75,9 @@ let getV2Url = (
         | None => Default(`${paymentsBaseURL}/${key_id}/get-revenue-recovery-intent`)
         }
       | None =>
-        let recoveryListPath = switch transactionEntity {
-        | #Profile => `${paymentsBaseURL}/profile/recovery-list`
+        // the profile route is not available on the live backend yet
+        let recoveryListPath = switch (isLiveMode, transactionEntity) {
+        | (false, #Profile) => `${paymentsBaseURL}/profile/recovery-list`
         | _ => `${paymentsBaseURL}/recovery-list`
         }
         switch queryParameters {
@@ -124,15 +126,6 @@ let getV2Url = (
         | _ => Default(`v2/payments/aggregate?${queryParams}`)
         }
       | None => Default(``)
-      }
-    | _ => Default(``)
-    }
-  | RECOVERY_AGGREGATE =>
-    switch (methodType, queryParameters) {
-    | (Get, Some(queryParams)) =>
-      switch transactionEntity {
-      | #Profile => Default(`${paymentsBaseURL}/profile/recovery-aggregate?${queryParams}`)
-      | _ => Default(`${paymentsBaseURL}/recovery-aggregate?${queryParams}`)
       }
     | _ => Default(``)
     }
@@ -231,6 +224,7 @@ let resolveEndpoint = endpoint =>
 let useGetURL = () => {
   let {getCommonSessionDetails, state} = React.useContext(UserInfoProvider.defaultContext)
   let {merchantId, profileId} = getCommonSessionDetails()
+  let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let getUrl = (
     ~entityName: entityTypeWithVersion,
@@ -1820,6 +1814,7 @@ let useGetURL = () => {
         ~profileId,
         ~merchantId,
         ~transactionEntity,
+        ~isLiveMode,
       )
     }
 
