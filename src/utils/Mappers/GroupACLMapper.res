@@ -32,6 +32,10 @@ let mapGroupAccessTypeToString = groupAccessType =>
   | ConfigurationsManage => "configurations_manage"
   | OffersView => "offers_view"
   | OffersManage => "offers_manage"
+  | AlertsView => "alerts_view"
+  | AlertsManage => "alerts_manage"
+  | MonitoringView => "monitoring_view"
+  | MonitoringManage => "monitoring_manage"
   | UnknownGroupAccess(val) => val
   }
 
@@ -66,6 +70,10 @@ let mapStringToGroupAccessType = val =>
   | "configurations_manage" => ConfigurationsManage
   | "offers_view" => OffersView
   | "offers_manage" => OffersManage
+  | "alerts_view" => AlertsView
+  | "alerts_manage" => AlertsManage
+  | "monitoring_view" => MonitoringView
+  | "monitoring_manage" => MonitoringManage
   | val => UnknownGroupAccess(val)
   }
 
@@ -97,6 +105,8 @@ let mapStringToResourceAccessType = val =>
   | "recon_rule" => ReconRule
   | "superposition_config" => SuperpositionConfigs
   | "offers" => Offers
+  | "alert" => Alert
+  | "monitoring" => Monitoring
   | _ => UnknownResourceAccess(val)
   }
 
@@ -130,6 +140,10 @@ let defaultValueForGroupAccessJson = {
   configurationsManage: NoAccess,
   offersView: NoAccess,
   offersManage: NoAccess,
+  alertsView: NoAccess,
+  alertsManage: NoAccess,
+  monitoringView: NoAccess,
+  monitoringManage: NoAccess,
 }
 
 let convertValueToMapGroup = arrayValue => {
@@ -177,5 +191,9 @@ let getGroupAccessJson = groupACL => {
     configurationsManage: getAccess(ConfigurationsManage),
     offersView: getAccess(OffersView),
     offersManage: getAccess(OffersManage),
+    alertsView: getAccess(AlertsView),
+    alertsManage: getAccess(AlertsManage),
+    monitoringView: getAccess(MonitoringView),
+    monitoringManage: getAccess(MonitoringManage),
   }
 }

@@ -202,7 +202,7 @@ const configHandler = async (
       "Access-Control-Allow-Origin": "*",
     });
     res.end(JSON.stringify(merchantConfig));
-  } catch (error) {
+  } catch {
     errorHandler(res, "Server Error");
   }
 };
