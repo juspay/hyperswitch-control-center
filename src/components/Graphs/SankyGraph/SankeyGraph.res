@@ -2,11 +2,9 @@ external sankeyGraphOptionsToJson: SankeyGraphTypes.sankeyGraphOptions => JSON.t
 
 @react.component
 let make = (~options: SankeyGraphTypes.sankeyGraphOptions, ~className="") => {
-  Highcharts.sankeyChartModule(Highcharts.highchartsModule)
-
   <div className>
     <Highcharts.Chart
-      options={options->sankeyGraphOptionsToJson} highcharts={Highcharts.highcharts}
+      options={options->sankeyGraphOptionsToJson} highcharts={Highcharts.highchartsWithSankey}
     />
   </div>
 }

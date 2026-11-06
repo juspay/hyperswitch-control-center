@@ -81,6 +81,7 @@ let make = (
         )}
       />
     </RenderIf>
+    <GPayFlowHelper.PayViaSingleUseTokenField connector />
     <div className={`flex gap-2 justify-end mt-4`}>
       <Button
         text="Cancel"

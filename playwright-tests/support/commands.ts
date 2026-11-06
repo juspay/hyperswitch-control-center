@@ -2417,6 +2417,7 @@ export async function ompLineage(
   } catch (e) {
     throw new Error(
       `ompLineage: Failed to parse USER_INFO from localStorage: ${(e as Error).message}`,
+      { cause: e },
     );
   }
 
