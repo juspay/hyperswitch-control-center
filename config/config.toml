@@ -93,7 +93,6 @@ dev_payout_blocklist=false
 dev_recon_engine_v1=false
 dev_alerts=false
 dev_analytics_explorer=false
-dev_ai_chat_bot=false
 dev_launch_sage=false
 dev_roles_v2=true
 dev_customer=true
