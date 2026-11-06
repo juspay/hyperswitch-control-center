@@ -101,6 +101,20 @@ let refunditemToObjMapper = dict => {
   created_at: dict->getString("created_at", ""),
 }
 
+let getAppliedOffer = dict =>
+  dict
+  ->getOptionObj("applied_offer")
+  ->Option.map(offer => {
+    let appliedOffer: PaymentInterfaceTypes.appliedOffer = {
+      offer_engine_merchant_id: offer->getString("offer_engine_merchant_id", ""),
+      offer_engine_txn_id: offer->getString("offer_engine_txn_id", ""),
+      offer_id: offer->getString("offer_id", ""),
+      offer_amount: offer->getFloat("offer_amount", 0.0),
+      currency: offer->getString("currency", ""),
+    }
+    appliedOffer
+  })
+
 let mapDictToPaymentPayload: dict<JSON.t> => PaymentInterfaceTypes.order = dict => {
   let addressKeys = ["line1", "line2", "line3", "city", "state", "country", "zip"]
 
@@ -115,6 +129,7 @@ let mapDictToPaymentPayload: dict<JSON.t> => PaymentInterfaceTypes.order = dict 
     surcharge_amount: dict
     ->getDictfromDict("surcharge_details")
     ->getOptionFloat("surcharge_amount"),
+    applied_offer: dict->getAppliedOffer,
     connector: dict->getString("connector", ""),
     status: dict->getString("status", ""),
     amount: dict->getFloat("amount", 0.0),

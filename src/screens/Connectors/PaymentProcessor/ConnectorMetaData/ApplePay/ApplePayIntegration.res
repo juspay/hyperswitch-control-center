@@ -115,6 +115,7 @@ module Landing = {
     ~setApplePayIntegrationType,
     ~update,
     ~closeAccordionFn,
+    ~isPayViaSingleUseTokenSupported,
   ) => {
     open ApplePayIntegrationTypes
     open ApplePayLandingHelper
@@ -150,11 +151,15 @@ module Landing = {
         | _ => ()
         }
 
-        let metadata =
-          formState.values->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
+        if isPayViaSingleUseTokenSupported {
+          setApplePayIntegrationSteps(_ => Configure)
+        } else {
+          let metadata =
+            formState.values->getDictFromJsonObject->getDictfromDict("metadata")->JSON.Encode.object
 
-        let _ = update(metadata)
-        closeAccordionFn()
+          let _ = update(metadata)
+          closeAccordionFn()
+        }
       } else {
         setApplePayIntegrationSteps(_ => Configure)
       }
@@ -258,6 +263,13 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
     }
   }, [connector])
 
+  let isPayViaSingleUseTokenSupported = React.useMemo(() => {
+    connector->isNonEmptyString &&
+      Window.getConnectorConfig(connector)
+      ->getDictFromJsonObject
+      ->ConnectorUtils.isPayViaSingleUseTokenInDecryptFlow(~paymentMethodType=#apple_pay)
+  }, [connector])
+
   // TODO: Change this to get for both V1 and V2
   let getProcessorDetails = async () => {
     try {
@@ -285,6 +297,8 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
     | _ => setScreenState(_ => Success)
     }
   }
+
+  let form = ReactFinalForm.useForm()
 
   let closeModal = () => {
     onCloseClickCustomFun()
@@ -334,6 +348,7 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
             setApplePayIntegrationType
             update
             closeAccordionFn
+            isPayViaSingleUseTokenSupported
           />
         | Configure =>
           switch appleIntegrationType {
@@ -355,7 +370,25 @@ let make = (~connector, ~closeAccordionFn, ~update, ~onCloseClickCustomFun) => {
               connector
               appleIntegrationType
             />
-          | #predecrypt => React.null
+          | #predecrypt =>
+            <div className="p-6">
+              <CommonConnectorHelper.PreDecryptedTokenConfirm
+                description="Enable Apple Pay by securely decrypting the Apple Pay payment token on your end."
+                onCancel=closeModal
+                onProceed={() => {
+                  let _ =
+                    form.getState().values
+                    ->getDictFromJsonObject
+                    ->getDictfromDict("metadata")
+                    ->JSON.Encode.object
+                    ->update
+                  closeAccordionFn()
+                }}>
+                <ApplePayIntegrationHelper.PayViaSingleUseTokenField
+                  connector fieldWrapperClass="flex flex-col"
+                />
+              </CommonConnectorHelper.PreDecryptedTokenConfirm>
+            </div>
           }
         | Verify =>
           <Verified

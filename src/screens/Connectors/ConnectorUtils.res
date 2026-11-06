@@ -1686,6 +1686,7 @@ let itemProviderMapper: dict<JSON.t> => ConnectorTypes.paymentMethodConfigType =
     installment_payment_enabled: dict->getOptionBool("installment_payment_enabled"),
     payment_experience: dict->getOptionString("payment_experience"),
     card_networks: dict->getStrArrayFromDict("card_networks", []),
+    pay_via_single_use_token: ?dict->getOptionString("pay_via_single_use_token"),
   }
 }
 
@@ -1739,7 +1740,26 @@ let configKeysToIgnore = [
   "additional_merchant_data",
   "connector_wallets_details",
   "connector_webhook_register_details",
+  "pay_via_single_use_token",
 ]
+
+let getPayViaSingleUseTokenConfig = connectorConfig =>
+  connectorConfig->getJsonObjectFromDict("pay_via_single_use_token")->convertMapObjectToDict
+
+let getPayViaSingleUseTokenEntry = (payViaSingleUseTokenConfig, ~paymentMethodType) =>
+  payViaSingleUseTokenConfig->Dict.get(paymentMethodType)->Option.map(convertMapObjectToDict)
+
+let isPayViaSingleUseTokenFlow = (entry, walletFlow: walletFlow) =>
+  entry->getStrArrayFromDict("flows", [])->Array.includes((walletFlow :> string))
+
+let isPayViaSingleUseTokenInDecryptFlow = (
+  connectorConfig,
+  ~paymentMethodType: payViaSingleUseTokenWallet,
+) =>
+  connectorConfig
+  ->getPayViaSingleUseTokenConfig
+  ->getPayViaSingleUseTokenEntry(~paymentMethodType=(paymentMethodType :> string))
+  ->mapOptionOrDefault(false, entry => entry->isPayViaSingleUseTokenFlow(Decrypt))
 
 let verifyConnectorIgnoreField = [
   "business_country",
@@ -1816,9 +1836,15 @@ let addMethod = (paymentMethodsEnabled, paymentMethod, method) => {
   | _ =>
     pmts->Array.forEach((val: paymentMethodEnabled) => {
       if val.payment_method_type->String.toLowerCase === paymentMethod->String.toLowerCase {
-        val.provider
-        ->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
-        ->Array.push(method)
+        let providers = val.provider->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
+        let isAlreadyAdded =
+          providers->Array.some(provider =>
+            provider.payment_method_type === method.payment_method_type &&
+              provider.payment_experience === method.payment_experience
+          )
+        if !isAlreadyAdded {
+          providers->Array.push(method)
+        }
       }
     })
   }
@@ -2098,19 +2124,10 @@ let validateConnectorRequiredFields = (
     })
   }
 
-  let keys =
-    connectorMetaDataFields
-    ->Dict.keysToArray
-    ->Array.filter(ele => !Array.includes(ConnectorMetaDataUtils.metaDataInputKeysToIgnore, ele))
-
   {
-    keys->Array.forEach(field => {
-      let {\"type", name, required, label} =
-        connectorMetaDataFields
-        ->getDictfromDict(field)
-        ->JSON.Encode.object
-        ->convertMapObjectToDict
-        ->CommonConnectorUtils.inputFieldMapper
+    connectorMetaDataFields
+    ->ConnectorMetaDataUtils.getMetadataInputFields
+    ->Array.forEach(({\"type", name, required, label}) => {
       let key = `metadata.${name}`
       let value = switch \"type" {
       | Text | Select => valuesFlattenJson->getString(`${key}`, "")
@@ -2136,6 +2153,10 @@ let validateConnectorRequiredFields = (
       }
     })
   }
+
+  ConnectorMetaDataUtils.validateMetadataGroups(~connectorMetaDataFields, ~valuesFlattenJson)
+  ->Dict.toArray
+  ->Array.forEach(((key, error)) => newDict->Dict.set(key, error))
 
   connectorWebHookDetails
   ->Dict.keysToArray

@@ -2971,6 +2971,11 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
         "Connector label *",
         "Company Name *",
         "Product Name *",
+        "CAD Merchant ID",
+        "EUR Merchant ID",
+        "GBP Merchant ID",
+        "JPY Merchant ID",
+        "USD Merchant ID",
       ],
     },
     paymentSections: {

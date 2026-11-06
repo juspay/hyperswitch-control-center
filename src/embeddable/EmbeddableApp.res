@@ -99,7 +99,7 @@ let make = () => {
     className={isFrameExpanded ? "bg-transparent" : backgroundColor}
     ref={ReactDOM.Ref.domRef(contentRef)}>
     <div ref={ReactDOM.Ref.callbackDomRef(setModalRoot)} />
-    <div id="embeddable-content" className={isFrameExpanded ? "hidden" : ""}>
+    <div id="embeddable-content" className={isFrameExpanded ? "hidden" : "px-1"}>
       <ErrorBoundary>
         <DisplayOptionsContext.Provider value=DisplayOptionsContext.embeddableDisplayOptions>
           {switch url.path->urlPath {
