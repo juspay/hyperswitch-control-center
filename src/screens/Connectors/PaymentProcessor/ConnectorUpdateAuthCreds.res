@@ -62,6 +62,11 @@ let make = (
     connectorLabelDetailField,
     connectorAdditionalMerchantData,
   } = getConnectorFields(connectorDetails)
+  // Fields collected on the connector's own Metadata step are left out here
+  let connectorMetaDataFields =
+    connectorMetaDataFields->ConnectorMetaDataUtils.omitCustomMetadataStepKeys(
+      ~connector=connectorTypeFromName,
+    )
 
   let initialValues = React.useMemo(() => {
     [
