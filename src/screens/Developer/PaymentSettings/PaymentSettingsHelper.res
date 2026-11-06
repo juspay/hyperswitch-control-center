@@ -13,7 +13,6 @@ let webhookUrl = FormRenderer.makeFieldInfo(
   ~placeholder="Enter Webhook URL",
   ~customInput=InputFields.textInput(~autoComplete="off", ~customStyle="rounded-xl"),
   ~isRequired=false,
-  ~description="To activate this feature, your webhook URL needs to be manually added to the allowlist. Please reach out to our team for assistance.",
 )
 let domainName = isDisabled =>
   FormRenderer.makeFieldInfo(

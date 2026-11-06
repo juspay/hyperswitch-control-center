@@ -88,6 +88,18 @@ let vaultProcessorList: array<connectorTypes> = [VaultProcessor(VGS)]
 
 let surchargeProcessorList: array<connectorTypes> = [SurchargeProcessor(INTERPAYMENTS)]
 
+// Connectors whose outgoing endpoints must be whitelisted before configuring them
+let urlWhitelistingRequiredConnectorList: array<connectorTypes> = [
+  Processors(ADYEN),
+  Processors(KLARNA),
+  Processors(NOON),
+  PayoutProcessor(ADYEN),
+  PayoutProcessor(ADYENPLATFORM),
+  ThreeDsAuthenticator(NETCETERA),
+  BillingProcessor(CHARGEBEE),
+  VaultProcessor(VGS),
+]
+
 let connectorList: array<connectorTypes> = [
   Processors(STRIPE),
   Processors(PAYPAL),
@@ -2729,14 +2741,18 @@ let getConnectorCategory = (connector: connectorTypes): option<connector> =>
   | UnknownConnector(_) => None
   }
 
+let getDisplayNameFromConnectorType = (connector: connectorTypes) => {
+  let connectorName = connector->getConnectorNameString
+  connector
+  ->getConnectorCategory
+  ->mapOptionOrDefault(connectorName, connectorType =>
+    connectorName->getDisplayNameForConnector(~connectorType)
+  )
+}
+
 let matchesConnectorTypeSearch = (connector: connectorTypes, searchText) => {
   let connectorName = connector->getConnectorNameString
-  let displayName =
-    connector
-    ->getConnectorCategory
-    ->mapOptionOrDefault(connectorName, connectorType =>
-      connectorName->getDisplayNameForConnector(~connectorType)
-    )
+  let displayName = connector->getDisplayNameFromConnectorType
 
   [connectorName, displayName]->Array.some(value => isContainingStringLowercase(value, searchText))
 }
