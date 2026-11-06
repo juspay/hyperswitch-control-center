@@ -93,7 +93,7 @@ let make = () => {
     }
   }
 
-  React.useEffect(() => {
+  let fetchInvoices = () =>
     switch filters {
     | Some(dict) =>
       buildQuery(~filters=dict, ~offset, ~limit=resultsPerPage, ~searchText)
@@ -101,6 +101,9 @@ let make = () => {
       ->ignore
     | None => ()
     }
+
+  React.useEffect(() => {
+    fetchInvoices()
     None
   }, (offset, filters, searchText, resultsPerPage, transactionEntity))
 
@@ -162,6 +165,7 @@ let make = () => {
           totalResults={totalCount}
           offset
           setOffset
+          onRefresh=fetchInvoices
           currentFetchCount={revenueRecoveryData->Array.length}
           customColumnMapper=TableAtoms.revenueRecoveryMapDefaultCols
           defaultColumns={RevenueRecoveryEntity.defaultColumns}

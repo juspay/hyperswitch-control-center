@@ -127,7 +127,6 @@ let make = () => {
             connectorTypes=[PayoutProcessor]
           />
         </div>
-        <PortalCapture key={`PayoutsCustomizeColumn`} name={`PayoutsCustomizeColumn`} />
       </div>
       <PageLoaderWrapper screenState customUI>
         <LoadedTableWithCustomColumns
@@ -140,6 +139,7 @@ let make = () => {
           totalResults={totalCount}
           offset
           setOffset
+          onRefresh=fetchPayouts
           currentFetchCount={payoutData->Array.length}
           defaultColumns={PayoutsEntity.defaultColumns}
           customColumnMapper=TableAtoms.payoutsMapDefaultCols

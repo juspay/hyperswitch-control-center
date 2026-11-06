@@ -145,6 +145,7 @@ let make = () => {
         totalResults={totalCount}
         offset
         setOffset
+        onRefresh=fetchPaymentLinks
         currentFetchCount={paymentLinksData->Array.length}
         onEntityClick={paymentLink =>
           GlobalVars.appendDashboardPath(

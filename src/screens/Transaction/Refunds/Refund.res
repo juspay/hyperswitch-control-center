@@ -150,6 +150,7 @@ let make = () => {
           totalResults={totalCount}
           offset
           setOffset
+          onRefresh=fetchRefunds
           currentFetchCount={refundData->Array.length}
           defaultColumns={RefundEntity.defaultColumns}
           customColumnMapper=TableAtoms.refundsMapDefaultCols

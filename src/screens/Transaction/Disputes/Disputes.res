@@ -173,6 +173,7 @@ let make = () => {
           totalResults={disputesData->Array.length}
           offset
           setOffset
+          onRefresh={() => getDisputesList()->ignore}
           currentFetchCount={disputesData->Array.length}
           showPagination=false
           bottomActions={<PrevNextPaginationButtons
