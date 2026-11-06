@@ -3,6 +3,8 @@ type functionType = (~eventName: string=?, ~email: string=?, ~description: optio
 let getMixpanelBody = body =>
   `data=${body->JSON.stringifyAny->Option.getOr("")->encodeURIComponent}`
 
+let getSanitizedUrl = () => `${Window.Location.origin}${Window.Location.pathName}`
+
 let useMixpanelRequest = () => {
   open GlobalVars
   let fetchApi = AuthHooks.useApiFetcher()
@@ -101,7 +103,7 @@ let useSendEvent = () => {
         "$os": Navigator.platform,
         "$browser": browserName,
         "$browser_version": browserVersion,
-        "$current_url": Window.Location.href,
+        "$current_url": getSanitizedUrl(),
         "mp_country_code": country,
       },
     }
@@ -169,7 +171,7 @@ let usePageView = () => {
         "$os": Navigator.platform,
         "$browser": browserName,
         "$browser_version": browserVersion,
-        "$current_url": Window.Location.href,
+        "$current_url": getSanitizedUrl(),
         "mp_country_code": country,
         "page": path,
       },

@@ -286,7 +286,14 @@ type paymentMethodConfigCommonType = {
   recurring_enabled: option<bool>,
   installment_payment_enabled: option<bool>,
   payment_experience: option<string>,
+  pay_via_single_use_token?: string,
 }
+
+type walletFlow = | @as("decrypt") Decrypt | @as("encrypt") Encrypt
+
+type payViaSingleUseTokenWallet = [#apple_pay | #google_pay]
+
+type payViaSingleUseTokenValue = [#default | #enabled | #disabled]
 
 type paymentMethodConfigType = {
   payment_method_type: string,
