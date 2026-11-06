@@ -3,6 +3,63 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.06.0
+
+### Features
+
+- **settings:** Replace Slack with support email ([#5717](https://github.com/juspay/hyperswitch-control-center/pull/5717)) ([`50cac4e`](https://github.com/juspay/hyperswitch-control-center/commit/50cac4e3045fe05bd3ba8f8834d9a573cf8ff376))
+
+### Miscellaneous Tasks
+
+- **deps:**
+  - Patch vulnerable transitive dependencies ([#5794](https://github.com/juspay/hyperswitch-control-center/pull/5794)) ([`56cf80d`](https://github.com/juspay/hyperswitch-control-center/commit/56cf80da0719c321fd4ad26816b358e2a4bc540c))
+  - Upgrade highcharts to 12.6.2 ([#5795](https://github.com/juspay/hyperswitch-control-center/pull/5795)) ([`647ee75`](https://github.com/juspay/hyperswitch-control-center/commit/647ee75ed60812c46d1708f165429b3f5f92d2d7))
+  - Upgrade eslint to 10 and nyc to 18 ([#5796](https://github.com/juspay/hyperswitch-control-center/pull/5796)) ([`5714312`](https://github.com/juspay/hyperswitch-control-center/commit/57143125ebdf40f059157b9967969d340d896928))
+
+**Full Changelog:** [`2026.11.05.0...2026.11.06.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.05.0...2026.11.06.0)
+
+- - -
+
+## 2026.11.05.0
+
+### Features
+
+- **connectors:** Add `pay_via_single_use_token` config for apple pay and google pay ([#5789](https://github.com/juspay/hyperswitch-control-center/pull/5789)) ([`44302c8`](https://github.com/juspay/hyperswitch-control-center/commit/44302c87d16982ecccf746ceeb3f5fee2cfb3c57))
+
+**Full Changelog:** [`2026.11.04.0...2026.11.05.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.04.0...2026.11.05.0)
+
+- - -
+
+## 2026.11.04.0
+
+### Features
+
+- **alerts:** Gate alerts and monitoring on permission groups and add internal_operator role ([#5788](https://github.com/juspay/hyperswitch-control-center/pull/5788)) ([`f86dffc`](https://github.com/juspay/hyperswitch-control-center/commit/f86dffc1ee41395b1ff15cecff7fa73dd2b92d64))
+
+### Bug Fixes
+
+- **embeddable:** Fix connector list, clipped UI and dashboard-only links ([#5785](https://github.com/juspay/hyperswitch-control-center/pull/5785)) ([`cc3dc73`](https://github.com/juspay/hyperswitch-control-center/commit/cc3dc73ca00cb427586a3888b189fa7aeb522228))
+- **server:** Reject compressed static paths outside web root ([#5781](https://github.com/juspay/hyperswitch-control-center/pull/5781)) ([`a475339`](https://github.com/juspay/hyperswitch-control-center/commit/a475339975e8faa30b730dcb92899a94b05a0812))
+
+**Full Changelog:** [`2026.11.03.0...2026.11.04.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.03.0...2026.11.04.0)
+
+- - -
+
+## 2026.11.03.0
+
+### Features
+
+- **analytics:** Add payment flows and preset questions to explorer ([#5651](https://github.com/juspay/hyperswitch-control-center/pull/5651)) ([`4f6fff7`](https://github.com/juspay/hyperswitch-control-center/commit/4f6fff75ecc0a8bd4854aae19cdb667d3158cb26))
+- **payments:** Show applied offer on payment details and net it off the SDK pay button ([#5684](https://github.com/juspay/hyperswitch-control-center/pull/5684)) ([`3460303`](https://github.com/juspay/hyperswitch-control-center/commit/3460303dfd5561a30be0a25369f2facb3981a93f))
+
+### Bug Fixes
+
+- **server:** Handle invalid and oversized request bodies on /config/merchant ([#5758](https://github.com/juspay/hyperswitch-control-center/pull/5758)) ([`e068c9a`](https://github.com/juspay/hyperswitch-control-center/commit/e068c9ae0cc74b5cc378295f5cc2da07d6ddce56))
+
+**Full Changelog:** [`2026.11.02.0...2026.11.03.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.02.0...2026.11.03.0)
+
+- - -
+
 ## 2026.11.02.0
 
 ### Features
