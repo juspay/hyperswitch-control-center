@@ -20,6 +20,12 @@ let acquirerIdHeading = (~bucket: acquirerBucket) =>
     </div>
   </div>
 
+let getApiErrorMessage = (e, ~defaultMessage) =>
+  switch Exn.message(e) {
+  | Some(err) => err->safeParse->getDictFromJsonObject->getString("message", defaultMessage)
+  | None => defaultMessage
+  }
+
 module AddAcquirerModal = {
   @react.component
   let make = (~showModal, ~setShowModal) => {
@@ -46,7 +52,11 @@ module AddAcquirerModal = {
         setShowModal(_ => false)
         let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
       } catch {
-      | _ => showToast(~message="Failed to create acquirer", ~toastType=ToastState.ToastError)
+      | Exn.Error(e) =>
+        showToast(
+          ~message=getApiErrorMessage(e, ~defaultMessage="Failed to create acquirer"),
+          ~toastType=ToastState.ToastError,
+        )
       }
       Nullable.null
     }
@@ -121,7 +131,11 @@ module AddNetworkModal = {
         setShowModal(_ => false)
         let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
       } catch {
-      | _ => showToast(~message="Failed to add network", ~toastType=ToastState.ToastError)
+      | Exn.Error(e) =>
+        showToast(
+          ~message=getApiErrorMessage(e, ~defaultMessage="Failed to add network"),
+          ~toastType=ToastState.ToastError,
+        )
       }
       Nullable.null
     }
@@ -223,7 +237,11 @@ module EditNetworkModal = {
         setEntry(_ => None)
         let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
       } catch {
-      | _ => showToast(~message="Failed to update network", ~toastType=ToastState.ToastError)
+      | Exn.Error(e) =>
+        showToast(
+          ~message=getApiErrorMessage(e, ~defaultMessage="Failed to update network"),
+          ~toastType=ToastState.ToastError,
+        )
       }
       Nullable.null
     }
