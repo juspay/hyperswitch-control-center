@@ -241,6 +241,7 @@ module TableHeadingRow: {
     ~columnFilterRow: option<array<filterRow>>,
     ~customizeColumnNewTheme: customiseColumnConfig=?,
     ~tableHeadingTextClass: string=?,
+    ~stickyHeader: bool=?,
   ) => React.element
 }
 @react.component
@@ -285,6 +286,7 @@ let make: (
   ~filterDropdownClass: string=?,
   ~showHeading: bool=?,
   ~maxTableHeight: string=?,
+  ~fitToViewport: bool=?,
   ~labelMargin: TableUtils.labelMargin=?,
   ~customFilterRowStyle: string=?,
   ~selectAllCheckBox: multipleSelectRows=?,
