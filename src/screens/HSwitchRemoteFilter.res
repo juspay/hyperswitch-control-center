@@ -109,26 +109,35 @@ let useSetInitialFilters = (
   }
 }
 
+let isValidTransactionId = value => RegExp.test(%re("/^[a-zA-Z0-9_-]*$/"), value)
+
 module SearchBarFilter = {
   @react.component
-  let make = (~placeholder, ~setSearchVal, ~searchVal) => {
+  let make = (~placeholder, ~setSearchVal, ~searchVal, ~isValidSearchInput=?) => {
+    let isValidSearchInput = isValidSearchInput->Option.getOr(_ => true)
     let (baseValue, setBaseValue) = React.useState(_ => "")
     let onChange = ev => {
       let value = ReactEvent.Form.target(ev)["value"]
       setBaseValue(_ => value)
     }
 
+    let inputValidationError = !(baseValue->isValidSearchInput)
+      ? "Search input can only contain letters, numbers, hyphens, and underscores."
+      : ""
+
     React.useEffect(() => {
       let onKeyPress = event => {
         let keyPressed = event->ReactEvent.Keyboard.key
 
         if keyPressed == "Enter" {
-          setSearchVal(_ => baseValue)
+          if baseValue->isValidSearchInput {
+            setSearchVal(_ => baseValue)
+          }
         }
       }
       Window.addEventListener("keydown", onKeyPress)
       Some(() => Window.removeEventListener("keydown", onKeyPress))
-    }, [baseValue])
+    }, (baseValue, isValidSearchInput))
 
     React.useEffect(() => {
       if baseValue->String.length === 0 && searchVal->LogicUtils.isNonEmptyString {
@@ -146,7 +155,7 @@ module SearchBarFilter = {
       checked: true,
     }
 
-    <div className="w-72">
+    <div className="w-72 flex flex-col">
       <TextInputAdapter
         input=inputSearch
         placeholder
@@ -158,6 +167,15 @@ module SearchBarFilter = {
         inputStyle="!placeholder:opacity-90"
         customWidth="w-full"
       />
+      <RenderIf condition={inputValidationError->LogicUtils.isNonEmptyString}>
+        <AddDataAttributes attributes=[("data-form-error", inputValidationError)]>
+          <div
+            className={`flex flex-row items-center ${FormRenderer.FieldError.errorTextStyle} pt-2 leading-4 text-start`}>
+            <FormErrorIcon />
+            {React.string(inputValidationError)}
+          </div>
+        </AddDataAttributes>
+      </RenderIf>
     </div>
   }
 }
