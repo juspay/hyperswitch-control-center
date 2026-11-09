@@ -1013,10 +1013,11 @@ let make = (
     })
   }
 
-  let tabs =
-    recoveryProfile->RevenueRecoveryProfileUtils.isExternalModel
-      ? BillingConnectorsSummaryUtils.getExternalModelTabs(~recoveryProfile, ~onProfileSaved)
-      : tabs
+  let tabs = BillingConnectorsSummaryUtils.getConfigurationTabs(
+    ~recoveryProfile,
+    ~onProfileSaved,
+    ~connectorTabs=tabs,
+  )
 
   <div className="flex flex-col -ml-2">
     <div className="flex justify-between px-2 items-end">

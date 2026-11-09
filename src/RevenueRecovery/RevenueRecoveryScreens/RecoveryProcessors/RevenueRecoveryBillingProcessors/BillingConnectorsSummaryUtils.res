@@ -34,3 +34,12 @@ let getExternalModelTabs = (
     },
   },
 ]
+
+let getConfigurationTabs = (
+  ~recoveryProfile: option<RevenueRecoveryProfileTypes.recoveryProfile>,
+  ~onProfileSaved,
+  ~connectorTabs: array<Tabs.tab>,
+) =>
+  recoveryProfile->RevenueRecoveryProfileUtils.isExternalModel
+    ? getExternalModelTabs(~recoveryProfile, ~onProfileSaved)
+    : connectorTabs
