@@ -80,7 +80,15 @@ let connectorLabelFilter = (json): EntityType.initialFilters<'t> => {
 }
 
 // Status, connector label, payment method type and subtype
-let initialFilters = (json, filterValues, removeKeys, filterKeys, setfilterKeys, version) => {
+let initialFilters = (
+  ~showStatusFilter=true,
+  json,
+  filterValues,
+  removeKeys,
+  filterKeys,
+  setfilterKeys,
+  version,
+) => {
   let paymentMethodFilters = OrderUIUtils.initialFilters(
     json,
     filterValues,
@@ -93,13 +101,23 @@ let initialFilters = (json, filterValues, removeKeys, filterKeys, setfilterKeys,
     ->Array.map(key => (key :> string))
     ->Array.includes(item.field.inputNames->getValueFromArray(0, ""))
   )
-  [recoveryStatusFilter(), connectorLabelFilter(json)]->Array.concat(paymentMethodFilters)
+  let connectorAndPaymentMethodFilters =
+    [connectorLabelFilter(json)]->Array.concat(paymentMethodFilters)
+  showStatusFilter
+    ? [recoveryStatusFilter()]->Array.concat(connectorAndPaymentMethodFilters)
+    : connectorAndPaymentMethodFilters
 }
 
 let initialFixedFilter = (~disable=false) => OrderUIUtils.initialFixedFilter(V2, ~disable)
 
 // Builds the query params for `recovery-list` from the applied filters
-let buildQuery = (~filters: Dict.t<JSON.t>, ~offset, ~limit, ~searchText) => {
+let buildQuery = (
+  ~filters: Dict.t<JSON.t>,
+  ~offset,
+  ~limit,
+  ~searchText,
+  ~showStatusFilter=true,
+) => {
   let query = Dict.make()
 
   filters
@@ -111,7 +129,12 @@ let buildQuery = (~filters: Dict.t<JSON.t>, ~offset, ~limit, ~searchText) => {
     | Array(arr) => arr->getStrArrayFromJsonArray->Array.joinWith(",")
     | _ => ""
     }
-    if formatted->isNonEmptyString && supportedFilterKeys->Array.includes(key) {
+    let isStatusKey = key == RevenueRecoveryOrderUtils.recoveryStatusFilterKey
+    if (
+      formatted->isNonEmptyString &&
+      supportedFilterKeys->Array.includes(key) &&
+      (showStatusFilter || !isStatusKey)
+    ) {
       query->Dict.set(key, formatted)
     }
   })
