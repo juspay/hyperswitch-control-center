@@ -80,13 +80,13 @@ module AddNewOMPButton = {
   ) => {
     open ConnectorUtils
 
-    let allowedRoles = switch user {
-    | #Organization => [#tenant_admin]
-    | #Merchant => [#tenant_admin, #org_admin]
-    | #Profile => [#tenant_admin, #org_admin, #merchant_admin]
+    let allowedEntities = switch user {
+    | #Organization => [#Tenant]
+    | #Merchant => [#Tenant, #Organization]
+    | #Profile => [#Tenant, #Organization, #Merchant]
     | _ => []
     }
-    let hasOMPCreateAccess = OMPCreateAccessHook.useOMPCreateAccessHook(allowedRoles)
+    let hasOMPCreateAccess = OMPCreateAccessHook.useOMPCreateAccessHook(allowedEntities)
     let cursorStyles = GroupAccessUtils.cursorStyles(hasOMPCreateAccess)
     let connectorsList = switch filterConnector {
     | Some(connector) => prodConnectorList->Array.filter(item => item != connector)
