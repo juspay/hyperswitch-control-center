@@ -3,6 +3,23 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.09.0
+
+### Bug Fixes
+
+- **ci:** Harden release stable version workflow ([#5780](https://github.com/juspay/hyperswitch-control-center/pull/5780)) ([`567c5c8`](https://github.com/juspay/hyperswitch-control-center/commit/567c5c8b5834ad9f6c705cb285ff0056d714ef59))
+- **csv:** Escape spreadsheet formulas in CSV exports ([#5783](https://github.com/juspay/hyperswitch-control-center/pull/5783)) ([`c54516d`](https://github.com/juspay/hyperswitch-control-center/commit/c54516d76c8ce035fca8cb73d5e772b32139492c))
+- Sanitise url sent to mixpanel ([#5786](https://github.com/juspay/hyperswitch-control-center/pull/5786)) ([`3ba564a`](https://github.com/juspay/hyperswitch-control-center/commit/3ba564a3977b3fa306063a72a1d8ade6140a0d6f))
+
+### Miscellaneous Tasks
+
+- Remove unused chat bot module ([#5778](https://github.com/juspay/hyperswitch-control-center/pull/5778)) ([`e9b571b`](https://github.com/juspay/hyperswitch-control-center/commit/e9b571b739b7f3c3f333a021c5b3dbc71dd5edfa))
+- Remove unused aws scripts ([#5799](https://github.com/juspay/hyperswitch-control-center/pull/5799)) ([`4ce51ec`](https://github.com/juspay/hyperswitch-control-center/commit/4ce51ece2964cbfac207880326c5a009f0d2c4c3))
+
+**Full Changelog:** [`2026.11.06.0...2026.11.09.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.06.0...2026.11.09.0)
+
+- - -
+
 ## 2026.11.06.0
 
 ### Features
