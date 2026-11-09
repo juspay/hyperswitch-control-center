@@ -1569,8 +1569,10 @@ test.describe("All Payin Connectors", () => {
         await page
           .getByRole("button", { name: "Select Value", exact: true })
           .click();
-        await page.getByRole('searchbox', { name: 'Search options...' }).fill("US");
-        await page.getByText('US', { exact: true }).click();
+        await page
+          .getByRole("searchbox", { name: "Search options..." })
+          .fill("US");
+        await page.getByText("US", { exact: true }).click();
         await expect(paymentConnector.connectAndProceedButton).toBeEnabled();
       }
 
@@ -1588,13 +1590,13 @@ test.describe("All Payin Connectors", () => {
       await expect(
         page.getByTestId(
           connector.fields.overrides["Enter Connector label"] ||
-          connector.label,
+            connector.label,
         ),
       ).toBeVisible();
       await page
         .getByTestId(
           connector.fields.overrides["Enter Connector label"] ||
-          connector.label,
+            connector.label,
         )
         .click();
     });
