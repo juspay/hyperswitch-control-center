@@ -86,6 +86,8 @@ type recoveryFilterKey = [
 
 type paymentMethodFilterKey = [#payment_method_type | #payment_method_subtype]
 
+type hiddenRecoveryStatus = [#no_picked | #pending]
+
 type recoverySchedulerStatusType =
   | Finish
   | Scheduled

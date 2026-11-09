@@ -12,7 +12,10 @@ let statusVariantMapper: string => RevenueRecoveryOrderTypes.recoveryInvoiceStat
   | _ => Other(statusLabel)
   }
 
-let isHiddenStatus = status => ["no_picked", "pending"]->Array.includes(status->String.toLowerCase)
+let hiddenStatuses: array<RevenueRecoveryOrderTypes.hiddenRecoveryStatus> = [#no_picked, #pending]
+
+let isHiddenStatus = status =>
+  hiddenStatuses->Array.some(hiddenStatus => (hiddenStatus :> string) == status->String.toLowerCase)
 
 // Set on invoices the merchant retries, which have no process tracker entries. It keeps the last
 // retry it was told about, so only use it for the retry time. `status` is the current state.

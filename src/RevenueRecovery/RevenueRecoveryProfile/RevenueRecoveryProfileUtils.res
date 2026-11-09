@@ -21,18 +21,12 @@ let configurationSection: VerticalStepIndicatorTypes.section = {
 }
 
 let getTriggerModelFromString = value =>
-  switch value {
-  | "external_triggers" => ExternalTriggers
-  | _ => InternalTriggers
-  }
+  [InternalTriggers, ExternalTriggers]
+  ->Array.find(model => (model :> string) == value)
+  ->Option.getOr(InternalTriggers)
 
 let getRetryAlgorithmFromString = value =>
-  switch value {
-  | "monitoring" => Some(Monitoring)
-  | "smart" => Some(Smart)
-  | "cascading" => Some(Cascading)
-  | _ => None
-  }
+  [Monitoring, Smart, Cascading]->Array.find(algorithm => (algorithm :> string) == value)
 
 let getTriggerModelLabel = model =>
   switch model {
