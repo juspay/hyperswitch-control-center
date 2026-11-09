@@ -1565,6 +1565,14 @@ test.describe("All Payin Connectors", () => {
       await assertConnectorFieldLabels(page, connector.fields.fieldLabels);
       await fillConnectorFields(page, connector.fields);
 
+      if (key === "rapyd") {
+        await page
+          .getByRole("button", { name: "Select Value", exact: true })
+          .click();
+        await page.getByRole("option", { name: "US", exact: true }).click();
+        await expect(paymentConnector.connectAndProceedButton).toBeEnabled();
+      }
+
       await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
 
       await assertPaymentMethodTypes(page, connector.paymentSections);
