@@ -2463,7 +2463,12 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
       overrides: {
         "Enter Connector label": "rapyd_default",
       },
-      fieldLabels: ["Access Key *", "API Secret *", "Source verification key"],
+      fieldLabels: [
+        "Access Key *",
+        "API Secret *",
+        "Source verification key",
+        "Rapyd country of incorporation *",
+      ],
     },
     paymentSections: {
       Credit: {
