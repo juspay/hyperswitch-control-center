@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.09.1
+
+### Features
+
+- **recovery:** Hide status filters and merchant/profile view in live mode ([#5793](https://github.com/juspay/hyperswitch-control-center/pull/5793)) ([`675520f`](https://github.com/juspay/hyperswitch-control-center/commit/675520f4aa287b83ac83f284371102499e27a2b9))
+
+**Full Changelog:** [`2026.11.09.0...2026.11.09.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.09.0...2026.11.09.1)
+
+- - -
+
 ## 2026.11.09.0
 
 ### Bug Fixes
