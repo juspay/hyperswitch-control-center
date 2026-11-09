@@ -40,9 +40,7 @@ let make = (~authorization, ~onBack, ~onContinue) => {
         buttonSize=Large
         buttonState=Normal
         onClick={_ => {
-          mixpanelEvent(
-            ~eventName=`recovery_model_selected_${selectedModel->RevenueRecoveryProfileUtils.getTriggerModelValue}`,
-          )
+          mixpanelEvent(~eventName=`recovery_model_selected_${(selectedModel :> string)}`)
           onContinue(selectedModel)
         }}
       />

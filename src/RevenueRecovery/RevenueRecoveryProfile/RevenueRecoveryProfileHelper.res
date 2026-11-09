@@ -6,17 +6,15 @@ module SelectionCard = {
   @react.component
   let make = (~title, ~description, ~isSelected, ~onClick) => {
     let borderClass = isSelected ? "border-primary bg-primary bg-opacity-5" : "border-nd_gray-200"
-    <button
-      type_="button"
-      onClick={_ => onClick()}
-      className={`flex flex-1 flex-col gap-2 p-5 text-left border rounded-xl ${borderClass}`}>
+    <div
+      className={`flex flex-1 flex-col gap-2 p-5 border rounded-xl cursor-pointer ${borderClass}`}
+      onClick={_ => onClick()}>
       <p className={`${body.md.semibold} text-nd_gray-700`}> {title->React.string} </p>
       <p className={`${body.sm.regular} text-nd_gray-500`}> {description->React.string} </p>
-    </button>
+    </div>
   }
 }
 
-// Matches the Live Mode badge in the app header
 module Chip = {
   @react.component
   let make = (~text) => {
@@ -27,9 +25,6 @@ module Chip = {
   }
 }
 
-// Sits in the app header, so it has to check the product itself: the atom keeps its value after
-// switching away from Recovery. A mode only exists once a model is in use, so nothing shows
-// before onboarding, when the model would just be the backend's default.
 module ModelChip = {
   @react.component
   let make = () => {
@@ -42,33 +37,6 @@ module ModelChip = {
     | _ => React.null
     }
   }
-}
-
-// Profiles without a mode are treated as monitoring, as the backend does when a billing connector
-// is added
-let useSavedRetryMode = () =>
-  HyperswitchAtom.recoveryProfileAtom
-  ->Recoil.useRecoilValueFromAtom
-  ->Option.flatMap(profile => profile.retryAlgorithm)
-  ->Option.getOr(Monitoring)
-
-// Changing the mode starts or stops retries on real invoices
-let useConfirmModeChange = () => {
-  let showPopUp = PopUpState.useShowPopUp()
-  (~mode, ~onConfirm) =>
-    showPopUp({
-      popUpType: (Warning, WithIcon),
-      heading: `Switch to ${mode->getRetryAlgorithmLabel}?`,
-      description: switch mode {
-      | Smart => "We'll start working out retry times for failed invoices."
-      | _ => "Failed invoices will be recorded and no retries will be scheduled."
-      }->React.string,
-      handleConfirm: {
-        text: "Switch",
-        onClick: _ => onConfirm(),
-      },
-      handleCancel: {text: "Cancel"},
-    })
 }
 
 let retryGridClass = "grid grid-cols-2 gap-x-10 gap-y-5 max-w-3xl"
@@ -95,24 +63,19 @@ module RetryModeSelector = {
         <h4 className={`text-nd_gray-400 ${body.md.regular}`}> {"Mode"->React.string} </h4>
         <InfoHint description=retryModeHint />
       </div>
-      <div className="flex gap-1 p-0.5 w-fit bg-white border rounded-lg border-nd_gray-300">
+      <div className="flex gap-2">
         {[Monitoring, Smart]
-        ->Array.map(mode => {
-          let selectedClass = switch (mode == selectedMode, isDisabled) {
-          | (true, true) => "bg-nd_gray-100 text-nd_gray-600 cursor-not-allowed"
-          | (true, false) => "bg-primary bg-opacity-10 text-primary"
-          | (false, true) => "text-nd_gray-400 cursor-not-allowed"
-          | (false, false) => "text-nd_gray-500 hover:bg-nd_gray-50"
-          }
-          <button
-            key={mode->getRetryAlgorithmValue}
-            type_="button"
-            disabled=isDisabled
+        ->Array.map(mode =>
+          <Button
+            key={(mode :> string)}
+            text={mode->getRetryAlgorithmLabel}
+            buttonType={mode == selectedMode ? Primary : Secondary}
+            buttonState={isDisabled ? Disabled : Normal}
+            buttonSize=Small
             onClick={_ => onChange(mode)}
-            className={`px-3 h-7 rounded-md text-sm font-semibold whitespace-nowrap ${selectedClass}`}>
-            {mode->getRetryAlgorithmLabel->React.string}
-          </button>
-        })
+            customButtonStyle="w-fit"
+          />
+        )
         ->React.array}
       </div>
     </div>
@@ -167,8 +130,163 @@ module RetryConfigFields = {
           ~isRequired=false,
         )}
       />
-      // Lines up with the padding the form fields have around them
       <div className="px-2 pt-1"> {children} </div>
     </div>
+  }
+}
+
+module RecoveryApiKeysTable = {
+  @react.component
+  let make = () => {
+    <div className="px-2">
+      <KeyManagementHelper.ApiKeysTable
+        dataNotFoundComponent={<div className="p-1">
+          <div
+            className={`h-56 -my-1 -mx-2 border-2 flex justify-center items-center border-dashed opacity-70 rounded-lg p-5 m-7`}>
+            {"No API Keys Available"->React.string}
+          </div>
+        </div>}
+      />
+    </div>
+  }
+}
+
+module CancelEditButton = {
+  @react.component
+  let make = (~initialValues, ~onCancel) => {
+    let form = ReactFinalForm.useForm()
+    <Button
+      text="Cancel"
+      onClick={_ => {
+        form.reset(initialValues->Nullable.make)
+        onCancel()
+      }}
+      buttonType={Secondary}
+      buttonSize={Small}
+      customButtonStyle="w-fit"
+    />
+  }
+}
+
+module ProfileRetriesConfiguration = {
+  open LogicUtils
+  @react.component
+  let make = (~retryConfig, ~onProfileSaved) => {
+    let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile(~version=V2)
+    let showToast = ToastAdapter.useShowToast()
+    let (isEditMode, setIsEditMode) = React.useState(_ => false)
+    let initialValues = React.useMemo(() => getRetryConfigInitialValues(retryConfig), [retryConfig])
+    let savedConfig = retryConfig->Option.getOr(getDefaultRetryConfig())
+    let savedMode = RevenueRecoveryHooks.useSavedRetryMode()
+    let (selectedMode, setSelectedMode) = React.useState(_ => savedMode)
+    let confirmModeChange = RevenueRecoveryHooks.useConfirmModeChange()
+
+    let startEditing = () => {
+      setSelectedMode(_ => savedMode)
+      setIsEditMode(_ => true)
+    }
+
+    let save = async values => {
+      try {
+        let body = values->getDictFromJsonObject->Dict.copy
+        if selectedMode != savedMode {
+          body->Dict.set(retryAlgorithmKey, (selectedMode :> string)->JSON.Encode.string)
+        }
+        let response = await updateBusinessProfile(~body=body->JSON.Encode.object)
+        onProfileSaved(response->mapJsonToRecoveryProfile)
+        setIsEditMode(_ => false)
+        showToast(~message="Retries configuration updated", ~toastType=ToastState.ToastSuccess)
+      } catch {
+      | _ => ()
+      }
+    }
+
+    let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
+      if selectedMode != savedMode {
+        confirmModeChange(~mode=selectedMode, ~onConfirm=() => save(values)->ignore)
+      } else {
+        await save(values)
+      }
+      Nullable.null
+    }
+
+    let renderValue = (~label, ~value, ~hint=?) =>
+      <div className="flex flex-col gap-2">
+        <div className="flex gap-2 items-center">
+          <h4 className="text-nd_gray-400"> {label->React.string} </h4>
+          {switch hint {
+          | Some(description) => <InfoHint description />
+          | None => React.null
+          }}
+        </div>
+        <p> {value->React.string} </p>
+      </div>
+
+    <Form onSubmit initialValues validate=validateRetryConfig>
+      <div className="flex flex-col gap-7 px-2">
+        <div className="flex justify-end">
+          <div>
+            <RenderIf condition={isEditMode}>
+              <div className="flex gap-4">
+                <CancelEditButton initialValues onCancel={() => setIsEditMode(_ => false)} />
+                <FormRenderer.SubmitButton
+                  text="Save" buttonSize={Small} customSubmitButtonStyle="w-fit"
+                />
+              </div>
+            </RenderIf>
+            <RenderIf condition={!isEditMode}>
+              <div className="flex gap-2 items-center cursor-pointer" onClick={_ => startEditing()}>
+                <Icon name="nd-edit" size=14 />
+                <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
+              </div>
+            </RenderIf>
+          </div>
+        </div>
+        <RenderIf condition={isEditMode}>
+          <RetryConfigFields>
+            <RetryModeSelector selectedMode onChange={mode => setSelectedMode(_ => mode)} />
+          </RetryConfigFields>
+        </RenderIf>
+        <RenderIf condition={!isEditMode}>
+          <div className={retryGridClass}>
+            {renderValue(
+              ~label="Start of recovery",
+              ~hint=startOfRecoveryHint,
+              ~value=savedConfig->getInt(retryThresholdKey, 0)->Int.toString,
+            )}
+            {renderValue(
+              ~label="Total retries",
+              ~hint=totalRetriesHint,
+              ~value=savedConfig->getInt(maxRetryCountKey, 0)->Int.toString,
+            )}
+            {renderValue(
+              ~label="Total retries for hard declines",
+              ~hint=hardDeclineRetriesHint,
+              ~value=savedConfig->getInt(maxHardDeclineRetriesKey, 0)->Int.toString,
+            )}
+            {renderValue(
+              ~label="Grace Period",
+              ~value=`${savedConfig
+                ->getInt(gracePeriodDaysKey, RevenueRecoveryOnboardingUtils.defaultGracePeriodDays)
+                ->Int.toString} days`,
+            )}
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2 items-center">
+                <h4 className="text-nd_gray-400"> {"Partial Authorization"->React.string} </h4>
+                <InfoHint description=partialAuthorizationHint />
+              </div>
+              <SwitchAdapter
+                isSelected={savedConfig->getBool(enablePartialAuthorizationKey, false)}
+                setIsSelected={_ => ()}
+                isDisabled=true
+                toggleBorder="border-green-950"
+                toggleEnableColor="bg-green-950"
+              />
+            </div>
+            <RetryModeSelector selectedMode=savedMode isDisabled=true onChange={_ => ()} />
+          </div>
+        </RenderIf>
+      </div>
+    </Form>
   }
 }

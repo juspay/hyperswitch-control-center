@@ -211,7 +211,6 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           ->getInt("billing_connector_retry_threshold", 0)
         setStartRetryThreshold(_ => threshold)
       } else if devRecoveryExternalTrigger {
-        // Invoices on the external model have no billing connector, so the limits are on the profile
         let profile = await fetchBusinessProfileFromId(~profileId)
         let {retryConfig}: RevenueRecoveryProfileTypes.recoveryProfile =
           profile->RevenueRecoveryProfileUtils.mapJsonToRecoveryProfile
@@ -289,7 +288,6 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         ->getDictFromJsonObject
         ->RevenueRecoveryEntity.itemToObjMapperForIntents
 
-      // Only invoices Juspay retries have process tracker entries
       if recoveryProfile->RevenueRecoveryProfileUtils.isExternalModel {
         setProcessTrackerData(_ =>
           data->getDictFromJsonObject->RevenueRecoveryOrderUtils.getNextRetrySchedule

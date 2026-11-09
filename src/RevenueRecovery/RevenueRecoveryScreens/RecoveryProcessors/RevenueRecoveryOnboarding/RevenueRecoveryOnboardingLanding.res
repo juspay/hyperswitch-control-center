@@ -29,7 +29,6 @@ let make = (~createMerchant) => {
     }
   }
 
-  // A new merchant lands back here after the create merchant popup, having already picked a model
   React.useEffect(() => {
     if devRecoveryExternalTrigger && !createMerchant {
       RevenueRecoveryProfileUtils.takePendingTriggerModel()->Option.forEach(goToTriggerModelRoute)
@@ -37,13 +36,16 @@ let make = (~createMerchant) => {
     None
   }, [])
 
-  showModelSelection
-    ? <RevenueRecoveryModelSelection
+  <>
+    <RenderIf condition={showModelSelection}>
+      <RevenueRecoveryModelSelection
         authorization=userHasCreateMerchantAccess
         onBack={() => setShowModelSelection(_ => false)}
         onContinue=startOnboarding
       />
-    : <div className="flex flex-1 flex-col gap-6 items-center w-full">
+    </RenderIf>
+    <RenderIf condition={!showModelSelection}>
+      <div className="flex flex-1 flex-col gap-6 items-center w-full">
         <object
           type_="image/svg+xml"
           data="/assets/RevenueRecoveryHomePreview.svg"
@@ -102,4 +104,6 @@ let make = (~createMerchant) => {
           ->React.array}
         </div>
       </div>
+    </RenderIf>
+  </>
 }

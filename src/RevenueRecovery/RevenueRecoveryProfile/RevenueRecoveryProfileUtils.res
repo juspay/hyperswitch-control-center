@@ -13,23 +13,17 @@ let enablePartialAuthorizationKey = "enable_partial_authorization"
 
 let maxAllowedRetries = 15
 
-let getTriggerModelValue = model =>
-  switch model {
-  | InternalTriggers => "internal_triggers"
-  | ExternalTriggers => "external_triggers"
-  }
+let configurationSection: VerticalStepIndicatorTypes.section = {
+  id: "configuration",
+  name: "Configuration",
+  icon: "nd-flag",
+  subSections: None,
+}
 
 let getTriggerModelFromString = value =>
   switch value {
   | "external_triggers" => ExternalTriggers
   | _ => InternalTriggers
-  }
-
-let getRetryAlgorithmValue = algorithm =>
-  switch algorithm {
-  | Monitoring => "monitoring"
-  | Smart => "smart"
-  | Cascading => "cascading"
   }
 
 let getRetryAlgorithmFromString = value =>
@@ -53,7 +47,6 @@ let getRetryAlgorithmLabel = algorithm =>
   | Cascading => "Cascading"
   }
 
-// A backend without these fields parses as internal triggers, which is today's behaviour
 let mapJsonToRecoveryProfile = json => {
   let dict = json->getDictFromJsonObject
   {
@@ -69,7 +62,6 @@ let isExternalModel = recoveryProfile =>
   | _ => false
   }
 
-// External triggers is only saved when onboarding finishes, so it also signals completion
 let isRecoveryOnboarded = (~recoveryProfile, ~hasConfiguredBillingConnector) =>
   hasConfiguredBillingConnector || recoveryProfile->isExternalModel
 
@@ -142,8 +134,8 @@ let validateRetryConfig = values => {
 // survive the create merchant popup and the switch to that merchant
 let pendingTriggerModelKey = "recovery_pending_trigger_model"
 
-let setPendingTriggerModel = model =>
-  SessionStorage.sessionStorage.setItem(pendingTriggerModelKey, model->getTriggerModelValue)
+let setPendingTriggerModel = (model: triggerModel) =>
+  SessionStorage.sessionStorage.setItem(pendingTriggerModelKey, (model :> string))
 
 let takePendingTriggerModel = () => {
   let pendingModel =

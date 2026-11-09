@@ -19,13 +19,10 @@ let isHiddenStatus = status => ["no_picked", "pending"]->Array.includes(status->
 let getExternalTriggerNextRetry = dict => {
   open LogicUtils
   dict
-  ->getDictfromDict("feature_metadata")
-  ->getDictfromDict("revenue_recovery")
-  ->getDictfromDict("external_trigger_state")
-  ->getDictfromDict("next_retry")
+  ->getDictFromNestedDict("feature_metadata", "revenue_recovery")
+  ->getDictFromNestedDict("external_trigger_state", "next_retry")
 }
 
-// Returned in the shape of the process tracker response, which the details page reads it from
 let getNextRetrySchedule = dict => {
   open LogicUtils
   let scheduleTime = dict->getExternalTriggerNextRetry->getString("schedule_time", "")

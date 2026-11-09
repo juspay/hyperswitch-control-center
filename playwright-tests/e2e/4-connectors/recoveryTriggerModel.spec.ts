@@ -71,7 +71,7 @@ test.describe("Revenue Recovery trigger model", () => {
     const updates = await mockProfileFields(page);
     await openModelPicker(page);
 
-    await page.getByRole("button", { name: /^Managed Recovery/ }).click();
+    await page.getByText("Managed Recovery", { exact: true }).click();
     await page.getByRole("button", { name: "Continue" }).click();
 
     await expect(page).toHaveURL(/\/v2\/recovery\/onboarding$/);
@@ -85,9 +85,7 @@ test.describe("Revenue Recovery trigger model", () => {
     const updates = await mockProfileFields(page);
     await openModelPicker(page);
 
-    await page
-      .getByRole("button", { name: /^Scheduled Only Recovery/ })
-      .click();
+    await page.getByText("Scheduled Only Recovery", { exact: true }).click();
     await page.getByRole("button", { name: "Continue" }).click();
     await expect(page).toHaveURL(/\/v2\/recovery\/onboarding\/configuration$/);
 

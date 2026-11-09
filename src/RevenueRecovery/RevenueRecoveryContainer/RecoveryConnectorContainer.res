@@ -24,7 +24,6 @@ let make = () => {
       let profile = await fetchBusinessProfileFromId(~profileId=Some(profileId))
       setRecoveryProfile(_ => Some(profile->RevenueRecoveryProfileUtils.mapJsonToRecoveryProfile))
     } catch {
-    // Only the header chips depend on this, and they catch up on the next page load
     | _ => ()
     }
   }
@@ -32,7 +31,6 @@ let make = () => {
   let setUpConnectorContainer = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      // Don't show the previous merchant's mode while this one loads
       setRecoveryProfile(_ => None)
       if (
         userHasAccess(~groupAccess=ConnectorsView) === Access ||
@@ -67,8 +65,6 @@ let make = () => {
     None
   }, [merchantId, profileId])
 
-  // Creating a billing connector sets the mode on the backend, so the header chips need the
-  // updated profile once model 1's onboarding has added one
   React.useEffect(() => {
     switch recoveryProfile {
     | Some({RevenueRecoveryProfileTypes.retryAlgorithm: None}) if hasConfiguredBillingConnector =>

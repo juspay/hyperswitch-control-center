@@ -2,13 +2,6 @@ open RevenueRecoveryProfileTypes
 open RevenueRecoveryProfileUtils
 open RevenueRecoveryProfileHelper
 
-let configurationSection: VerticalStepIndicatorTypes.section = {
-  id: "configuration",
-  name: "Configuration",
-  icon: "nd-flag",
-  subSections: None,
-}
-
 @react.component
 let make = (~isOnboarded, ~onProfileSaved) => {
   open LogicUtils
@@ -34,7 +27,6 @@ let make = (~isOnboarded, ~onProfileSaved) => {
     )->Some
   }, [])
 
-  // Also the finish step: saving onboards the merchant, which sends them on to invoices
   React.useEffect(() => {
     if isOnboarded {
       goToDefaultPath()
@@ -46,8 +38,8 @@ let make = (~isOnboarded, ~onProfileSaved) => {
     try {
       let body =
         [
-          (triggerModelKey, ExternalTriggers->getTriggerModelValue->JSON.Encode.string),
-          (retryAlgorithmKey, retryAlgorithm->getRetryAlgorithmValue->JSON.Encode.string),
+          (triggerModelKey, (ExternalTriggers :> string)->JSON.Encode.string),
+          (retryAlgorithmKey, (retryAlgorithm :> string)->JSON.Encode.string),
           (
             retryConfigKey,
             values->getDictFromJsonObject->getDictfromDict(retryConfigKey)->JSON.Encode.object,
@@ -56,10 +48,9 @@ let make = (~isOnboarded, ~onProfileSaved) => {
         ->Dict.fromArray
         ->JSON.Encode.object
       let response = await updateBusinessProfile(~body)
-      mixpanelEvent(~eventName=`recovery_mode_saved_${retryAlgorithm->getRetryAlgorithmValue}`)
+      mixpanelEvent(~eventName=`recovery_mode_saved_${(retryAlgorithm :> string)}`)
       onProfileSaved(response->mapJsonToRecoveryProfile)
     } catch {
-    // The update hook has already shown the error toast, so the merchant stays here to retry
     | _ => ()
     }
     Nullable.null

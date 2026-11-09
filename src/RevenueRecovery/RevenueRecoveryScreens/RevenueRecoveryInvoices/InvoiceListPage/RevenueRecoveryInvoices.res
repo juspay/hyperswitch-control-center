@@ -30,7 +30,6 @@ let make = () => {
   let startTimeKey = OrderUIUtils.startTimeFilterKey(V2)
   let endTimeKey = OrderUIUtils.endTimeFilterKey(V2)
   let startTime = filterValueJson->getString(startTimeKey, "")
-  // The merchant makes the transactions on the external model, so there are no connectors to filter by
   let showConnectorFilter = !(
     HyperswitchAtom.recoveryProfileAtom
     ->Recoil.useRecoilValueFromAtom
