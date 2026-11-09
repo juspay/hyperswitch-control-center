@@ -284,6 +284,8 @@ module FieldWrapper = {
 }
 
 module FieldError = {
+  let errorTextStyle = "text-red-950 dark:text-red-400 text-fs-10 font-medium ml-1"
+
   @react.component
   let make = (
     ~meta: ReactFinalForm.fieldRenderPropsMeta,
@@ -291,7 +293,6 @@ module FieldError = {
     ~errorClass="",
     ~showErrorOnChange=false,
   ) => {
-    let errorTextStyle = "text-red-950 dark:text-red-400 text-fs-10 font-medium ml-1"
     let error = if meta.touched || alwaysShow || (showErrorOnChange && meta.modified) {
       if !(meta.submitError->Js.Nullable.isNullable) && !meta.dirtySinceLastSubmit {
         Nullable.toOption(meta.submitError)
