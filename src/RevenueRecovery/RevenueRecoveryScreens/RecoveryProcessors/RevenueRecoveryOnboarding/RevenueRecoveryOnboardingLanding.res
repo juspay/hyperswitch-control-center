@@ -16,11 +16,14 @@ let make = (~createMerchant) => {
       GlobalVars.appendDashboardPath(~url=model->RevenueRecoveryProfileUtils.getTriggerModelRoute),
     )
 
-  let startOnboarding = model => {
+  let startOnboarding = (model: RevenueRecoveryProfileTypes.triggerModel) => {
     if createMerchant {
       mixpanelEvent(~eventName="recovery_get_started_new_merchant")
       if devRecoveryExternalTrigger {
-        model->RevenueRecoveryProfileUtils.setPendingTriggerModel
+        SessionStorage.sessionStorage.setItem(
+          RevenueRecoveryProfileUtils.pendingTriggerModelKey,
+          (model :> string),
+        )
       }
       setCreateNewMerchant(ProductTypes.Recovery)
     } else {
@@ -31,7 +34,12 @@ let make = (~createMerchant) => {
 
   React.useEffect(() => {
     if devRecoveryExternalTrigger && !createMerchant {
-      RevenueRecoveryProfileUtils.takePendingTriggerModel()->Option.forEach(goToTriggerModelRoute)
+      let pendingModel =
+        SessionStorage.sessionStorage.getItem(RevenueRecoveryProfileUtils.pendingTriggerModelKey)
+        ->Nullable.toOption
+        ->Option.map(RevenueRecoveryProfileUtils.getTriggerModelFromString)
+      SessionStorage.sessionStorage.removeItem(RevenueRecoveryProfileUtils.pendingTriggerModelKey)
+      pendingModel->Option.forEach(goToTriggerModelRoute)
     }
     None
   }, [])

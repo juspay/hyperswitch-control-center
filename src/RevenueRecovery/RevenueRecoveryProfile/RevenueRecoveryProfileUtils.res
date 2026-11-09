@@ -40,12 +40,7 @@ let getTriggerModelLabel = model =>
   | ExternalTriggers => "Scheduled Only Recovery"
   }
 
-let getRetryAlgorithmLabel = algorithm =>
-  switch algorithm {
-  | Monitoring => "Monitoring"
-  | Smart => "Smart"
-  | Cascading => "Cascading"
-  }
+let getRetryAlgorithmLabel = (algorithm: retryAlgorithm) => (algorithm :> string)->capitalizeString
 
 let mapJsonToRecoveryProfile = json => {
   let dict = json->getDictFromJsonObject
@@ -133,15 +128,3 @@ let validateRetryConfig = values => {
 // The merchant doesn't exist yet when a new merchant picks a model, so the choice has to
 // survive the create merchant popup and the switch to that merchant
 let pendingTriggerModelKey = "recovery_pending_trigger_model"
-
-let setPendingTriggerModel = (model: triggerModel) =>
-  SessionStorage.sessionStorage.setItem(pendingTriggerModelKey, (model :> string))
-
-let takePendingTriggerModel = () => {
-  let pendingModel =
-    SessionStorage.sessionStorage.getItem(pendingTriggerModelKey)
-    ->Nullable.toOption
-    ->Option.map(getTriggerModelFromString)
-  SessionStorage.sessionStorage.removeItem(pendingTriggerModelKey)
-  pendingModel
-}
