@@ -26,11 +26,46 @@ type addToastOptions = {
   actionButton?: actionButton,
   duration?: int,
   position?: snackbarPosition,
-  wrap?: bool,
+  slot?: React.element,
+  width?: string,
+  maxWidth?: string,
+  minWidth?: string,
 }
 
-@module("@juspay/blend-design-system") @react.component
-external make: (~position: string=?, ~dismissOnClickAway: bool=?) => React.element = "Snackbar"
+module Native = {
+  @module("@juspay/blend-design-system") @react.component
+  external make: (
+    ~position: snackbarPosition=?,
+    ~dismissOnClickAway: bool=?,
+    ~visibleToasts: int=?,
+    ~containerAriaLabel: string=?,
+    ~hotkey: array<string>=?,
+    ~maxWidth: string=?,
+  ) => React.element = "SnackbarV2"
+}
+
+@react.component
+let make = (
+  ~position=?,
+  ~dismissOnClickAway=?,
+  ~visibleToasts=?,
+  ~containerAriaLabel=?,
+  ~hotkey=?,
+  ~maxWidth=?,
+) => {
+  // Preserve message-based names without V2's single-line header truncation.
+  <div className="app-snackbar">
+    <style>
+      {React.string(
+        ".app-snackbar [data-snackbar] [data-element='header'] { white-space: normal !important; overflow: visible !important; overflow-wrap: anywhere; }",
+      )}
+    </style>
+    <Native ?position ?dismissOnClickAway ?visibleToasts ?containerAriaLabel ?hotkey ?maxWidth />
+  </div>
+}
+
+@unboxed
+type toastId = String(string) | Number(int)
 
 @module("@juspay/blend-design-system")
-external addSnackbar: addToastOptions => string = "addSnackbar"
+external addSnackbarV2: addToastOptions => toastId = "addSnackbarV2"
