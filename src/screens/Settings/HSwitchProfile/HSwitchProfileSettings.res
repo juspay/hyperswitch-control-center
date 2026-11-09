@@ -220,8 +220,19 @@ module BasicDetailsSection = {
   @react.component
   let make = () => {
     open CommonAuthHooks
-    let {name: userName, email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
+    let {name: userName, email, token} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let userTitle = LogicUtils.userNameToTitle(userName)
+    let showToast = ToastAdapter.useShowToast()
+
+    let handleCopyJwt = _ => {
+      switch token {
+      | Some(jwt) if jwt->LogicUtils.isNonEmptyString => {
+          Clipboard.writeText(jwt)
+showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
+        }
+      | _ => showToast(~message="JWT not available", ~toastType=ToastError)
+      }
+    }
 
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     <div>
@@ -235,6 +246,12 @@ module BasicDetailsSection = {
           <p className=subTitleClass>
             {(userName->LogicUtils.isNonEmptyString ? userTitle : "--")->React.string}
           </p>
+          <Button
+            text="Copy JWT"
+            buttonSize=Small
+            leftIcon={CustomIcon(<Icon name="nd-copy" />)}
+            onClick=handleCopyJwt
+          />
         </div>
         <hr />
         <div className="flex gap-10 items-center">
