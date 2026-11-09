@@ -1,10 +1,6 @@
 open LogicUtils
 
-let makeItems = (
-  options: array<SelectBox.dropdownOption>,
-  ~deselectDisable: bool=false,
-  ~selectedValue: string,
-) => {
+let makeItems = (options: array<SelectBox.dropdownOption>) => {
   let groups = Dict.make()
 
   options->Array.forEach(opt => {
@@ -20,21 +16,18 @@ let makeItems = (
     let items = groupOptions->Array.map(opt => {
       let slot1 = MultiSelectWrapper.getLeftSlot(opt.icon)
       let slot2 = MultiSelectWrapper.getRightSlot(opt.icon)
-      let isSelected = opt.value === selectedValue
-      let alwaysSelected = deselectDisable && isSelected
       {
-        MultiSelectBindings.label: opt.label,
+        SingleSelectBinding.label: opt.label,
         value: opt.value,
         subLabel: ?opt.labelDescription,
         ?slot1,
         ?slot2,
         disabled: ?opt.isDisabled,
-        alwaysSelected: ?(alwaysSelected ? Some(true) : None),
         tooltip: ?opt.description,
       }
     })
     {
-      MultiSelectBindings.groupLabel: ?(groupKey === "-" ? None : Some(groupKey)),
+      SingleSelectBinding.groupLabel: ?(groupKey === "-" ? None : Some(groupKey)),
       items,
     }
   })
@@ -42,7 +35,7 @@ let makeItems = (
 
 @react.component
 let make = (
-  ~items: array<MultiSelectBindings.selectMenuGroupType>,
+  ~items: array<SingleSelectBinding.selectMenuGroupType>,
   ~placeholder: string,
   ~input: ReactFinalForm.fieldRenderPropsInput,
   ~enableSearch: bool=false,
@@ -67,19 +60,23 @@ let make = (
   ~variant: option<MultiSelectBindings.selectMenuItemVariant>=?,
   ~menuFooter: option<React.element>=?,
 ) => {
+  let triggerId = React.useId()
   let authContext = React.useContext(FormAuthContext.formAuthContext)
   let isDisabled = disabled || authContext === CommonAuthTypes.NoAccess
 
   let selectedValue = input.value->getStringFromJson("")
 
   let handleChange = value => {
-    input.onChange(value->JSON.Encode.string->Identity.jsonToFormReactEvent)
+    // V2 delegates reselect-to-clear to the controlled parent.
+    let next = allowDeselect->Option.getOr(false) && value === selectedValue ? "" : value
+    input.onChange(next->JSON.Encode.string->Identity.jsonToFormReactEvent)
   }
 
   let totalItems = items->Array.reduce(0, (acc, g) => acc + g.items->Array.length)
   let computedEnableSearch = enableSearch || totalItems > 5
 
   <SingleSelectBinding
+    name=triggerId
     selected=selectedValue
     onSelect=handleChange
     items
@@ -88,21 +85,36 @@ let make = (
     required
     placeholder
     ?size
-    enableSearch=computedEnableSearch
-    ?searchPlaceholder
+    search={show: computedEnableSearch, placeholder: ?searchPlaceholder}
     ?onBlur
     ?onFocus
-    ?fullWidth
+    triggerDimensions={
+      minWidth: ?minTriggerWidth,
+      maxWidth: ?maxTriggerWidth,
+      width: ?(fullWidth->Option.getOr(false) ? Some("100%") : None),
+    }
     allowCustomValue
-    ?alignment
-    ?side
+    menuPosition={?alignment, ?side}
     ?slot
-    ?customTrigger
-    ?minMenuWidth
-    ?maxMenuWidth
-    ?allowDeselect
-    ?maxTriggerWidth
-    ?minTriggerWidth
+    customTrigger={customTrigger->Option.getOr(
+      SingleSelectBinding.Trigger.make(
+        ~items,
+        ~id=triggerId,
+        ~label?,
+        ~onFocus?,
+        ~onBlur?,
+        ~selected=selectedValue,
+        ~placeholder,
+        ~disabled=isDisabled,
+        ~slot?,
+        ~fullWidth=fullWidth->Option.getOr(false),
+        ~minWidth=?minTriggerWidth,
+        ~maxWidth=?maxTriggerWidth,
+        ~size?,
+        (),
+      ),
+    )}
+    menuDimensions={minWidth: ?minMenuWidth, maxWidth: ?maxMenuWidth, maxHeight: 320}
     ?variant
     ?menuFooter
   />
