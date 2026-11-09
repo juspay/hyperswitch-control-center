@@ -19,6 +19,7 @@ let make = (
   ~checkboxDimension="w-4 h-4",
   ~isCheckboxSelectedClass=false,
   ~stopPropagationNeeded=false,
+  ~ariaLabel="Select",
 ) => {
   let useBlend = BlendContext.useBlendEnabled()
 
@@ -36,7 +37,7 @@ let make = (
 
   let blendCheckbox =
     <CheckBoxBinding
-      checked={checkedValue} onCheckedChange disabled={isDisabled} size={mapSize(size)}
+      checked={checkedValue} onCheckedChange disabled={isDisabled} size={mapSize(size)} ariaLabel
     />
 
   let blendNode =
