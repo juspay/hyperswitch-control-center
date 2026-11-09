@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.09.2
+
+### Features
+
+- **connectors:** Add Checkout Apple Pay payout connector introduction ([#5802](https://github.com/juspay/hyperswitch-control-center/pull/5802)) ([`b6d3d1d`](https://github.com/juspay/hyperswitch-control-center/commit/b6d3d1d580f22d59b58589719da5ea48cc2cf61f))
+
+**Full Changelog:** [`2026.11.09.1...2026.11.09.2`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.09.1...2026.11.09.2)
+
+- - -
+
 ## 2026.11.09.1
 
 ### Features
