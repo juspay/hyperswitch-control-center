@@ -106,7 +106,7 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
         "Processing Channel ID *",
         "Checkout API Secret Key *",
         "Checkout Client ID",
-        "Connector Currency Account ID *",
+        "Checkout Currency Account ID *",
       ],
     },
     paymentSections: {
