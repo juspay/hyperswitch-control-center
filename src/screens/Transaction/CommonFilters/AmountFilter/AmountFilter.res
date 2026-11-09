@@ -121,6 +121,42 @@ let make = (~options) => {
     setIsAmountRangeVisible(_ => false)
   }
 
+  // The amounts are typed straight into the shared filters form, so an edit that is dismissed
+  // instead of applied would be sent by the next submit of any other filter. Put back what is
+  // applied, which the form holds as its initial values (read from the URL).
+  let discardUnappliedChanges = () => {
+    let appliedValues = form.getState().initialValues->getDictFromJsonObject
+    ["start_amount", "end_amount", "amount_option"]->Array.forEach(key =>
+      form.change(key, appliedValues->Dict.get(key)->Option.getOr(JSON.Encode.null))
+    )
+    let appliedOption = appliedValues->getString("amount_option", "")
+    setSelectedOption(_ =>
+      appliedOption->isNonEmptyString
+        ? appliedOption->mapStringToAmountRangeType
+        : AmountFilterTypes.UnknownRange("Select Amount")
+    )
+    setIsAmountRangeVisible(_ => false)
+  }
+
+  let isAmountRangeOpen = selectedOption != UnknownRange("Select Amount") && isAmountRangeVisible
+
+  // The range dropdown renders its menu in a portal, outside this component in the DOM, so a DOM
+  // containment check would treat picking an option as a click outside. React events from the
+  // portal still bubble to the wrapper below, which records every click that started inside.
+  let lastClickInside = React.useRef(Nullable.null)
+  React.useEffect(() => {
+    if isAmountRangeOpen {
+      let onWindowClick = ev =>
+        if lastClickInside.current !== ev->Nullable.make {
+          discardUnappliedChanges()
+        }
+      Window.addEventListener("click", onWindowClick)
+      Some(() => Window.removeEventListener("click", onWindowClick))
+    } else {
+      None
+    }
+  }, [isAmountRangeOpen])
+
   let renderFields = () =>
     switch selectedOption {
     | GreaterThanOrEqualTo =>
@@ -167,7 +203,7 @@ let make = (~options) => {
 
   let (displayCustomCss, buttonText) = displaySelectedRange()
 
-  <>
+  <div onClick={ev => lastClickInside.current = ev->ReactEvent.Mouse.nativeEvent->Nullable.make}>
     <FilterSelectBoxAdapter
       key={buttonText}
       allowMultiSelect=false
@@ -181,7 +217,7 @@ let make = (~options) => {
       fullLength=true
       customButtonStyle="bg-white rounded-md !px-4 !py-2 !h-10"
     />
-    <RenderIf condition={selectedOption != UnknownRange("Select Amount") && isAmountRangeVisible}>
+    <RenderIf condition=isAmountRangeOpen>
       <div
         onKeyDown=handleKeyDown
         className="border border-jp-gray-940 border-opacity-50 bg-white rounded-md py-1.5 gap-2.5 flex justify-between px-2.5 pb-4 border-t-0 items-center">
@@ -198,5 +234,5 @@ let make = (~options) => {
         />
       </div>
     </RenderIf>
-  </>
+  </div>
 }
