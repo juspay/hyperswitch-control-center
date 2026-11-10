@@ -651,6 +651,8 @@ const ssoBaseUrl = process.env.PLAYWRIGHT_SSO_BASE_URL;
 (ssoBaseUrl ? test.describe.serial : test.describe.skip)(
   "Okta SSO tests",
   () => {
+    test.use({ trace: "off" });
+
     let authId = "";
 
     test.beforeAll(async ({ request }) => {
