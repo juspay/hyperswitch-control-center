@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.11.0
+
+### Bug Fixes
+
+- Token leakage prevention ([#5784](https://github.com/juspay/hyperswitch-control-center/pull/5784)) ([`66804ee`](https://github.com/juspay/hyperswitch-control-center/commit/66804eecc706580f61e9ab5ed7c3764c9bb5e906))
+
+### Testing
+
+- **playwright:** Refresh visual snapshots and update test config ([#5803](https://github.com/juspay/hyperswitch-control-center/pull/5803)) ([`1d5596d`](https://github.com/juspay/hyperswitch-control-center/commit/1d5596d7ca9bcccb05e42c6f4a20a1ee25553fa9))
+
+**Full Changelog:** [`2026.11.09.2...2026.11.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.09.2...2026.11.11.0)
+
+- - -
+
 ## 2026.11.09.2
 
 ### Features
