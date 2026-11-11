@@ -88,7 +88,7 @@ type xAxis = {
 }
 
 type info = {index: int}
-type point = {color: string, x: string, y: float, point: info}
+type point = {color: string, @as("category") x: string, y: float, point: info}
 type pointFormatter = {points: array<point>}
 
 external asTooltipPointFormatter: Js_OO.Callback.arity1<'a> => pointFormatter => string =

@@ -5,7 +5,14 @@ type spacingRight = int
 
 type info = {index: int}
 type series = {name: string}
-type point = {color: string, x: string, y: float, point: info, key: string, series: series}
+type point = {
+  color: string,
+  @as("category") x: string,
+  y: float,
+  point: info,
+  key: string,
+  series: series,
+}
 type pointFormatter = {points: array<point>}
 type yAxisFormatter = {value: int}
 
