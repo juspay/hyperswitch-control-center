@@ -15,6 +15,7 @@ let getStepName = step => {
   | Preview => "Preview"
   | CustomMetadata => "Metadata"
   | AutomaticFlow => "AutomaticFlow"
+  | WebhookRegistration => "Register Webhook"
   }
 }
 // Any connector added to these lists must also be added to the matching
@@ -25,6 +26,7 @@ let getStepName = step => {
 let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(ADYEN),
   PayoutProcessor(ADYENPLATFORM),
+  PayoutProcessor(CHECKOUT),
   PayoutProcessor(CYBERSOURCE),
   PayoutProcessor(EBANX),
   PayoutProcessor(ITAUBANK),
@@ -43,6 +45,7 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(SANTANDER),
   PayoutProcessor(DEUTSCHEBANK),
   PayoutProcessor(GOTYME),
+  PayoutProcessor(MIFINITY),
 ]
 
 let payoutConnectorListForLive: array<connectorTypes> = [
@@ -202,6 +205,13 @@ let connectorList: array<connectorTypes> = [
   Processors(WORLDPAYRAFT),
   Processors(ETISALAT),
   Processors(MERCHANTE),
+  Processors(SAFERPAY),
+  Processors(JPMORGAN_ORBITAL),
+  Processors(D24),
+  Processors(PAYNEARME),
+  Processors(PAYDOTCOM),
+  Processors(ELAVON_PG),
+  Processors(GLOBALPAYMENTS_HEARTLAND),
 ]
 
 let connectorListForLive: array<connectorTypes> = [
@@ -360,6 +370,29 @@ let checkoutInfo = {
       testValidationRegex: "^sk(_sbox)?_(.+)$",
       liveExpectedFormat: "API secret key should begin with sk_ and not begin with sk_sbox_",
       testExpectedFormat: "API secret key should begin with sk_",
+    },
+    {
+      name: "connector_account_details.key1",
+      liveValidationRegex: "^pc_(.+)$",
+      testValidationRegex: "^pc_(.+)$",
+      liveExpectedFormat: "Processing Channel ID should have the prefix pc_",
+      testExpectedFormat: "Processing Channel ID should have the prefix pc_",
+    },
+    {
+      name: "metadata.connector_client_id",
+      liveValidationRegex: "^cli_(.+)$",
+      testValidationRegex: "^cli_(.+)$",
+      liveExpectedFormat: "Checkout Client ID should have the prefix cli_",
+      testExpectedFormat: "Checkout Client ID should have the prefix cli_",
+      isRequired: false,
+    },
+    {
+      name: "metadata.connector_currency_account_id",
+      liveValidationRegex: "^ca_(.+)$",
+      testValidationRegex: "^ca_(.+)$",
+      liveExpectedFormat: "Connector Currency Account ID should have the prefix ca_",
+      testExpectedFormat: "Connector Currency Account ID should have the prefix ca_",
+      isRequired: false,
     },
   ],
 }
@@ -711,8 +744,12 @@ let stripeBillingInfo = {
   description: "Stripe Billing connector enables automated subscription management, invoicing, and recurring payments using Stripe's billing infrastructure.",
 }
 
+let recurlyInfo = {
+  description: "Recurly is a subscription management and billing platform that automates recurring billing, invoicing, and payment recovery for subscription businesses.",
+}
+
 let customBillingInfo = {
-  description: "Stripe Billing connector enables automated subscription management, invoicing, and recurring payments using Stripe's billing infrastructure.",
+  description: "Custom Billing lets you connect your own in-house billing system for subscription management and invoicing, without needing credentials from a third-party billing platform.",
 }
 
 let nexixpayInfo = {
@@ -776,6 +813,34 @@ let etisalatInfo = {
 
 let merchanteInfo = {
   description: "MerchantE Payment Gateway is a REST API for credit card processing — authorization, capture, settlement, refunds, voids, and AVS/CVV verification — with tokenized Card-on-File (CIT/MIT) recurring payments and Apple Pay/Google Pay support.",
+}
+
+let saferpayInfo = {
+  description: "Saferpay is a secure e-commerce payment gateway supporting domestic and international online payments.",
+}
+
+let jpmorganOrbitalInfo = {
+  description: "J.P. Morgan Orbital is a payment gateway for securely processing online card payments.",
+}
+
+let d24Info = {
+  description: "D24 is a payment platform for accepting deposits and issuing cashouts through local payment methods.",
+}
+
+let paynearmeInfo = {
+  description: "PayNearMe is a US payments platform for bill pay and iGaming, offering card, ACH and cash payments.",
+}
+
+let paydotcomInfo = {
+  description: "Pay.com is a REST-based payment gateway supporting card charges, holds, refunds and 3DS authentication.",
+}
+
+let elavonPgInfo = {
+  description: "Elavon Payment Gateway provides REST APIs for online, in-app and in-person payments and transaction management.",
+}
+
+let globalpaymentsHeartlandInfo = {
+  description: "Global Payments Heartland uses the Portico gateway API to process card and other payment transactions.",
 }
 
 let signifydInfo = {
@@ -1086,12 +1151,20 @@ let getConnectorNameString = (connector: processorTypes) =>
   | WORLDPAYRAFT => "worldpayraft"
   | ETISALAT => "etisalat"
   | MERCHANTE => "merchante"
+  | SAFERPAY => "saferpay"
+  | JPMORGAN_ORBITAL => "jpmorgan_orbital"
+  | D24 => "d24"
+  | PAYNEARME => "paynearme"
+  | PAYDOTCOM => "paydotcom"
+  | ELAVON_PG => "elavon_pg"
+  | GLOBALPAYMENTS_HEARTLAND => "globalpayments_heartland"
   }
 
 let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   switch payoutProcessor {
   | ADYEN => "adyen"
   | ADYENPLATFORM => "adyenplatform"
+  | CHECKOUT => "checkout"
   | CYBERSOURCE => "cybersource"
   | EBANX => "ebanx"
   | ITAUBANK => "itaubank"
@@ -1110,6 +1183,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | SANTANDER => "santander"
   | DEUTSCHEBANK => "deutschebank"
   | GOTYME => "gotyme_sanlam"
+  | MIFINITY => "mifinity"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -1149,6 +1223,7 @@ let getBillingProcessorNameString = (billingProcessor: billingProcessorTypes) =>
   switch billingProcessor {
   | CHARGEBEE => "chargebee"
   | STRIPE_BILLING => "stripebilling"
+  | RECURLY => "recurly"
   | CUSTOMBILLING => "custombilling"
   }
 }
@@ -1307,12 +1382,20 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "worldpayraft" => Processors(WORLDPAYRAFT)
     | "etisalat" => Processors(ETISALAT)
     | "merchante" => Processors(MERCHANTE)
+    | "saferpay" => Processors(SAFERPAY)
+    | "jpmorgan_orbital" => Processors(JPMORGAN_ORBITAL)
+    | "d24" => Processors(D24)
+    | "paynearme" => Processors(PAYNEARME)
+    | "paydotcom" => Processors(PAYDOTCOM)
+    | "elavon_pg" => Processors(ELAVON_PG)
+    | "globalpayments_heartland" => Processors(GLOBALPAYMENTS_HEARTLAND)
     | _ => UnknownConnector("Not known")
     }
   | PayoutProcessor =>
     switch connector {
     | "adyen" => PayoutProcessor(ADYEN)
     | "adyenplatform" => PayoutProcessor(ADYENPLATFORM)
+    | "checkout" => PayoutProcessor(CHECKOUT)
     | "cybersource" => PayoutProcessor(CYBERSOURCE)
     | "ebanx" => PayoutProcessor(EBANX)
     | "itaubank" => PayoutProcessor(ITAUBANK)
@@ -1331,6 +1414,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "santander" => PayoutProcessor(SANTANDER)
     | "deutschebank" => PayoutProcessor(DEUTSCHEBANK)
     | "gotyme_sanlam" => PayoutProcessor(GOTYME)
+    | "mifinity" => PayoutProcessor(MIFINITY)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -1365,6 +1449,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     switch connector {
     | "chargebee" => BillingProcessor(CHARGEBEE)
     | "stripebilling" => BillingProcessor(STRIPE_BILLING)
+    | "recurly" => BillingProcessor(RECURLY)
     | "custombilling" => BillingProcessor(CUSTOMBILLING)
     | _ => UnknownConnector("Not known")
     }
@@ -1504,6 +1589,13 @@ let getProcessorInfo = (connector: ConnectorTypes.processorTypes) => {
   | WORLDPAYRAFT => worldpayraftInfo
   | ETISALAT => etisalatInfo
   | MERCHANTE => merchanteInfo
+  | SAFERPAY => saferpayInfo
+  | JPMORGAN_ORBITAL => jpmorganOrbitalInfo
+  | D24 => d24Info
+  | PAYNEARME => paynearmeInfo
+  | PAYDOTCOM => paydotcomInfo
+  | ELAVON_PG => elavonPgInfo
+  | GLOBALPAYMENTS_HEARTLAND => globalpaymentsHeartlandInfo
   }
 }
 
@@ -1511,6 +1603,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   switch payoutconnector {
   | ADYEN => adyenInfo
   | ADYENPLATFORM => adyenPlatformInfo
+  | CHECKOUT => checkoutInfo
   | CYBERSOURCE => cybersourceInfo
   | EBANX => ebanxInfo
   | ITAUBANK => itauBankInfo
@@ -1529,6 +1622,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | SANTANDER => santanderInfo
   | DEUTSCHEBANK => deutscheBankInfo
   | GOTYME => gotymeInfo
+  | MIFINITY => mifinityInfo
   }
 }
 
@@ -1567,6 +1661,7 @@ let getBillingProcessorInfo = (billingProcessor: ConnectorTypes.billingProcessor
   switch billingProcessor {
   | CHARGEBEE => chargebeeInfo
   | STRIPE_BILLING => stripeBillingInfo
+  | RECURLY => recurlyInfo
   | CUSTOMBILLING => customBillingInfo
   }
 }
@@ -1618,6 +1713,7 @@ let itemProviderMapper: dict<JSON.t> => ConnectorTypes.paymentMethodConfigType =
     installment_payment_enabled: dict->getOptionBool("installment_payment_enabled"),
     payment_experience: dict->getOptionString("payment_experience"),
     card_networks: dict->getStrArrayFromDict("card_networks", []),
+    pay_via_single_use_token: ?dict->getOptionString("pay_via_single_use_token"),
   }
 }
 
@@ -1671,7 +1767,26 @@ let configKeysToIgnore = [
   "additional_merchant_data",
   "connector_wallets_details",
   "connector_webhook_register_details",
+  "pay_via_single_use_token",
 ]
+
+let getPayViaSingleUseTokenConfig = connectorConfig =>
+  connectorConfig->getJsonObjectFromDict("pay_via_single_use_token")->convertMapObjectToDict
+
+let getPayViaSingleUseTokenEntry = (payViaSingleUseTokenConfig, ~paymentMethodType) =>
+  payViaSingleUseTokenConfig->Dict.get(paymentMethodType)->Option.map(convertMapObjectToDict)
+
+let isPayViaSingleUseTokenFlow = (entry, walletFlow: walletFlow) =>
+  entry->getStrArrayFromDict("flows", [])->Array.includes((walletFlow :> string))
+
+let isPayViaSingleUseTokenInDecryptFlow = (
+  connectorConfig,
+  ~paymentMethodType: payViaSingleUseTokenWallet,
+) =>
+  connectorConfig
+  ->getPayViaSingleUseTokenConfig
+  ->getPayViaSingleUseTokenEntry(~paymentMethodType=(paymentMethodType :> string))
+  ->mapOptionOrDefault(false, entry => entry->isPayViaSingleUseTokenFlow(Decrypt))
 
 let verifyConnectorIgnoreField = [
   "business_country",
@@ -1748,9 +1863,15 @@ let addMethod = (paymentMethodsEnabled, paymentMethod, method) => {
   | _ =>
     pmts->Array.forEach((val: paymentMethodEnabled) => {
       if val.payment_method_type->String.toLowerCase === paymentMethod->String.toLowerCase {
-        val.provider
-        ->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
-        ->Array.push(method)
+        let providers = val.provider->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
+        let isAlreadyAdded =
+          providers->Array.some(provider =>
+            provider.payment_method_type === method.payment_method_type &&
+              provider.payment_experience === method.payment_experience
+          )
+        if !isAlreadyAdded {
+          providers->Array.push(method)
+        }
       }
     })
   }
@@ -1887,8 +2008,11 @@ let getDisableConnectorPayloadV2 = (connectorType, previousConnectorState, merch
 let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) => {
   switch (connector, fieldName) {
   | (Processors(ADYEN), "merchant_secret") => true
-  | (BillingProcessor(CHARGEBEE) | BillingProcessor(STRIPE_BILLING), "merchant_secret") => true
-  | (BillingProcessor(CHARGEBEE) | BillingProcessor(STRIPE_BILLING), "additional_secret") => true
+  | (
+      BillingProcessor(CHARGEBEE) | BillingProcessor(STRIPE_BILLING) | BillingProcessor(RECURLY),
+      "merchant_secret",
+    ) => true
+  | (BillingProcessor(CHARGEBEE), "additional_secret") => true
   | _ => false
   }
 }
@@ -2027,19 +2151,10 @@ let validateConnectorRequiredFields = (
     })
   }
 
-  let keys =
-    connectorMetaDataFields
-    ->Dict.keysToArray
-    ->Array.filter(ele => !Array.includes(ConnectorMetaDataUtils.metaDataInputKeysToIgnore, ele))
-
   {
-    keys->Array.forEach(field => {
-      let {\"type", name, required, label} =
-        connectorMetaDataFields
-        ->getDictfromDict(field)
-        ->JSON.Encode.object
-        ->convertMapObjectToDict
-        ->CommonConnectorUtils.inputFieldMapper
+    connectorMetaDataFields
+    ->ConnectorMetaDataUtils.getMetadataInputFields
+    ->Array.forEach(({\"type", name, required, label}) => {
       let key = `metadata.${name}`
       let value = switch \"type" {
       | Text | Select => valuesFlattenJson->getString(`${key}`, "")
@@ -2065,6 +2180,10 @@ let validateConnectorRequiredFields = (
       }
     })
   }
+
+  ConnectorMetaDataUtils.validateMetadataGroups(~connectorMetaDataFields, ~valuesFlattenJson)
+  ->Dict.toArray
+  ->Array.forEach(((key, error)) => newDict->Dict.set(key, error))
 
   connectorWebHookDetails
   ->Dict.keysToArray
@@ -2519,12 +2638,20 @@ let getDisplayNameForProcessor = (connector: ConnectorTypes.processorTypes) =>
   | WORLDPAYRAFT => "Worldpay Raft"
   | ETISALAT => "Etisalat"
   | MERCHANTE => "MerchantE"
+  | SAFERPAY => "Saferpay"
+  | JPMORGAN_ORBITAL => "JP Morgan Orbital"
+  | D24 => "D24"
+  | PAYNEARME => "PayNearMe"
+  | PAYDOTCOM => "Pay.com"
+  | ELAVON_PG => "Elavon Payment Gateway (EPG)"
+  | GLOBALPAYMENTS_HEARTLAND => "Global Payments (Heartland)"
   }
 
 let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutProcessorTypes) =>
   switch payoutProcessor {
   | ADYEN => "Adyen"
   | ADYENPLATFORM => "Adyen Platform"
+  | CHECKOUT => "Checkout"
   | CYBERSOURCE => "Cybersource"
   | EBANX => "Ebanx"
   | ITAUBANK => "Itaubank"
@@ -2543,6 +2670,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | SANTANDER => "Santander"
   | DEUTSCHEBANK => "Deutsche Bank"
   | GOTYME => "GoTyme"
+  | MIFINITY => "MiFinity"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
@@ -2579,7 +2707,8 @@ let getDisplayNameForBillingProcessor = billingProcessor => {
   switch billingProcessor {
   | CHARGEBEE => "Chargebee"
   | STRIPE_BILLING => "Stripe Billing"
-  | CUSTOMBILLING => "Custom"
+  | RECURLY => "Recurly"
+  | CUSTOMBILLING => "Custom Billing"
   }
 }
 
@@ -2771,6 +2900,8 @@ let connectorTypeFromConnectorName: string => connector = connectorName =>
 let stepsArr = (~connector) => {
   switch connector->getConnectorNameTypeFromString {
   | Processors(PAYSAFE) => [IntegFields, PaymentMethods, CustomMetadata, SummaryAndTest]
+  // TODO: Gate webhook details on the WASM value. Blocked: useGetFilterDictFromUrl is initially empty when the WASM value is called.
+  | Processors(SANTANDER) => [IntegFields, PaymentMethods, WebhookRegistration, SummaryAndTest]
   | _ => [IntegFields, PaymentMethods, SummaryAndTest]
   }
 }

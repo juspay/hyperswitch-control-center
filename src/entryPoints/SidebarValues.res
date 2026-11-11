@@ -87,29 +87,28 @@ let paymentLinks = userHasResourceAccess => {
   })
 }
 
-// TODO: gate with the dedicated alerts permission once it is added
-let alerts = {
+let alerts = (~userHasAccess) => {
   SubLevelLink({
     name: "Business Insights",
     link: `/alerts-business-insights`,
-    access: Access,
+    access: userHasAccess(~groupAccess=AlertsView),
     searchOptions: [("View alerts", "")],
   })
 }
 
-let alertsSection = (~isAlertsEnabled) =>
-  isAlertsEnabled
+let alertsSection = (~isAlertsEnabled, ~userHasAccess) =>
+  isAlertsEnabled && userHasAccess(~groupAccess=AlertsView) == Access
     ? Section({
         name: "Alerts",
         icon: "nd-alerts",
         selectedIcon: "nd-alerts-fill",
         showSection: true,
-        links: [alerts],
+        links: [alerts(~userHasAccess)],
       })
     : emptyComponent
 
-let monitoringSection = (~isMonitoringEnabled) =>
-  isMonitoringEnabled
+let monitoringSection = (~isMonitoringEnabled, ~userHasAccess) =>
+  isMonitoringEnabled && userHasAccess(~groupAccess=MonitoringView) == Access
     ? Section({
         name: "Monitoring",
         icon: "nd-analytics",
@@ -117,8 +116,8 @@ let monitoringSection = (~isMonitoringEnabled) =>
         showSection: true,
         links: MonitoringUtils.destinations->Array.map(destination => SubLevelLink({
           name: destination->MonitoringUtils.getTitle,
-          link: `/monitoring/${destination->MonitoringUtils.getRouteSlug}`,
-          access: Access,
+          link: `/monitoring/${destination->MonitoringUtils.getId(~separator="-")}`,
+          access: userHasAccess(~groupAccess=MonitoringView),
           searchOptions: [(destination->MonitoringUtils.getTitle, "")],
         })),
       })
@@ -375,6 +374,13 @@ let paymentAnalytcis = (~userHasResourceAccess) => SubLevelLink({
   searchOptions: [("View analytics", "")],
 })
 
+let analyticsExplorer = (~userHasResourceAccess) => SubLevelLink({
+  name: "Explorer",
+  link: `/analytics-explorer`,
+  access: userHasResourceAccess(~resourceAccess=Analytics),
+  searchOptions: [("Explore payments, refunds and disputes", "")],
+})
+
 let newAnalytics = (~userHasResourceAccess) => SubLevelLink({
   name: "Insights",
   link: `/new-analytics`,
@@ -420,10 +426,14 @@ let analytics = (
   newAnalyticsflag,
   routingAnalyticsFlag,
   ~authenticationAnalyticsFlag,
+  ~analyticsExplorerFlag,
   ~userHasResourceAccess,
   ~isEmbedDecisionEngineEnabled=false,
 ) => {
-  let links = [paymentAnalytcis(~userHasResourceAccess), refundAnalytics(~userHasResourceAccess)]
+  let links =
+    [paymentAnalytcis(~userHasResourceAccess)]
+    ->Array.concat(analyticsExplorerFlag ? [analyticsExplorer(~userHasResourceAccess)] : [])
+    ->Array.concat([refundAnalytics(~userHasResourceAccess)])
   if authenticationAnalyticsFlag {
     links->Array.push(authenticationAnalytics(~userHasResourceAccess))
   }

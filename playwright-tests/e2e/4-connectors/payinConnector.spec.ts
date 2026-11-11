@@ -127,7 +127,9 @@ async function setupConfiguredZiftConnector(
     .getByTestId(connector.label)
     .getByRole("button", { name: "Connect" })
     .click();
+  await assertConnectorFieldLabels(page, connector.fields.fieldLabels);
   await fillConnectorFields(page, fields);
+  await expect(paymentConnector.connectAndProceedButton).toBeEnabled();
   await paymentConnector.connectAndProceedButton.click();
   await paymentConnector.pmtProceedButton.click();
   await expect(paymentConnector.connectorCreatedToast).toBeVisible({
@@ -1563,6 +1565,17 @@ test.describe("All Payin Connectors", () => {
       await assertConnectorFieldLabels(page, connector.fields.fieldLabels);
       await fillConnectorFields(page, connector.fields);
 
+      if (key === "rapyd") {
+        await page
+          .getByRole("button", { name: "Select Value", exact: true })
+          .click();
+        await page
+          .getByRole("searchbox", { name: "Search options..." })
+          .fill("US");
+        await page.getByText("US", { exact: true }).click();
+        await expect(paymentConnector.connectAndProceedButton).toBeEnabled();
+      }
+
       await paymentConnector.connectAndProceedButton.click({ timeout: 5000 });
 
       await assertPaymentMethodTypes(page, connector.paymentSections);
@@ -2196,6 +2209,11 @@ test.describe("All Payin Connectors", () => {
     await paymentConnector.pmtProceedButton.click();
 
     await expect(paymentConnector.connectorCreatedToast).toBeVisible();
+
+    await expect(
+      page.getByRole("button", { name: "Register webhook" }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Skip this step" }).click();
 
     await paymentConnector.connectorSetupDone.click();
 

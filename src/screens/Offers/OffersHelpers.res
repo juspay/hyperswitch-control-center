@@ -1,4 +1,6 @@
 open Typography
+open OffersFormUtils
+open OffersFormFields
 
 module FormSection = {
   @react.component
@@ -14,13 +16,61 @@ module FormSection = {
 
 module FieldRow = {
   @react.component
-  let make = (~fields) => {
+  let make = (~fields, ~children=React.null) => {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
       {fields
       ->Array.mapWithIndex((field, index) =>
-        <FormRenderer.FieldRenderer key={index->Int.toString} field fieldWrapperClass="w-full" />
+        <FormRenderer.FieldRenderer
+          key={index->Int.toString} field fieldWrapperClass="w-full" showErrorOnChange=true
+        />
       )
       ->React.array}
+      children
+    </div>
+  }
+}
+
+module CurrencyAmountFields = {
+  @react.component
+  let make = () => {
+    let currencies =
+      ReactFinalForm.useField("currencies").input.value->LogicUtils.getStrArrayFromJson
+
+    currencies
+    ->Array.map(currency =>
+      <FieldRow
+        key=currency fields=[currency->minOrderAmountField, currency->maxOrderAmountField]
+      />
+    )
+    ->React.array
+  }
+}
+
+module MaxAmountRow = {
+  @react.component
+  let make = () => {
+    let {calculationRule} = OffersHooks.useOfferFormValues()
+
+    <RenderIf condition={calculationRule == OffersTypes.Percentage}>
+      <FieldRow fields=[maxAmountField] />
+    </RenderIf>
+  }
+}
+
+module CountPerCardFields = {
+  @react.component
+  let make = () => {
+    let {startTime, endTime} = OffersHooks.useOfferFormValues()
+    let options = offerDurationInSeconds(~startTime, ~endTime)->resetPeriodUnitOptionsForDuration
+
+    <div className="flex items-end gap-3">
+      <FormRenderer.FieldRenderer
+        field=countPerCardField fieldWrapperClass="flex-1" showErrorOnChange=true
+      />
+      <span className={`pb-3 text-nd_gray-600 ${body.md.medium}`}> {"Per"->React.string} </span>
+      <FormRenderer.FieldRenderer
+        field={cardResetPeriodTypeField(~options)} fieldWrapperClass="w-56"
+      />
     </div>
   }
 }
@@ -34,12 +84,11 @@ module DemoModeBanner = {
         slot: <div className="flex items-center gap-2">
           <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />
           <p className={body.md.regular}>
-            {"You are viewing Offers in demo mode. To enable this feature for your merchant account, please reach out to us on "->React.string}
+            {"You are viewing Offers in demo mode. To enable this feature for your merchant account, please reach out to us at "->React.string}
             <a
-              href="https://hyperswitch-io.slack.com/?redir=%2Fssb%2Fredirect"
-              className="text-nd_primary_blue-450 hover:underline cursor-pointer"
-              target="_blank">
-              {"Slack"->React.string}
+              href=GlobalVars.supportMailtoUrl
+              className="text-nd_primary_blue-450 hover:underline cursor-pointer">
+              {GlobalVars.supportEmail->React.string}
             </a>
           </p>
         </div>,

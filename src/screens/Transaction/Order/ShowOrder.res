@@ -146,6 +146,7 @@ module OrderInfo = {
               PaymentId,
               NetAmount,
               SurchargeAmount,
+              OfferAmount,
               ConnectorTransactionID,
               ErrorMessage,
             ]
@@ -1039,6 +1040,25 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
       </div>,
     )
 
+  let renderOfferDetails = () =>
+    renderTabContent(
+      renderDetailsPanel(
+        ~title="Offer Details",
+        ~children=<ShowOrderDetails
+          data=orderData
+          getHeading=OrderEntity.getHeadingForOfferDetails
+          getCell=OrderEntity.getCellForOfferDetails
+          detailsFields=[AppliedOfferAmount, OfferEngineMerchantId, OfferId, OfferEngineTxnId]
+          isNonRefundConnector={isNonRefundConnector(orderData.connector)}
+          paymentStatus={orderData.status}
+          openRefundModal={() => ()}
+          widthClass="md:w-1/4 w-full min-w-0"
+          paymentId={orderData.payment_id}
+          border=""
+        />,
+      ),
+    )
+
   let paymentDetailsTabs: array<Tabs.tab> = []
 
   if (
@@ -1095,10 +1115,24 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     renderContent: renderFrmDetails,
   })
 
+  if orderData.applied_offer->Option.isSome {
+    paymentDetailsTabs->Array.push({
+      title: "Offer Details",
+      renderContent: renderOfferDetails,
+    })
+  }
+
   let selectTabByTitle = title => {
     let tabIndex = paymentDetailsTabs->Array.findIndex(tab => tab.title === title)
     tabIndex >= 0 ? setSelectedTabIndex(_ => tabIndex) : ()
   }
+
+  let showReviewStatusBanner =
+    version === V1 &&
+      switch orderData.status->statusVariantMapper {
+      | Review | Conflicted => true
+      | _ => false
+      }
 
   <div className="flex flex-col overflow-scroll gap-8">
     <div className="flex justify-between w-full">
@@ -1138,7 +1172,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         onReviewDetailsClick={() => selectTabByTitle("FRM Details")}
       />
     </RenderIf>
-    <RenderIf condition={orderData.status->statusVariantMapper === Review}>
+    <RenderIf condition={showReviewStatusBanner}>
       <ReviewStatusBanner order={orderData} refetch={refreshStatus} />
     </RenderIf>
     <PageLoaderWrapper

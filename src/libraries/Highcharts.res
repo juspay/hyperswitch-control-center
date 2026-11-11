@@ -278,15 +278,12 @@ type barOptions = {
 type highcharts
 
 @module("highcharts") @val external highcharts: highcharts = "default"
+@module("highcharts/modules/sankey") external highchartsWithSankey: highcharts = "default"
 @module("highcharts") external highchartsModule: highcharts = "default"
 
 @module("highcharts") @scope("default")
 external objectEach: (Dict.t<gridLine>, tick => unit) => unit = "objectEach"
 
-@module("highcharts/modules/treemap") external treeMapModule: highcharts => unit = "default"
-@module("highcharts/modules/sankey") external sankeyChartModule: highcharts => unit = "default"
-@module("highcharts/highcharts-more") external bubbleChartModule: highcharts => unit = "default"
-@module("highcharts/modules/sunburst") external sunburstChartModule: highcharts => unit = "default"
 // @module("highcharts-react-official")
 // external make: (~highcharts: highcharts, ~options: options=?) => React.element = "HighchartsReact"
 type afterChartCreated

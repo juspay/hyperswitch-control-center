@@ -199,9 +199,12 @@ let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productType
   let merchSwitch = useMerchantSwitch(~setActiveProductValue)
   let {product_type} = Recoil.useRecoilValueFromAtom(merchantDetailsValueAtom)
   let profileSwitch = useProfileSwitch()
-  let {getCommonSessionDetails, setApplicationState, getResolvedUserInfo} = React.useContext(
-    UserInfoProvider.defaultContext,
-  )
+  let {
+    getCommonSessionDetails,
+    setApplicationState,
+    getResolvedUserInfo,
+    isEmbeddableSession,
+  } = React.useContext(UserInfoProvider.defaultContext)
   let {orgId} = getCommonSessionDetails()
   let url = RescriptReactRouter.useUrl()
   async (
@@ -211,42 +214,44 @@ let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productType
     ~version=UserInfoTypes.V1,
     ~changePath=false,
   ) => {
-    try {
-      let userInfoResFromSwitchOrg = await orgSwitch(
-        ~expectedOrgId=expectedOrgId->Option.getOr(orgId),
-        ~currentOrgId=orgId,
-        ~defaultValue=getResolvedUserInfo(),
-        ~version,
-      )
+    if !isEmbeddableSession() {
+      try {
+        let userInfoResFromSwitchOrg = await orgSwitch(
+          ~expectedOrgId=expectedOrgId->Option.getOr(orgId),
+          ~currentOrgId=orgId,
+          ~defaultValue=getResolvedUserInfo(),
+          ~version,
+        )
 
-      let userInfoResFromSwitchMerch = await merchSwitch(
-        ~expectedMerchantId=expectedMerchantId->Option.getOr(userInfoResFromSwitchOrg.merchantId),
-        ~currentMerchantId=userInfoResFromSwitchOrg.merchantId,
-        ~defaultValue=userInfoResFromSwitchOrg,
-        ~version,
-      )
+        let userInfoResFromSwitchMerch = await merchSwitch(
+          ~expectedMerchantId=expectedMerchantId->Option.getOr(userInfoResFromSwitchOrg.merchantId),
+          ~currentMerchantId=userInfoResFromSwitchOrg.merchantId,
+          ~defaultValue=userInfoResFromSwitchOrg,
+          ~version,
+        )
 
-      let userInfoFromProfile = await profileSwitch(
-        ~expectedProfileId=expectedProfileId->Option.getOr(userInfoResFromSwitchMerch.profileId),
-        ~currentProfileId=userInfoResFromSwitchMerch.profileId,
-        ~defaultValue=userInfoResFromSwitchMerch,
-        ~version,
-      )
+        let userInfoFromProfile = await profileSwitch(
+          ~expectedProfileId=expectedProfileId->Option.getOr(userInfoResFromSwitchMerch.profileId),
+          ~currentProfileId=userInfoResFromSwitchMerch.profileId,
+          ~defaultValue=userInfoResFromSwitchMerch,
+          ~version,
+        )
 
-      setApplicationState(_ => DashboardSession(userInfoFromProfile))
+        setApplicationState(_ => DashboardSession(userInfoFromProfile))
 
-      if changePath {
-        let currentUrl = url.path->OMPSwitchUtils.getPathAfterSwitch
-        RescriptReactRouter.replace(currentUrl)
-      }
-    } catch {
-    | Exn.Error(e) => {
-        switch setActiveProductValue {
-        | Some(fn) => fn(product_type)
-        | None => ()
+        if changePath {
+          let currentUrl = url.path->OMPSwitchUtils.getPathAfterSwitch
+          RescriptReactRouter.replace(currentUrl)
         }
-        let err = Exn.message(e)->Option.getOr("Failed to switch!")
-        Exn.raiseError(err)
+      } catch {
+      | Exn.Error(e) => {
+          switch setActiveProductValue {
+          | Some(fn) => fn(product_type)
+          | None => ()
+          }
+          let err = Exn.message(e)->Option.getOr("Failed to switch!")
+          Exn.raiseError(err)
+        }
       }
     }
   }
@@ -304,5 +309,19 @@ let useOMPType = (): ompTypeState => {
     isCurrentMerchantPlatform,
     isCurrentOrganizationPlatform,
     isCurrentMerchantConnected,
+  }
+}
+
+let useProviderMerchantId = () => {
+  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let {isCurrentOrganizationPlatform} = useOMPType()
+  let merchantList = Recoil.useRecoilValueFromAtom(HyperswitchAtom.merchantListAtom)
+
+  if isCurrentOrganizationPlatform {
+    merchantList
+    ->Array.find(merchant => merchant.type_ == Some(#platform))
+    ->Option.mapOr(merchantId, merchant => merchant.id)
+  } else {
+    merchantId
   }
 }

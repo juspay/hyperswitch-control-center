@@ -75,3 +75,6 @@ let playgroundUserEmail = "dummyuser@dummymerchant.com"
 let playgroundUserPassword = "Dummy@1234"
 
 let maximumRecoveryCodes = 8
+
+let supportEmail = "support.global@juspay.io"
+let supportMailtoUrl = `mailto:${supportEmail}`

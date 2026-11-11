@@ -48,14 +48,8 @@ let make = (~id) => {
         )
         let (ruleRes, accountData) = await Promise.all2((fetchDetails(ruleUrl), getAccounts()))
         let rule = ruleRes->getDictFromJsonObject->ruleItemToObjMapper
-        let (sourceAccountId, targetAccounts) = getSourceAndTargetAccountDetails(rule.strategy)
-        let accountIds =
-          [sourceAccountId]
-          ->Array.concat(targetAccounts->Array.map(target => target.account_id))
-          ->Array.filter(isNonEmptyString)
-          ->getUniqueArray
         setCurrentTransactionDetails(_ => latestTransaction)
-        setRuleAccountIds(_ => accountIds)
+        setRuleAccountIds(_ => rule.strategy->getRuleAccountIds)
         setAccountsData(_ => accountData)
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {

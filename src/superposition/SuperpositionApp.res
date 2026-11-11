@@ -12,6 +12,7 @@ module ConfiguredSuperpositionApp = {
   ) => {
     let {getCommonSessionDetails} = React.useContext(UserInfoProvider.defaultContext)
     let {orgId, merchantId, profileId} = getCommonSessionDetails()
+    let providerMerchantId = OMPSwitchHooks.useProviderMerchantId()
     let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
     let canManageConfigurations = userHasAccess(~groupAccess=ConfigurationsManage) == Access
     let superpositionApiBaseUrl = `${Window.env.apiBaseUrl}/v1/superposition`
@@ -23,7 +24,12 @@ module ConfiguredSuperpositionApp = {
         orgId: superpositionConfigs.organization_id,
         workspace: superpositionConfigs.workspace,
         scope: {
-          context: getScopeContext(~orgId, ~merchantId, ~profileId),
+          context: getScopeContext(
+            ~orgId,
+            ~processorMerchantId=merchantId,
+            ~profileId,
+            ~providerMerchantId,
+          ),
         },
         auth: {
           mode: Bearer,
@@ -45,6 +51,7 @@ module ConfiguredSuperpositionApp = {
       superpositionConfigs,
       orgId,
       merchantId,
+      providerMerchantId,
       profileId,
       token,
       canManageConfigurations,

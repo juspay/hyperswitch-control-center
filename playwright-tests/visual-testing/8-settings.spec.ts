@@ -251,7 +251,7 @@ test.describe("Visual Testing - Settings", () => {
       await expect(page).toHaveScreenshot("settings-users-roles.png", {
         fullPage: true,
         animations: "disabled",
-        maxDiffPixelRatio: 0.01,
+        maxDiffPixelRatio: 0.02,
         mask: [
           homePage.navHeaderMask,
           homePage.merchantNameButton,

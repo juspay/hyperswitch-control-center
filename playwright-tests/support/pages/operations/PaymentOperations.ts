@@ -262,6 +262,13 @@ export class PaymentOperations {
     return this.page.locator(`[data-label="${label}"]`);
   }
 
+  // Scope a [data-label] lookup to the selected payment-details tab panel.
+  // The Summary panel is a sibling of <Tabs> and is always rendered, so labels
+  // that appear in both (e.g. "Offer Amount") are ambiguous via dataLabel().
+  tabPanelDataLabel(label: string): Locator {
+    return this.page.getByRole("tabpanel").locator(`[data-label="${label}"]`);
+  }
+
   // Orders table cells: data-table-location="Orders_trX_tdY"
   orderCell(row: number, col: number): Locator {
     return this.page.locator(
@@ -375,7 +382,7 @@ export class PaymentOperations {
     return this.page.locator('[data-id="Failed to void payment"]');
   }
 
-  // Manual status update for payments in Review state
+  // Manual status update for payments in Review / Conflicted state
   get manualAttentionHeading(): Locator {
     return this.page.getByText("This payment needs manual attention", {
       exact: true,
@@ -385,6 +392,13 @@ export class PaymentOperations {
   get manualAttentionDescription(): Locator {
     return this.page.getByText(
       "Hyperswitch received an anomalous response from the connector for this payment. Review it and update the status to Succeeded or Failed.",
+      { exact: true },
+    );
+  }
+
+  get conflictedAttentionDescription(): Locator {
+    return this.page.getByText(
+      "Hyperswitch received a response from the connector that conflicts with this payment's expected details. Review it and update the payment status.",
       { exact: true },
     );
   }
@@ -417,13 +431,44 @@ export class PaymentOperations {
   }
 
   get reviewStatusDropdown(): Locator {
-    return this.updatePaymentStatusModal.getByRole("button", {
-      name: "New Status",
-    });
+    return this.updatePaymentStatusModal
+      .locator('[data-dropdown-for="Select status"] button')
+      .or(
+        this.updatePaymentStatusModal.locator(
+          '[data-element="single-select-button"]',
+        ),
+      );
   }
 
-  reviewStatusOption(status: "Succeeded" | "Failed"): Locator {
-    return this.page.getByRole("menuitem", { name: status, exact: true });
+  reviewStatusOption(status: string): Locator {
+    return this.page
+      .locator(`[data-dropdown-value="${status}"]`)
+      .or(this.page.getByRole("menuitem", { name: status, exact: true }));
+  }
+
+  // All options rendered in the open status dropdown, in display order
+  get reviewStatusOptions(): Locator {
+    return this.page.getByRole("menuitem");
+  }
+
+  get noEligibleStatusesMessage(): Locator {
+    return this.updatePaymentStatusModal.getByText(
+      "No status updates are available for this payment.",
+      { exact: true },
+    );
+  }
+
+  get eligibleStatusesErrorMessage(): Locator {
+    return this.updatePaymentStatusModal.getByText(
+      "Unable to load available statuses.",
+      { exact: true },
+    );
+  }
+
+  get retryEligibleStatusesButton(): Locator {
+    return this.updatePaymentStatusModal.getByRole("button", {
+      name: "Retry",
+    });
   }
 
   get updateStatusButton(): Locator {
@@ -446,7 +491,7 @@ export class PaymentOperations {
     return this.page.getByRole("button", { name: "Confirm", exact: true });
   }
 
-  confirmStatusUpdateDescription(status: "Succeeded" | "Failed"): Locator {
+  confirmStatusUpdateDescription(status: string): Locator {
     return this.page.getByText(
       `You are about to mark this payment as ${status}. This action is final and cannot be undone. Please confirm to proceed.`,
       { exact: true },
@@ -457,7 +502,7 @@ export class PaymentOperations {
     return this.page.getByRole("button", { name: "Cancel", exact: true });
   }
 
-  manualStatusSuccessToast(status: "Succeeded" | "Failed"): Locator {
+  manualStatusSuccessToast(status: string): Locator {
     return this.page.locator(`[data-id="Payment marked as ${status}"]`);
   }
 
@@ -497,23 +542,8 @@ export class PaymentOperations {
     return this.page.getByText("Customer Details");
   }
 
-  get morePaymentDetailsSection(): Locator {
-    return this.page.getByText("More Payment Details");
-  }
-
-  get paymentMethodDetailsSection(): Locator {
-    return this.page
-      .locator("div")
-      .filter({ hasText: /^Payment Method Details$/ })
-      .first();
-  }
-
   get paymentMetadataSection(): Locator {
     return this.page.getByText("Payment Metadata");
-  }
-
-  get frmDetailsSection(): Locator {
-    return this.page.getByText("FRM Details");
   }
 
   get refundReasonField(): Locator {

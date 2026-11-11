@@ -60,6 +60,7 @@ type checkoutElementOptions = {
   showCardFormByDefault?: bool,
   wallets?: wallets,
   displaySavedPaymentMethods?: bool,
+  subscriptionEvents?: array<string>,
 }
 
 type variables = {
@@ -119,5 +120,9 @@ module Elements = {
 
 module PaymentElement = {
   @module("@juspay-tech/react-hyper-js") @react.component
-  external make: (~id: string, ~options: checkoutElementOptions) => React.element = "PaymentElement"
+  external make: (
+    ~id: string,
+    ~options: checkoutElementOptions,
+    ~onChange: JSON.t => unit=?,
+  ) => React.element = "PaymentElement"
 }

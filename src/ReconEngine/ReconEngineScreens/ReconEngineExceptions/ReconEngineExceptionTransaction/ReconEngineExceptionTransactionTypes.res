@@ -53,3 +53,59 @@ type accountSection = {
   accountTotalAmount: float,
   accountCurrency: string,
 }
+
+type entryOverrides = {
+  entry_type: entryDirectionType,
+  amount: float,
+  effective_at: string,
+  metadata: JSON.t,
+  order_id: string,
+  transformation_id?: string,
+}
+
+type stagingEntryOverrides = {
+  effective_at: string,
+  metadata: JSON.t,
+  order_id: string,
+}
+
+@tag("kind")
+type newEntry =
+  | @as("direct")
+  Direct({
+      account_id: string,
+      entry_type: entryDirectionType,
+      amount: float,
+      effective_at: string,
+      metadata: JSON.t,
+      order_id: string,
+      transformation_id?: string,
+    })
+
+@tag("op")
+type entryOp =
+  | @as("update_entry") UpdateEntry({entry_id: string, overrides: entryOverrides})
+  | @as("mark_received") MarkReceived({entry_id: string, overrides: entryOverrides})
+  | @as("create_entry") CreateEntry({entry: newEntry})
+  | @as("create_with_staging_entry")
+  CreateWithStagingEntry({
+      staging_entry_id: string,
+      overrides?: stagingEntryOverrides,
+    })
+  | @as("replace_with_staging_entry")
+  ReplaceWithStagingEntry({
+      entry_id: string,
+      staging_entry_id: string,
+      overrides?: stagingEntryOverrides,
+    })
+
+type entryChange = {
+  op: entryOp,
+  entry: exceptionResolutionEntryType,
+  original: exceptionResolutionEntryType,
+}
+
+type manualReconciliationRequest = {
+  entry_ops: array<entryOp>,
+  reason: string,
+}

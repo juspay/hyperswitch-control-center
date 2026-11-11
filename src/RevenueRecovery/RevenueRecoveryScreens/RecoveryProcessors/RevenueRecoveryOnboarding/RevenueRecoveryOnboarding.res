@@ -35,7 +35,7 @@ let make = () => {
   <div className="flex flex-row">
     <VerticalStepIndicator
       titleElement={"Setup Recovery"->React.string}
-      sections={getSections(isLiveMode)}
+      sections={getSections(~isLiveMode, ~billingConnector=billingConnectorName)}
       currentStep
       backClick={() => {
         RescriptReactRouter.replace(
@@ -48,6 +48,7 @@ let make = () => {
         currentStep
         setConnectorID={setPaymentConnectorID}
         connector={paymentConnectorName}
+        billingConnector={billingConnectorName}
         setConnectorName={setPaymentConnectorName}
         setNextStep
         profileId

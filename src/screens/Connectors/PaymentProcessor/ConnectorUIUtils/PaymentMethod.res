@@ -38,13 +38,7 @@ module CardRenderer = {
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     )
     let form = ReactFinalForm.useForm()
-    let (meteDataInitialValues, connectorWalletsInitialValues) = React.useMemo(() => {
-      let formValues = formState.values->getDictFromJsonObject
-      (
-        formValues->getDictfromDict("metadata"),
-        formValues->getDictfromDict("connector_wallets_details"),
-      )
-    }, [])
+    let (formValuesOnOpen, setFormValuesOnOpen) = React.useState(_ => formState.values)
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let (selectedWallet, setSelectedWallet) = React.useState(_ => Dict.make()->itemProviderMapper)
 
@@ -78,6 +72,9 @@ module CardRenderer = {
       selectedMethod: paymentMethodConfigType,
     ) => obj.payment_method_type == selectedMethod.payment_method_type
 
+    let getAddedMethod = method =>
+      standardProviders->Array.find(obj => checkPaymentMethodType(obj, method))
+
     let checkPaymentMethodTypeAndExperience = (
       obj: paymentMethodConfigType,
       selectedMethod: paymentMethodConfigType,
@@ -105,6 +102,7 @@ module CardRenderer = {
             switch connector->getConnectorNameTypeFromString(~connectorType) {
             | Processors(TRUSTPAY)
             | Processors(STRIPE_TEST)
+            | PayoutProcessor(CHECKOUT)
             | PayoutProcessor(WORLDPAY)
             | PayoutProcessor(WORLDPAYXML) => false
             | _ => true
@@ -351,10 +349,15 @@ module CardRenderer = {
     let p2RegularTextStyle = `${HSwitchUtils.getTextClass((P2, Medium))} text-grey-700 opacity-50`
 
     let removeSelectedWallet = () => {
-      form.change("metadata", meteDataInitialValues->Identity.genericTypeToJson)
+      let valuesOnOpen = formValuesOnOpen->getDictFromJsonObject
+      form.change("metadata", valuesOnOpen->getJsonObjectFromDict("metadata"))
       form.change(
         "connector_wallets_details",
-        connectorWalletsInitialValues->Identity.genericTypeToJson,
+        valuesOnOpen->getJsonObjectFromDict("connector_wallets_details"),
+      )
+      form.change(
+        "pay_via_single_use_token",
+        valuesOnOpen->getJsonObjectFromDict("pay_via_single_use_token"),
       )
       setSelectedWallet(_ => Dict.make()->itemProviderMapper)
     }
@@ -382,8 +385,12 @@ module CardRenderer = {
       removeOrAddMethods(method)
     }
 
-    let handleOnItemExpandClick = method => () => {
-      if paymentMethod->getPaymentMethodFromString !== BankDebit {
+    let handleOnItemExpandClick = configMethod => () => {
+      let method = configMethod->getAddedMethod->Option.getOr(configMethod)
+
+      setFormValuesOnOpen(_ => form.getState().values)
+
+      if paymentMethod->getPaymentMethodFromString !== BankDebit && !isSelected(method) {
         removeOrAddMethods(method)
       }
 
@@ -391,6 +398,13 @@ module CardRenderer = {
         setSelectedWallet(_ => method)
       }
     }
+
+    React.useEffect(() => {
+      methodsWithAdditionalDetails
+      ->Array.get(initialOpenIndex)
+      ->Option.forEach(method => handleOnItemExpandClick(method)())
+      None
+    }, [])
 
     <div className="flex flex-col gap-4 border rounded-md p-6">
       <div>

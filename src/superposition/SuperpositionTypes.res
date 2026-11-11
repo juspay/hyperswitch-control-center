@@ -1,4 +1,5 @@
 type dimensionEntity =
-  | Org
-  | Merchant
-  | Profile
+  | OrganizationId
+  | ProcessorMerchantId
+  | ProviderMerchantId
+  | ProfileID

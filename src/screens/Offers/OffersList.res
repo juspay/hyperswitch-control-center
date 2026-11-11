@@ -14,12 +14,12 @@ let make = () => {
   let (refetchCounter, setRefetchCounter) = React.useState(_ => 0)
   let (searchText, setSearchText) = React.useState(_ => "")
 
-  let resultsPerPage = 20
   let title = "Offers"
 
-  let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage}
+  let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 10}
   let pageDetailDict = Recoil.useRecoilValueFromAtom(LoadedTable.table_pageDetails)
   let pageDetail = pageDetailDict->Dict.get(title)->Option.getOr(defaultValue)
+  let resultsPerPage = pageDetail.resultsPerPage
   let (offset, setOffset) = React.useState(_ => pageDetail.offset)
 
   let hasManageAccess = userHasAccess(~groupAccess=OffersManage) === Access
@@ -55,7 +55,7 @@ let make = () => {
   React.useEffect(() => {
     getOffers()->ignore
     None
-  }, (offset, filterValue, searchText, refetchCounter))
+  }, (offset, filterValue, searchText, refetchCounter, resultsPerPage))
 
   let entity = OffersEntity.offersEntity(
     ~onStatusToggled=refetch,

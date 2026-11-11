@@ -9,8 +9,7 @@ let useGetHsSidebarValues = () => {
   let connectorDisplayList = connectorDisplayListAtom->Recoil.useRecoilValueFromAtom
   let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
-  let {userEntity, roleId} = getResolvedUserInfo()
-  let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
+  let {userEntity} = getResolvedUserInfo()
   let {
     frm,
     payOut,
@@ -41,6 +40,7 @@ let useGetHsSidebarValues = () => {
     paymentLinkOperations,
     embedDecisionEngine,
     devAlerts,
+    devAnalyticsExplorer,
   } = featureFlagDetails
   let {
     isFeatureEnabledForDenyListMerchant,
@@ -97,11 +97,12 @@ let useGetHsSidebarValues = () => {
       isNewAnalyticsEnable,
       routingAnalytics,
       ~authenticationAnalyticsFlag=authenticationAnalytics,
+      ~analyticsExplorerFlag=devAnalyticsExplorer,
       ~userHasResourceAccess,
       ~isEmbedDecisionEngineEnabled=showDecisionEngine,
     ),
-    alertsSection(~isAlertsEnabled={devAlerts && isInternalUser}),
-    monitoringSection(~isMonitoringEnabled={devAlerts && isInternalUser}),
+    alertsSection(~isAlertsEnabled=devAlerts, ~userHasAccess),
+    monitoringSection(~isMonitoringEnabled=devAlerts, ~userHasAccess),
     ...standardModules,
     default->developers(
       ~isWebhooksEnabled=devWebhooks,

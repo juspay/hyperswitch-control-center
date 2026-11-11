@@ -13,9 +13,24 @@ let makeCustomPreset = (~id, ~label, ~startDate, ~endDate) =>
 let toBlendPreset = (
   day: DateRangeUtils.customDateRange,
   ~disableFutureDates: bool,
+  ~disablePastDates=false,
 ): DateRangePickerBinding.PresetsConfig.t => {
   switch day {
-  | Today => fromPreset(today)
+  | Today =>
+    if disablePastDates {
+      let now = Date.make()
+      let endOfToday = Date.makeWithYMDHMS(
+        ~year=now->Date.getFullYear,
+        ~month=now->Date.getMonth,
+        ~date=now->Date.getDate,
+        ~hours=23,
+        ~minutes=59,
+        ~seconds=59,
+      )
+      makeCustomPreset(~id="rest_of_today", ~label="Today", ~startDate=now, ~endDate=endOfToday)
+    } else {
+      fromPreset(today)
+    }
   | Yesterday => fromPreset(yesterday)
   | Tomorrow => fromPreset(tomorrow)
   | ThisMonth => fromPreset(thisMonth)
@@ -183,7 +198,7 @@ module BlendDateRangePicker = {
     let customPresets =
       predefinedDays
       ->filterPresetsByLimit(dateRangeLimit)
-      ->Array.map(day => toBlendPreset(day, ~disableFutureDates))
+      ->Array.map(day => toBlendPreset(day, ~disableFutureDates, ~disablePastDates))
 
     let (minDate, maxDate) = allowedRangeBounds(allowedDateRange)
 

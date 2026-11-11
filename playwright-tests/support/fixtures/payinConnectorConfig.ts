@@ -1154,6 +1154,11 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
         "Tenant ID *",
         "Webhook Secret",
         "Connector label *",
+        "Client Merchant Reference Id *",
+        "Merchant Payment Method Route Id *",
+        "Acquirer Bin",
+        "Acquirer Merchant ID",
+        "Acquirer Country Code",
       ],
     },
     paymentSections: {
@@ -2463,7 +2468,12 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
       overrides: {
         "Enter Connector label": "rapyd_default",
       },
-      fieldLabels: ["Access Key *", "API Secret *", "Source verification key"],
+      fieldLabels: [
+        "Access Key *",
+        "API Secret *",
+        "Source verification key",
+        "Rapyd country of incorporation *",
+      ],
     },
     paymentSections: {
       Credit: {
@@ -2963,7 +2973,20 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
       overrides: {
         "Enter Connector label": "jpmorgan_default",
       },
-      fieldLabels: ["Client ID *", "Client Secret *"],
+      fieldLabels: [
+        "Client ID *",
+        "Certificate Thumbprint *",
+        "Private Key (Base64 encoded) *",
+        "Resource ID *",
+        "Connector label *",
+        "Company Name *",
+        "Product Name *",
+        "CAD Merchant ID",
+        "EUR Merchant ID",
+        "GBP Merchant ID",
+        "JPY Merchant ID",
+        "USD Merchant ID",
+      ],
     },
     paymentSections: {
       Credit: {
@@ -3871,6 +3894,254 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
           "AmericanExpress",
           "Discover",
           "JCB",
+          "DinersClub",
+        ],
+      },
+    },
+  },
+  saferpay: {
+    label: "saferpay",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "saferpay_default",
+      },
+      fieldLabels: [
+        "API Username *",
+        "API Password *",
+        "Customer Id *",
+        "Terminal Id *",
+        "Connector label *",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "DinersClub",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "DinersClub",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
+  jpmorgan_orbital: {
+    label: "jpmorgan_orbital",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "jpmorgan_orbital_default",
+        "000001 for Stratus (US), 000002 for Tandem (Canada)": "000001",
+        "Enter Terminal ID (3 digits, e.g. 001)": "001",
+      },
+      fieldLabels: [
+        "Orbital Connection Username *",
+        "Merchant ID *",
+        "Orbital Connection Password *",
+        "BIN *",
+        "Terminal ID *",
+        "Connector label *",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "DinersClub",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "DinersClub",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
+  d24: {
+    label: "d24",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "d24_default",
+      },
+      fieldLabels: [
+        "API Key *",
+        "Read-only API Key *",
+        "API Signature *",
+        "Connector label *",
+      ],
+    },
+    paymentSections: {
+      CardRedirect: {
+        label: "Card Redirect",
+        methods: ["card_redirect"],
+      },
+    },
+  },
+
+  paynearme: {
+    label: "paynearme",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "paynearme_default",
+      },
+      fieldLabels: [
+        "PayNearMe API Secret Key *",
+        "PayNearMe Site Identifier *",
+        "Connector label *",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: ["Visa", "Mastercard", "AmericanExpress", "Discover"],
+      },
+      Debit: {
+        label: "Debit",
+        methods: ["Visa", "Mastercard", "AmericanExpress", "Discover"],
+      },
+    },
+  },
+
+  paydotcom: {
+    label: "paydotcom",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "paydotcom_default",
+      },
+      fieldLabels: ["API Key *", "Connector label *"],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Visa",
+          "Mastercard",
+          "AmericanExpress",
+          "Discover",
+          "DinersClub",
+          "JCB",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Visa",
+          "Mastercard",
+          "AmericanExpress",
+          "Discover",
+          "DinersClub",
+          "JCB",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
+  elavon_pg: {
+    label: "elavon_pg",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "elavon_pg_default",
+      },
+      fieldLabels: [
+        "Merchant Alias *",
+        "Secret API Key *",
+        "Connector label *",
+      ],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "DinersClub",
+          "UnionPay",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "DinersClub",
+          "UnionPay",
+        ],
+      },
+    },
+  },
+
+  globalpayments_heartland: {
+    label: "globalpayments_heartland",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "globalpayments_heartland_default",
+      },
+      fieldLabels: ["Secret API Key *", "Connector label *"],
+    },
+    paymentSections: {
+      Credit: {
+        label: "Credit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
+          "DinersClub",
+        ],
+      },
+      Debit: {
+        label: "Debit",
+        methods: [
+          "Mastercard",
+          "Visa",
+          "AmericanExpress",
+          "JCB",
+          "Discover",
           "DinersClub",
         ],
       },
