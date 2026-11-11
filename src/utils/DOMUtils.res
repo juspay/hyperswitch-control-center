@@ -49,3 +49,5 @@ external createResizeObserver: (array<resizeObserverEntry> => unit) => resizeObs
 @get external scrollWidth: Dom.element => int = "scrollWidth"
 @get external offsetWidth: Dom.element => int = "offsetWidth"
 @get external clientWidth: Dom.element => int = "clientWidth"
+type scrollIntoViewParams = {behavior: string, block: string, inline: string}
+@send external scrollIntoView: (Dom.element, scrollIntoViewParams) => unit = "scrollIntoView"
