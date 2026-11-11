@@ -44,10 +44,12 @@ let make = (
   open APIUtils
   open LogicUtils
   open TransactionViewUtils
+  open Typography
   let getURL = useGetURL()
   let fetchDetails = useGetMethod()
   let updateDetails = useUpdateMethod()
   let showToast = ToastAdapter.useShowToast()
+  let isoStringToCustomTimeZone = TimeZoneHook.useIsoStringToCustomTimeZone()
   let {getResolvedUserInfo} = React.useContext(UserInfoProvider.defaultContext)
   let {transactionEntity} = getResolvedUserInfo()
   let {updateExistingKeys, removeKeys, filterValueJson, filterValue, filterKeys, setfilterKeys} =
@@ -220,19 +222,65 @@ let make = (
     viewsArray->Array.length >= 6
       ? "lg:grid-cols-6 sm:grid-cols-3"
       : "lg:grid-cols-4 sm:grid-cols-2"
-  <div className={`grid ${gridColsClass} md:grid-cols-3 grid-cols-2 gap-6 ${containerClassName}`}>
-    {viewsArray
-    ->Array.mapWithIndex((item, i) =>
-      <TransactionViewCard
-        key={i->Int.toString}
-        view={item}
-        count={getViewCount(item, aggregateResponse, entity)->Int.toString}
-        onViewClick
-        isActiveView={item == activeView}
-        isNewCard={isAdvancedView && !(paymentViewsArray->Array.includes(item))}
-        newCardDescription={item->getAdvancedPaymentViewDescription}
-      />
-    )
-    ->React.array}
+
+  // Counts respond to the date range only; any other applied filter scopes the table alone.
+  let viewControlledFilterKeys = [
+    OrderUIUtils.startTimeFilterKey(version),
+    OrderUIUtils.endTimeFilterKey(version),
+    customFilterKey,
+    refundsStatusFilterKey,
+    disputeStatusFilterKey,
+    OrderUIUtils.firstAttemptFilterKey,
+  ]
+  let hasTableOnlyFilters =
+    filterValueJson
+    ->Dict.keysToArray
+    ->Array.some(key => !(viewControlledFilterKeys->Array.includes(key)))
+
+  let formatTime = DateRangeUtils.convertTimeStamp(~isoStringToCustomTimeZone, _, dateTimeFormat)
+  let dateRangeLabel =
+    startTime->isNonEmptyString && endTime->isNonEmptyString
+      ? `${startTime->formatTime} - ${endTime->formatTime}`
+      : ""
+
+  <div className={`flex flex-col gap-3 ${containerClassName}`}>
+    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+      <div className="flex items-center gap-2 min-w-0">
+        <p className={`${body.md.semibold} text-nd_gray-800`}> {"Overview"->React.string} </p>
+        <RenderIf condition={dateRangeLabel->isNonEmptyString}>
+          <p className={`${body.sm.medium} text-nd_gray-500 truncate`}>
+            {dateRangeLabel->React.string}
+          </p>
+        </RenderIf>
+        <ToolTip
+          description=viewsCountDescription
+          toolTipFor={<span className="inline-flex items-center text-nd_gray-500">
+            <Icon name="nd-info-circle" size=14 />
+          </span>}
+          toolTipPosition=Top
+        />
+      </div>
+      <RenderIf condition=hasTableOnlyFilters>
+        <div className={`flex items-center gap-1.5 text-nd_gray-600 ${body.sm.medium}`}>
+          <Icon name="nd-info-circle" size=14 className="text-nd_yellow-700" />
+          <p> {viewsCountFilterHint->React.string} </p>
+        </div>
+      </RenderIf>
+    </div>
+    <div className={`grid ${gridColsClass} md:grid-cols-3 grid-cols-2 gap-6`}>
+      {viewsArray
+      ->Array.mapWithIndex((item, i) =>
+        <TransactionViewCard
+          key={i->Int.toString}
+          view={item}
+          count={getViewCount(item, aggregateResponse, entity)->Int.toString}
+          onViewClick
+          isActiveView={item == activeView}
+          isNewCard={isAdvancedView && !(paymentViewsArray->Array.includes(item))}
+          newCardDescription={item->getAdvancedPaymentViewDescription}
+        />
+      )
+      ->React.array}
+    </div>
   </div>
 }
