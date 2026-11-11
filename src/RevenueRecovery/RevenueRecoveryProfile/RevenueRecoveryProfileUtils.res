@@ -127,7 +127,7 @@ let validateRetryConfig = values => {
 }
 
 let getWebhookUrl = values =>
-  values->getDictFromJsonObject->getDictfromDict(webhookDetailsKey)->getString(webhookUrlKey, "")
+  values->getDictFromJsonObject->getStringFromNestedDict(webhookDetailsKey, webhookUrlKey, "")
 
 let getWebhookInitialValues = webhookDetails => {
   let webhookUrl = webhookDetails->Option.getOr(Dict.make())->getString(webhookUrlKey, "")

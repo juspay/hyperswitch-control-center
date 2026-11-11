@@ -13,7 +13,7 @@ let make = (~isOnboarded, ~onProfileSaved) => {
   let recoveryProfile = HyperswitchAtom.recoveryProfileAtom->Recoil.useRecoilValueFromAtom
   let webhookDetails = recoveryProfile->Option.flatMap(profile => profile.webhookDetails)
   let paymentResponseHashKey =
-    recoveryProfile->Option.mapOr("", profile => profile.paymentResponseHashKey)
+    recoveryProfile->mapOptionOrDefault("", profile => profile.paymentResponseHashKey)
   let (retryAlgorithm, setRetryAlgorithm) = React.useState(_ => Monitoring)
   let initialValues = React.useMemo(() => getRetryConfigInitialValues(None), [])
 
