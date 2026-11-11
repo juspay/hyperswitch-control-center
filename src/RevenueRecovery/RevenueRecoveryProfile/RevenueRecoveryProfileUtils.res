@@ -11,6 +11,11 @@ let gracePeriodDaysKey = "grace_period_days"
 let maxHardDeclineRetriesKey = "max_hard_decline_retries"
 let enablePartialAuthorizationKey = "enable_partial_authorization"
 
+let webhookDetailsKey = "webhook_details"
+let webhookUrlKey = "webhook_url"
+let webhookUrlFieldName = `${webhookDetailsKey}.${webhookUrlKey}`
+let paymentResponseHashKeyKey = "payment_response_hash_key"
+
 let maxAllowedRetries = 15
 
 let configurationSection: VerticalStepIndicatorTypes.section = {
@@ -42,6 +47,8 @@ let mapJsonToRecoveryProfile = json => {
     triggerModel: dict->getString(triggerModelKey, "")->getTriggerModelFromString,
     retryAlgorithm: dict->getString(retryAlgorithmKey, "")->getRetryAlgorithmFromString,
     retryConfig: dict->Dict.get(retryConfigKey)->Option.flatMap(JSON.Decode.object),
+    webhookDetails: dict->Dict.get(webhookDetailsKey)->Option.flatMap(JSON.Decode.object),
+    paymentResponseHashKey: dict->getString(paymentResponseHashKeyKey, "")->getNonEmptyString,
   }
 }
 
@@ -118,6 +125,39 @@ let validateRetryConfig = values => {
 
   errors->JSON.Encode.object
 }
+
+let getWebhookUrl = values =>
+  values->getDictFromJsonObject->getDictfromDict(webhookDetailsKey)->getString(webhookUrlKey, "")
+
+let getWebhookInitialValues = webhookDetails => {
+  let webhookUrl = webhookDetails->Option.getOr(Dict.make())->getString(webhookUrlKey, "")
+  [
+    (
+      webhookDetailsKey,
+      [(webhookUrlKey, webhookUrl->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object,
+    ),
+  ]
+  ->Dict.fromArray
+  ->JSON.Encode.object
+}
+
+// The profile update replaces webhook_details as a whole, so the saved fields are sent back with the URL
+let getWebhookDetailsBody = (~webhookUrl, ~webhookDetails) => {
+  let details = webhookDetails->Option.getOr(Dict.make())->Dict.copy
+  if webhookUrl->isNonEmptyString {
+    details->Dict.set(webhookUrlKey, webhookUrl->JSON.Encode.string)
+  } else {
+    details->Dict.delete(webhookUrlKey)
+  }
+  details->JSON.Encode.object
+}
+
+let validateWebhookUrl = (errors, values, ~isLiveMode) =>
+  switch values->getWebhookUrl->getNonEmptyString {
+  | Some(webhookUrl) =>
+    PaymentSettingsUtils.validateCustom(WebhookDetails, errors, webhookUrl, isLiveMode)
+  | None => ()
+  }
 
 // The merchant doesn't exist yet when a new merchant picks a model, so the choice has to
 // survive the create merchant popup and the switch to that merchant

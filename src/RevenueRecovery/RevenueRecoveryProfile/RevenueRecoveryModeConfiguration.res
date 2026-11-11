@@ -9,8 +9,19 @@ let make = (~isOnboarded, ~onProfileSaved) => {
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile(~version=V2)
+  let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let webhookDetails =
+    HyperswitchAtom.recoveryProfileAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->Option.flatMap(profile => profile.webhookDetails)
   let (retryAlgorithm, setRetryAlgorithm) = React.useState(_ => Monitoring)
   let initialValues = React.useMemo(() => getRetryConfigInitialValues(None), [])
+
+  let validate = values => {
+    let errors = values->validateRetryConfig->getDictFromJsonObject
+    errors->validateWebhookUrl(values, ~isLiveMode)
+    errors->JSON.Encode.object
+  }
 
   let goToDefaultPath = () =>
     RescriptReactRouter.replace(
@@ -32,18 +43,19 @@ let make = (~isOnboarded, ~onProfileSaved) => {
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     try {
-      let body =
-        [
-          (triggerModelKey, (ExternalTriggers :> string)->JSON.Encode.string),
-          (retryAlgorithmKey, (retryAlgorithm :> string)->JSON.Encode.string),
-          (
-            retryConfigKey,
-            values->getDictFromJsonObject->getDictfromDict(retryConfigKey)->JSON.Encode.object,
-          ),
-        ]
-        ->Dict.fromArray
-        ->JSON.Encode.object
-      let response = await updateBusinessProfile(~body)
+      let body = [
+        (triggerModelKey, (ExternalTriggers :> string)->JSON.Encode.string),
+        (retryAlgorithmKey, (retryAlgorithm :> string)->JSON.Encode.string),
+        (
+          retryConfigKey,
+          values->getDictFromJsonObject->getDictfromDict(retryConfigKey)->JSON.Encode.object,
+        ),
+      ]
+      let webhookUrl = values->getWebhookUrl
+      if webhookUrl->isNonEmptyString {
+        body->Array.push((webhookDetailsKey, getWebhookDetailsBody(~webhookUrl, ~webhookDetails)))
+      }
+      let response = await updateBusinessProfile(~body=body->Dict.fromArray->JSON.Encode.object)
       mixpanelEvent(~eventName=`recovery_mode_saved_${(retryAlgorithm :> string)}`)
       onProfileSaved(response->mapJsonToRecoveryProfile)
     } catch {
@@ -62,13 +74,14 @@ let make = (~isOnboarded, ~onProfileSaved) => {
     <div className="flex flex-col ml-14 mt-16 w-full max-w-3xl pr-14">
       <RevenueRecoveryOnboardingUtils.PageWrapper
         title="Configuration" subTitle="Choose how recovery runs and set its retry limits.">
-        <Form onSubmit initialValues validate=validateRetryConfig>
+        <Form onSubmit initialValues validate>
           <div className="flex flex-col gap-8">
             <RetryConfigFields>
               <RetryModeSelector
                 selectedMode=retryAlgorithm onChange={mode => setRetryAlgorithm(_ => mode)}
               />
             </RetryConfigFields>
+            <WebhookUrlField />
             <div className="flex gap-4 justify-end">
               <Button
                 text="Back" buttonType=Secondary buttonSize=Medium onClick={_ => goToDefaultPath()}

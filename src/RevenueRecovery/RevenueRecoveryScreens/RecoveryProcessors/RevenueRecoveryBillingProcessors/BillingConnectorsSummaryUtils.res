@@ -1,5 +1,4 @@
 open RevenueRecoveryProfileHelper
-open Typography
 
 // No connector to show or configure on the external model, so it only has profile level settings
 let getExternalModelTabs = (
@@ -28,9 +27,15 @@ let getExternalModelTabs = (
   {
     title: "Webhooks",
     renderContent: () => {
-      <p className={`${body.md.regular} text-nd_gray-500 mt-10 px-2`}>
-        {"Webhooks are not enabled yet."->React.string}
-      </p>
+      <div className="flex flex-col gap-20 mt-10">
+        <ProfileWebhooksConfiguration
+          webhookDetails={recoveryProfile->Option.flatMap(profile => profile.webhookDetails)}
+          paymentResponseHashKey={recoveryProfile->Option.flatMap(profile =>
+            profile.paymentResponseHashKey
+          )}
+          onProfileSaved
+        />
+      </div>
     },
   },
 ]

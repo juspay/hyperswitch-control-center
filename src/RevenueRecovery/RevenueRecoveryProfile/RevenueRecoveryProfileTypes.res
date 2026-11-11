@@ -11,4 +11,6 @@ type recoveryProfile = {
   triggerModel: triggerModel,
   retryAlgorithm: option<retryAlgorithm>,
   retryConfig: option<Dict.t<JSON.t>>,
+  webhookDetails: option<Dict.t<JSON.t>>,
+  paymentResponseHashKey: option<string>,
 }
