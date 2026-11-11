@@ -30,7 +30,7 @@ let getExternalModelTabs = (
       <div className="flex flex-col gap-20 mt-10">
         <ProfileWebhooksConfiguration
           webhookDetails={recoveryProfile->Option.flatMap(profile => profile.webhookDetails)}
-          paymentResponseHashKey={recoveryProfile->Option.flatMap(profile =>
+          paymentResponseHashKey={recoveryProfile->Option.mapOr("", profile =>
             profile.paymentResponseHashKey
           )}
           onProfileSaved

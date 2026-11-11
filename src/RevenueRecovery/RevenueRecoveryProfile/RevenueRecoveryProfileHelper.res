@@ -211,14 +211,13 @@ module ProfileRetriesConfiguration = {
       Nullable.null
     }
 
-    let renderValue = (~label, ~value, ~hint=?) =>
+    let renderValue = (~label, ~value, ~hint="") =>
       <div className="flex flex-col gap-2">
         <div className="flex gap-2 items-center">
           <h4 className="text-nd_gray-400"> {label->React.string} </h4>
-          {switch hint {
-          | Some(description) => <InfoHint description />
-          | None => React.null
-          }}
+          <RenderIf condition={hint->isNonEmptyString}>
+            <InfoHint description=hint />
+          </RenderIf>
         </div>
         <p> {value->React.string} </p>
       </div>
@@ -372,10 +371,9 @@ module ProfileWebhooksConfiguration = {
           </div>
         </div>
       </Form>
-      {switch paymentResponseHashKey {
-      | Some(hashKey) => <PaymentResponseHashKey hashKey />
-      | None => React.null
-      }}
+      <RenderIf condition={paymentResponseHashKey->LogicUtils.isNonEmptyString}>
+        <PaymentResponseHashKey hashKey=paymentResponseHashKey />
+      </RenderIf>
     </div>
   }
 }

@@ -12,6 +12,8 @@ let make = (~isOnboarded, ~onProfileSaved) => {
   let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let recoveryProfile = HyperswitchAtom.recoveryProfileAtom->Recoil.useRecoilValueFromAtom
   let webhookDetails = recoveryProfile->Option.flatMap(profile => profile.webhookDetails)
+  let paymentResponseHashKey =
+    recoveryProfile->Option.mapOr("", profile => profile.paymentResponseHashKey)
   let (retryAlgorithm, setRetryAlgorithm) = React.useState(_ => Monitoring)
   let initialValues = React.useMemo(() => getRetryConfigInitialValues(None), [])
 
@@ -80,13 +82,11 @@ let make = (~isOnboarded, ~onProfileSaved) => {
               />
             </RetryConfigFields>
             <WebhookUrlField />
-            {switch recoveryProfile->Option.flatMap(profile => profile.paymentResponseHashKey) {
-            | Some(hashKey) =>
+            <RenderIf condition={paymentResponseHashKey->isNonEmptyString}>
               <div className="px-2">
-                <PaymentResponseHashKey hashKey />
+                <PaymentResponseHashKey hashKey=paymentResponseHashKey />
               </div>
-            | None => React.null
-            }}
+            </RenderIf>
             <div className="flex gap-4 justify-end">
               <Button
                 text="Back" buttonType=Secondary buttonSize=Medium onClick={_ => goToDefaultPath()}

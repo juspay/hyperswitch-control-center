@@ -48,7 +48,7 @@ let mapJsonToRecoveryProfile = json => {
     retryAlgorithm: dict->getString(retryAlgorithmKey, "")->getRetryAlgorithmFromString,
     retryConfig: dict->Dict.get(retryConfigKey)->Option.flatMap(JSON.Decode.object),
     webhookDetails: dict->Dict.get(webhookDetailsKey)->Option.flatMap(JSON.Decode.object),
-    paymentResponseHashKey: dict->getString(paymentResponseHashKeyKey, "")->getNonEmptyString,
+    paymentResponseHashKey: dict->getString(paymentResponseHashKeyKey, ""),
   }
 }
 
@@ -153,11 +153,12 @@ let getWebhookDetailsBody = (~webhookUrl, ~webhookDetails) => {
 }
 
 let validateWebhookUrl = (errors, values, ~isLiveMode) =>
-  switch values->getWebhookUrl->getNonEmptyString {
-  | Some(webhookUrl) =>
+  values
+  ->getWebhookUrl
+  ->getNonEmptyString
+  ->mapOptionOrDefault((), webhookUrl =>
     PaymentSettingsUtils.validateCustom(WebhookDetails, errors, webhookUrl, isLiveMode)
-  | None => ()
-  }
+  )
 
 // The merchant doesn't exist yet when a new merchant picks a model, so the choice has to
 // survive the create merchant popup and the switch to that merchant
