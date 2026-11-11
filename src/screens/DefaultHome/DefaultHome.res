@@ -2,9 +2,7 @@
 let make = () => {
   open PageUtils
   open DefaultHomeUtils
-  open HyperswitchAtom
-  let {devVaultV2Product, devRecoveryV2Product, devReconv2Product, devHypersenseV2Product} =
-    featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {hasProductAccess} = ProductAccessHook.useProductAccess()
   <div
     className="flex flex-1 flex-col gap-6 md:gap-8 w-full h-screen items-center overflow-auto p-4">
     <div className="flex flex-col w-full gap-3 items-center justify-center cursor-pointer">
@@ -43,48 +41,7 @@ let make = () => {
         {defaultHomeCardsArray
         ->Array.mapWithIndex((item, index) => {
           <React.Fragment key={index->Int.toString}>
-            {switch item.product {
-            | Recovery =>
-              <RenderIf condition=devRecoveryV2Product>
-                <DefaultHomeCard
-                  product=item.product
-                  heading=item.heading
-                  description=item.description
-                  img=item.imgSrc
-                  action=item.action
-                />
-              </RenderIf>
-            | Vault =>
-              <RenderIf condition=devVaultV2Product>
-                <DefaultHomeCard
-                  product=item.product
-                  heading=item.heading
-                  description=item.description
-                  img=item.imgSrc
-                  action=item.action
-                />
-              </RenderIf>
-            | Recon(_) =>
-              <RenderIf condition=devReconv2Product>
-                <DefaultHomeCard
-                  product=item.product
-                  heading=item.heading
-                  description=item.description
-                  img=item.imgSrc
-                  action=item.action
-                />
-              </RenderIf>
-            | CostObservability =>
-              <RenderIf condition=devHypersenseV2Product>
-                <DefaultHomeCard
-                  product=item.product
-                  heading=item.heading
-                  description=item.description
-                  img=item.imgSrc
-                  action=item.action
-                />
-              </RenderIf>
-            | _ =>
+            <RenderIf condition={item.product->hasProductAccess}>
               <DefaultHomeCard
                 product=item.product
                 heading=item.heading
@@ -92,7 +49,7 @@ let make = () => {
                 img=item.imgSrc
                 action=item.action
               />
-            }}
+            </RenderIf>
           </React.Fragment>
         })
         ->React.array}
