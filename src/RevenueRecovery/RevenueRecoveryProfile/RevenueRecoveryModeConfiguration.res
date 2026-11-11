@@ -20,11 +20,7 @@ let make = (~isOnboarded, ~onProfileSaved) => {
   React.useEffect(() => {
     setShowSideBar(_ => false)
 
-    (
-      () => {
-        setShowSideBar(_ => true)
-      }
-    )->Some
+    Some(() => setShowSideBar(_ => true))
   }, [])
 
   React.useEffect(() => {
