@@ -102,7 +102,7 @@ let stackedBarGraphLabelFormatter = (~statType: LogicUtilsTypes.valueType, ~curr
     @this
     (this: labelFormatter) => {
       let name = this.name
-      let yData = this.yData->getValueFromArray(0, 0)->Int.toFloat
+      let yData = this.options.data->getValueFromArray(0, 0.0)
       let formattedValue = CurrencyFormatUtils.valueFormatter(yData, statType, ~currency)
 
       let title = `<div style="color: #525866; font-weight: 500;">${name}<span style="color: #99A0AE"> | ${formattedValue}</span></div>`
