@@ -32,6 +32,30 @@ module BrandSettings = {
   }
 }
 
+module FontSettings = {
+  @react.component
+  let make = () => {
+    let labelClass = `${body.md.medium} text-nd_gray-700`
+    let fontFamilyField = makeFieldInfo(
+      ~label="Font Family",
+      ~name="theme_data.settings.typography.fontFamily",
+      ~customInput=InputFields.selectInput(
+        ~options=ThemePreviewUtils.themeFontOptions,
+        ~buttonText="Select font",
+        ~deselectDisable=true,
+        ~fullLength=true,
+      ),
+    )
+
+    <div className="flex flex-col gap-4">
+      <div className={`${body.lg.semibold}`}> {React.string("Font Settings")} </div>
+      <div className="space-y-4">
+        <FormRenderer.FieldRenderer field=fontFamilyField labelClass />
+      </div>
+    </div>
+  }
+}
+
 module SidebarSettings = {
   @react.component
   let make = (~sidebarFromForm: HyperSwitchConfigTypes.sidebarConfig) => {

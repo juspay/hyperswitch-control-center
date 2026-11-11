@@ -19,7 +19,7 @@ module.exports = {
   content: ["./src/**/*.js"],
   theme: {
     fontFamily: {
-      "inter-style": '"InterDisplay"',
+      "inter-style": 'var(--base-font-family, "InterDisplay", sans-serif)',
       "jetbrains-mono": '"JetBrains Mono"',
     },
     extend: {

@@ -32,7 +32,7 @@ let fallbackThemeConfig: HyperSwitchConfigTypes.customStylesTheme = {
       textColorPrimary: "#1C6DEA",
     },
     typography: {
-      fontFamily: "Roboto, sans-serif",
+      fontFamily: ThemeUtils.defaultThemeFont.family,
       fontSize: "14px",
       headingFontSize: "24px",
       textColor: "#006DF9",
@@ -135,7 +135,15 @@ let make = (~children) => {
 
   let configCustomDomainTheme = React.useCallback((uiConfig: JSON.t) => {
     let value = ThemeUtils.parseThemeJson(~uiConfig, ~fallbackThemeConfig)
-    Window.appendStyle(value)
+    let font = ThemeUtils.getThemeFont(value.settings.typography.fontFamily)
+    ThemeUtils.loadThemeFont(font)
+    Window.appendStyle({
+      ...value,
+      settings: {
+        ...value.settings,
+        typography: {...value.settings.typography, fontFamily: font.stack},
+      },
+    })
   }, [])
 
   let configureFavIcon = (faviconUrl: option<string>) => {
