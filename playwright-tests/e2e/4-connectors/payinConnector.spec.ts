@@ -1581,6 +1581,18 @@ test.describe("All Payin Connectors", () => {
       await assertPaymentMethodTypes(page, connector.paymentSections);
 
       await paymentConnector.pmtProceedButton.click();
+
+      if (connector.metadataStepFields) {
+        const { fieldLabels, overrides } = connector.metadataStepFields;
+        for (const label of fieldLabels) {
+          await expect(page.getByText(label, { exact: true })).toBeVisible();
+        }
+        for (const [placeholder, value] of Object.entries(overrides)) {
+          await page.getByPlaceholder(placeholder).fill(value);
+        }
+        await paymentConnector.pmtProceedButton.click();
+      }
+
       await expect(paymentConnector.connectorCreatedToast).toBeVisible({
         timeout: 10000,
       });

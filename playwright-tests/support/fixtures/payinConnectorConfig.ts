@@ -13,6 +13,8 @@ export interface ConnectorConfig {
   label: string;
   fields: ConnectorFieldConfig;
   paymentSections: Record<string, PaymentSection>;
+  // Fields on the Metadata step that follows payment methods, for connectors that have one
+  metadataStepFields?: ConnectorFieldConfig;
 }
 
 export const connectorConfig: Record<string, ConnectorConfig> = {
@@ -2981,6 +2983,15 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
         "Connector label *",
         "Company Name *",
         "Product Name *",
+      ],
+    },
+    // Only USD is filled: a merchant ID is required for at least one currency, not all
+    metadataStepFields: {
+      default: "",
+      overrides: {
+        "Enter the JPMorgan Merchant ID for USD": "test_value",
+      },
+      fieldLabels: [
         "CAD Merchant ID",
         "EUR Merchant ID",
         "GBP Merchant ID",
