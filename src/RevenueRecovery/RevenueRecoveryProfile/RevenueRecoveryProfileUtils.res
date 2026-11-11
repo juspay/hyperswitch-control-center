@@ -18,12 +18,41 @@ let paymentResponseHashKeyKey = "payment_response_hash_key"
 
 let maxAllowedRetries = 15
 
-let configurationSection: VerticalStepIndicatorTypes.section = {
-  id: "configuration",
-  name: "Configuration",
-  icon: "nd-flag",
+let scheduledOnlyOnboardingSteps: array<scheduledOnlyOnboardingSections> = [
+  #configuration,
+  #setupWebhook,
+]
+
+let getScheduledOnlyStepName = (step: scheduledOnlyOnboardingSections) =>
+  switch step {
+  | #configuration => "Configuration"
+  | #setupWebhook => "Setup Webhook"
+  }
+
+let getScheduledOnlyStepIcon = (step: scheduledOnlyOnboardingSections) =>
+  switch step {
+  | #configuration => "nd-settings"
+  | #setupWebhook => "nd-webhook"
+  }
+
+let scheduledOnlyOnboardingSections: array<
+  VerticalStepIndicatorTypes.section,
+> = scheduledOnlyOnboardingSteps->Array.map(step => {
+  VerticalStepIndicatorTypes.id: (step :> string),
+  name: step->getScheduledOnlyStepName,
+  icon: step->getScheduledOnlyStepIcon,
   subSections: None,
+})
+
+let scheduledOnlyDefaultStep: VerticalStepIndicatorTypes.step = {
+  sectionId: (#configuration: scheduledOnlyOnboardingSections :> string),
+  subSectionId: None,
 }
+
+let getScheduledOnlySectionVariant = (step: VerticalStepIndicatorTypes.step) =>
+  scheduledOnlyOnboardingSteps
+  ->Array.find(section => (section :> string) == step.sectionId)
+  ->Option.getOr(#configuration)
 
 let getTriggerModelFromString = value =>
   [InternalTriggers, ExternalTriggers]
