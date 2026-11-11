@@ -10,10 +10,8 @@ let make = (~isOnboarded, ~onProfileSaved) => {
   let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
   let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile(~version=V2)
   let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-  let webhookDetails =
-    HyperswitchAtom.recoveryProfileAtom
-    ->Recoil.useRecoilValueFromAtom
-    ->Option.flatMap(profile => profile.webhookDetails)
+  let recoveryProfile = HyperswitchAtom.recoveryProfileAtom->Recoil.useRecoilValueFromAtom
+  let webhookDetails = recoveryProfile->Option.flatMap(profile => profile.webhookDetails)
   let (retryAlgorithm, setRetryAlgorithm) = React.useState(_ => Monitoring)
   let initialValues = React.useMemo(() => getRetryConfigInitialValues(None), [])
 
@@ -82,6 +80,13 @@ let make = (~isOnboarded, ~onProfileSaved) => {
               />
             </RetryConfigFields>
             <WebhookUrlField />
+            {switch recoveryProfile->Option.flatMap(profile => profile.paymentResponseHashKey) {
+            | Some(hashKey) =>
+              <div className="px-2">
+                <PaymentResponseHashKey hashKey />
+              </div>
+            | None => React.null
+            }}
             <div className="flex gap-4 justify-end">
               <Button
                 text="Back" buttonType=Secondary buttonSize=Medium onClick={_ => goToDefaultPath()}
