@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.11.1
+
+### Bug Fixes
+
+- **graphs:** Read legend values and tooltip categories after highcharts 12 upgrade ([#5804](https://github.com/juspay/hyperswitch-control-center/pull/5804)) ([`59e3e7c`](https://github.com/juspay/hyperswitch-control-center/commit/59e3e7c9eb4f57829bb29b79ccf89a596e5ea4fa))
+
+**Full Changelog:** [`2026.11.11.0...2026.11.11.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.11.0...2026.11.11.1)
+
+- - -
+
 ## 2026.11.11.0
 
 ### Bug Fixes
