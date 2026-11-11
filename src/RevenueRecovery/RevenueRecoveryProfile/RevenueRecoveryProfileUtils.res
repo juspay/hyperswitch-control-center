@@ -1,5 +1,6 @@
 open RevenueRecoveryProfileTypes
 open LogicUtils
+open VerticalStepIndicatorTypes
 
 let triggerModelKey = "revenue_recovery_trigger_model"
 let retryAlgorithmKey = "revenue_recovery_retry_algorithm_type"
@@ -35,21 +36,19 @@ let getScheduledOnlyStepIcon = (step: scheduledOnlyOnboardingSections) =>
   | #setupWebhook => "nd-webhook"
   }
 
-let scheduledOnlyOnboardingSections: array<
-  VerticalStepIndicatorTypes.section,
-> = scheduledOnlyOnboardingSteps->Array.map(step => {
-  VerticalStepIndicatorTypes.id: (step :> string),
+let scheduledOnlyOnboardingSections = scheduledOnlyOnboardingSteps->Array.map(step => {
+  id: (step :> string),
   name: step->getScheduledOnlyStepName,
   icon: step->getScheduledOnlyStepIcon,
   subSections: None,
 })
 
-let scheduledOnlyDefaultStep: VerticalStepIndicatorTypes.step = {
+let scheduledOnlyDefaultStep: step = {
   sectionId: (#configuration: scheduledOnlyOnboardingSections :> string),
   subSectionId: None,
 }
 
-let getScheduledOnlySectionVariant = (step: VerticalStepIndicatorTypes.step) =>
+let getScheduledOnlySectionVariant = (step: step) =>
   scheduledOnlyOnboardingSteps
   ->Array.find(section => (section :> string) == step.sectionId)
   ->Option.getOr(#configuration)
