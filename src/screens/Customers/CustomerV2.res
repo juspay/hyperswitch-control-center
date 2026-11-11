@@ -26,7 +26,7 @@ let make = () => {
   let (lastFilterState, setLastFilterState) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->JSON.stringify
   )
-  let getCustomersList = async searchValue => {
+  let getCustomersList = async (~skipDuplicateCheck=false, searchValue) => {
     try {
       setScreenState(_ => Loading)
 
@@ -53,7 +53,7 @@ let make = () => {
         ~convertToLocal=false,
       )
 
-      if queryParams === lastApiCallParams {
+      if !skipDuplicateCheck && queryParams === lastApiCallParams {
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         setLastApiCallParams(_ => queryParams)
@@ -165,6 +165,7 @@ let make = () => {
             totalResults=total
             offset
             setOffset
+            onRefresh={() => getCustomersList(~skipDuplicateCheck=true, searchText)->ignore}
             currentFetchCount={customersData->Array.length}
             defaultColumns={defaultColumns}
             customColumnMapper={TableAtoms.customersMapDefaultCols}

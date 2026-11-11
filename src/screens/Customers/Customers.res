@@ -118,6 +118,7 @@ let make = () => {
         totalResults=total
         offset
         setOffset
+        onRefresh={() => getCustomersList(searchText)->ignore}
         currentFetchCount={customersData->Array.length}
         defaultColumns={defaultColumns}
         customColumnMapper={TableAtoms.customersMapDefaultCols}

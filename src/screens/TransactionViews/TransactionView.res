@@ -99,14 +99,17 @@ let make = (
     getStartAndEndTime(filterValueJson, version)
   }, (filterValue, version))
 
+  let refreshSignal = Recoil.useRecoilValueFromAtom(HyperswitchAtom.tableRefreshSignalAtom)
+
   let aggregateRequestKey = React.useMemo(() => {
     [
       (transactionEntity :> string),
       isClickhouseAggregateEnabled->getStringFromBool,
       startTime,
       endTime,
+      refreshSignal->Int.toString,
     ]->Array.joinWith(":")
-  }, (transactionEntity, isClickhouseAggregateEnabled, startTime, endTime))
+  }, (transactionEntity, isClickhouseAggregateEnabled, startTime, endTime, refreshSignal))
 
   let loadAggregateCounts = async () => {
     try {

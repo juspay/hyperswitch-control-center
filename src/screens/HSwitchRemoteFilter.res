@@ -105,6 +105,13 @@ let useSetInitialFilters = (
         }
       })
       initialSearchParam->updateExistingKeys
+      DateRangePresetUtils.savePresetSelection(
+        ~startKey=startTimeFilterKey,
+        ~endKey=endTimeFilterKey,
+        ~preset=DateRangePresetUtils.defaultRangePresetId(~range),
+        ~startTime=defaultDate.start_time,
+        ~endTime=defaultDate.end_time,
+      )
     }
   }
 }

@@ -384,6 +384,7 @@ let make = (~previewOnly=false) => {
           totalResults={previewOnly ? orderData->Array.length : totalCount}
           offset
           setOffset
+          onRefresh=?{previewOnly ? None : Some(fetchOrders)}
           currentFetchCount={orderData->Array.length}
           customColumnMapper
           defaultColumns
