@@ -4,12 +4,14 @@ open ReconEngineApiKeysTypes
 module ActionsCell = {
   @react.component
   let make = (~item: apiKey, ~onAction) => {
-    <div
-      className="flex items-center gap-4 md:opacity-0 group-hover:opacity-100 focus-within:opacity-100">
+    <div className="flex items-center gap-4">
       <Button
         buttonType=Transparent
         buttonSize=XSmall
         showBorder=false
+        customBackColor="bg-transparent"
+        customRoundedClass="rounded-none"
+        customButtonStyle="!border-0"
         ariaLabel="Edit API key"
         showTooltip=true
         tooltipText="Edit API key"
@@ -26,6 +28,9 @@ module ActionsCell = {
         buttonType=Transparent
         buttonSize=XSmall
         showBorder=false
+        customBackColor="bg-transparent"
+        customRoundedClass="rounded-none"
+        customButtonStyle="!border-0"
         ariaLabel="Revoke API key"
         showTooltip=true
         tooltipText="Revoke API key"
