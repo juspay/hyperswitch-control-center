@@ -79,7 +79,7 @@
     "@iarna/toml": "^2.2.5",
     "@juspay-tech/hyper-js": "^2.0.4",
     "@juspay-tech/react-hyper-js": "^1.2.4",
-    "@juspay/blend-design-system": "0.0.38",
+    "@juspay/blend-design-system": "0.0.39-beta.3",
     "@monaco-editor/react": "^4.4.5",
     "@rescript/core": "^0.6.0",
     "@rescript/react": "^0.12.0",
@@ -115,6 +115,7 @@
       "@juspay/blend-design-system": "$@juspay/blend-design-system"
     },
     "fast-xml-parser": "^4.5.5",
+    "dompurify": "^3.4.17",
     "prismjs": "^1.30.0",
     "compression": "^1.8.2",
     "qs": "^6.16.1",

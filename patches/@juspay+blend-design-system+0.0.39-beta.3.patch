@@ -1,0 +1,68 @@
+diff --git a/node_modules/@juspay/blend-design-system/dist/main.js b/node_modules/@juspay/blend-design-system/dist/main.js
+index bab4f40..bcf9f64 100644
+--- a/node_modules/@juspay/blend-design-system/dist/main.js
++++ b/node_modules/@juspay/blend-design-system/dist/main.js
+@@ -18883,7 +18883,7 @@ function sno() {
+       implementation: h
+     };
+   }
+-  var q = o.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
++  var q = o.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE || o.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+   function t(U, r) {
+     if (U === "font") return "";
+     if (typeof r == "string")
+@@ -19050,7 +19050,7 @@ See https://react.dev/link/invalid-hook-call for tips about how to debug and fix
+       },
+       p: 0,
+       findDOMNode: null
+-    }, r = Symbol.for("react.portal"), h = t.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
++    }, r = Symbol.for("react.portal"), h = t.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE || t.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+     typeof Map == "function" && Map.prototype != null && typeof Map.prototype.forEach == "function" && typeof Set == "function" && Set.prototype != null && typeof Set.prototype.clear == "function" && typeof Set.prototype.forEach == "function" || console.error(
+       "React depends on Map and Set built-in types. Make sure that you load a polyfill in older browsers. https://reactjs.org/link/react-polyfills"
+     ), aK.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE = U, aK.createPortal = function(a, n) {
+@@ -86228,6 +86228,22 @@ const _i = {
+     if (Math.abs(n - y) <= q)
+       return je.LAST_24_HOURS;
+   }
++  if (l && l.length > 0) {
++    const n = _K.PRESET_DETECTION_TOLERANCE_MS;
++    for (const p of l) {
++      const u = MW(
++        p.preset
++      );
++      if (!u) continue;
++      const d = u.getDateRange();
++      if (d.startDate && d.endDate && Math.abs(
++        o.startDate.getTime() - d.startDate.getTime()
++      ) <= n && Math.abs(
++        o.endDate.getTime() - d.endDate.getTime()
++      ) <= n)
++        return p.preset;
++    }
++  }
+   if (t1o(V))
+     return je.THIS_MONTH;
+   if (U1o(V))
+@@ -86280,22 +86296,6 @@ const _i = {
+     if (p.setFullYear(p.getFullYear() + 1), p.setHours(23, 59, 59, 999), Math.abs(o.endDate.getTime() - p.getTime()) <= r)
+       return je.NEXT_12_MONTHS;
+   }
+-  if (l && l.length > 0) {
+-    const n = _K.PRESET_DETECTION_TOLERANCE_MS;
+-    for (const p of l) {
+-      const u = MW(
+-        p.preset
+-      );
+-      if (!u) continue;
+-      const d = u.getDateRange();
+-      if (d.startDate && d.endDate && Math.abs(
+-        o.startDate.getTime() - d.startDate.getTime()
+-      ) <= n && Math.abs(
+-        o.endDate.getTime() - d.endDate.getTime()
+-      ) <= n)
+-        return p.preset;
+-    }
+-  }
+   return je.CUSTOM;
+ }, h1o = [
+   je.LAST_30_MINUTES,

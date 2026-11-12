@@ -24,7 +24,7 @@ concurrency:
 
 jobs:
   setup:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout code
@@ -65,7 +65,7 @@ jobs:
 
   playwright-tests:
     needs: setup
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     strategy:
       fail-fast: false
@@ -187,7 +187,7 @@ jobs:
 
   visual-tests:
     needs: setup
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # Skip the visual suite when a single shard is re-run via workflow_dispatch.
     if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.shard != 'all') }}
 
