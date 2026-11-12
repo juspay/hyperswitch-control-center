@@ -5,6 +5,9 @@ type styleObj
 external writeTextDoc: string => unit = "writeText"
 
 @val @scope(("navigator", "clipboard"))
+external writeTextAsync: string => promise<unit> = "writeText"
+
+@val @scope(("navigator", "clipboard"))
 external readTextDoc: unit => promise<string> = "readText"
 
 let readText = async () => {

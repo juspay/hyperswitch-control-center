@@ -4,6 +4,7 @@ open UserManagementTypes
 let reconEngineSidebars = (
   ~userHasResourceAccess: (~resourceAccess: resourceAccessType) => CommonAuthTypes.authorization,
   ~userHasAccess: (~groupAccess: groupAccessType) => CommonAuthTypes.authorization,
+  ~isProfileUser: bool,
 ) => {
   let reconOverview = Link({
     name: "Overview",
@@ -77,6 +78,18 @@ let reconEngineSidebars = (
 
   sidebars->Array.push(Heading({name: "Configure"}))
   sidebars->Array.push(reconRuleCreation)
+  if !isProfileUser {
+    sidebars->Array.push(
+      Link({
+        name: "API Keys",
+        link: "/v1/recon-engine/api-keys",
+        // Interim account permissions match the API-key CRUD endpoints.
+        access: userHasResourceAccess(~resourceAccess=Account),
+        icon: "nd-api-keys",
+        selectedIcon: "nd-api-keys-fill",
+      }),
+    )
+  }
 
   sidebars
 }

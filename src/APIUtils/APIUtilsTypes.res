@@ -136,6 +136,7 @@ type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 type hypersenseType = [#TOKEN | #HOME | #NONE]
 
 type hyperswitchReconType = [
+  | #API_KEYS
   | #ACCOUNTS_LIST
   | #PROCESSED_ENTRIES_LIST
   | #PROCESSED_ENTRIES_LIST_WITH_ACCOUNT

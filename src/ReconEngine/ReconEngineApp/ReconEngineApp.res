@@ -6,10 +6,11 @@ let make = () => {
   open ReconEngineFilterUtils
 
   let url = RescriptReactRouter.useUrl()
-  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  let {userHasAccess, userHasResourceAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchBusinessProfile = ReconEngineHooks.useFetchBusinessProfile()
-  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let {getCommonSessionDetails, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = getCommonSessionDetails()
 
   React.useEffect(() => {
     fetchBusinessProfile()->ignore
@@ -42,6 +43,14 @@ let make = () => {
           isEnabled={featureFlagDetails.devReconEngineV1}
           authorization={userHasAccess(~groupAccess=ReconRulesView)}>
           <ReconEngineRulesContainer />
+        </AccessControl>
+      | list{"v1", "recon-engine", "api-keys", ..._} =>
+        <AccessControl
+          isEnabled={featureFlagDetails.devReconEngineV1}
+          authorization={checkUserEntity([#Profile])
+            ? NoAccess
+            : userHasResourceAccess(~resourceAccess=Account)}>
+          <ReconEngineApiKeysContainer />
         </AccessControl>
       | list{"v1", "recon-engine", "pipelines", ..._} =>
         <AccessControl
