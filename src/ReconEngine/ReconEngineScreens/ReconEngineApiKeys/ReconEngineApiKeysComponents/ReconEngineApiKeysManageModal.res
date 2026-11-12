@@ -19,32 +19,27 @@ let make = (~apiKey: apiKey, ~action: action, ~onClose: unit => unit, ~onUpdated
   }
 
   let submit = async values => {
-    if !isSaving {
-      setIsSaving(_ => true)
-      setError(_ => "")
-      try {
-        let url = getURL(
-          ~entityName=V1(HYPERSWITCH_RECON),
-          ~hyperswitchReconType=#API_KEYS,
-          ~methodType=Put,
-          ~id=Some(apiKey.id),
-        )
-        let _ = await updateDetails(url, makeUpdateBody(~action, ~values), Put)
-        showToast(
-          ~message=isRevoke ? "API key revoked" : "API key updated",
-          ~toastType=ToastSuccess,
-        )
-        onUpdated()
-      } catch {
-      | _ =>
-        setError(_ =>
-          isRevoke
-            ? "Could not revoke the API key. Please try again."
-            : "Could not update the API key. Check your details and try again."
-        )
-      }
-      setIsSaving(_ => false)
+    setIsSaving(_ => true)
+    setError(_ => "")
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~hyperswitchReconType=#API_KEYS,
+        ~methodType=Put,
+        ~id=Some(apiKey.id),
+      )
+      let _ = await updateDetails(url, makeUpdateBody(~action, ~values), Put)
+      showToast(~message=isRevoke ? "API key revoked" : "API key updated", ~toastType=ToastSuccess)
+      onUpdated()
+    } catch {
+    | _ =>
+      setError(_ =>
+        isRevoke
+          ? "Could not revoke the API key. Please try again."
+          : "Could not update the API key. Check your details and try again."
+      )
     }
+    setIsSaving(_ => false)
     Nullable.null
   }
 
@@ -126,10 +121,7 @@ let make = (~apiKey: apiKey, ~action: action, ~onClose: unit => unit, ~onUpdated
               onClick={_ => closeModal()}
             />
             <FormRenderer.SubmitButton
-              text="Save changes"
-              loadingText="Saving changes"
-              buttonSize=Small
-              disabledParameter=isSaving
+              text="Save changes" loadingText="Saving changes" buttonSize=Small
             />
           </div>
         </div>
