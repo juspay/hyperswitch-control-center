@@ -119,6 +119,8 @@ let getHeading = (colType: RevenueRecoveryOrderTypes.colType) => {
   | PaymentMethodType => Table.makeHeaderInfo(~key="PaymentMethodType", ~title="Payment Method")
   | ModifiedAt => Table.makeHeaderInfo(~key="ModifiedAt", ~title="Last Attempted")
   | RecoveryProgress => Table.makeHeaderInfo(~key="RecoveryProgress", ~title="Recovery Progress")
+  | MerchantReferenceId =>
+    Table.makeHeaderInfo(~key="MerchantReferenceId", ~title="Merchant Reference ID")
   }
 }
 
@@ -137,11 +139,12 @@ let getCell = (
       "",
     )
 
+  | Status if order.status->isHiddenStatus => Text("")
   | Status =>
     Label({
       title: orderStatus,
       color: switch order.status->statusVariantMapper {
-      | Recovered | Succeeded | PartiallyRecovered => LabelGreen
+      | Succeeded | PartiallyRecovered => LabelGreen
       | Cancelled => LabelGray
       | Scheduled => LabelOrange
       | Terminated => LabelRed
@@ -163,6 +166,14 @@ let getCell = (
   | Created => Date(order.created)
   | PaymentMethodType => Text(order.payment_method_type)
   | ModifiedAt => Date(order.modified_at)
+  | MerchantReferenceId =>
+    CustomCell(
+      <HelperComponents.CopyTextCustomComp
+        customTextCss="w-36 truncate whitespace-nowrap"
+        displayValue=Some(order.merchant_reference_id)
+      />,
+      "",
+    )
   | RecoveryProgress =>
     CustomCell(
       <RecoveryInvoicesHelper.SegmentedProgressBar
@@ -193,9 +204,10 @@ let defaultColumns: array<RevenueRecoveryOrderTypes.colType> = [
   Id,
   OrderAmount,
   Status,
-  RecoveryProgress,
+  MerchantReferenceId,
   Created,
   ModifiedAt,
+  RecoveryProgress,
 ]
 
 let itemToObjMapperForIntents: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.order = dict => {
@@ -209,6 +221,8 @@ let itemToObjMapperForIntents: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.order
   attempts->Array.reverse
   {
     id: dict->getString("id", ""),
+    profile_id: dict->getString("profile_id", ""),
+    merchant_reference_id: dict->getString("merchant_reference_id", ""),
     status: dict->getString("status", ""),
     order_amount: dict
     ->getDictfromDict("amount_details")
@@ -239,6 +253,8 @@ let itemToObjMapper: Dict.t<JSON.t> => RevenueRecoveryOrderTypes.order = dict =>
   attempts->Array.reverse
   {
     id: dict->getString("id", ""),
+    profile_id: dict->getString("profile_id", ""),
+    merchant_reference_id: dict->getString("merchant_reference_id", ""),
     status: dict->getString("status", ""),
     order_amount: dict
     ->getDictfromDict("amount")
@@ -261,7 +277,7 @@ let getOrders: JSON.t => array<RevenueRecoveryOrderTypes.order> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let revenueRecoveryEntity = (merchantId, orgId, profile_id) =>
+let revenueRecoveryEntity = (merchantId, orgId) =>
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getOrders,
@@ -273,7 +289,7 @@ let revenueRecoveryEntity = (merchantId, orgId, profile_id) =>
     ~getShowLink={
       order =>
         GlobalVars.appendDashboardPath(
-          ~url=`v2/recovery/invoices/${order.id}/${profile_id}/${merchantId}/${orgId}`,
+          ~url=`v2/recovery/invoices/${order.id}/${order.profile_id}/${merchantId}/${orgId}`,
         )
     },
   )

@@ -13,7 +13,7 @@ let make = () => {
     UserInfoProvider.defaultContext,
   )
   let {transactionEntity} = getResolvedUserInfo()
-  let {merchantId, orgId, profileId} = getCommonSessionDetails()
+  let {merchantId, orgId} = getCommonSessionDetails()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
@@ -30,6 +30,11 @@ let make = () => {
   let startTimeKey = OrderUIUtils.startTimeFilterKey(V2)
   let endTimeKey = OrderUIUtils.endTimeFilterKey(V2)
   let startTime = filterValueJson->getString(startTimeKey, "")
+  let showConnectorFilter = !(
+    HyperswitchAtom.recoveryProfileAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->RevenueRecoveryProfileUtils.isExternalModel
+  )
 
   let portalNodes = PortalState.portalNodes->Recoil.useRecoilValueFromAtom
   let hasOmpViewPortal = portalNodes->getOptionValFromDict(`${tableTitle}OMPView`)->Option.isSome
@@ -97,13 +102,7 @@ let make = () => {
   React.useEffect(() => {
     switch filters {
     | Some(dict) =>
-      buildQuery(
-        ~filters=dict,
-        ~offset,
-        ~limit=resultsPerPage,
-        ~searchText,
-        ~showStatusFilter=!isLiveMode,
-      )
+      buildQuery(~filters=dict, ~offset, ~limit=resultsPerPage, ~searchText)
       ->getPaymentsList
       ->ignore
     | None => ()
@@ -125,16 +124,7 @@ let make = () => {
       setFilters
       endTimeFilterKey=endTimeKey
       startTimeFilterKey=startTimeKey
-      initialFilters={(json, filterValues, removeKeys, filterKeys, setfilterKeys, version) =>
-        initialFilters(
-          ~showStatusFilter=!isLiveMode,
-          json,
-          filterValues,
-          removeKeys,
-          filterKeys,
-          setfilterKeys,
-          version,
-        )}
+      initialFilters={getInitialFilters(~showConnectorFilter)}
       initialFixedFilter={_version => initialFixedFilter(~disable=searchText->isNonEmptyString)}
       setOffset
       submitInputOnEnter=true
@@ -146,7 +136,7 @@ let make = () => {
       entityName={V2(V2_ORDER_FILTERS)}
       version=V2
     />
-  }, (searchText, isLiveMode))
+  }, [searchText])
 
   <ErrorBoundary>
     <div className={`flex flex-col gap-4 mx-auto h-full w-full min-h-50-vh`}>
@@ -156,9 +146,6 @@ let make = () => {
           <GenerateReport entityName={V2(REVENUE_RECOVERY_REPORT)} />
         </RenderIf>
       </div>
-      <RenderIf condition={!isLiveMode}>
-        <RevenueRecoveryStatusCounts />
-      </RenderIf>
       {filtersUI}
       <RenderIf condition={hasOmpViewPortal && !isLiveMode}>
         <Portal to={`${tableTitle}OMPView`}>
@@ -174,7 +161,7 @@ let make = () => {
         <LoadedTableWithCustomColumns
           title=tableTitle
           actualData=revenueRecoveryData
-          entity={RevenueRecoveryEntity.revenueRecoveryEntity(merchantId, orgId, profileId)}
+          entity={RevenueRecoveryEntity.revenueRecoveryEntity(merchantId, orgId)}
           resultsPerPage
           showSerialNumber=true
           totalResults={totalCount}

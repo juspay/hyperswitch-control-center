@@ -80,13 +80,6 @@ module RecoveryAmountStatus = {
     }
 
     switch status {
-    | Recovered =>
-      <AlertV2Binding
-        alertType=Success
-        slot={{slot: <Icon name="nd-toast-success" size=20 className="text-nd_green-400" />}}
-        heading="Fully recovered"
-        description="This invoice was successfully recovered."
-      />
     | Succeeded =>
       <AlertV2Binding
         alertType=Success
@@ -176,7 +169,7 @@ module RecoveryAmountStatus = {
 }
 
 @react.component
-let make = (~id) => {
+let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   open APIUtils
   open RevenueRecoveryOrderUtils
   let getURL = useGetURL()
@@ -186,9 +179,20 @@ let make = (~id) => {
     Dict.make()->RevenueRecoveryEntity.itemToObjMapper
   )
   let (processTrackerData, setProcessTrackerData) = React.useState(_ => Dict.make())
+  let recoveryProfile = HyperswitchAtom.recoveryProfileAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastAdapter.useShowToast()
   let (attemptsList, setAttemptsList) = React.useState(_ => [])
   let (startRetryThreshold, setStartRetryThreshold) = React.useState(_ => 0)
+  let {devRecoveryExternalTrigger} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+  let {
+    orgId: sessionOrgId,
+    merchantId: sessionMerchantId,
+    profileId: sessionProfileId,
+  } = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId(
+    ~version=UserInfoTypes.V2,
+  )
 
   let fetchStartRetryThreshold = async (~billingConnectorId) => {
     try {
@@ -205,6 +209,15 @@ let make = (~id) => {
           ->getDictfromDict("feature_metadata")
           ->getDictfromDict("revenue_recovery")
           ->getInt("billing_connector_retry_threshold", 0)
+        setStartRetryThreshold(_ => threshold)
+      } else if devRecoveryExternalTrigger {
+        let profile = await fetchBusinessProfileFromId(~profileId)
+        let {retryConfig}: RevenueRecoveryProfileTypes.recoveryProfile =
+          profile->RevenueRecoveryProfileUtils.mapJsonToRecoveryProfile
+        let threshold =
+          retryConfig
+          ->Option.getOr(Dict.make())
+          ->getInt(RevenueRecoveryProfileUtils.retryThresholdKey, 0)
         setStartRetryThreshold(_ => threshold)
       }
     } catch {
@@ -275,7 +288,12 @@ let make = (~id) => {
         ->getDictFromJsonObject
         ->RevenueRecoveryEntity.itemToObjMapperForIntents
 
-      if orderData.status->RevenueRecoveryOrderUtils.statusVariantMapper == Scheduled {
+      if recoveryProfile->RevenueRecoveryProfileUtils.isExternalModel {
+        setProcessTrackerData(_ =>
+          data->getDictFromJsonObject->RevenueRecoveryOrderUtils.getNextRetrySchedule
+        )
+        setRevenueRecoveryData(_ => orderData)
+      } else if orderData.status->RevenueRecoveryOrderUtils.statusVariantMapper == Scheduled {
         await getPTDetails(~orderData)
       } else {
         setRevenueRecoveryData(_ => orderData)
@@ -302,10 +320,34 @@ let make = (~id) => {
     }
   }
 
+  // The list can show invoices of other profiles. Requests carry the profile of the session they
+  // were rendered in, so switch first and fetch once the session has changed.
+  let switchToInvoiceProfile = async () => {
+    try {
+      setScreenState(_ => Loading)
+      let _ = await internalSwitch(
+        ~expectedOrgId=orgId,
+        ~expectedMerchantId=merchantId,
+        ~expectedProfileId=profileId,
+        ~version=V2,
+      )
+    } catch {
+    | _ => setScreenState(_ => Error("Failed to Fetch!"))
+    }
+  }
+
   React.useEffect(() => {
-    fetchOrderDetails()->ignore
+    let isInvoiceSession =
+      orgId == Some(sessionOrgId) &&
+      merchantId == Some(sessionMerchantId) &&
+      profileId == Some(sessionProfileId)
+    if isInvoiceSession {
+      fetchOrderDetails()->ignore
+    } else {
+      switchToInvoiceProfile()->ignore
+    }
     None
-  }, [])
+  }, [sessionOrgId, sessionMerchantId, sessionProfileId])
 
   <div className="flex flex-col gap-8">
     <BreadCrumbNavigation
