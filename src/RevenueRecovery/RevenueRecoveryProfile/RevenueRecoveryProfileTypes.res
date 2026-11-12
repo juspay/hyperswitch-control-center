@@ -7,8 +7,12 @@ type retryAlgorithm =
   | @as("smart") Smart
   | @as("cascading") Cascading
 
+type scheduledOnlyOnboardingSections = [#configuration | #setupWebhook]
+
 type recoveryProfile = {
   triggerModel: triggerModel,
   retryAlgorithm: option<retryAlgorithm>,
   retryConfig: option<Dict.t<JSON.t>>,
+  webhookDetails: option<Dict.t<JSON.t>>,
+  paymentResponseHashKey: string,
 }

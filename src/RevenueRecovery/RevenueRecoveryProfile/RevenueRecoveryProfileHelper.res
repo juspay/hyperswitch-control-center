@@ -45,6 +45,7 @@ let totalRetriesHint = "The total number of retries that should be done within t
 let startOfRecoveryHint = "After how many of your own retries the recovery process should start"
 let hardDeclineRetriesHint = "The number of retries allowed on an invoice after a hard decline"
 let partialAuthorizationHint = "Allow partial authorization for recovered payments. A value sent in the recovery API request takes priority over this"
+let webhookUrlHint = "We send the next retry time of each invoice to this URL"
 let retryModeHint = "Monitoring records failed invoices and schedules no retries. Smart works out the best time for each retry."
 
 module InfoHint = {
@@ -210,14 +211,13 @@ module ProfileRetriesConfiguration = {
       Nullable.null
     }
 
-    let renderValue = (~label, ~value, ~hint=?) =>
+    let renderValue = (~label, ~value, ~hint="") =>
       <div className="flex flex-col gap-2">
         <div className="flex gap-2 items-center">
           <h4 className="text-nd_gray-400"> {label->React.string} </h4>
-          {switch hint {
-          | Some(description) => <InfoHint description />
-          | None => React.null
-          }}
+          <RenderIf condition={hint->isNonEmptyString}>
+            <InfoHint description=hint />
+          </RenderIf>
         </div>
         <p> {value->React.string} </p>
       </div>
@@ -288,5 +288,92 @@ module ProfileRetriesConfiguration = {
         </RenderIf>
       </div>
     </Form>
+  }
+}
+
+module WebhookUrlField = {
+  @react.component
+  let make = () =>
+    <FormRenderer.FieldRenderer
+      labelClass={`!text-nd_gray-400 ${body.md.regular}`}
+      fieldWrapperClass="max-w-xl"
+      field={FormRenderer.makeFieldInfo(
+        ~label="Webhook URL",
+        ~customLabelIcon=<InfoHint description=webhookUrlHint />,
+        ~name=webhookUrlFieldName,
+        ~placeholder="Enter Webhook URL",
+        ~customInput=InputFields.textInput(~autoComplete="off", ~customStyle="rounded-xl"),
+        ~isRequired=false,
+      )}
+    />
+}
+
+module PaymentResponseHashKey = {
+  @react.component
+  let make = (~hashKey) =>
+    <div className="flex flex-col gap-2">
+      <h4 className="text-nd_gray-400"> {"Payment Response Hash Key"->React.string} </h4>
+      <HelperComponents.CopyTextCustomComp
+        displayValue={Some(hashKey)}
+        customTextCss={`break-all truncate md:whitespace-normal ${body.md.regular} text-nd_gray-800`}
+        customParentClass="flex items-center gap-5"
+        customIconCss="text-nd_gray-700"
+      />
+    </div>
+}
+
+module ProfileWebhooksConfiguration = {
+  @react.component
+  let make = (~webhookDetails, ~paymentResponseHashKey, ~onProfileSaved) => {
+    let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile(~version=V2)
+    let showToast = ToastAdapter.useShowToast()
+    let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let initialValues = React.useMemo(
+      () => getWebhookInitialValues(webhookDetails),
+      [webhookDetails],
+    )
+
+    let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
+      try {
+        let body =
+          [
+            (
+              webhookDetailsKey,
+              getWebhookDetailsBody(~webhookUrl=values->getWebhookUrl, ~webhookDetails),
+            ),
+          ]
+          ->Dict.fromArray
+          ->JSON.Encode.object
+        let response = await updateBusinessProfile(~body)
+        onProfileSaved(response->mapJsonToRecoveryProfile)
+        showToast(~message="Webhook URL updated", ~toastType=ToastState.ToastSuccess)
+      } catch {
+      // The update hook has already shown the error toast
+      | _ => ()
+      }
+      Nullable.null
+    }
+
+    let validate = values => {
+      let errors = Dict.make()
+      errors->validateWebhookUrl(values, ~isLiveMode)
+      errors->JSON.Encode.object
+    }
+
+    <div className="flex flex-col gap-8 px-2 max-w-xl">
+      <Form onSubmit initialValues validate>
+        <div className="flex flex-col gap-4">
+          <WebhookUrlField />
+          <div className="flex justify-end">
+            <FormRenderer.SubmitButton
+              text="Update" buttonSize={Small} customSubmitButtonStyle="w-fit"
+            />
+          </div>
+        </div>
+      </Form>
+      <RenderIf condition={paymentResponseHashKey->LogicUtils.isNonEmptyString}>
+        <PaymentResponseHashKey hashKey=paymentResponseHashKey />
+      </RenderIf>
+    </div>
   }
 }

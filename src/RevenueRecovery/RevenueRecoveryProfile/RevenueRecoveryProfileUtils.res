@@ -1,5 +1,6 @@
 open RevenueRecoveryProfileTypes
 open LogicUtils
+open VerticalStepIndicatorTypes
 
 let triggerModelKey = "revenue_recovery_trigger_model"
 let retryAlgorithmKey = "revenue_recovery_retry_algorithm_type"
@@ -11,14 +12,46 @@ let gracePeriodDaysKey = "grace_period_days"
 let maxHardDeclineRetriesKey = "max_hard_decline_retries"
 let enablePartialAuthorizationKey = "enable_partial_authorization"
 
+let webhookDetailsKey = "webhook_details"
+let webhookUrlKey = "webhook_url"
+let webhookUrlFieldName = `${webhookDetailsKey}.${webhookUrlKey}`
+let paymentResponseHashKeyKey = "payment_response_hash_key"
+
 let maxAllowedRetries = 15
 
-let configurationSection: VerticalStepIndicatorTypes.section = {
-  id: "configuration",
-  name: "Configuration",
-  icon: "nd-flag",
+let scheduledOnlyOnboardingSteps: array<scheduledOnlyOnboardingSections> = [
+  #configuration,
+  #setupWebhook,
+]
+
+let getScheduledOnlyStepName = (step: scheduledOnlyOnboardingSections) =>
+  switch step {
+  | #configuration => "Configuration"
+  | #setupWebhook => "Setup Webhook"
+  }
+
+let getScheduledOnlyStepIcon = (step: scheduledOnlyOnboardingSections) =>
+  switch step {
+  | #configuration => "nd-settings"
+  | #setupWebhook => "nd-webhook"
+  }
+
+let scheduledOnlyOnboardingSections = scheduledOnlyOnboardingSteps->Array.map(step => {
+  id: (step :> string),
+  name: step->getScheduledOnlyStepName,
+  icon: step->getScheduledOnlyStepIcon,
   subSections: None,
+})
+
+let scheduledOnlyDefaultStep: step = {
+  sectionId: (#configuration: scheduledOnlyOnboardingSections :> string),
+  subSectionId: None,
 }
+
+let getScheduledOnlySectionVariant = (step: step) =>
+  scheduledOnlyOnboardingSteps
+  ->Array.find(section => (section :> string) == step.sectionId)
+  ->Option.getOr(#configuration)
 
 let getTriggerModelFromString = value =>
   [InternalTriggers, ExternalTriggers]
@@ -42,6 +75,8 @@ let mapJsonToRecoveryProfile = json => {
     triggerModel: dict->getString(triggerModelKey, "")->getTriggerModelFromString,
     retryAlgorithm: dict->getString(retryAlgorithmKey, "")->getRetryAlgorithmFromString,
     retryConfig: dict->Dict.get(retryConfigKey)->Option.flatMap(JSON.Decode.object),
+    webhookDetails: dict->Dict.get(webhookDetailsKey)->Option.flatMap(JSON.Decode.object),
+    paymentResponseHashKey: dict->getString(paymentResponseHashKeyKey, ""),
   }
 }
 
@@ -118,6 +153,40 @@ let validateRetryConfig = values => {
 
   errors->JSON.Encode.object
 }
+
+let getWebhookUrl = values =>
+  values->getDictFromJsonObject->getStringFromNestedDict(webhookDetailsKey, webhookUrlKey, "")
+
+let getWebhookInitialValues = webhookDetails => {
+  let webhookUrl = webhookDetails->Option.getOr(Dict.make())->getString(webhookUrlKey, "")
+  [
+    (
+      webhookDetailsKey,
+      [(webhookUrlKey, webhookUrl->JSON.Encode.string)]->Dict.fromArray->JSON.Encode.object,
+    ),
+  ]
+  ->Dict.fromArray
+  ->JSON.Encode.object
+}
+
+// The profile update replaces webhook_details as a whole, so the saved fields are sent back with the URL
+let getWebhookDetailsBody = (~webhookUrl, ~webhookDetails) => {
+  let details = webhookDetails->Option.getOr(Dict.make())->Dict.copy
+  if webhookUrl->isNonEmptyString {
+    details->Dict.set(webhookUrlKey, webhookUrl->JSON.Encode.string)
+  } else {
+    details->Dict.delete(webhookUrlKey)
+  }
+  details->JSON.Encode.object
+}
+
+let validateWebhookUrl = (errors, values, ~isLiveMode) =>
+  values
+  ->getWebhookUrl
+  ->getNonEmptyString
+  ->mapOptionOrDefault((), webhookUrl =>
+    PaymentSettingsUtils.validateCustom(WebhookDetails, errors, webhookUrl, isLiveMode)
+  )
 
 // The merchant doesn't exist yet when a new merchant picks a model, so the choice has to
 // survive the create merchant popup and the switch to that merchant
