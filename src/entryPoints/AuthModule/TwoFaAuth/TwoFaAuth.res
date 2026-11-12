@@ -230,7 +230,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   }
 
   let submitBtnText = switch authType {
-  | LoginWithPassword | LoginWithEmail => "Continue"
+  | LoginWithPassword | LoginWithEmail => "Sign In"
   | ResetPassword => "Confirm"
   | ForgetPassword => "Reset password"
   | ResendVerifyEmail => "Send mail"
