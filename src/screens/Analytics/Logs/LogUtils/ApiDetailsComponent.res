@@ -136,6 +136,7 @@ let make = (
                       {urlPath->React.string}
                     </span>}>
                     <span
+                      tabIndex=0
                       className={`inline-block max-w-full align-middle truncate ${code.md.regular} text-nd_gray-600 bg-nd_gray-50 border border-nd_gray-200 px-1.5 py-0.5 rounded cursor-default`}>
                       {urlPath->React.string}
                     </span>
