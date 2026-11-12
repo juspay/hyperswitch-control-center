@@ -4,7 +4,12 @@ module AuthHeaderWrapper = {
     open FramerMotion.Motion
     open CommonAuthTypes
 
-    let {branding} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {branding, isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let url = RescriptReactRouter.useUrl()
+    let isLoginPage = switch url.path->HSwitchUtils.urlPath {
+    | list{"login"} => true
+    | _ => false
+    }
     let {logoURL} = React.useContext(ThemeProvider.themeContext)
     let (logoVariant, iconUrl) = switch (logoURL, branding) {
     | (Some(url), true) => (IconWithURL, Some(url))
@@ -26,16 +31,27 @@ module AuthHeaderWrapper = {
             <Div layoutId="border" className="border-b w-full" />
             <div className={`p-7 ${childrenStyle}`}> {children} </div>
           </Div>
-          <RenderIf condition={!branding}>
+          <RenderIf condition={isLoginPage && !isLiveMode}>
+            <div className="text-center text-sm text-gray-300">
+              {"For learning and experimentation, "->React.string}
+              <a
+                href="https://docs.hyperswitch.io/#try-hyperswitch-deployment-quickly"
+                className="underline cursor-pointer">
+                {"run Hyperswitch locally"->React.string}
+              </a>
+              {"."->React.string}
+            </div>
+          </RenderIf>
+        </div>
+        <RenderIf condition={!branding}>
+          <div className="flex flex-col items-center">
             <Div
               layoutId="footer-links"
               className="justify-center text-sm mobile:text-base flex flex-col mobile:flex-row mobile:gap-3 items-center w-full max-w-xl text-center">
               <CommonAuth.TermsAndCondition />
             </Div>
-          </RenderIf>
-        </div>
-        <RenderIf condition={!branding}>
-          <CommonAuth.PageFooterSection />
+            <CommonAuth.PageFooterSection />
+          </div>
         </RenderIf>
       </div>
     </HSwitchUtils.BackgroundImageWrapper>
@@ -51,6 +67,8 @@ let make = (~children) => {
   let getURL = useGetURL()
 
   let url = RescriptReactRouter.useUrl()
+  let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
   let updateDetails = useUpdateMethod()
   let {fetchAuthMethods, checkAuthMethodExists} = AuthModuleHooks.useAuthMethods()
   let {authStatus, setAuthStatus, authMethods, setAuthStateToLogout} = React.useContext(
@@ -186,6 +204,21 @@ let make = (~children) => {
               </React.Fragment>
             )
             ->React.array}
+          </RenderIf>
+          <RenderIf
+            condition={!isLiveMode &&
+            switch url.path->HSwitchUtils.urlPath {
+            | list{"login"} => true
+            | _ => false
+            }}>
+            <div className="text-sm text-center text-grey-650">
+              {"Evaluating Hyperswitch for your business? "->React.string}
+              <a
+                href="https://hyperswitch.io/contact-us?country=us"
+                className={`font-semibold ${textColor.primaryNormal} hover:underline`}>
+                {"Talk to our team"->React.string}
+              </a>
+            </div>
           </RenderIf>
         </AuthHeaderWrapper>
       </PageLoaderWrapper>

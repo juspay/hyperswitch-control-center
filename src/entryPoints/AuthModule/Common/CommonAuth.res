@@ -44,10 +44,8 @@ module Header = {
   let make = (~authType, ~setAuthType, ~email) => {
     open CommonAuthTypes
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let {isSignUpAllowed} = AuthModuleHooks.useAuthMethods()
     let form = ReactFinalForm.useForm()
-    let {email: isMagicLinkEnabled, signupDisabled} =
-      HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {email: isMagicLinkEnabled} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
 
     let headerStyle = switch authType {
@@ -106,8 +104,11 @@ module Header = {
     | ResendVerifyEmail => true
     | _ => false
     }
-    let (signUpAllowed, _) = isSignUpAllowed()
-    <div className={`${headerStyle} gap-2 h-fit mb-7 w-96`}>
+    let bottomMargin = switch authType {
+    | LoginWithPassword | LoginWithEmail => "mb-3"
+    | _ => "mb-7"
+    }
+    <div className={`${headerStyle} gap-2 h-fit ${bottomMargin} w-96`}>
       <RenderIf condition={showInfoIcon}>
         <div className="flex justify-center my-5">
           {switch authType {
@@ -125,29 +126,7 @@ module Header = {
         </h1>
       </AddDataAttributes>
       {switch authType {
-      | LoginWithPassword | LoginWithEmail =>
-        signupDisabled
-          ? <div className="flex text-sm items-center gap-2">
-              <div className="text-grey-650"> {"New to Hyperswitch?"->React.string} </div>
-              <ToolTipBinding
-                side=Right
-                size=Sm
-                maxWidth="240px"
-                content={"Sign ups are currently disabled. Please reach out to support.global@juspay.io for access."->React.string}>
-                <div
-                  className={`${Typography.body.md.semibold} ${textColor.primaryNormal} opacity-50 cursor-not-allowed`}>
-                  {"Sign up"->React.string}
-                </div>
-              </ToolTipBinding>
-            </div>
-          : <RenderIf condition={signUpAllowed}>
-              {getHeaderLink(
-                ~prefix="New to Hyperswitch?",
-                ~authType=SignUP,
-                ~path="/register",
-                ~suffix="Sign up",
-              )}
-            </RenderIf>
+      | LoginWithPassword | LoginWithEmail => React.null
 
       | SignUP =>
         getHeaderLink(
