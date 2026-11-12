@@ -13,7 +13,6 @@ let make = () => {
   let (offset, setOffset) = React.useState(_ => 0)
   let (showModal, setShowModal) = React.useState(_ => false)
   let getAbortSignal = AbortControllerHook.useAbortController()
-  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
 
   let fetchKeys = async () => {
     let signal = getAbortSignal()
@@ -39,12 +38,9 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    setData(_ => [])
-    setShowModal(_ => false)
-    setActiveAction(_ => None)
     fetchKeys()->ignore
     None
-  }, [merchantId])
+  }, [])
 
   <div className="flex flex-col gap-6">
     <div className="flex flex-wrap items-center justify-between gap-4">
@@ -67,9 +63,7 @@ let make = () => {
         title="API Keys"
         hideTitle=true
         entity={ReconEngineApiKeysEntity.tableEntity(~canManage, ~onAction=(apiKey, action) => {
-          if canManage {
-            setActiveAction(_ => Some((apiKey, action)))
-          }
+          setActiveAction(_ => Some((apiKey, action)))
         })}
         actualData={data->Array.map(Nullable.make)}
         resultsPerPage=10
@@ -88,9 +82,7 @@ let make = () => {
     </PageLoaderWrapper>
     <RenderIf condition=showModal>
       <ReconEngineApiKeysCreateModal
-        key=merchantId
-        onClose={() => setShowModal(_ => false)}
-        onCreated={() => fetchKeys()->ignore}
+        onClose={() => setShowModal(_ => false)} onCreated={() => fetchKeys()->ignore}
       />
     </RenderIf>
     {switch activeAction {

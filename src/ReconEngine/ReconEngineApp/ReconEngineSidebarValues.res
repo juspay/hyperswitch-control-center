@@ -83,7 +83,6 @@ let reconEngineSidebars = (
       Link({
         name: "API Keys",
         link: "/v1/recon-engine/api-keys",
-        // Interim account permissions match the API-key CRUD endpoints.
         access: userHasResourceAccess(~resourceAccess=Account),
         icon: "nd-api-keys",
         selectedIcon: "nd-api-keys-fill",

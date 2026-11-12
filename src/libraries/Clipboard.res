@@ -2,10 +2,7 @@ type styleObj
 @get external style: Dom.element => styleObj = "style"
 
 @val @scope(("navigator", "clipboard"))
-external writeTextDoc: string => unit = "writeText"
-
-@val @scope(("navigator", "clipboard"))
-external writeTextAsync: string => promise<unit> = "writeText"
+external writeTextDoc: string => promise<unit> = "writeText"
 
 @val @scope(("navigator", "clipboard"))
 external readTextDoc: unit => promise<string> = "readText"
@@ -32,27 +29,34 @@ let readText = async () => {
 external prepend: 'a => unit = "prepend"
 
 @val @scope("document")
-external execCommand: string => unit = "execCommand"
+external execCommand: string => bool = "execCommand"
 
-let writeText = (str: string) => {
+let writeTextWithResult = async (str: string) => {
   try {
     if Window.isSecureContext {
-      writeTextDoc(str)
+      await writeTextDoc(str)
+      true
     } else {
       let textArea = document->DOMUtils.createElement("textarea")
       textArea->Webapi.Dom.Element.setInnerHTML(str)
       textArea->style->setPosition("absolute")
-      textArea->style->setPosition("absolute")
       textArea->style->setLeft("-99999999px")
       textArea->prepend
       textArea->select()
-      execCommand("copy")
+      let copied = try {
+        execCommand("copy")
+      } catch {
+      | _ => false
+      }
       textArea->remove()
+      copied
     }
   } catch {
-  | _ => ()
+  | _ => false
   }
 }
+
+let writeText = (str: string) => writeTextWithResult(str)->ignore
 
 module Copy = {
   @react.component

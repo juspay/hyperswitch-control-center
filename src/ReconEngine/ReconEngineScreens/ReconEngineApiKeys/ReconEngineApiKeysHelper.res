@@ -56,7 +56,7 @@ module ExpirationDateField = {
       <FormRenderer.FieldRenderer
         field={ReconEngineApiKeysUtils.expirationDateField(~isDisabled)}
         fieldWrapperClass="w-full"
-        errorClass={`${body.sm.medium} text-nd_red-600 mt-2`}
+        errorClass=ReconEngineApiKeysUtils.errorClass
       />
     </RenderIf>
   }
@@ -65,25 +65,6 @@ module ExpirationDateField = {
 module CreatedKey = {
   @react.component
   let make = (~apiKey: string, ~onDone) => {
-    let (copied, setCopied) = React.useState(_ => false)
-    let (isCopying, setIsCopying) = React.useState(_ => false)
-    let showToast = ToastAdapter.useShowToast()
-    let copyKey = async () => {
-      setIsCopying(_ => true)
-      setCopied(_ => false)
-      try {
-        await Clipboard.writeTextAsync(apiKey)
-        setCopied(_ => true)
-      } catch {
-      | _ =>
-        showToast(
-          ~message="Could not copy the API key. Select and copy it manually before closing this window.",
-          ~toastType=ToastError,
-        )
-      }
-      setIsCopying(_ => false)
-    }
-
     <div className="flex flex-col gap-5">
       <div className="rounded-lg border border-nd_yellow-200 bg-nd_yellow-50 p-4">
         <p className={`${body.md.semibold} text-nd_gray-800`}>
@@ -94,24 +75,25 @@ module CreatedKey = {
         </p>
       </div>
       <div className="rounded-lg border border-nd_gray-200 bg-nd_gray-50 p-4">
-        <div className="flex items-center justify-between gap-3 mb-2">
-          <p className={`${body.sm.medium} text-nd_gray-600`}> {"API key"->React.string} </p>
-          <Button
-            buttonType=Transparent
-            buttonSize=XSmall
-            buttonState={isCopying ? Loading : Normal}
-            showBorder=false
-            ariaLabel={copied ? "API key copied" : "Copy API key"}
-            showTooltip=true
-            tooltipText={copied ? "Copied" : "Copy API key"}
-            leftIcon={CustomIcon(
-              <Icon name={copied ? "nd-check" : "nd-copy"} size=16 className="text-nd_gray-600" />,
-            )}
-            customIconMargin="m-0"
-            customPaddingClass="p-1.5"
-            onClick={_ => copyKey()->ignore}
-          />
-        </div>
+        <HelperComponents.CopyTextCustomComp
+          displayValue=Some("API key")
+          copyValue=Some(apiKey)
+          customTextCss={`${body.sm.medium} text-nd_gray-600`}
+          customParentClass="flex items-center justify-between gap-3 mb-2"
+          customComponent=Some(
+            <Button
+              buttonType=Transparent
+              buttonSize=XSmall
+              showBorder=false
+              ariaLabel="Copy API key"
+              showTooltip=true
+              tooltipText="Copy API key"
+              leftIcon={CustomIcon(<Icon name="nd-copy" size=16 className="text-nd_gray-600" />)}
+              customIconMargin="m-0"
+              customPaddingClass="p-1.5"
+            />,
+          )
+        />
         <code className={`${body.md.regular} text-nd_gray-800 break-all select-all`}>
           {apiKey->React.string}
         </code>

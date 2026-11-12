@@ -3,8 +3,6 @@ open LogicUtils
 open ReconEngineApiKeysTypes
 open ReconEngineApiKeysUtils
 
-let errorClass = `${body.sm.medium} text-nd_red-600 mt-2`
-
 @react.component
 let make = (~onClose: unit => unit, ~onCreated: unit => unit) => {
   let getURL = APIUtils.useGetURL()
@@ -19,30 +17,28 @@ let make = (~onClose: unit => unit, ~onCreated: unit => unit) => {
   }
 
   let onSubmit = async (values, _) => {
-    if !isCreating {
-      setIsCreating(_ => true)
-      setError(_ => "")
-      try {
-        let url = getURL(
-          ~entityName=V1(HYPERSWITCH_RECON),
-          ~hyperswitchReconType=#API_KEYS,
-          ~methodType=Post,
+    setIsCreating(_ => true)
+    setError(_ => "")
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~hyperswitchReconType=#API_KEYS,
+        ~methodType=Post,
+      )
+      let response = await updateDetails(url, makeCreateBody(values), Post)
+      let key = response->getDictFromJsonObject->getString("api_key", "")
+      if key->isEmptyString {
+        setError(_ =>
+          "The key was created, but the response did not include its value. Refresh the list before trying again."
         )
-        let response = await updateDetails(url, makeCreateBody(values), Post)
-        let key = response->getDictFromJsonObject->getString("api_key", "")
-        if key->isEmptyString {
-          setError(_ =>
-            "The key was created, but the response did not include its value. Refresh the list before trying again."
-          )
-        } else {
-          setApiKey(_ => key)
-        }
-        onCreated()
-      } catch {
-      | _ => setError(_ => "Could not create the API key. Check your details and try again.")
+      } else {
+        setApiKey(_ => key)
       }
-      setIsCreating(_ => false)
+      onCreated()
+    } catch {
+    | _ => setError(_ => "Could not create the API key. Check your details and try again.")
     }
+    setIsCreating(_ => false)
     Nullable.null
   }
 
@@ -98,10 +94,7 @@ let make = (~onClose: unit => unit, ~onCreated: unit => unit) => {
               onClick={_ => closeModal()}
             />
             <FormRenderer.SubmitButton
-              text="Create API key"
-              loadingText="Creating API key"
-              buttonSize=Small
-              disabledParameter=isCreating
+              text="Create API key" loadingText="Creating API key" buttonSize=Small
             />
           </div>
         </div>

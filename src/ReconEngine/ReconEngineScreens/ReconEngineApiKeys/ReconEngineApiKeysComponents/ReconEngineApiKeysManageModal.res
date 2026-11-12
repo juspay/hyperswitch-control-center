@@ -11,7 +11,6 @@ let make = (~apiKey: apiKey, ~action: action, ~onClose: unit => unit, ~onUpdated
   let (isSaving, setIsSaving) = React.useState(_ => false)
   let (error, setError) = React.useState(_ => "")
   let isRevoke = action === Revoke
-  let errorClass = `${body.sm.medium} text-nd_red-600 mt-2`
 
   let closeModal = () => {
     if !isSaving {
@@ -73,7 +72,7 @@ let make = (~apiKey: apiKey, ~action: action, ~onClose: unit => unit, ~onUpdated
             {"Key prefix"->React.string}
           </p>
           <code className={`${body.md.regular} text-nd_gray-800 break-all`}>
-            {`${apiKey.prefix}**********`->React.string}
+            {apiKey.prefix->getMaskedPrefix->React.string}
           </code>
         </div>
         errorMessage

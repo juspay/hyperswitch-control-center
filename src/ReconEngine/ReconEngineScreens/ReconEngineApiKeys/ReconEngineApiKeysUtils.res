@@ -1,8 +1,12 @@
 open LogicUtils
 open ReconEngineApiKeysTypes
 
+let errorClass = `${Typography.body.sm.medium} text-nd_red-600 mt-2`
+
+let getMaskedPrefix = prefix => `${prefix}**********`
+
 let decodeExpiration = json =>
-  json->JSON.Decode.string->Option.mapOr(Never, value => DateTime(value))
+  json->JSON.Decode.string->mapOptionOrDefault(Never, value => DateTime(value))
 
 let encodeExpiration = expiration => {
   switch expiration {
@@ -20,22 +24,23 @@ let decodeStatus = status => {
   }
 }
 
+let itemToObjMapper = dict => {
+  {
+    id: dict->getString("id", ""),
+    name: dict->getString("name", ""),
+    description: dict->getString("description", ""),
+    prefix: dict->getString("prefix", ""),
+    status: dict->getString("status", "")->decodeStatus,
+    createdAt: dict->getString("created_at", ""),
+    expiresAt: dict->getValueFromDict("expires_at", JSON.Encode.null)->decodeExpiration,
+  }
+}
+
 let getItems = json => {
   json
   ->getDictFromJsonObject
   ->getArrayFromDict("api_keys", [])
-  ->Array.map(json => {
-    let dict = json->getDictFromJsonObject
-    {
-      id: dict->getString("id", ""),
-      name: dict->getString("name", ""),
-      description: dict->getString("description", ""),
-      prefix: dict->getString("prefix", ""),
-      status: dict->getString("status", "")->decodeStatus,
-      createdAt: dict->getString("created_at", ""),
-      expiresAt: dict->Dict.get("expires_at")->Option.getOr(JSON.Encode.null)->decodeExpiration,
-    }
-  })
+  ->getMappedValueFromArrayOfJson(itemToObjMapper)
 }
 
 let expirationChoiceFromJson = json => {
@@ -46,7 +51,10 @@ let expirationChoiceFromJson = json => {
 }
 
 let getExpiration = dict => {
-  let choice = dict->Dict.get("expiration")->Option.mapOr(NeverExpires, expirationChoiceFromJson)
+  let choice =
+    dict
+    ->getOptionValFromDict("expiration")
+    ->mapOptionOrDefault(NeverExpires, expirationChoiceFromJson)
   switch choice {
   | NeverExpires => Never
   | CustomDate => DateTime(dict->getString("expiration_date", ""))
@@ -102,7 +110,7 @@ let validate = values => {
   | Never => ()
   | DateTime(value) =>
     let timestamp = value->Date.fromString->Date.getTime
-    if timestamp->Js.Float.isNaN || timestamp <= Date.now() {
+    if timestamp->Float.isNaN || timestamp <= Date.now() {
       errors->Dict.set("expiration_date", "Choose a future expiration date"->JSON.Encode.string)
     }
   }

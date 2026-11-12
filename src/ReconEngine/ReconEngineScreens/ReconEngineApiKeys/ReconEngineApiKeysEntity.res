@@ -21,7 +21,7 @@ let getCell = (~onAction, item: apiKey, column): Table.cell => {
   switch column {
   | Name => EllipsisText(item.name, "max-w-xs")
   | Description => EllipsisText(item.description, "max-w-xs")
-  | Prefix => Text(`${item.prefix}**********`)
+  | Prefix => Text(item.prefix->ReconEngineApiKeysUtils.getMaskedPrefix)
   | Status =>
     let isExpired = switch item.expiresAt {
     | Never => false
