@@ -179,16 +179,14 @@ let useGetAllProductSections = (~products: array<productTypes>) => {
   let orchestratorSidebars = useGetOrchestratorSidebars()
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
   let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
-  let isProfileUser = checkUserEntity([#Profile])
-
   products->Array.map(productType => {
     let links = switch productType {
     | Recon(V1) =>
       ReconEngineSidebarValues.reconEngineSidebars(
         ~userHasResourceAccess,
         ~userHasAccess,
-        ~isProfileUser,
+        ~isApiKeysEnabled=featureFlagDetails.devReconEngineV1 &&
+        featureFlagDetails.devReconEngineApiKeys,
       )
     | Recon(V2) => ReconSidebarValues.reconSidebars
     | Recovery => RevenueRecoverySidebarValues.recoverySidebars(isLiveMode)
@@ -251,8 +249,6 @@ let useGetSidebarValuesForCurrentActive = () => {
   let hsSidebars = useGetHsSidebarValues()
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
   let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let {checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
-  let isProfileUser = checkUserEntity([#Profile])
   let defaultSidebar = []
   if featureFlagDetails.devModularityV2 {
     // show Home when modularity is enabled
@@ -304,7 +300,8 @@ let useGetSidebarValuesForCurrentActive = () => {
     ReconEngineSidebarValues.reconEngineSidebars(
       ~userHasResourceAccess,
       ~userHasAccess,
-      ~isProfileUser,
+      ~isApiKeysEnabled=featureFlagDetails.devReconEngineV1 &&
+      featureFlagDetails.devReconEngineApiKeys,
     )
   | OnBoarding(_)
   | UnknownProduct => []

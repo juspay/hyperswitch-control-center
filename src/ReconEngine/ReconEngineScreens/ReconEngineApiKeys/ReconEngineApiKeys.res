@@ -5,7 +5,7 @@ let make = () => {
   let getURL = APIUtils.useGetURL()
   let fetchDetails = APIUtils.useGetMethod(~showErrorToast=false)
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-  let manageAuthorization = userHasAccess(~groupAccess=AccountManage)
+  let manageAuthorization = userHasAccess(~groupAccess=ReconApiKeyManage)
   let canManage = manageAuthorization === CommonAuthTypes.Access
   let (activeAction, setActiveAction) = React.useState(_ => None)
   let (data, setData) = React.useState(_ => [])
@@ -55,9 +55,14 @@ let make = () => {
         onClick={_ => setShowModal(_ => true)}
       />
     </div>
-    <p className={`${body.md.regular} text-nd_gray-600`}>
-      {"Manage API keys for your reconciliation integrations. Only key prefixes are visible after creation."->React.string}
-    </p>
+    <div className="flex flex-col gap-1">
+      <p className={`${body.md.regular} text-nd_gray-600`}>
+        {"Manage API keys for your reconciliation integrations. Only key prefixes are visible after creation."->React.string}
+      </p>
+      <p className={`${body.sm.regular} text-nd_gray-500`}>
+        {"Viewing requires Recon API Key View. Creating, editing, and revoking keys requires Recon API Key Manage."->React.string}
+      </p>
+    </div>
     <PageLoaderWrapper screenState>
       <LoadedTable
         title="API Keys"
