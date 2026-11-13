@@ -39,23 +39,25 @@ let make = (~createMerchant) => {
     }
   }
 
+  let clearPendingTriggerModel = () => {
+    SessionStorage.sessionStorage.removeItem(RevenueRecoveryProfileUtils.pendingTriggerModelKey)
+    SessionStorage.sessionStorage.removeItem(
+      RevenueRecoveryProfileUtils.pendingTriggerModelMerchantKey,
+    )
+  }
+
   React.useEffect(() => {
     if devRecoveryExternalTrigger && !createMerchant {
       let pendingModel =
         SessionStorage.sessionStorage.getItem(RevenueRecoveryProfileUtils.pendingTriggerModelKey)
         ->Nullable.toOption
         ->Option.map(RevenueRecoveryProfileUtils.getTriggerModelFromString)
-      SessionStorage.sessionStorage.removeItem(RevenueRecoveryProfileUtils.pendingTriggerModelKey)
-      SessionStorage.sessionStorage.removeItem(
-        RevenueRecoveryProfileUtils.pendingTriggerModelMerchantKey,
-      )
+      clearPendingTriggerModel()
       pendingModel->Option.forEach(goToTriggerModelRoute)
     }
     None
   }, [])
 
-  // The create merchant popup resets the product when it closes; the merchant only changes
-  // when a merchant was created
   React.useEffect(() => {
     let choiceMerchantId =
       SessionStorage.sessionStorage.getItem(
@@ -65,10 +67,7 @@ let make = (~createMerchant) => {
     | OnBoarding(_) => ()
     | _ =>
       if choiceMerchantId == Some(merchantId) {
-        SessionStorage.sessionStorage.removeItem(RevenueRecoveryProfileUtils.pendingTriggerModelKey)
-        SessionStorage.sessionStorage.removeItem(
-          RevenueRecoveryProfileUtils.pendingTriggerModelMerchantKey,
-        )
+        clearPendingTriggerModel()
       }
     }
     None

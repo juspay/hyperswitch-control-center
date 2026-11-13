@@ -46,11 +46,10 @@ let make = () => {
           let hasBillingConnector =
             connectorList
             ->ConnectorInterfaceUtils.filterConnectorList(BillingProcessor)
-            ->Array.length > 0
+            ->LogicUtils.isNonEmptyArray
           try {
             await fetchRecoveryProfile()
           } catch {
-          // Without a billing connector, only the profile tells whether the merchant is onboarded
           | error =>
             if !hasBillingConnector {
               raise(error)

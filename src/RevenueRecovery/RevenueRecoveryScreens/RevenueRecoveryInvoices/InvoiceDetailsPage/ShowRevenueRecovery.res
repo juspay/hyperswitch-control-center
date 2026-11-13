@@ -319,8 +319,6 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     }
   }
 
-  // The list can show invoices of other profiles. Requests carry the profile of the session they
-  // were rendered in, so this only switches; the dashboard then reloads on the invoice's profile.
   let switchToInvoiceProfile = async () => {
     try {
       setScreenState(_ => Loading)
@@ -345,8 +343,6 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     None
   }, [])
 
-  // A switch that fails or leaves the session on another or an empty profile would otherwise
-  // keep the page loading
   React.useEffect(() => {
     if hasTriedSwitch && !isInvoiceSession {
       setScreenState(_ => Error("Failed to Fetch!"))
