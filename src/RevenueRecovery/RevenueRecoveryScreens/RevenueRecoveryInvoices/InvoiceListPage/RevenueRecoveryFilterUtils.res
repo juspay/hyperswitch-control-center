@@ -58,7 +58,6 @@ let connectorLabelFilter = (json): EntityType.initialFilters<'t> => {
   }
 }
 
-// Connector label, payment method type and subtype
 let getInitialFilters = (~showConnectorFilter) => (
   json,
   filterValues,

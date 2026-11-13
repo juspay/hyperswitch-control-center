@@ -26,7 +26,7 @@ let make = (~authorization, ~onBack, ~onContinue) => {
       />
       <SelectionCard
         title={ExternalTriggers->RevenueRecoveryProfileUtils.getTriggerModelLabel}
-        description="We send you a scheduled retry time and you make the retries. No processor or billing platform is needed."
+        description="We send you a scheduled retry time and you make the retries."
         isSelected={selectedModel == ExternalTriggers}
         onClick={() => setSelectedModel(_ => ExternalTriggers)}
       />

@@ -3,12 +3,15 @@ let make = (~createMerchant) => {
   open Typography
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
+  let {setCreateNewMerchant, activeProduct} = React.useContext(
+    ProductSelectionProvider.defaultContext,
+  )
   let userHasCreateMerchantAccess = OMPCreateAccessHook.useOMPCreateAccessHook([
     #tenant_admin,
     #org_admin,
   ])
   let {devRecoveryExternalTrigger} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let (showModelSelection, setShowModelSelection) = React.useState(_ => false)
 
   let goToTriggerModelRoute = model =>
@@ -24,6 +27,10 @@ let make = (~createMerchant) => {
           RevenueRecoveryProfileUtils.pendingTriggerModelKey,
           (model :> string),
         )
+        SessionStorage.sessionStorage.setItem(
+          RevenueRecoveryProfileUtils.pendingTriggerModelMerchantKey,
+          merchantId,
+        )
       }
       setCreateNewMerchant(ProductTypes.Recovery)
     } else {
@@ -32,17 +39,47 @@ let make = (~createMerchant) => {
     }
   }
 
+  let clearPendingTriggerModel = () => {
+    SessionStorage.sessionStorage.removeItem(RevenueRecoveryProfileUtils.pendingTriggerModelKey)
+    SessionStorage.sessionStorage.removeItem(
+      RevenueRecoveryProfileUtils.pendingTriggerModelMerchantKey,
+    )
+  }
+
+  let resumePendingTriggerModel = () => {
+    let pendingModel =
+      SessionStorage.sessionStorage.getItem(RevenueRecoveryProfileUtils.pendingTriggerModelKey)
+      ->Nullable.toOption
+      ->Option.map(RevenueRecoveryProfileUtils.getTriggerModelFromString)
+    clearPendingTriggerModel()
+    pendingModel->Option.forEach(goToTriggerModelRoute)
+  }
+
+  let clearPendingTriggerModelIfMerchantNotCreated = () => {
+    let choiceMerchantId =
+      SessionStorage.sessionStorage.getItem(
+        RevenueRecoveryProfileUtils.pendingTriggerModelMerchantKey,
+      )->Nullable.toOption
+    switch activeProduct {
+    | OnBoarding(_) => ()
+    | _ =>
+      if choiceMerchantId == Some(merchantId) {
+        clearPendingTriggerModel()
+      }
+    }
+  }
+
   React.useEffect(() => {
     if devRecoveryExternalTrigger && !createMerchant {
-      let pendingModel =
-        SessionStorage.sessionStorage.getItem(RevenueRecoveryProfileUtils.pendingTriggerModelKey)
-        ->Nullable.toOption
-        ->Option.map(RevenueRecoveryProfileUtils.getTriggerModelFromString)
-      SessionStorage.sessionStorage.removeItem(RevenueRecoveryProfileUtils.pendingTriggerModelKey)
-      pendingModel->Option.forEach(goToTriggerModelRoute)
+      resumePendingTriggerModel()
     }
     None
   }, [])
+
+  React.useEffect(() => {
+    clearPendingTriggerModelIfMerchantNotCreated()
+    None
+  }, [activeProduct])
 
   <>
     <RenderIf condition={showModelSelection}>

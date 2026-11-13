@@ -183,16 +183,17 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let showToast = ToastAdapter.useShowToast()
   let (attemptsList, setAttemptsList) = React.useState(_ => [])
   let (startRetryThreshold, setStartRetryThreshold) = React.useState(_ => 0)
-  let {devRecoveryExternalTrigger} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
   let {
     orgId: sessionOrgId,
     merchantId: sessionMerchantId,
     profileId: sessionProfileId,
   } = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-  let fetchBusinessProfileFromId = BusinessProfileHook.useFetchBusinessProfileFromId(
-    ~version=UserInfoTypes.V2,
-  )
+  let (hasTriedSwitch, setHasTriedSwitch) = React.useState(_ => false)
+  let isInvoiceSession =
+    orgId == Some(sessionOrgId) &&
+    merchantId == Some(sessionMerchantId) &&
+    profileId == Some(sessionProfileId)
 
   let fetchStartRetryThreshold = async (~billingConnectorId) => {
     try {
@@ -210,12 +211,10 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           ->getDictfromDict("revenue_recovery")
           ->getInt("billing_connector_retry_threshold", 0)
         setStartRetryThreshold(_ => threshold)
-      } else if devRecoveryExternalTrigger {
-        let profile = await fetchBusinessProfileFromId(~profileId)
-        let {retryConfig}: RevenueRecoveryProfileTypes.recoveryProfile =
-          profile->RevenueRecoveryProfileUtils.mapJsonToRecoveryProfile
+      } else {
         let threshold =
-          retryConfig
+          recoveryProfile
+          ->Option.flatMap(profile => profile.retryConfig)
           ->Option.getOr(Dict.make())
           ->getInt(RevenueRecoveryProfileUtils.retryThresholdKey, 0)
         setStartRetryThreshold(_ => threshold)
@@ -320,8 +319,6 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
     }
   }
 
-  // The list can show invoices of other profiles. Requests carry the profile of the session they
-  // were rendered in, so switch first and fetch once the session has changed.
   let switchToInvoiceProfile = async () => {
     try {
       setScreenState(_ => Loading)
@@ -332,22 +329,26 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         ~version=V2,
       )
     } catch {
-    | _ => setScreenState(_ => Error("Failed to Fetch!"))
+    | _ => ()
     }
+    setHasTriedSwitch(_ => true)
   }
 
   React.useEffect(() => {
-    let isInvoiceSession =
-      orgId == Some(sessionOrgId) &&
-      merchantId == Some(sessionMerchantId) &&
-      profileId == Some(sessionProfileId)
     if isInvoiceSession {
       fetchOrderDetails()->ignore
     } else {
       switchToInvoiceProfile()->ignore
     }
     None
-  }, [sessionOrgId, sessionMerchantId, sessionProfileId])
+  }, [])
+
+  React.useEffect(() => {
+    if hasTriedSwitch && !isInvoiceSession {
+      setScreenState(_ => Error("Failed to Fetch!"))
+    }
+    None
+  }, [hasTriedSwitch])
 
   <div className="flex flex-col gap-8">
     <BreadCrumbNavigation

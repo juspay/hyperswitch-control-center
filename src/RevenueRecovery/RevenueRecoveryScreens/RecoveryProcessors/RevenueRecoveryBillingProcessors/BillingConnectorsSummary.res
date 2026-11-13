@@ -678,6 +678,20 @@ module RetriesConfiguration = {
         RevenueRecoveryOnboardingUtils.defaultGracePeriodDays,
       )
 
+    let saveMode = async () => {
+      try {
+        let body =
+          [(retryAlgorithmKey, (selectedMode :> string)->JSON.Encode.string)]
+          ->Dict.fromArray
+          ->JSON.Encode.object
+        let profile = await updateBusinessProfile(~body)
+        onProfileSaved(profile->mapJsonToRecoveryProfile)
+        true
+      } catch {
+      | _ => false
+      }
+    }
+
     let save = async values => {
       try {
         setScreenState(_ => Loading)
@@ -693,16 +707,16 @@ module RetriesConfiguration = {
         let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put, ~version=V2)
         setInitialValues(_ => response->removeFieldsFromResponse)
 
-        if selectedMode != savedMode {
-          let body =
-            [(retryAlgorithmKey, (selectedMode :> string)->JSON.Encode.string)]
-            ->Dict.fromArray
-            ->JSON.Encode.object
-          let profile = await updateBusinessProfile(~body)
-          onProfileSaved(profile->mapJsonToRecoveryProfile)
-        }
+        let isModeSaved = selectedMode == savedMode || (await saveMode())
         setIsEditMode(_ => false)
-        showToast(~message="Retries configuration updated", ~toastType=ToastState.ToastSuccess)
+        if isModeSaved {
+          showToast(~message="Retries configuration updated", ~toastType=ToastState.ToastSuccess)
+        } else {
+          showToast(
+            ~message="Retry limits updated, but the mode could not be changed",
+            ~toastType=ToastState.ToastError,
+          )
+        }
         setScreenState(_ => Success)
       } catch {
       | _ => {
@@ -831,7 +845,7 @@ module RetriesConfiguration = {
           </div>
           <div
             className={devRecoveryExternalTrigger
-              ? `${RevenueRecoveryProfileHelper.retryGridClass} px-2`
+              ? `${RevenueRecoveryProfileUtils.retryGridClass} px-2`
               : "grid grid-cols-2 px-2 gap-10 max-w-3xl"}>
             <div className="flex flex-col gap-2 ">
               <RenderIf condition={!isEditMode}>

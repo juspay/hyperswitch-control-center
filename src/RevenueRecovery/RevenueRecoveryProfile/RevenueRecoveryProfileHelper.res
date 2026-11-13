@@ -39,15 +39,6 @@ module ModelChip = {
   }
 }
 
-let retryGridClass = "grid grid-cols-2 gap-x-10 gap-y-5 max-w-3xl"
-
-let totalRetriesHint = "The total number of retries that should be done within the grace period"
-let startOfRecoveryHint = "After how many of your own retries the recovery process should start"
-let hardDeclineRetriesHint = "The number of retries allowed on an invoice after a hard decline"
-let partialAuthorizationHint = "Allow partial authorization for recovered payments. A value sent in the recovery API request takes priority over this"
-let webhookUrlHint = "We send the next retry time of each invoice to this URL"
-let retryModeHint = "Monitoring records failed invoices and schedules no retries. Smart works out the best time for each retry."
-
 module InfoHint = {
   @react.component
   let make = (~description) =>
@@ -96,7 +87,11 @@ module RetryConfigFields = {
           ~customLabelIcon=?description->Option.map(infoIcon),
           ~name=key->getRetryConfigFieldName,
           ~placeholder,
-          ~customInput=InputFields.numericTextInput(~customStyle="rounded-xl"),
+          ~customInput=InputFields.numericTextInput(
+            ~customStyle="rounded-xl",
+            ~precision=0,
+            ~removeLeadingZeroes=true,
+          ),
           ~isRequired=true,
         )}
       />
@@ -303,7 +298,7 @@ module WebhookUrlField = {
         ~name=webhookUrlFieldName,
         ~placeholder="Enter Webhook URL",
         ~customInput=InputFields.textInput(~autoComplete="off", ~customStyle="rounded-xl"),
-        ~isRequired=false,
+        ~isRequired=true,
       )}
     />
 }
