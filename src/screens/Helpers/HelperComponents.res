@@ -24,20 +24,24 @@ module CopyTextCustomComp = {
       | None => ""
       }
     }
-    let onCopyClick = ev => {
+    let onCopyClick = async ev => {
       ev->ReactEvent.Mouse.stopPropagation
-      Clipboard.writeText(copyVal)
-      customOnCopyClick()
-      showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
+      let copied = await Clipboard.writeTextWithResult(copyVal)
+      if copied {
+        customOnCopyClick()
+        showToast(~message="Copied to Clipboard!", ~toastType=ToastSuccess)
+      } else {
+        showToast(
+          ~message="Could not copy. Select and copy the text manually.",
+          ~toastType=ToastError,
+        )
+      }
     }
 
     switch displayValue {
     | Some(val) =>
       <div
-        className={`${customParentClass} cursor-pointer`}
-        onClick={ev => {
-          onCopyClick(ev)
-        }}>
+        className={`${customParentClass} cursor-pointer`} onClick={ev => onCopyClick(ev)->ignore}>
         {showTooltip
           ? <ToolTip
               description=val

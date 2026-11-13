@@ -1134,6 +1134,13 @@ let useGetURL = () => {
 
       | HYPERSWITCH_RECON =>
         switch hyperswitchReconType {
+        | #API_KEYS =>
+          switch (methodType, id) {
+          | (Get, Some(apiKeyId)) | (Put, Some(apiKeyId)) =>
+            Default(`${reconBaseURL}/api_keys/${apiKeyId}`)
+          | (Get, None) | (Post, None) => Default(`${reconBaseURL}/api_keys`)
+          | _ => Default("")
+          }
         | #FILE_UPLOAD =>
           switch methodType {
           | Post =>
