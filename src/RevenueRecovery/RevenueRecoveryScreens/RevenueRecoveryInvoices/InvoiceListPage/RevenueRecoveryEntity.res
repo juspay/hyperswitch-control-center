@@ -277,7 +277,7 @@ let getOrders: JSON.t => array<RevenueRecoveryOrderTypes.order> = json => {
   getArrayDataFromJson(json, itemToObjMapper)
 }
 
-let revenueRecoveryEntity = (merchantId, orgId) =>
+let revenueRecoveryEntity = (merchantId, orgId, profileId) =>
   EntityType.makeEntity(
     ~uri=``,
     ~getObjects=getOrders,
@@ -287,9 +287,11 @@ let revenueRecoveryEntity = (merchantId, orgId) =>
     ~getCell,
     ~dataKey="",
     ~getShowLink={
-      order =>
+      order => {
+        let invoiceProfileId = order.profile_id->getNonEmptyString->Option.getOr(profileId)
         GlobalVars.appendDashboardPath(
-          ~url=`v2/recovery/invoices/${order.id}/${order.profile_id}/${merchantId}/${orgId}`,
+          ~url=`v2/recovery/invoices/${order.id}/${invoiceProfileId}/${merchantId}/${orgId}`,
         )
+      }
     },
   )

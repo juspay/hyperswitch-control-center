@@ -13,8 +13,6 @@ let make = (~isOnboarded, ~onProfileSaved) => {
   let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let recoveryProfile = HyperswitchAtom.recoveryProfileAtom->Recoil.useRecoilValueFromAtom
   let webhookDetails = recoveryProfile->Option.flatMap(profile => profile.webhookDetails)
-  let paymentResponseHashKey =
-    recoveryProfile->mapOptionOrDefault("", profile => profile.paymentResponseHashKey)
   let (currentStep, setCurrentStep) = React.useState(_ => scheduledOnlyDefaultStep)
   let (retryAlgorithm, setRetryAlgorithm) = React.useState(_ => Monitoring)
   let (retryConfigValues, setRetryConfigValues) = React.useState(_ =>
@@ -65,11 +63,11 @@ let make = (~isOnboarded, ~onProfileSaved) => {
           ->getDictfromDict(retryConfigKey)
           ->JSON.Encode.object,
         ),
+        (
+          webhookDetailsKey,
+          getWebhookDetailsBody(~webhookUrl=values->getWebhookUrl, ~webhookDetails),
+        ),
       ]
-      let webhookUrl = values->getWebhookUrl
-      if webhookUrl->isNonEmptyString {
-        body->Array.push((webhookDetailsKey, getWebhookDetailsBody(~webhookUrl, ~webhookDetails)))
-      }
       let response = await updateBusinessProfile(~body=body->Dict.fromArray->JSON.Encode.object)
       mixpanelEvent(~eventName=`recovery_mode_saved_${(retryAlgorithm :> string)}`)
       onProfileSaved(response->mapJsonToRecoveryProfile)
@@ -117,7 +115,7 @@ let make = (~isOnboarded, ~onProfileSaved) => {
       | #setupWebhook =>
         <PageWrapper
           title="Setup Webhook"
-          subTitle="Add the URL we send the next retry time of each invoice to. You can also add it later in Configuration Details.">
+          subTitle="Add the URL we send the next retry time of each invoice to.">
           <Form
             key={(#setupWebhook: scheduledOnlyOnboardingSections :> string)}
             onSubmit=onWebhookSubmit
@@ -125,11 +123,6 @@ let make = (~isOnboarded, ~onProfileSaved) => {
             validate=validateWebhook>
             <div className="flex flex-col gap-8 max-w-xl">
               <WebhookUrlField />
-              <RenderIf condition={paymentResponseHashKey->isNonEmptyString}>
-                <div className="px-2">
-                  <PaymentResponseHashKey hashKey=paymentResponseHashKey />
-                </div>
-              </RenderIf>
               <FormRenderer.SubmitButton
                 text="Save and finish" buttonSize={Small} customSubmitButtonStyle="!w-full"
               />

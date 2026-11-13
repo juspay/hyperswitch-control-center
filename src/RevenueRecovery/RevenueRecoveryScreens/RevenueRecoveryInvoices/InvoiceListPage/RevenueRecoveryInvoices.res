@@ -13,7 +13,7 @@ let make = () => {
     UserInfoProvider.defaultContext,
   )
   let {transactionEntity} = getResolvedUserInfo()
-  let {merchantId, orgId} = getCommonSessionDetails()
+  let {merchantId, orgId, profileId} = getCommonSessionDetails()
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (totalCount, setTotalCount) = React.useState(_ => 0)
   let defaultValue: LoadedTable.pageDetails = {offset: 0, resultsPerPage: 20}
@@ -136,7 +136,7 @@ let make = () => {
       entityName={V2(V2_ORDER_FILTERS)}
       version=V2
     />
-  }, [searchText])
+  }, (searchText, showConnectorFilter))
 
   <ErrorBoundary>
     <div className={`flex flex-col gap-4 mx-auto h-full w-full min-h-50-vh`}>
@@ -161,7 +161,7 @@ let make = () => {
         <LoadedTableWithCustomColumns
           title=tableTitle
           actualData=revenueRecoveryData
-          entity={RevenueRecoveryEntity.revenueRecoveryEntity(merchantId, orgId)}
+          entity={RevenueRecoveryEntity.revenueRecoveryEntity(merchantId, orgId, profileId)}
           resultsPerPage
           showSerialNumber=true
           totalResults={totalCount}

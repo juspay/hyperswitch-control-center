@@ -3,12 +3,15 @@ let make = (~createMerchant) => {
   open Typography
 
   let mixpanelEvent = MixpanelHook.useSendEvent()
-  let {setCreateNewMerchant} = React.useContext(ProductSelectionProvider.defaultContext)
+  let {setCreateNewMerchant, activeProduct} = React.useContext(
+    ProductSelectionProvider.defaultContext,
+  )
   let userHasCreateMerchantAccess = OMPCreateAccessHook.useOMPCreateAccessHook([
     #tenant_admin,
     #org_admin,
   ])
   let {devRecoveryExternalTrigger} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
   let (showModelSelection, setShowModelSelection) = React.useState(_ => false)
 
   let goToTriggerModelRoute = model =>
@@ -23,6 +26,10 @@ let make = (~createMerchant) => {
         SessionStorage.sessionStorage.setItem(
           RevenueRecoveryProfileUtils.pendingTriggerModelKey,
           (model :> string),
+        )
+        SessionStorage.sessionStorage.setItem(
+          RevenueRecoveryProfileUtils.pendingTriggerModelMerchantKey,
+          merchantId,
         )
       }
       setCreateNewMerchant(ProductTypes.Recovery)
@@ -39,10 +46,33 @@ let make = (~createMerchant) => {
         ->Nullable.toOption
         ->Option.map(RevenueRecoveryProfileUtils.getTriggerModelFromString)
       SessionStorage.sessionStorage.removeItem(RevenueRecoveryProfileUtils.pendingTriggerModelKey)
+      SessionStorage.sessionStorage.removeItem(
+        RevenueRecoveryProfileUtils.pendingTriggerModelMerchantKey,
+      )
       pendingModel->Option.forEach(goToTriggerModelRoute)
     }
     None
   }, [])
+
+  // The create merchant popup resets the product when it closes; the merchant only changes
+  // when a merchant was created
+  React.useEffect(() => {
+    let choiceMerchantId =
+      SessionStorage.sessionStorage.getItem(
+        RevenueRecoveryProfileUtils.pendingTriggerModelMerchantKey,
+      )->Nullable.toOption
+    switch activeProduct {
+    | OnBoarding(_) => ()
+    | _ =>
+      if choiceMerchantId == Some(merchantId) {
+        SessionStorage.sessionStorage.removeItem(RevenueRecoveryProfileUtils.pendingTriggerModelKey)
+        SessionStorage.sessionStorage.removeItem(
+          RevenueRecoveryProfileUtils.pendingTriggerModelMerchantKey,
+        )
+      }
+    }
+    None
+  }, [activeProduct])
 
   <>
     <RenderIf condition={showModelSelection}>

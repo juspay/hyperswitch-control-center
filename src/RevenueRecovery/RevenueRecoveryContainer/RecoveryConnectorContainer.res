@@ -19,10 +19,14 @@ let make = () => {
   let (recoveryProfile, setRecoveryProfile) =
     HyperswitchAtom.recoveryProfileAtom->Recoil.useRecoilState
 
+  let fetchRecoveryProfile = async () => {
+    let profile = await fetchBusinessProfileFromId(~profileId=Some(profileId))
+    setRecoveryProfile(_ => Some(profile->RevenueRecoveryProfileUtils.mapJsonToRecoveryProfile))
+  }
+
   let refreshRecoveryProfile = async () => {
     try {
-      let profile = await fetchBusinessProfileFromId(~profileId=Some(profileId))
-      setRecoveryProfile(_ => Some(profile->RevenueRecoveryProfileUtils.mapJsonToRecoveryProfile))
+      await fetchRecoveryProfile()
     } catch {
     | _ => ()
     }
@@ -37,12 +41,21 @@ let make = () => {
         userHasAccess(~groupAccess=WorkflowsView) === Access ||
         userHasAccess(~groupAccess=WorkflowsManage) === Access
       ) {
-        let _ = await fetchConnectorListResponse()
+        let connectorList = await fetchConnectorListResponse()
         if devRecoveryExternalTrigger {
-          let profile = await fetchBusinessProfileFromId(~profileId=Some(profileId))
-          setRecoveryProfile(_ => Some(
-            profile->RevenueRecoveryProfileUtils.mapJsonToRecoveryProfile,
-          ))
+          let hasBillingConnector =
+            connectorList
+            ->ConnectorInterfaceUtils.filterConnectorList(BillingProcessor)
+            ->Array.length > 0
+          try {
+            await fetchRecoveryProfile()
+          } catch {
+          // Without a billing connector, only the profile tells whether the merchant is onboarded
+          | error =>
+            if !hasBillingConnector {
+              raise(error)
+            }
+          }
         }
       }
       setScreenState(_ => PageLoaderWrapper.Success)
@@ -76,7 +89,7 @@ let make = () => {
   <PageLoaderWrapper screenState={screenState} sectionHeight="!h-screen" showLogoutButton=true>
     {switch url.path->urlPath {
     | list{"v2", "recovery", "onboarding", "configuration"} if devRecoveryExternalTrigger =>
-      <AccessControl authorization={userHasAccess(~groupAccess=ConnectorsView)}>
+      <AccessControl authorization={userHasAccess(~groupAccess=AccountManage)}>
         <div className="mt-14">
           <RevenueRecoveryModeConfiguration isOnboarded onProfileSaved />
         </div>

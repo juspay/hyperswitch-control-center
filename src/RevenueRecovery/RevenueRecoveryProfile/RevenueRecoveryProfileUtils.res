@@ -19,6 +19,15 @@ let paymentResponseHashKeyKey = "payment_response_hash_key"
 
 let maxAllowedRetries = 15
 
+let retryGridClass = "grid grid-cols-2 gap-x-10 gap-y-5 max-w-3xl"
+
+let totalRetriesHint = "The total number of retries that should be done within the grace period"
+let startOfRecoveryHint = "After how many of your own retries the recovery process should start"
+let hardDeclineRetriesHint = "The number of retries allowed on an invoice after a hard decline"
+let partialAuthorizationHint = "Allow partial authorization for recovered payments. A value sent in the recovery API request takes priority over this"
+let webhookUrlHint = "We send the next retry time of each invoice to this URL"
+let retryModeHint = "Monitoring records failed invoices and schedules no retries. Smart works out the best time for each retry."
+
 let scheduledOnlyOnboardingSteps: array<scheduledOnlyOnboardingSections> = [
   #configuration,
   #setupWebhook,
@@ -63,8 +72,8 @@ let getRetryAlgorithmFromString = value =>
 
 let getTriggerModelLabel = model =>
   switch model {
-  | InternalTriggers => "Managed Recovery"
-  | ExternalTriggers => "Scheduled Only Recovery"
+  | InternalTriggers => "Fully Managed Recovery"
+  | ExternalTriggers => "Schedule Only Recovery"
   }
 
 let getRetryAlgorithmLabel = (algorithm: retryAlgorithm) => (algorithm :> string)->capitalizeString
@@ -172,22 +181,20 @@ let getWebhookInitialValues = webhookDetails => {
 // The profile update replaces webhook_details as a whole, so the saved fields are sent back with the URL
 let getWebhookDetailsBody = (~webhookUrl, ~webhookDetails) => {
   let details = webhookDetails->Option.getOr(Dict.make())->Dict.copy
-  if webhookUrl->isNonEmptyString {
-    details->Dict.set(webhookUrlKey, webhookUrl->JSON.Encode.string)
-  } else {
-    details->Dict.delete(webhookUrlKey)
-  }
+  details->Dict.set(webhookUrlKey, webhookUrl->JSON.Encode.string)
   details->JSON.Encode.object
 }
 
-let validateWebhookUrl = (errors, values, ~isLiveMode) =>
-  values
-  ->getWebhookUrl
-  ->getNonEmptyString
-  ->mapOptionOrDefault((), webhookUrl =>
+let validateWebhookUrl = (errors, values, ~isLiveMode) => {
+  let webhookUrl = values->getWebhookUrl
+  if webhookUrl->isEmptyString {
+    errors->Dict.set(webhookUrlFieldName, "Please enter webhook URL"->JSON.Encode.string)
+  } else {
     PaymentSettingsUtils.validateCustom(WebhookDetails, errors, webhookUrl, isLiveMode)
-  )
+  }
+}
 
 // The merchant doesn't exist yet when a new merchant picks a model, so the choice has to
 // survive the create merchant popup and the switch to that merchant
 let pendingTriggerModelKey = "recovery_pending_trigger_model"
+let pendingTriggerModelMerchantKey = "recovery_pending_trigger_model_merchant"
