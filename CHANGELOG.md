@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.13.0
+
+### Features
+
+- **recovery:**
+  - Add Scheduled Only Recovery and trigger model settings ([#5798](https://github.com/juspay/hyperswitch-control-center/pull/5798)) ([`f761276`](https://github.com/juspay/hyperswitch-control-center/commit/f7612766f8dc6eb23724e5721c4d758fbfb2d8dd))
+  - Add webhook URL to Scheduled Only Recovery settings and onboarding ([#5805](https://github.com/juspay/hyperswitch-control-center/pull/5805)) ([`858bacd`](https://github.com/juspay/hyperswitch-control-center/commit/858bacd13b407b8ae9235122540e649affd0c382))
+
+### Miscellaneous Tasks
+
+- **deps:** Upgrade blend to 0.0.39-beta.3 and fix dompurify vulnerabilities ([#5808](https://github.com/juspay/hyperswitch-control-center/pull/5808)) ([`cde1f71`](https://github.com/juspay/hyperswitch-control-center/commit/cde1f7165c3b878dcdedc276a404731074e4b119))
+
+**Full Changelog:** [`2026.11.11.1...2026.11.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.11.1...2026.11.13.0)
+
+- - -
+
 ## 2026.11.11.1
 
 ### Bug Fixes
