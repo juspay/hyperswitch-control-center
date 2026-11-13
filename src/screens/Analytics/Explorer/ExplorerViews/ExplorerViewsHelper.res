@@ -42,6 +42,12 @@ module UnmeasuredNote = {
     </div>
 }
 
+module BlankSplitNote = {
+  @react.component
+  let make = (~note) =>
+    <div className={`px-5 pt-4 ${body.md.regular} text-nd_gray-600`}> {note->React.string} </div>
+}
+
 module ViewTabs = {
   @react.component
   let make = (~view: view, ~onViewChange) =>

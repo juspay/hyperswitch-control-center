@@ -5,7 +5,15 @@ open ExplorerUtils
 
 module MetricCard = {
   @react.component
-  let make = (~label, ~definition, ~value, ~change, ~impact: changeImpact, ~primary=false) => {
+  let make = (
+    ~label,
+    ~definition,
+    ~value,
+    ~change,
+    ~impact: changeImpact,
+    ~isComparable,
+    ~primary=false,
+  ) => {
     let (impactTextClass, impactBgClass) = impact->getImpactClasses
     <div
       className={`flex flex-col gap-2 rounded-xl border px-5 py-4 ${primary
@@ -28,7 +36,9 @@ module MetricCard = {
             className={`rounded-md px-1.5 py-0.5 ${body.sm.medium} ${impactTextClass} ${impactBgClass}`}>
             {change->React.string}
           </span>
-          <span className="text-nd_gray-400"> {"vs previous period"->React.string} </span>
+          <RenderIf condition=isComparable>
+            <span className="text-nd_gray-400"> {"vs previous period"->React.string} </span>
+          </RenderIf>
         </div>
       </RenderIf>
     </div>

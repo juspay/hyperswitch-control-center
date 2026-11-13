@@ -23,3 +23,16 @@ let getUnmeasuredNote = (selection, dataset, ~labelFor) => {
   let label = String.toLowerCase(String.charAt(label, 0)) ++ label->String.sliceToEnd(~start=1)
   `Excluded from the ${label}: ${names}${more}.`
 }
+
+let getBlankSplitNote = (selection, dataset) =>
+  selection.split
+  ->Array.filterWithIndex((_, index) =>
+    dataset.groups->isNonEmptyArray &&
+      dataset.groups->Array.every(group =>
+        group.values->getValueFromArray(index, "")->isEmptyString
+      )
+  )
+  ->Array.map(key =>
+    `${dimensionLabel(key)} is blank for everything counted in this measure, so it can't split it.`
+  )
+  ->Array.joinWith(" ")

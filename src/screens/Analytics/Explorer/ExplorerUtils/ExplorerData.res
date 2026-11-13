@@ -15,23 +15,6 @@ let emptyCounts = {
   lostAmount: 0.0,
 }
 
-let countsItemToObjMapper = (dict): counts => {
-  total: dict->getFloat("total", 0.0),
-  success: dict->getFloat("success", 0.0),
-  failed: dict->getFloat("failed", 0.0),
-  authFailed: dict->getFloat("authFailed", 0.0),
-  excluded: dict->getFloat("excluded", 0.0),
-  threeDsAttempts: dict->getFloat("threeDsAttempts", 0.0),
-  amount: dict->getFloat("amount", 0.0),
-  lostAmount: dict->getFloat("lostAmount", 0.0),
-}
-
-let groupItemToObjMapper = (dict): group => {
-  values: dict->getStrArrayFromDict("values", []),
-  current: dict->getDictfromDict("current")->countsItemToObjMapper,
-  previous: None,
-}
-
 let addCounts = (a, b) => {
   total: a.total +. b.total,
   success: a.success +. b.success,
@@ -54,6 +37,9 @@ let getCount = (counts, field) =>
   | AuthFailed => counts.authFailed
   | Other => counts.total -. counts.success -. counts.failed -. counts.excluded
   }
+
+let getVisibleOutcomes = (countsList: array<counts>) =>
+  outcomes->Array.filter(field => countsList->Array.some(counts => counts->getCount(field) > 0.0))
 
 let getDenominator = (counts, base) =>
   switch base {
@@ -106,14 +92,16 @@ let getMeasureValue = (source, measure, counts) =>
   | AmountPerSuccess => counts.success > 0.0 ? counts.amount /. counts.success : 0.0
   }
 
-let getRateDenominator = (source, measure, counts) =>
+let measurable = (source, measure, counts) =>
   switch getMeasureFormula(source, measure) {
-  | Rate(_, base) => counts->getDenominator(base)
-  | Count(_) | TotalAmount(_) | AmountPerSuccess => counts.total
+  | Rate(_, base) => counts->getDenominator(base) > 0.0
+  | AmountPerSuccess => counts.success > 0.0
+  | Count(_) | TotalAmount(_) => true
   }
 
-let measurable = (source, measure, counts) =>
-  !isRate(measure) || getRateDenominator(source, measure, counts) > 0.0
+let hasMeasureValue = (source, measure, counts) =>
+  measurable(source, measure, counts) &&
+  (isRate(measure) || getMeasureValue(source, measure, counts) > 0.0)
 
 let displayValue = (source, measure, counts, ~currency) => {
   let value = getMeasureValue(source, measure, counts)
@@ -232,16 +220,28 @@ let buildDataset = (selection, allResponses) => {
   let previousGroups = responses.previousRows->groupsOf
   let allGroups =
     currentGroups
-    ->Dict.toArray
-    ->Array.map(((key, (values, current))) => {
-      values,
-      current,
-      previous: previousGroups
-      ->getOptionValFromDict(key)
-      ->Option.map(((_, counts)) => counts),
+    ->Dict.keysToArray
+    ->Array.concat(previousGroups->Dict.keysToArray)
+    ->ArrayUtils.getUniqueStrArray
+    ->Array.map(key => {
+      let current = currentGroups->getOptionValFromDict(key)
+      let previous = previousGroups->getOptionValFromDict(key)
+      {
+        values: current
+        ->Option.orElse(previous)
+        ->mapOptionOrDefault([], ((values, _)) => values),
+        current: current->mapOptionOrDefault(emptyCounts, ((_, counts)) => counts),
+        previous: previous->Option.map(((_, counts)) => counts),
+      }
     })
     ->Array.toSorted((a, b) => compareLogic(a.current.total, b.current.total))
-  let groups = allGroups->Array.filter(group => measurable(source, measure, group.current))
+  let hadPreviousValue = group =>
+    !isRate(measure) &&
+    group.previous->mapOptionOrDefault(false, counts => hasMeasureValue(source, measure, counts))
+  let groups =
+    allGroups->Array.filter(group =>
+      hasMeasureValue(source, measure, group.current) || group->hadPreviousValue
+    )
 
   {
     overall: responses.currentRows->totalOf,
@@ -251,7 +251,9 @@ let buildDataset = (selection, allResponses) => {
     amountCurrencies,
     amountCurrency,
     groups,
-    topByVolume: allGroups->Array.slice(~start=0, ~end=topGroupCount),
+    topByVolume: allGroups
+    ->Array.filter(group => group.current.total > 0.0)
+    ->Array.slice(~start=0, ~end=topGroupCount),
     topMeasured: groups->Array.slice(~start=0, ~end=topGroupCount),
     unmeasured: isRate(measure)
       ? currentGroups
