@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.13.1
+
+### Features
+
+- **recon:** Add API key management screen ([#5810](https://github.com/juspay/hyperswitch-control-center/pull/5810)) ([`e964f86`](https://github.com/juspay/hyperswitch-control-center/commit/e964f86ffbdfa105db63f3352b13d4f3e132f4de))
+
+### Bug Fixes
+
+- **recovery:** Harden invoice profile switch and address Schedule Only Recovery feedback ([#5811](https://github.com/juspay/hyperswitch-control-center/pull/5811)) ([`82876f6`](https://github.com/juspay/hyperswitch-control-center/commit/82876f678084ee52347e4d2680220d1db5c75d28))
+- **server:** Return 413 for oversized /config/merchant request bodies ([#5800](https://github.com/juspay/hyperswitch-control-center/pull/5800)) ([`7b3590d`](https://github.com/juspay/hyperswitch-control-center/commit/7b3590d1c06935ddcfbde750a1931bf93b20d7e2))
+
+**Full Changelog:** [`2026.11.13.0...2026.11.13.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.13.0...2026.11.13.1)
+
+- - -
+
 ## 2026.11.13.0
 
 ### Features
