@@ -46,19 +46,16 @@ let make = (~createMerchant) => {
     )
   }
 
-  React.useEffect(() => {
-    if devRecoveryExternalTrigger && !createMerchant {
-      let pendingModel =
-        SessionStorage.sessionStorage.getItem(RevenueRecoveryProfileUtils.pendingTriggerModelKey)
-        ->Nullable.toOption
-        ->Option.map(RevenueRecoveryProfileUtils.getTriggerModelFromString)
-      clearPendingTriggerModel()
-      pendingModel->Option.forEach(goToTriggerModelRoute)
-    }
-    None
-  }, [])
+  let resumePendingTriggerModel = () => {
+    let pendingModel =
+      SessionStorage.sessionStorage.getItem(RevenueRecoveryProfileUtils.pendingTriggerModelKey)
+      ->Nullable.toOption
+      ->Option.map(RevenueRecoveryProfileUtils.getTriggerModelFromString)
+    clearPendingTriggerModel()
+    pendingModel->Option.forEach(goToTriggerModelRoute)
+  }
 
-  React.useEffect(() => {
+  let clearPendingTriggerModelIfMerchantNotCreated = () => {
     let choiceMerchantId =
       SessionStorage.sessionStorage.getItem(
         RevenueRecoveryProfileUtils.pendingTriggerModelMerchantKey,
@@ -70,6 +67,17 @@ let make = (~createMerchant) => {
         clearPendingTriggerModel()
       }
     }
+  }
+
+  React.useEffect(() => {
+    if devRecoveryExternalTrigger && !createMerchant {
+      resumePendingTriggerModel()
+    }
+    None
+  }, [])
+
+  React.useEffect(() => {
+    clearPendingTriggerModelIfMerchantNotCreated()
     None
   }, [activeProduct])
 
