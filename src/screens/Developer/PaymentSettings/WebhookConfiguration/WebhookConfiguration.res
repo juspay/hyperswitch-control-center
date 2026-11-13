@@ -90,6 +90,7 @@ let make = (~allowedApiFields: option<array<string>>=?) => {
       }}>
       <div className="flex flex-col gap-4">
         <div className="ml-1 mt-4">
+          <UrlWhitelistAlertBanner.Webhook />
           <FieldRenderer
             field={webhookUrl}
             errorClass={HSwitchUtils.errorClass}
