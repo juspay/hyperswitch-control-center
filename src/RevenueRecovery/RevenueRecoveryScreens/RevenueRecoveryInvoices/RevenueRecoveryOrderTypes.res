@@ -7,6 +7,7 @@ type colType =
   | PaymentMethodType
   | ModifiedAt
   | RecoveryProgress
+  | MerchantReferenceId
 
 type attemptColType =
   | Id
@@ -33,6 +34,8 @@ type attempts = {
 
 type order = {
   id: string,
+  profile_id: string,
+  merchant_reference_id: string,
   status: string,
   order_amount: float,
   amount_captured: float,
@@ -64,7 +67,6 @@ type attemptGroup = {
 }
 
 type recoveryInvoiceStatus =
-  | Recovered
   | Succeeded
   | Cancelled
   | Scheduled
@@ -77,7 +79,6 @@ type recoveryInvoiceStatus =
   | Other(string)
 
 type recoveryFilterKey = [
-  | #recovery_status
   | #merchant_connector_id
   | #payment_method_type
   | #payment_method_subtype
@@ -85,25 +86,7 @@ type recoveryFilterKey = [
 
 type paymentMethodFilterKey = [#payment_method_type | #payment_method_subtype]
 
-type recoveryMetricStatus = [
-  | #monitoring
-  | #scheduled
-  | #succeeded
-  | #partially_recovered
-  | #terminated
-  | #cancelled
-]
-
-type recoveryStatusFilterOption = [
-  | #succeeded
-  | #scheduled
-  | #processing
-  | #queued
-  | #monitoring
-  | #terminated
-  | #cancelled
-  | #partially_recovered
-]
+type hiddenRecoveryStatus = [#no_picked | #pending]
 
 type recoverySchedulerStatusType =
   | Finish

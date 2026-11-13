@@ -79,6 +79,7 @@ let make = (~children) => {
       let url = getURL(~entityName=V1(USERS), ~userType=#FROM_EMAIL, ~methodType=Post)
       switch tokenFromUrl {
       | Some(token) => {
+          Window.History.replaceState(Nullable.null, "", Window.Location.pathName)
           let response = await updateDetails(url, token->generateBodyForEmailRedirection, Post)
           setAuthStatus(PreLogin(AuthUtils.getPreLoginInfo(response, ~email_token=Some(token))))
         }

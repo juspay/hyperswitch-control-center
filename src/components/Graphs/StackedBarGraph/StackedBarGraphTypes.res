@@ -99,7 +99,8 @@ type xAxis = {
 type point = {index: int}
 type pointFormatter = {point: point}
 
-type labelFormatter = {name: string, yData: array<int>}
+type labelFormatterOptions = {data: array<float>}
+type labelFormatter = {name: string, options: labelFormatterOptions}
 
 external asTooltipPointFormatter: Js_OO.Callback.arity1<'a> => pointFormatter => string =
   "%identity"

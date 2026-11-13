@@ -3,6 +3,56 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.13.0
+
+### Features
+
+- **recovery:**
+  - Add Scheduled Only Recovery and trigger model settings ([#5798](https://github.com/juspay/hyperswitch-control-center/pull/5798)) ([`f761276`](https://github.com/juspay/hyperswitch-control-center/commit/f7612766f8dc6eb23724e5721c4d758fbfb2d8dd))
+  - Add webhook URL to Scheduled Only Recovery settings and onboarding ([#5805](https://github.com/juspay/hyperswitch-control-center/pull/5805)) ([`858bacd`](https://github.com/juspay/hyperswitch-control-center/commit/858bacd13b407b8ae9235122540e649affd0c382))
+
+### Miscellaneous Tasks
+
+- **deps:** Upgrade blend to 0.0.39-beta.3 and fix dompurify vulnerabilities ([#5808](https://github.com/juspay/hyperswitch-control-center/pull/5808)) ([`cde1f71`](https://github.com/juspay/hyperswitch-control-center/commit/cde1f7165c3b878dcdedc276a404731074e4b119))
+
+**Full Changelog:** [`2026.11.11.1...2026.11.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.11.1...2026.11.13.0)
+
+- - -
+
+## 2026.11.11.1
+
+### Bug Fixes
+
+- **graphs:** Read legend values and tooltip categories after highcharts 12 upgrade ([#5804](https://github.com/juspay/hyperswitch-control-center/pull/5804)) ([`59e3e7c`](https://github.com/juspay/hyperswitch-control-center/commit/59e3e7c9eb4f57829bb29b79ccf89a596e5ea4fa))
+
+**Full Changelog:** [`2026.11.11.0...2026.11.11.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.11.0...2026.11.11.1)
+
+- - -
+
+## 2026.11.11.0
+
+### Bug Fixes
+
+- Token leakage prevention ([#5784](https://github.com/juspay/hyperswitch-control-center/pull/5784)) ([`66804ee`](https://github.com/juspay/hyperswitch-control-center/commit/66804eecc706580f61e9ab5ed7c3764c9bb5e906))
+
+### Testing
+
+- **playwright:** Refresh visual snapshots and update test config ([#5803](https://github.com/juspay/hyperswitch-control-center/pull/5803)) ([`1d5596d`](https://github.com/juspay/hyperswitch-control-center/commit/1d5596d7ca9bcccb05e42c6f4a20a1ee25553fa9))
+
+**Full Changelog:** [`2026.11.09.2...2026.11.11.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.09.2...2026.11.11.0)
+
+- - -
+
+## 2026.11.09.2
+
+### Features
+
+- **connectors:** Add Checkout Apple Pay payout connector introduction ([#5802](https://github.com/juspay/hyperswitch-control-center/pull/5802)) ([`b6d3d1d`](https://github.com/juspay/hyperswitch-control-center/commit/b6d3d1d580f22d59b58589719da5ea48cc2cf61f))
+
+**Full Changelog:** [`2026.11.09.1...2026.11.09.2`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.09.1...2026.11.09.2)
+
+- - -
+
 ## 2026.11.09.1
 
 ### Features
