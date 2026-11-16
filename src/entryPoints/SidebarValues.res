@@ -812,30 +812,23 @@ let developers = (
     : emptyComponent
 }
 
-let superpositionDefaultConfigs = userHasResourceAccess => SubLevelLink({
-  name: "Default Configs",
-  link: "/configuration-management-default-config",
+let superpositionFeatures = userHasResourceAccess => SubLevelLink({
+  name: "Features",
+  link: "/features",
   access: userHasResourceAccess(~resourceAccess=SuperpositionConfigs),
-  searchOptions: [("View default configurations", "")],
+  searchOptions: [("View features", "")],
 })
 
-let superpositionOverrides = userHasResourceAccess => SubLevelLink({
-  name: "Overrides",
-  link: "/configuration-management-overrides",
+let superpositionSpecializations = userHasResourceAccess => SubLevelLink({
+  name: "Specializations",
+  link: "/specializations",
   access: userHasResourceAccess(~resourceAccess=SuperpositionConfigs),
-  searchOptions: [("View context overrides", "")],
-})
-
-let superpositionDimensions = userHasResourceAccess => SubLevelLink({
-  name: "Dimensions",
-  link: "/configuration-management-dimensions",
-  access: userHasResourceAccess(~resourceAccess=SuperpositionConfigs),
-  searchOptions: [("View dimensions", "")],
+  searchOptions: [("View specializations", "")],
 })
 
 let superpositionAuditLog = userHasResourceAccess => SubLevelLink({
   name: "Audit Log",
-  link: "/configuration-management-audit",
+  link: "/audit-log",
   access: userHasResourceAccess(~resourceAccess=SuperpositionConfigs),
   searchOptions: [("View audit log", "")],
 })
@@ -843,13 +836,12 @@ let superpositionAuditLog = userHasResourceAccess => SubLevelLink({
 let superposition = (~userHasResourceAccess, ~isEnabled) =>
   isEnabled
     ? Section({
-        name: "Configuration Management",
+        name: "Feature Management",
         icon: "nd-config-sliders",
         showSection: true,
         links: [
-          superpositionDefaultConfigs(userHasResourceAccess),
-          superpositionOverrides(userHasResourceAccess),
-          superpositionDimensions(userHasResourceAccess),
+          superpositionFeatures(userHasResourceAccess),
+          superpositionSpecializations(userHasResourceAccess),
           superpositionAuditLog(userHasResourceAccess),
         ],
         selectedIcon: "nd-config-sliders",

@@ -226,10 +226,9 @@ let make = (~setScreenState) => {
         <DisputeTable />
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
-    | list{"configuration-management-default-config"}
-    | list{"configuration-management-overrides"}
-    | list{"configuration-management-dimensions"}
-    | list{"configuration-management-audit"} =>
+    | list{"features"}
+    | list{"specializations"}
+    | list{"audit-log"} =>
       <AccessControl
         isEnabled={featureFlagDetails.devSuperposition}
         authorization={userHasAccess(~groupAccess=ConfigurationsView)}>
