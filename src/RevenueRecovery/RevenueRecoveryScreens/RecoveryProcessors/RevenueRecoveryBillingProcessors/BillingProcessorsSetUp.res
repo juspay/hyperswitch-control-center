@@ -104,6 +104,29 @@ let make = (
                 />
               </div>
             </div>
+            <div className="flex flex-col gap-1">
+              <div className={`text-nd_gray-700 flex gap-1 w-fit ${body.md.medium}`}>
+                {"Grace period (days)"->React.string}
+                <span className="text-red-900 mb-0.5"> {"*"->React.string} </span>
+                <ToolTip
+                  description="The number of days within which the retries are performed for an invoice"
+                  toolTipFor={<div className="cursor-pointer">
+                    <Icon name="info-vacant" size=13 />
+                  </div>}
+                  toolTipPosition=ToolTip.Top
+                />
+              </div>
+              <FormRenderer.FieldRenderer
+                labelClass="font-semibold !text-hyperswitch_black"
+                field={FormRenderer.makeFieldInfo(
+                  ~label="",
+                  ~name="feature_metadata.revenue_recovery.grace_period_days",
+                  ~toolTipPosition=Right,
+                  ~customInput=InputFields.numericTextInput(~customStyle="border rounded-xl"),
+                  ~placeholder="ex 30",
+                )}
+              />
+            </div>
           </div>
           <RenderIf
             condition={billingConnector->ConnectorUtils.getConnectorNameTypeFromString(

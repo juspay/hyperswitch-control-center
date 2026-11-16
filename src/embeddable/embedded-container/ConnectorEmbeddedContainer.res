@@ -7,10 +7,9 @@ let make = (~remainingPath) => {
 
   let setUpConnectorContainer = async () => {
     try {
-      let _ = await Promise.all2((
-        fetchConnectorListResponse(),
-        fetchBusinessProfileFromId(~profileId=Some(profileId)),
-      ))
+      // Not parallel: connector list recoil must commit before ConnectorList mounts
+      let _ = await fetchConnectorListResponse()
+      let _ = await fetchBusinessProfileFromId(~profileId=Some(profileId))
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Something went wrong!"))

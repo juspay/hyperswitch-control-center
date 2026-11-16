@@ -84,8 +84,10 @@ module Landing = {
     ~connector,
     ~update,
     ~closeAccordionFn,
+    ~isPayViaSingleUseTokenSupported,
   ) => {
     open GPayFlowTypes
+    open GPayFlowUtils
 
     let form = ReactFinalForm.useForm()
 
@@ -95,14 +97,13 @@ module Landing = {
           "connector_wallets_details.google_pay.support_predecrypted_token",
           true->JSON.Encode.bool,
         )
-        let connectorWalletDetails =
-          [
-            ("support_predecrypted_token", true->JSON.Encode.bool),
-          ]->LogicUtils.getJsonFromArrayOfJson
-
-        form.change("metadata.google_pay", connectorWalletDetails)
-        let _ = update(connectorWalletDetails)
-        closeAccordionFn()
+        form.change("metadata.google_pay", predecryptMetadata)
+        if isPayViaSingleUseTokenSupported {
+          setGooglePayIntegrationStep(_ => Configure)
+        } else {
+          let _ = update(predecryptMetadata)
+          closeAccordionFn()
+        }
       } else {
         setGooglePayIntegrationStep(_ => Configure)
       }
@@ -154,5 +155,37 @@ module Landing = {
         />
       </div>
     </div>
+  }
+}
+
+module PayViaSingleUseTokenField = {
+  @react.component
+  let make = (~connector, ~fieldWrapperClass="flex flex-col pt-1 pl-2 pr-4") => {
+    open LogicUtils
+    let paymentMethodType = (#google_pay: ConnectorTypes.payViaSingleUseTokenWallet :> string)
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let payViaSingleUseTokenConfig = React.useMemo(() => {
+      connector->isNonEmptyString
+        ? Window.getConnectorConfig(connector)
+          ->getDictFromJsonObject
+          ->ConnectorUtils.getPayViaSingleUseTokenConfig
+        : Dict.make()
+    }, [connector])
+
+    payViaSingleUseTokenConfig
+    ->PaymentMethodUtils.getPayViaSingleUseTokenField(
+      ~formValues=formState.values,
+      ~paymentMethodType,
+    )
+    ->mapOptionOrDefault(React.null, field =>
+      <FormRenderer.FieldRenderer
+        labelClass={`${Typography.body.md.semibold} text-nd_gray-800`}
+        labelPadding="pb-2"
+        fieldWrapperClass
+        field={CommonConnectorHelper.payViaSingleUseTokenInput(~field, ~paymentMethodType)}
+      />
+    )
   }
 }

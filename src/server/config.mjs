@@ -1,8 +1,11 @@
 import * as Fs from "fs";
 import toml from "@iarna/toml";
 
+const MAX_REQUEST_BODY_BYTES = 16 * 1024;
+
 // Helper function for error handling
 const errorHandler = (res, errorMessage = "something went wrong") => {
+  if (res.headersSent) return;
   res.writeHead(500, { "Content-Type": "text/plain" });
   console.error(errorMessage);
   res.end("Internal Server Error");
@@ -199,7 +202,7 @@ const configHandler = async (
       "Access-Control-Allow-Origin": "*",
     });
     res.end(JSON.stringify(merchantConfig));
-  } catch (error) {
+  } catch {
     errorHandler(res, "Server Error");
   }
 };
@@ -211,12 +214,35 @@ To Parse the request body
  
 */
 
+const getRequestBodyTooLargeError = () => {
+  const error = new Error("Request body too large");
+  error.statusCode = 413;
+  return error;
+};
+
 // Get request body
 const getRequestBody = (req) => {
   return new Promise((resolve, reject) => {
+    if (Number(req.headers["content-length"]) > MAX_REQUEST_BODY_BYTES) {
+      return reject(getRequestBodyTooLargeError());
+    }
     let body = "";
-    req.on("data", (chunk) => (body += chunk.toString()));
-    req.on("end", () => resolve(JSON.parse(body)));
+    let receivedBytes = 0;
+    req.on("data", (chunk) => {
+      receivedBytes += chunk.length;
+      if (receivedBytes > MAX_REQUEST_BODY_BYTES) {
+        req.removeAllListeners("data");
+        return reject(getRequestBodyTooLargeError());
+      }
+      body += chunk.toString();
+    });
+    req.on("end", () => {
+      try {
+        resolve(JSON.parse(body));
+      } catch (err) {
+        reject(err);
+      }
+    });
     req.on("error", reject);
   });
 };
@@ -243,6 +269,12 @@ const merchantConfigHandler = async (
     });
     res.end(JSON.stringify(data));
   } catch (error) {
+    if (error.statusCode === 413) {
+      console.error(error.message);
+      res.writeHead(413, { "Content-Type": "text/plain", Connection: "close" });
+      res.end("Payload Too Large");
+      return;
+    }
     if (process.env.NODE_ENV === "development") {
       console.log(error);
     }

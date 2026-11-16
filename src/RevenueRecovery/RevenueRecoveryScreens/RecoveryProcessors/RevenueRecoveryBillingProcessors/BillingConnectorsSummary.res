@@ -74,35 +74,26 @@ module WebhooksConfiguration = {
   }
 }
 
-// ConnectorWebhookDetails needs the url name param, so saved values are listed directly
+// ConnectorWebhookDetails needs the url name param, so the connector's webhook fields are listed directly
 module WebhookDetailsView = {
   @react.component
-  let make = (~webhookDetails) => {
+  let make = (~webhookFields, ~webhookDetails) => {
     open LogicUtils
-    let entries =
-      webhookDetails
-      ->getDictFromJsonObject
+    let savedValues = webhookDetails->getDictFromJsonObject
+    <div className="grid grid-cols-2 gap-10 max-w-3xl px-2">
+      {webhookFields
       ->Dict.toArray
-      ->Array.filter(((_, value)) => value->JSON.Decode.string->Option.getOr("")->isNonEmptyString)
-    <>
-      <RenderIf condition={entries->isNonEmptyArray}>
-        <div className="grid grid-cols-2 gap-10 max-w-3xl px-2">
-          {entries
-          ->Array.map(((key, value)) =>
-            <div className="flex flex-col gap-2 min-w-0" key>
-              <h4 className="text-nd_gray-400"> {key->snakeToTitle->React.string} </h4>
-              <p className="break-all">
-                {value->JSON.Decode.string->Option.getOr("")->React.string}
-              </p>
-            </div>
-          )
-          ->React.array}
+      // fields the connector does not use have an empty label
+      ->Array.filter(((_, label)) => label->getStringFromJson("")->isNonEmptyString)
+      ->Array.map(((field, label)) => {
+        let value = savedValues->getString(field, "")
+        <div className="flex flex-col gap-2 min-w-0" key=field>
+          <h4 className="text-nd_gray-400"> {label->getStringFromJson("")->React.string} </h4>
+          <p className="break-all"> {(value->isNonEmptyString ? value : "None")->React.string} </p>
         </div>
-      </RenderIf>
-      <RenderIf condition={!(entries->isNonEmptyArray)}>
-        <p className="text-nd_gray-400 px-2"> {"No webhook details configured"->React.string} </p>
-      </RenderIf>
-    </>
+      })
+      ->React.array}
+    </div>
   }
 }
 
@@ -305,17 +296,7 @@ module BillingConnectorDetails = {
           </RenderIf>
         </div>
         {switch connectorName->getConnectorNameTypeFromString(~connectorType=BillingProcessor) {
-        | BillingProcessor(CUSTOMBILLING) =>
-          <div className="px-2">
-            <KeyManagementHelper.ApiKeysTable
-              dataNotFoundComponent={<div className="p-1">
-                <div
-                  className={`h-56 -my-1 -mx-2 border-2 flex justify-center items-center border-dashed opacity-70 rounded-lg p-5 m-7`}>
-                  {"No API Keys Available"->React.string}
-                </div>
-              </div>}
-            />
-          </div>
+        | BillingProcessor(CUSTOMBILLING) => <RevenueRecoveryProfileHelper.RecoveryApiKeysTable />
         | _ =>
           <Form onSubmit initialValues validate=validateMandatoryField>
             <div className="flex flex-col gap-12">
@@ -361,6 +342,7 @@ module BillingConnectorDetails = {
                   </RenderIf>
                   <RenderIf condition={!isEditing(Metadata)}>
                     <WebhookDetailsView
+                      webhookFields=connectorWebHookDetails
                       webhookDetails=connectorInfodict.connector_webhook_details
                     />
                   </RenderIf>
@@ -597,6 +579,7 @@ module PaymentConnectorDetails = {
                   </RenderIf>
                   <RenderIf condition={!isEditing(Metadata)}>
                     <WebhookDetailsView
+                      webhookFields=connectorWebHookDetails
                       webhookDetails=connectorInfodict.connector_webhook_details
                     />
                   </RenderIf>
@@ -615,14 +598,26 @@ module RetriesConfiguration = {
   open LogicUtils
   open APIUtils
   @react.component
-  let make = (~removeFieldsFromResponse, ~merchantId) => {
+  let make = (~removeFieldsFromResponse, ~merchantId, ~onProfileSaved) => {
+    open RevenueRecoveryProfileUtils
     let getURL = useGetURL()
     let fetchDetails = useGetMethod()
     let updateAPIHook = useUpdateMethod(~showErrorToast=false)
+    let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile(~version=V2)
+    let {devRecoveryExternalTrigger} =
+      HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
     let showToast = ToastAdapter.useShowToast()
     let (screenState, setScreenState) = React.useState(_ => Loading)
     let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
     let (isEditMode, setIsEditMode) = React.useState(_ => false)
+    let savedMode = RevenueRecoveryHooks.useSavedRetryMode()
+    let (selectedMode, setSelectedMode) = React.useState(_ => savedMode)
+    let confirmModeChange = RevenueRecoveryHooks.useConfirmModeChange()
+
+    let startEditing = () => {
+      setSelectedMode(_ => savedMode)
+      setIsEditMode(_ => true)
+    }
 
     let billingConnectorListFromRecoil = ConnectorListInterface.useFilteredConnectorList(
       ~retainInList=BillingProcessor,
@@ -640,6 +635,18 @@ module RetriesConfiguration = {
           ~id=Some(connectorID),
         )
         let json = await fetchDetails(connectorUrl, ~version=V2)
+        // connectors created before grace period was configurable don't have it saved
+        let revenueRecovery =
+          json
+          ->getDictFromJsonObject
+          ->getDictfromDict("feature_metadata")
+          ->getDictfromDict("revenue_recovery")
+        if revenueRecovery->getOptionInt("grace_period_days")->Option.isNone {
+          revenueRecovery->Dict.set(
+            "grace_period_days",
+            RevenueRecoveryOnboardingUtils.defaultGracePeriodDays->JSON.Encode.int,
+          )
+        }
         setInitialValues(_ => json->removeFieldsFromResponse)
         setScreenState(_ => Success)
       } catch {
@@ -665,9 +672,27 @@ module RetriesConfiguration = {
     let billing_connector_retry_threshold =
       revenueRecovery->getInt("billing_connector_retry_threshold", 0)
     // Backend defaults grace period to 30 days
-    let grace_period_days = revenueRecovery->getInt("grace_period_days", 30)
+    let grace_period_days =
+      revenueRecovery->getInt(
+        "grace_period_days",
+        RevenueRecoveryOnboardingUtils.defaultGracePeriodDays,
+      )
 
-    let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
+    let saveMode = async () => {
+      try {
+        let body =
+          [(retryAlgorithmKey, (selectedMode :> string)->JSON.Encode.string)]
+          ->Dict.fromArray
+          ->JSON.Encode.object
+        let profile = await updateBusinessProfile(~body)
+        onProfileSaved(profile->mapJsonToRecoveryProfile)
+        true
+      } catch {
+      | _ => false
+      }
+    }
+
+    let save = async values => {
       try {
         setScreenState(_ => Loading)
         let connectorUrl = getURL(
@@ -681,14 +706,31 @@ module RetriesConfiguration = {
         )
         let response = await updateAPIHook(connectorUrl, dict->JSON.Encode.object, Put, ~version=V2)
         setInitialValues(_ => response->removeFieldsFromResponse)
+
+        let isModeSaved = selectedMode == savedMode || (await saveMode())
         setIsEditMode(_ => false)
-        showToast(~message="Retries configuration updated", ~toastType=ToastState.ToastSuccess)
+        if isModeSaved {
+          showToast(~message="Retries configuration updated", ~toastType=ToastState.ToastSuccess)
+        } else {
+          showToast(
+            ~message="Retry limits updated, but the mode could not be changed",
+            ~toastType=ToastState.ToastError,
+          )
+        }
         setScreenState(_ => Success)
       } catch {
       | _ => {
           setScreenState(_ => Success)
           showToast(~message="Failed to update", ~toastType=ToastState.ToastError)
         }
+      }
+    }
+
+    let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
+      if selectedMode != savedMode {
+        confirmModeChange(~mode=selectedMode, ~onConfirm=() => save(values)->ignore)
+      } else {
+        await save(values)
       }
       Nullable.null
     }
@@ -700,19 +742,33 @@ module RetriesConfiguration = {
         ->getDictFromJsonObject
         ->getDictfromDict("feature_metadata")
         ->getDictfromDict("revenue_recovery")
-      let threshold = retryValues->getInt("billing_connector_retry_threshold", 0)
+      let threshold = retryValues->getOptionInt("billing_connector_retry_threshold")
       let maxRetry = retryValues->getInt("max_retry_count", 0)
+      let gracePeriod =
+        retryValues->getInt(
+          "grace_period_days",
+          RevenueRecoveryOnboardingUtils.defaultGracePeriodDays,
+        )
 
-      if threshold === 0 {
+      if gracePeriod <= 0 {
+        errors->Dict.set(
+          "feature_metadata.revenue_recovery.grace_period_days",
+          "Please enter grace period"->JSON.Encode.string,
+        )
+      }
+
+      switch threshold {
+      | None =>
         errors->Dict.set(
           "feature_metadata.revenue_recovery.billing_connector_retry_threshold",
           "Please enter start retry count"->JSON.Encode.string,
         )
-      } else if threshold > 15 {
+      | Some(value) if value > 15 =>
         errors->Dict.set(
           "feature_metadata.revenue_recovery.billing_connector_retry_threshold",
-          "Start retry count should be less than 15"->JSON.Encode.string,
+          "Start retry count cannot be more than 15"->JSON.Encode.string,
         )
+      | Some(_) => ()
       }
 
       if maxRetry === 0 {
@@ -723,7 +779,7 @@ module RetriesConfiguration = {
       } else if maxRetry > 15 {
         errors->Dict.set(
           "feature_metadata.revenue_recovery.max_retry_count",
-          "Max retry count should be less than 15"->JSON.Encode.string,
+          "Max retry count cannot be more than 15"->JSON.Encode.string,
         )
       }
 
@@ -741,6 +797,13 @@ module RetriesConfiguration = {
       <ToolTip
         toolTipPosition=Top
         description="The total number of retries, including external retries, that should be done within the grace period"
+        toolTipFor={<Icon name="info-circle-unfilled" size=14 />}
+      />
+
+    let hardDeclineRetriesInfo =
+      <ToolTip
+        toolTipPosition=Top
+        description="The total number of retries done for hard declines. This is fixed and cannot be changed"
         toolTipFor={<Icon name="info-circle-unfilled" size=14 />}
       />
 
@@ -773,15 +836,17 @@ module RetriesConfiguration = {
               </RenderIf>
               <RenderIf condition={!isEditMode}>
                 <div
-                  className="flex gap-2 items-center cursor-pointer"
-                  onClick={_ => setIsEditMode(_ => true)}>
+                  className="flex gap-2 items-center cursor-pointer" onClick={_ => startEditing()}>
                   <Icon name="nd-edit" size=14 />
                   <a className="text-primary cursor-pointer"> {"Edit"->React.string} </a>
                 </div>
               </RenderIf>
             </div>
           </div>
-          <div className="grid grid-cols-2 px-2 gap-10 max-w-3xl">
+          <div
+            className={devRecoveryExternalTrigger
+              ? `${RevenueRecoveryProfileUtils.retryGridClass} px-2`
+              : "grid grid-cols-2 px-2 gap-10 max-w-3xl"}>
             <div className="flex flex-col gap-2 ">
               <RenderIf condition={!isEditMode}>
                 <div className="flex gap-2 items-center">
@@ -827,7 +892,8 @@ module RetriesConfiguration = {
               </RenderIf>
             </div>
             // Read-only until the backend supports updates
-            <div className="flex flex-col gap-2 ">
+            <div
+              className={`flex flex-col gap-2 ${devRecoveryExternalTrigger ? "order-last" : ""}`}>
               <h4 className="text-nd_gray-400 "> {"Partial Authorization"->React.string} </h4>
               <FormRenderer.FieldRenderer
                 field={FormRenderer.makeFieldInfo(
@@ -838,9 +904,43 @@ module RetriesConfiguration = {
                 )}
               />
             </div>
+            <RenderIf condition={devRecoveryExternalTrigger}>
+              <div className="order-last">
+                <RevenueRecoveryProfileHelper.RetryModeSelector
+                  selectedMode={isEditMode ? selectedMode : savedMode}
+                  isDisabled={!isEditMode}
+                  onChange={mode => setSelectedMode(_ => mode)}
+                />
+              </div>
+            </RenderIf>
             <div className="flex flex-col gap-2 ">
-              <h4 className="text-nd_gray-400 "> {"Grace Period"->React.string} </h4>
-              <p> {`${grace_period_days->Int.toString} days`->React.string} </p>
+              <div className="flex gap-2 items-center">
+                <h4 className="text-nd_gray-400 ">
+                  {"Total retries for hard declines"->React.string}
+                </h4>
+                {hardDeclineRetriesInfo}
+              </div>
+              <p>
+                {RevenueRecoveryOnboardingUtils.hardDeclineTotalRetries
+                ->Int.toString
+                ->React.string}
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 ">
+              <RenderIf condition={!isEditMode}>
+                <h4 className="text-nd_gray-400 "> {"Grace Period"->React.string} </h4>
+                <p> {`${grace_period_days->Int.toString} days`->React.string} </p>
+              </RenderIf>
+              <RenderIf condition={isEditMode}>
+                <FormRenderer.FieldRenderer
+                  labelClass={`!text-nd_gray-400 ${body.md.regular}`}
+                  field={retryField(
+                    ~label="Grace Period (days)",
+                    ~name="feature_metadata.revenue_recovery.grace_period_days",
+                    ~placeholder="ex 30",
+                  )}
+                />
+              </RenderIf>
             </div>
           </div>
         </div>
@@ -850,7 +950,10 @@ module RetriesConfiguration = {
 }
 
 @react.component
-let make = () => {
+let make = (
+  ~recoveryProfile: option<RevenueRecoveryProfileTypes.recoveryProfile>,
+  ~onProfileSaved,
+) => {
   open LogicUtils
   let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
   let (paymentConnectorId, setPaymentConnectorId) = React.useState(_ => "")
@@ -902,7 +1005,7 @@ let make = () => {
       title: "Retries Configuration",
       renderContent: () => {
         <div className="flex flex-col gap-20 mt-10">
-          <RetriesConfiguration removeFieldsFromResponse merchantId />
+          <RetriesConfiguration removeFieldsFromResponse merchantId onProfileSaved />
         </div>
       },
     })
@@ -923,6 +1026,12 @@ let make = () => {
       },
     })
   }
+
+  let tabs = BillingConnectorsSummaryUtils.getConfigurationTabs(
+    ~recoveryProfile,
+    ~onProfileSaved,
+    ~connectorTabs=tabs,
+  )
 
   <div className="flex flex-col -ml-2">
     <div className="flex justify-between px-2 items-end">

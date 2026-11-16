@@ -26,12 +26,18 @@ let mapGroupAccessTypeToString = groupAccessType =>
   | ReconTransactionsManage => "recon_transactions_manage"
   | ReconRulesView => "recon_rules_view"
   | ReconRulesManage => "recon_rules_manage"
+  | ReconApiKeyView => "recon_api_key_view"
+  | ReconApiKeyManage => "recon_api_key_manage"
   | ReconExceptionsView => "recon_exceptions_view"
   | ReconExceptionsManage => "recon_exceptions_manage"
   | ConfigurationsView => "configurations_view"
   | ConfigurationsManage => "configurations_manage"
   | OffersView => "offers_view"
   | OffersManage => "offers_manage"
+  | AlertsView => "alerts_view"
+  | AlertsManage => "alerts_manage"
+  | MonitoringView => "monitoring_view"
+  | MonitoringManage => "monitoring_manage"
   | UnknownGroupAccess(val) => val
   }
 
@@ -60,12 +66,18 @@ let mapStringToGroupAccessType = val =>
   | "recon_transactions_manage" => ReconTransactionsManage
   | "recon_rules_view" => ReconRulesView
   | "recon_rules_manage" => ReconRulesManage
+  | "recon_api_key_view" => ReconApiKeyView
+  | "recon_api_key_manage" => ReconApiKeyManage
   | "recon_exceptions_view" => ReconExceptionsView
   | "recon_exceptions_manage" => ReconExceptionsManage
   | "configurations_view" => ConfigurationsView
   | "configurations_manage" => ConfigurationsManage
   | "offers_view" => OffersView
   | "offers_manage" => OffersManage
+  | "alerts_view" => AlertsView
+  | "alerts_manage" => AlertsManage
+  | "monitoring_view" => MonitoringView
+  | "monitoring_manage" => MonitoringManage
   | val => UnknownGroupAccess(val)
   }
 
@@ -95,8 +107,11 @@ let mapStringToResourceAccessType = val =>
   | "recon_staging_entry" => ReconStagingEntry
   | "recon_transaction" => ReconTransaction
   | "recon_rule" => ReconRule
+  | "recon_api_key" => ReconApiKey
   | "superposition_config" => SuperpositionConfigs
   | "offers" => Offers
+  | "alert" => Alert
+  | "monitoring" => Monitoring
   | _ => UnknownResourceAccess(val)
   }
 
@@ -124,12 +139,18 @@ let defaultValueForGroupAccessJson = {
   reconTransactionsManage: NoAccess,
   reconRulesView: NoAccess,
   reconRulesManage: NoAccess,
+  reconApiKeyView: NoAccess,
+  reconApiKeyManage: NoAccess,
   reconExceptionsView: NoAccess,
   reconExceptionsManage: NoAccess,
   configurationsView: NoAccess,
   configurationsManage: NoAccess,
   offersView: NoAccess,
   offersManage: NoAccess,
+  alertsView: NoAccess,
+  alertsManage: NoAccess,
+  monitoringView: NoAccess,
+  monitoringManage: NoAccess,
 }
 
 let convertValueToMapGroup = arrayValue => {
@@ -171,11 +192,17 @@ let getGroupAccessJson = groupACL => {
     reconTransactionsManage: getAccess(ReconTransactionsManage),
     reconRulesView: getAccess(ReconRulesView),
     reconRulesManage: getAccess(ReconRulesManage),
+    reconApiKeyView: getAccess(ReconApiKeyView),
+    reconApiKeyManage: getAccess(ReconApiKeyManage),
     reconExceptionsView: getAccess(ReconExceptionsView),
     reconExceptionsManage: getAccess(ReconExceptionsManage),
     configurationsView: getAccess(ConfigurationsView),
     configurationsManage: getAccess(ConfigurationsManage),
     offersView: getAccess(OffersView),
     offersManage: getAccess(OffersManage),
+    alertsView: getAccess(AlertsView),
+    alertsManage: getAccess(AlertsManage),
+    monitoringView: getAccess(MonitoringView),
+    monitoringManage: getAccess(MonitoringManage),
   }
 }

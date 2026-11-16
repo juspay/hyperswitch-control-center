@@ -97,7 +97,6 @@ type entityName =
   | OFFERS
   | ALERTS
   | MONITORING_SESSION
-  | CHAT_BOT
   | OIDC_AUTHORIZE
   | PAYMENTS_LIST
   | BLOCKLIST_BATCH
@@ -137,6 +136,7 @@ type userRoleTypes = USER_LIST | ROLE_LIST | ROLE_ID | NONE
 type hypersenseType = [#TOKEN | #HOME | #NONE]
 
 type hyperswitchReconType = [
+  | #API_KEYS
   | #ACCOUNTS_LIST
   | #PROCESSED_ENTRIES_LIST
   | #PROCESSED_ENTRIES_LIST_WITH_ACCOUNT
@@ -181,6 +181,7 @@ type offersType = [
   | #OFFER_CREATE
   | #OFFER_STATUS_UPDATE
   | #OFFER_DELETE
+  | #OFFER_BIN_LIST_DOWNLOAD
   | #NONE
 ]
 

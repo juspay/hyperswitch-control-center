@@ -23,6 +23,7 @@ let make = () => {
 
   let removeFile = _ => {
     setBins(~name="", ~bins=[])
+    form.change("bin_list_blacklist", false->JSON.Encode.bool)
     clearFileInput()
   }
 
@@ -56,14 +57,14 @@ let make = () => {
   let downloadSampleFile = _ =>
     DownloadUtils.download(
       ~fileName="card_bin_sample.csv",
-      ~content="CARD_BIN\n411111\n555555",
+      ~content=["411111", "555555"]->OffersUtils.binListCsvContent,
       ~fileType="text/csv",
     )
 
   <div className="flex flex-col gap-3">
     <div className={`text-nd_gray-700 ${body.md.medium}`}> {"Card BIN List"->React.string} </div>
     <p className={`text-nd_gray-500 ${body.sm.regular}`}>
-      {`Upload a CSV with a CARD_BIN header and one 6 to 9 digit BIN per row (up to ${maxBinRows->Int.toString}). Only the listed BINs will be eligible for this offer.`->React.string}
+      {"Upload 6 to 9 digit BIN only"->React.string}
     </p>
     <input
       type_="file"
@@ -86,6 +87,9 @@ let make = () => {
         </div>
         <Button text="Remove" buttonType=Secondary buttonSize=Small onClick=removeFile />
       </div>
+      <FormRenderer.FieldRenderer
+        field=OffersFormFields.binListBlacklistField fieldWrapperClass="w-full"
+      />
     </RenderIf>
   </div>
 }

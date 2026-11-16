@@ -91,6 +91,7 @@ module ConnectorSummaryGrid = {
 
     let url = RescriptReactRouter.useUrl()
     let mixpanelEvent = MixpanelHook.useSendEvent()
+    let {showDashboardLinks} = DisplayOptionsContext.useDisplayOptions()
     let businessProfileRecoilVal =
       HyperswitchAtom.businessProfileFromIdAtomInterface->Recoil.useRecoilValueFromAtom
 
@@ -299,23 +300,25 @@ module ConnectorSummaryGrid = {
                 </div>
               </RenderIf>
             </div>
-            <AlertV2Binding
-              alertType=Primary
-              slot={{
-                slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />,
-              }}
-              description="Improve conversion rate by conditionally managing PMTs visibility on checkout."
-              actions={{
-                position: Bottom,
-                primaryAction: {
-                  text: "Configure PMTs at Checkout",
-                  onClick: _ =>
-                    RescriptReactRouter.push(
-                      GlobalVars.appendDashboardPath(~url="/configure-pmts"),
-                    ),
-                },
-              }}
-            />
+            <RenderIf condition={showDashboardLinks}>
+              <AlertV2Binding
+                alertType=Primary
+                slot={{
+                  slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />,
+                }}
+                description="Improve conversion rate by conditionally managing PMTs visibility on checkout."
+                actions={{
+                  position: Bottom,
+                  primaryAction: {
+                    text: "Configure PMTs at Checkout",
+                    onClick: _ =>
+                      RescriptReactRouter.push(
+                        GlobalVars.appendDashboardPath(~url="/configure-pmts"),
+                      ),
+                  },
+                }}
+              />
+            </RenderIf>
           </div>
         </div>
 

@@ -11,6 +11,7 @@ let getV2Url = (
   ~merchantId,
   ~transactionEntity,
   ~queryParameters: option<string>=None,
+  ~isLiveMode=false,
 ): endpoint => {
   let connectorBaseURL = "v2/connector-accounts"
   let paymentsBaseURL = "v2/payments"
@@ -74,9 +75,14 @@ let getV2Url = (
         | None => Default(`${paymentsBaseURL}/${key_id}/get-revenue-recovery-intent`)
         }
       | None =>
+        // the profile route is not available on the live backend yet
+        let recoveryListPath = switch (isLiveMode, transactionEntity) {
+        | (false, #Profile) => `${paymentsBaseURL}/profile/recovery-list`
+        | _ => `${paymentsBaseURL}/recovery-list`
+        }
         switch queryParameters {
-        | Some(queryParams) => Default(`${paymentsBaseURL}/recovery-list?${queryParams}`)
-        | None => Default(`${paymentsBaseURL}/recovery-list?limit=100`)
+        | Some(queryParams) => Default(`${recoveryListPath}?${queryParams}`)
+        | None => Default(`${recoveryListPath}?limit=100`)
         }
       }
     | _ => Default("")
@@ -218,6 +224,7 @@ let resolveEndpoint = endpoint =>
 let useGetURL = () => {
   let {getCommonSessionDetails, state} = React.useContext(UserInfoProvider.defaultContext)
   let {merchantId, profileId} = getCommonSessionDetails()
+  let {isLiveMode} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let getUrl = (
     ~entityName: entityTypeWithVersion,
@@ -1133,6 +1140,13 @@ let useGetURL = () => {
 
       | HYPERSWITCH_RECON =>
         switch hyperswitchReconType {
+        | #API_KEYS =>
+          switch (methodType, id) {
+          | (Get, Some(apiKeyId)) | (Put, Some(apiKeyId)) =>
+            Default(`${reconBaseURL}/api_keys/${apiKeyId}`)
+          | (Get, None) | (Post, None) => Default(`${reconBaseURL}/api_keys`)
+          | _ => Default("")
+          }
         | #FILE_UPLOAD =>
           switch methodType {
           | Post =>
@@ -1745,6 +1759,11 @@ let useGetURL = () => {
           | Post => Euler(`${offersBaseURL}/create`)
           | _ => Default("")
           }
+        | #OFFER_BIN_LIST_DOWNLOAD =>
+          switch methodType {
+          | Post => Euler(`${offersBaseURL}/csv-downloads`)
+          | _ => Default("")
+          }
         | #NONE => Default("")
         }
       | ALERTS =>
@@ -1780,7 +1799,6 @@ let useGetURL = () => {
       /* TO BE CHECKED */
       | INTEGRATION_DETAILS => Default(`user/get_sandbox_integration_details`)
       | SDK_PAYMENT => Default("payments")
-      | CHAT_BOT => Default(`chat/ai/data`)
 
       /* HIERARCHICAL CONFIGURATIONS (RESOURCES) */
       | RESOURCES =>
@@ -1808,6 +1826,7 @@ let useGetURL = () => {
         ~profileId,
         ~merchantId,
         ~transactionEntity,
+        ~isLiveMode,
       )
     }
 

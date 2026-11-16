@@ -271,7 +271,9 @@ let make = (
     <div
       key={paymentConnectorId}
       onClick={_ => onSelectProcessor(paymentConnectorId)}
-      className={`grid grid-cols-4 gap-4 px-2 py-4 border-b items-center last:border-b-0 cursor-pointer hover:bg-nd_gray-50 ${isSelected
+      className={`grid ${isCustomBilling
+          ? "grid-cols-3"
+          : "grid-cols-4"} gap-4 px-2 py-4 border-b items-center last:border-b-0 cursor-pointer hover:bg-nd_gray-50 ${isSelected
           ? "bg-nd_gray-50"
           : ""}`}>
       <div className="flex gap-3 items-center">
@@ -291,12 +293,14 @@ let make = (
           customTextCss={`${code.lg.regular} text-nd_gray-600`}
         />
       </div>
-      <div className="flex flex-col gap-1 min-w-0">
-        <h4 className="text-nd_gray-400"> {"Processor Reference"->React.string} </h4>
-        <p className={`${code.lg.regular} text-nd_gray-600 break-all`}>
-          {reference->React.string}
-        </p>
-      </div>
+      <RenderIf condition={!isCustomBilling}>
+        <div className="flex flex-col gap-1 min-w-0">
+          <h4 className="text-nd_gray-400"> {"Processor Reference"->React.string} </h4>
+          <p className={`${code.lg.regular} text-nd_gray-600 break-all`}>
+            {reference->React.string}
+          </p>
+        </div>
+      </RenderIf>
       <div className="flex flex-col gap-1 min-w-0">
         <h4 className="text-nd_gray-400"> {"Status"->React.string} </h4>
         <RenderIf condition={details->Option.isSome}>

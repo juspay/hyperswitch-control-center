@@ -49,8 +49,7 @@ let getFallbackConnectorConfig = connector => {
         },
       },
       "connector_webhook_details": {
-        "merchant_secret": "Username",
-        "additional_secret": "Password",
+        "merchant_secret": "Webhook Signing Secret",
       },
     }->Identity.genericTypeToJson
   | "recurly" =>
@@ -61,8 +60,7 @@ let getFallbackConnectorConfig = connector => {
         },
       },
       "connector_webhook_details": {
-        "merchant_secret": "Username",
-        "additional_secret": "Password",
+        "merchant_secret": "Webhook Signing Secret",
       },
     }->Identity.genericTypeToJson
   | "custombilling" =>
@@ -75,11 +73,13 @@ let getFallbackConnectorConfig = connector => {
   }
 }
 
-let getConnectorConfig = (connector, ~wasmConfig) =>
+let getConnectorConfig = (connector, ~wasmConfig) => {
+  open LogicUtils
   // the wasm returns undefined for billing connectors it has no config for
   wasmConfig
   ->JSON.Decode.object
-  ->LogicUtils.mapOptionOrDefault(getFallbackConnectorConfig(connector), _ => wasmConfig)
+  ->mapOptionOrDefault(getFallbackConnectorConfig(connector), _ => wasmConfig)
+}
 
 type optionType = {
   name: string,

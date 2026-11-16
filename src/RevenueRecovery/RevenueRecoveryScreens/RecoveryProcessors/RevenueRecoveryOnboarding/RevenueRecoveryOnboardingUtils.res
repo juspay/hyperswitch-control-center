@@ -1,5 +1,9 @@
 open RevenueRecoveryOnboardingTypes
 
+// Fixed for now, not configurable by the merchant
+let hardDeclineTotalRetries = 0
+let defaultGracePeriodDays = 30
+
 let getMainStepName = step => {
   switch step {
   | #connectProcessor => "Connect Processor"
@@ -156,17 +160,17 @@ module PageWrapper = {
 
 open ConnectorTypes
 let billingConnectorList: array<connectorTypes> = [
+  BillingProcessor(CUSTOMBILLING),
   BillingProcessor(CHARGEBEE),
   BillingProcessor(RECURLY),
   BillingProcessor(STRIPE_BILLING),
-  BillingProcessor(CUSTOMBILLING),
 ]
 
 let prodBillingConnectorList: array<connectorTypes> = [
+  BillingProcessor(CUSTOMBILLING),
   BillingProcessor(CHARGEBEE),
   BillingProcessor(RECURLY),
   BillingProcessor(STRIPE_BILLING),
-  BillingProcessor(CUSTOMBILLING),
 ]
 
 let billingConnectorProdList: array<BillingProcessorsUtils.optionType> = [

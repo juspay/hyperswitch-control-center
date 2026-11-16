@@ -58,11 +58,20 @@ type error = {
   unified_message: string,
 }
 
+type appliedOffer = {
+  offer_engine_merchant_id: string,
+  offer_engine_txn_id: string,
+  offer_id: string,
+  offer_amount: float,
+  currency: string,
+}
+
 type order = {
   payment_id: string,
   merchant_id: string,
   net_amount: float,
   surcharge_amount: option<float>,
+  applied_offer: option<appliedOffer>,
   status: string,
   amount: float,
   amount_capturable: float,

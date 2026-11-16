@@ -94,6 +94,29 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
     },
   },
 
+  checkout: {
+    label: "checkout",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "checkout_default",
+      },
+      fieldLabels: [
+        "Checkout Public Key *",
+        "Processing Channel ID *",
+        "Checkout API Secret Key *",
+        "Checkout Client ID",
+        "Checkout Currency Account ID *",
+      ],
+    },
+    paymentSections: {
+      Wallet: {
+        label: "Wallet",
+        methods: ["apple_pay"],
+      },
+    },
+  },
+
   cybersource: {
     label: "cybersource",
     fields: {
@@ -238,6 +261,27 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
       BankRedirect: {
         label: "Bank Redirect",
         methods: ["interac"],
+      },
+    },
+  },
+
+  mifinity: {
+    label: "mifinity",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "mifinity_default",
+      },
+      fieldLabels: ["key *"],
+    },
+    paymentSections: {
+      Wallet: {
+        label: "Wallet",
+        methods: ["mifinity"],
+      },
+      BankTransfer: {
+        label: "Bank Transfer",
+        methods: ["sepa_bank_transfer"],
       },
     },
   },

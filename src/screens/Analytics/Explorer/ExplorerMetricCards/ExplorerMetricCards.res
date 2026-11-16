@@ -5,10 +5,10 @@ open ExplorerData
 open ExplorerDescriptions
 
 @react.component
-let make = (~question: question, ~dataset: dataset) => {
-  let source = question.source
+let make = (~selection: selection, ~dataset: dataset) => {
+  let source = selection.source
   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-    {question
+    {selection
     ->metricCardMeasures
     ->Array.mapWithIndex((measure, index) => {
       let (counts, previousCounts) = dataset->getMeasureCounts(measure)

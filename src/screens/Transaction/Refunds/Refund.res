@@ -91,7 +91,7 @@ let make = () => {
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   <ErrorBoundary>
-    <div className="min-h-[50vh]">
+    <div className="min-h-50-vh">
       <div className="flex justify-between items-center">
         <PageUtils.PageHeading title="Refunds" />
         <div className="flex gap-4">
