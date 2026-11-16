@@ -39,95 +39,110 @@ let make = (
   ~billingConnector,
   ~onSubmit,
   ~connector_account_reference_id,
+  ~retryAlgorithm,
+  ~setRetryAlgorithm,
 ) => {
   open RevenueRecoveryOnboardingUtils
   open Typography
+  let {devRecoveryExternalTrigger} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let connectorName = connector->ConnectorUtils.getDisplayNameForConnector
 
   <div>
     <PageWrapper
-      title="Configure Retry Logic"
-      subTitle="Set how and when you'd like retries to be attempted. You can modify this later.">
+      title={devRecoveryExternalTrigger ? "Configuration" : "Configure Retry Logic"}
+      subTitle={devRecoveryExternalTrigger
+        ? "Choose how recovery runs and set its retry limits."
+        : "Set how and when you'd like retries to be attempted. You can modify this later."}>
       <Form onSubmit initialValues validate=validateMandatoryField>
         <div className="mb-10 flex flex-col gap-10">
-          <div className="flex flex-col gap-5">
-            <div className={heading.sm.semibold}>
-              {"External Retry Configuration"->React.string}
-            </div>
-            <div>
-              <div className="text-nd_gray-700 font-medium flex gap-1 w-fit align-center">
-                {"Start of recovery"->React.string}
-                <span className="text-red-900 mb-0.5"> {"*"->React.string} </span>
-                <ToolTip
-                  description="After how many external retries (retries done by the billing engine) should the recovery process start"
-                  toolTipFor={<div className="cursor-pointer">
-                    <Icon name="info-vacant" size=13 />
-                  </div>}
-                  toolTipPosition=ToolTip.Top
-                />
-              </div>
-              <div className="-m-1 -mt-3">
-                <FormRenderer.FieldRenderer
-                  labelClass="font-semibold !text-hyperswitch_black"
-                  field={FormRenderer.makeFieldInfo(
-                    ~label="",
-                    ~name="feature_metadata.revenue_recovery.billing_connector_retry_threshold",
-                    ~toolTipPosition=Right,
-                    ~customInput=InputFields.numericTextInput(~customStyle="border rounded-xl"),
-                    ~placeholder="ex 3",
-                  )}
-                />
-              </div>
-            </div>
-            <div>
-              <div className="text-nd_gray-700 font-medium flex gap-1 w-fit">
-                {"Total retries"->React.string}
-                <span className="text-red-900 mb-0.5"> {"*"->React.string} </span>
-                <ToolTip
-                  description="The total number of retries, including external retries, that should be done within the grace period"
-                  toolTipFor={<div className="cursor-pointer">
-                    <Icon name="info-vacant" size=13 />
-                  </div>}
-                  toolTipPosition=ToolTip.Top
-                />
-              </div>
-              <div className="-m-1 -mt-3">
-                <FormRenderer.FieldRenderer
-                  labelClass="font-semibold !text-hyperswitch_black"
-                  field={FormRenderer.makeFieldInfo(
-                    ~label="",
-                    ~name="feature_metadata.revenue_recovery.max_retry_count",
-                    ~toolTipPosition=Right,
-                    ~customInput=InputFields.numericTextInput(~customStyle="border rounded-xl"),
-                    ~placeholder="ex 15",
-                  )}
-                />
-              </div>
-            </div>
-            <div className="flex flex-col gap-1">
-              <div className={`text-nd_gray-700 flex gap-1 w-fit ${body.md.medium}`}>
-                {"Grace period (days)"->React.string}
-                <span className="text-red-900 mb-0.5"> {"*"->React.string} </span>
-                <ToolTip
-                  description="The number of days within which the retries are performed for an invoice"
-                  toolTipFor={<div className="cursor-pointer">
-                    <Icon name="info-vacant" size=13 />
-                  </div>}
-                  toolTipPosition=ToolTip.Top
-                />
-              </div>
-              <FormRenderer.FieldRenderer
-                labelClass="font-semibold !text-hyperswitch_black"
-                field={FormRenderer.makeFieldInfo(
-                  ~label="",
-                  ~name="feature_metadata.revenue_recovery.grace_period_days",
-                  ~toolTipPosition=Right,
-                  ~customInput=InputFields.numericTextInput(~customStyle="border rounded-xl"),
-                  ~placeholder="ex 30",
-                )}
+          <RenderIf condition={devRecoveryExternalTrigger}>
+            <RevenueRecoveryProfileHelper.RetryConfigFields
+              prefix=RevenueRecoveryProfileUtils.connectorRetryConfigPrefix>
+              <RevenueRecoveryProfileHelper.RetryModeSelector
+                selectedMode=retryAlgorithm onChange={mode => setRetryAlgorithm(_ => mode)}
               />
+            </RevenueRecoveryProfileHelper.RetryConfigFields>
+          </RenderIf>
+          <RenderIf condition={!devRecoveryExternalTrigger}>
+            <div className="flex flex-col gap-5">
+              <div className={heading.sm.semibold}>
+                {"External Retry Configuration"->React.string}
+              </div>
+              <div>
+                <div className="text-nd_gray-700 font-medium flex gap-1 w-fit align-center">
+                  {"Start of recovery"->React.string}
+                  <span className="text-red-900 mb-0.5"> {"*"->React.string} </span>
+                  <ToolTip
+                    description="After how many external retries (retries done by the billing engine) should the recovery process start"
+                    toolTipFor={<div className="cursor-pointer">
+                      <Icon name="info-vacant" size=13 />
+                    </div>}
+                    toolTipPosition=ToolTip.Top
+                  />
+                </div>
+                <div className="-m-1 -mt-3">
+                  <FormRenderer.FieldRenderer
+                    labelClass="font-semibold !text-hyperswitch_black"
+                    field={FormRenderer.makeFieldInfo(
+                      ~label="",
+                      ~name="feature_metadata.revenue_recovery.billing_connector_retry_threshold",
+                      ~toolTipPosition=Right,
+                      ~customInput=InputFields.numericTextInput(~customStyle="border rounded-xl"),
+                      ~placeholder="ex 3",
+                    )}
+                  />
+                </div>
+              </div>
+              <div>
+                <div className="text-nd_gray-700 font-medium flex gap-1 w-fit">
+                  {"Total retries"->React.string}
+                  <span className="text-red-900 mb-0.5"> {"*"->React.string} </span>
+                  <ToolTip
+                    description="The total number of retries, including external retries, that should be done within the grace period"
+                    toolTipFor={<div className="cursor-pointer">
+                      <Icon name="info-vacant" size=13 />
+                    </div>}
+                    toolTipPosition=ToolTip.Top
+                  />
+                </div>
+                <div className="-m-1 -mt-3">
+                  <FormRenderer.FieldRenderer
+                    labelClass="font-semibold !text-hyperswitch_black"
+                    field={FormRenderer.makeFieldInfo(
+                      ~label="",
+                      ~name="feature_metadata.revenue_recovery.max_retry_count",
+                      ~toolTipPosition=Right,
+                      ~customInput=InputFields.numericTextInput(~customStyle="border rounded-xl"),
+                      ~placeholder="ex 15",
+                    )}
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col gap-1">
+                <div className={`text-nd_gray-700 flex gap-1 w-fit ${body.md.medium}`}>
+                  {"Grace period (days)"->React.string}
+                  <span className="text-red-900 mb-0.5"> {"*"->React.string} </span>
+                  <ToolTip
+                    description="The number of days within which the retries are performed for an invoice"
+                    toolTipFor={<div className="cursor-pointer">
+                      <Icon name="info-vacant" size=13 />
+                    </div>}
+                    toolTipPosition=ToolTip.Top
+                  />
+                </div>
+                <FormRenderer.FieldRenderer
+                  labelClass="font-semibold !text-hyperswitch_black"
+                  field={FormRenderer.makeFieldInfo(
+                    ~label="",
+                    ~name="feature_metadata.revenue_recovery.grace_period_days",
+                    ~toolTipPosition=Right,
+                    ~customInput=InputFields.numericTextInput(~customStyle="border rounded-xl"),
+                    ~placeholder="ex 30",
+                  )}
+                />
+              </div>
             </div>
-          </div>
+          </RenderIf>
           <RenderIf
             condition={billingConnector->ConnectorUtils.getConnectorNameTypeFromString(
               ~connectorType=BillingProcessor,
