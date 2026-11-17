@@ -226,9 +226,7 @@ module FraudRiskBanner = {
           {`This ${transactionLabel} is marked fraudulent by`->React.string}
         </p>
         <GatewayIcon gateway={frmName->String.toUpperCase} className="w-6 h-6" />
-        <p className={`${body.lg.medium} text-nd_gray-800`}>
-          {frmDisplayName->React.string}
-        </p>
+        <p className={`${body.lg.medium} text-nd_gray-800`}> {frmDisplayName->React.string} </p>
       </div>
       {switch onReviewDetailsClick {
       | Some(onClick) =>
