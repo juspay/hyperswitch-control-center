@@ -1768,6 +1768,7 @@ let configKeysToIgnore = [
   "connector_wallets_details",
   "connector_webhook_register_details",
   "pay_via_single_use_token",
+  "webhook_url_type",
 ]
 
 let getPayViaSingleUseTokenConfig = connectorConfig =>
@@ -2350,8 +2351,21 @@ let onSubmit = async (
   Nullable.null
 }
 
-let getWebhooksUrl = (~connectorName, ~merchantId) => {
-  `${Window.env.apiBaseUrl}/webhooks/${merchantId}/${connectorName}`
+let getWebhookUrlTypeFromString = webhookUrlType =>
+  switch webhookUrlType {
+  | "mtls" => Mtls
+  | _ => NonMtls
+  }
+
+// mTLS connectors receive webhooks on the prefixed subdomain of api_url, addressed by merchant connector id
+let getWebhooksUrl = (~connectorName, ~merchantId, ~merchantConnectorId, ~webhookUrlType) => {
+  let {apiBaseUrl, mtlsPrefix} = Window.env
+  switch (webhookUrlType, mtlsPrefix) {
+  | (Mtls, Some(prefix)) =>
+    let mtlsApiBaseUrl = apiBaseUrl->String.replace("://", `://${prefix}.`)
+    `${mtlsApiBaseUrl}/webhooks/${merchantId}/${merchantConnectorId}`
+  | _ => `${apiBaseUrl}/webhooks/${merchantId}/${connectorName}`
+  }
 }
 
 let itemToPMAuthMapper = dict => {
