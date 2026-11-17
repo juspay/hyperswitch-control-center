@@ -24,7 +24,7 @@ let tooltipFormatter = (
     let arrowIcon = "&#8594;"
 
     let titleString = switch pointType {
-    | Node => this.key
+    | Node => this.point.id
     | Link => `${this.point.from} ${arrowIcon} ${this.point.to}`
     }
 

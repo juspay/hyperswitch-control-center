@@ -1,5 +1,11 @@
 @module("papaparse")
-external unparse: {"fields": array<string>, "data": array<array<string>>} => string = "unparse"
+external unparseWithConfig: (
+  {"fields": array<string>, "data": array<array<string>>},
+  {"escapeFormulae": RegExp.t},
+) => string = "unparse"
+
+let unparse = input =>
+  unparseWithConfig(input, {"escapeFormulae": %re("/^(?![-+]?\d+(\.\d+)?$)[=+\-@\t\r]/")})
 
 type parseResult = {data: array<array<string>>}
 

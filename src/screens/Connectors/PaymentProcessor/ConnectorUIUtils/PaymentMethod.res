@@ -102,6 +102,7 @@ module CardRenderer = {
             switch connector->getConnectorNameTypeFromString(~connectorType) {
             | Processors(TRUSTPAY)
             | Processors(STRIPE_TEST)
+            | PayoutProcessor(CHECKOUT)
             | PayoutProcessor(WORLDPAY)
             | PayoutProcessor(WORLDPAYXML) => false
             | _ => true

@@ -26,6 +26,8 @@ let mapGroupAccessTypeToString = groupAccessType =>
   | ReconTransactionsManage => "recon_transactions_manage"
   | ReconRulesView => "recon_rules_view"
   | ReconRulesManage => "recon_rules_manage"
+  | ReconApiKeyView => "recon_api_key_view"
+  | ReconApiKeyManage => "recon_api_key_manage"
   | ReconExceptionsView => "recon_exceptions_view"
   | ReconExceptionsManage => "recon_exceptions_manage"
   | ConfigurationsView => "configurations_view"
@@ -64,6 +66,8 @@ let mapStringToGroupAccessType = val =>
   | "recon_transactions_manage" => ReconTransactionsManage
   | "recon_rules_view" => ReconRulesView
   | "recon_rules_manage" => ReconRulesManage
+  | "recon_api_key_view" => ReconApiKeyView
+  | "recon_api_key_manage" => ReconApiKeyManage
   | "recon_exceptions_view" => ReconExceptionsView
   | "recon_exceptions_manage" => ReconExceptionsManage
   | "configurations_view" => ConfigurationsView
@@ -103,6 +107,7 @@ let mapStringToResourceAccessType = val =>
   | "recon_staging_entry" => ReconStagingEntry
   | "recon_transaction" => ReconTransaction
   | "recon_rule" => ReconRule
+  | "recon_api_key" => ReconApiKey
   | "superposition_config" => SuperpositionConfigs
   | "offers" => Offers
   | "alert" => Alert
@@ -134,6 +139,8 @@ let defaultValueForGroupAccessJson = {
   reconTransactionsManage: NoAccess,
   reconRulesView: NoAccess,
   reconRulesManage: NoAccess,
+  reconApiKeyView: NoAccess,
+  reconApiKeyManage: NoAccess,
   reconExceptionsView: NoAccess,
   reconExceptionsManage: NoAccess,
   configurationsView: NoAccess,
@@ -185,6 +192,8 @@ let getGroupAccessJson = groupACL => {
     reconTransactionsManage: getAccess(ReconTransactionsManage),
     reconRulesView: getAccess(ReconRulesView),
     reconRulesManage: getAccess(ReconRulesManage),
+    reconApiKeyView: getAccess(ReconApiKeyView),
+    reconApiKeyManage: getAccess(ReconApiKeyManage),
     reconExceptionsView: getAccess(ReconExceptionsView),
     reconExceptionsManage: getAccess(ReconExceptionsManage),
     configurationsView: getAccess(ConfigurationsView),

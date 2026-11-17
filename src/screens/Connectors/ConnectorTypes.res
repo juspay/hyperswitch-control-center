@@ -166,6 +166,7 @@ type processorTypes =
 type payoutProcessorTypes =
   | ADYEN
   | ADYENPLATFORM
+  | CHECKOUT
   | CYBERSOURCE
   | EBANX
   | ITAUBANK
