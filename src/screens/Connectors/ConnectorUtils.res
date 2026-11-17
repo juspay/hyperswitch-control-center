@@ -26,6 +26,7 @@ let getStepName = step => {
 let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(ADYEN),
   PayoutProcessor(ADYENPLATFORM),
+  PayoutProcessor(CHECKOUT),
   PayoutProcessor(CYBERSOURCE),
   PayoutProcessor(EBANX),
   PayoutProcessor(ITAUBANK),
@@ -369,6 +370,29 @@ let checkoutInfo = {
       testValidationRegex: "^sk(_sbox)?_(.+)$",
       liveExpectedFormat: "API secret key should begin with sk_ and not begin with sk_sbox_",
       testExpectedFormat: "API secret key should begin with sk_",
+    },
+    {
+      name: "connector_account_details.key1",
+      liveValidationRegex: "^pc_(.+)$",
+      testValidationRegex: "^pc_(.+)$",
+      liveExpectedFormat: "Processing Channel ID should have the prefix pc_",
+      testExpectedFormat: "Processing Channel ID should have the prefix pc_",
+    },
+    {
+      name: "metadata.connector_client_id",
+      liveValidationRegex: "^cli_(.+)$",
+      testValidationRegex: "^cli_(.+)$",
+      liveExpectedFormat: "Checkout Client ID should have the prefix cli_",
+      testExpectedFormat: "Checkout Client ID should have the prefix cli_",
+      isRequired: false,
+    },
+    {
+      name: "metadata.connector_currency_account_id",
+      liveValidationRegex: "^ca_(.+)$",
+      testValidationRegex: "^ca_(.+)$",
+      liveExpectedFormat: "Connector Currency Account ID should have the prefix ca_",
+      testExpectedFormat: "Connector Currency Account ID should have the prefix ca_",
+      isRequired: false,
     },
   ],
 }
@@ -1140,6 +1164,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   switch payoutProcessor {
   | ADYEN => "adyen"
   | ADYENPLATFORM => "adyenplatform"
+  | CHECKOUT => "checkout"
   | CYBERSOURCE => "cybersource"
   | EBANX => "ebanx"
   | ITAUBANK => "itaubank"
@@ -1370,6 +1395,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     switch connector {
     | "adyen" => PayoutProcessor(ADYEN)
     | "adyenplatform" => PayoutProcessor(ADYENPLATFORM)
+    | "checkout" => PayoutProcessor(CHECKOUT)
     | "cybersource" => PayoutProcessor(CYBERSOURCE)
     | "ebanx" => PayoutProcessor(EBANX)
     | "itaubank" => PayoutProcessor(ITAUBANK)
@@ -1577,6 +1603,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   switch payoutconnector {
   | ADYEN => adyenInfo
   | ADYENPLATFORM => adyenPlatformInfo
+  | CHECKOUT => checkoutInfo
   | CYBERSOURCE => cybersourceInfo
   | EBANX => ebanxInfo
   | ITAUBANK => itauBankInfo
@@ -1686,6 +1713,7 @@ let itemProviderMapper: dict<JSON.t> => ConnectorTypes.paymentMethodConfigType =
     installment_payment_enabled: dict->getOptionBool("installment_payment_enabled"),
     payment_experience: dict->getOptionString("payment_experience"),
     card_networks: dict->getStrArrayFromDict("card_networks", []),
+    pay_via_single_use_token: ?dict->getOptionString("pay_via_single_use_token"),
   }
 }
 
@@ -1739,7 +1767,26 @@ let configKeysToIgnore = [
   "additional_merchant_data",
   "connector_wallets_details",
   "connector_webhook_register_details",
+  "pay_via_single_use_token",
 ]
+
+let getPayViaSingleUseTokenConfig = connectorConfig =>
+  connectorConfig->getJsonObjectFromDict("pay_via_single_use_token")->convertMapObjectToDict
+
+let getPayViaSingleUseTokenEntry = (payViaSingleUseTokenConfig, ~paymentMethodType) =>
+  payViaSingleUseTokenConfig->Dict.get(paymentMethodType)->Option.map(convertMapObjectToDict)
+
+let isPayViaSingleUseTokenFlow = (entry, walletFlow: walletFlow) =>
+  entry->getStrArrayFromDict("flows", [])->Array.includes((walletFlow :> string))
+
+let isPayViaSingleUseTokenInDecryptFlow = (
+  connectorConfig,
+  ~paymentMethodType: payViaSingleUseTokenWallet,
+) =>
+  connectorConfig
+  ->getPayViaSingleUseTokenConfig
+  ->getPayViaSingleUseTokenEntry(~paymentMethodType=(paymentMethodType :> string))
+  ->mapOptionOrDefault(false, entry => entry->isPayViaSingleUseTokenFlow(Decrypt))
 
 let verifyConnectorIgnoreField = [
   "business_country",
@@ -1816,9 +1863,15 @@ let addMethod = (paymentMethodsEnabled, paymentMethod, method) => {
   | _ =>
     pmts->Array.forEach((val: paymentMethodEnabled) => {
       if val.payment_method_type->String.toLowerCase === paymentMethod->String.toLowerCase {
-        val.provider
-        ->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
-        ->Array.push(method)
+        let providers = val.provider->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
+        let isAlreadyAdded =
+          providers->Array.some(provider =>
+            provider.payment_method_type === method.payment_method_type &&
+              provider.payment_experience === method.payment_experience
+          )
+        if !isAlreadyAdded {
+          providers->Array.push(method)
+        }
       }
     })
   }
@@ -2598,6 +2651,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   switch payoutProcessor {
   | ADYEN => "Adyen"
   | ADYENPLATFORM => "Adyen Platform"
+  | CHECKOUT => "Checkout"
   | CYBERSOURCE => "Cybersource"
   | EBANX => "Ebanx"
   | ITAUBANK => "Itaubank"

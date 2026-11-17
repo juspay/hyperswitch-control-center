@@ -190,7 +190,9 @@ export class PaymentSettings {
     return this.page
       .locator("div")
       .filter({ has: this.accountUpdaterHeading })
-      .filter({ has: this.page.getByRole("link", { name: "Slack" }) })
+      .filter({
+        has: this.page.getByRole("link", { name: "support.global@juspay.io" }),
+      })
       .last();
   }
 
@@ -200,8 +202,10 @@ export class PaymentSettings {
     );
   }
 
-  get accountUpdaterSlackLink(): Locator {
-    return this.accountUpdaterSection.getByRole("link", { name: "Slack" });
+  get accountUpdaterSupportEmailLink(): Locator {
+    return this.accountUpdaterSection.getByRole("link", {
+      name: "support.global@juspay.io",
+    });
   }
 
   accountUpdaterNetworkIcon(gateway: "VISA" | "MASTERCARD"): Locator {

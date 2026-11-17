@@ -174,12 +174,15 @@ export interface InitOutput {
     readonly ffi_superposition_types_rust_future_cancel_f64: (a: bigint) => void;
     readonly ffi_superposition_types_rust_future_cancel_u8: (a: bigint) => void;
     readonly ffi_superposition_types_rust_future_cancel_i32: (a: bigint) => void;
+    readonly ffi_superposition_types_rust_future_complete_pointer: (a: bigint, b: number) => number;
     readonly ffi_superposition_types_rust_future_cancel_u32: (a: bigint) => void;
+    readonly ffi_superposition_types_rust_future_complete_u32: (a: bigint, b: number) => number;
     readonly ffi_superposition_types_rust_future_cancel_i16: (a: bigint) => void;
     readonly ffi_superposition_types_rust_future_cancel_u16: (a: bigint) => void;
     readonly ffi_superposition_types_rust_future_cancel_void: (a: bigint) => void;
     readonly ffi_superposition_types_rust_future_cancel_i64: (a: bigint) => void;
     readonly ffi_superposition_types_rust_future_cancel_u64: (a: bigint) => void;
+    readonly ffi_superposition_types_rust_future_complete_u64: (a: bigint, b: number) => bigint;
     readonly ffi_superposition_types_rust_future_free_rust_buffer: (a: bigint) => void;
     readonly ffi_superposition_types_rust_future_poll_rust_buffer: (a: bigint, b: number, c: bigint) => void;
     readonly ffi_superposition_types_rust_future_free_pointer: (a: bigint) => void;
@@ -190,10 +193,8 @@ export interface InitOutput {
     readonly ffi_superposition_types_rust_future_poll_f64: (a: bigint, b: number, c: bigint) => void;
     readonly ffi_superposition_types_rust_future_free_u8: (a: bigint) => void;
     readonly ffi_superposition_types_rust_future_poll_u8: (a: bigint, b: number, c: bigint) => void;
-    readonly ffi_superposition_types_rust_future_complete_pointer: (a: bigint, b: number) => number;
     readonly ffi_superposition_types_rust_future_free_i32: (a: bigint) => void;
     readonly ffi_superposition_types_rust_future_poll_i32: (a: bigint, b: number, c: bigint) => void;
-    readonly ffi_superposition_types_rust_future_complete_u32: (a: bigint, b: number) => number;
     readonly ffi_superposition_types_rust_future_free_u32: (a: bigint) => void;
     readonly ffi_superposition_types_rust_future_poll_u32: (a: bigint, b: number, c: bigint) => void;
     readonly ffi_superposition_types_rust_future_free_i16: (a: bigint) => void;
@@ -204,7 +205,6 @@ export interface InitOutput {
     readonly ffi_superposition_types_rust_future_poll_void: (a: bigint, b: number, c: bigint) => void;
     readonly ffi_superposition_types_rust_future_free_i64: (a: bigint) => void;
     readonly ffi_superposition_types_rust_future_poll_i64: (a: bigint, b: number, c: bigint) => void;
-    readonly ffi_superposition_types_rust_future_complete_u64: (a: bigint, b: number) => bigint;
     readonly ffi_superposition_types_rust_future_free_u64: (a: bigint) => void;
     readonly ffi_superposition_types_rust_future_poll_u64: (a: bigint, b: number, c: bigint) => void;
     readonly __wbindgen_export: (a: number, b: number) => number;
