@@ -3,6 +3,37 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.13.1
+
+### Features
+
+- **recon:** Add API key management screen ([#5810](https://github.com/juspay/hyperswitch-control-center/pull/5810)) ([`e964f86`](https://github.com/juspay/hyperswitch-control-center/commit/e964f86ffbdfa105db63f3352b13d4f3e132f4de))
+
+### Bug Fixes
+
+- **recovery:** Harden invoice profile switch and address Schedule Only Recovery feedback ([#5811](https://github.com/juspay/hyperswitch-control-center/pull/5811)) ([`82876f6`](https://github.com/juspay/hyperswitch-control-center/commit/82876f678084ee52347e4d2680220d1db5c75d28))
+- **server:** Return 413 for oversized /config/merchant request bodies ([#5800](https://github.com/juspay/hyperswitch-control-center/pull/5800)) ([`7b3590d`](https://github.com/juspay/hyperswitch-control-center/commit/7b3590d1c06935ddcfbde750a1931bf93b20d7e2))
+
+**Full Changelog:** [`2026.11.13.0...2026.11.13.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.13.0...2026.11.13.1)
+
+- - -
+
+## 2026.11.13.0
+
+### Features
+
+- **recovery:**
+  - Add Scheduled Only Recovery and trigger model settings ([#5798](https://github.com/juspay/hyperswitch-control-center/pull/5798)) ([`f761276`](https://github.com/juspay/hyperswitch-control-center/commit/f7612766f8dc6eb23724e5721c4d758fbfb2d8dd))
+  - Add webhook URL to Scheduled Only Recovery settings and onboarding ([#5805](https://github.com/juspay/hyperswitch-control-center/pull/5805)) ([`858bacd`](https://github.com/juspay/hyperswitch-control-center/commit/858bacd13b407b8ae9235122540e649affd0c382))
+
+### Miscellaneous Tasks
+
+- **deps:** Upgrade blend to 0.0.39-beta.3 and fix dompurify vulnerabilities ([#5808](https://github.com/juspay/hyperswitch-control-center/pull/5808)) ([`cde1f71`](https://github.com/juspay/hyperswitch-control-center/commit/cde1f7165c3b878dcdedc276a404731074e4b119))
+
+**Full Changelog:** [`2026.11.11.1...2026.11.13.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.11.1...2026.11.13.0)
+
+- - -
+
 ## 2026.11.11.1
 
 ### Bug Fixes

@@ -129,15 +129,6 @@ let getV2Url = (
       }
     | _ => Default(``)
     }
-  | RECOVERY_AGGREGATE =>
-    switch (methodType, queryParameters) {
-    | (Get, Some(queryParams)) =>
-      switch transactionEntity {
-      | #Profile => Default(`${paymentsBaseURL}/profile/recovery-aggregate?${queryParams}`)
-      | _ => Default(`${paymentsBaseURL}/recovery-aggregate?${queryParams}`)
-      }
-    | _ => Default(``)
-    }
   | PAYMENT_METHOD_LIST =>
     switch id {
     | Some(customerId) => Default(`v1/customers/${customerId}/saved-payment-methods`)
@@ -1143,6 +1134,13 @@ let useGetURL = () => {
 
       | HYPERSWITCH_RECON =>
         switch hyperswitchReconType {
+        | #API_KEYS =>
+          switch (methodType, id) {
+          | (Get, Some(apiKeyId)) | (Put, Some(apiKeyId)) =>
+            Default(`${reconBaseURL}/api_keys/${apiKeyId}`)
+          | (Get, None) | (Post, None) => Default(`${reconBaseURL}/api_keys`)
+          | _ => Default("")
+          }
         | #FILE_UPLOAD =>
           switch methodType {
           | Post =>
