@@ -3,7 +3,7 @@ open Typography
 module Base = {
   @react.component
   let make = (~heading, ~description, ~wrapperClass="") => {
-    <div className={`${wrapperClass} xl:w-max xl:max-w-none`}>
+    <div className={`${wrapperClass} w-fit`}>
       <AlertV2Binding
         alertType=Warning
         slot={{
