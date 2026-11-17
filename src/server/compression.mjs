@@ -1,4 +1,3 @@
-import { Console } from "console";
 import fs from "fs";
 import path from "path";
 
@@ -20,7 +19,9 @@ export function serveCompressed(
   const supportsBrotli = acceptEncoding.includes("br");
   const supportsGzip = acceptEncoding.includes("gzip");
 
-  const fullPath = path.join(serverPath, filePath);
+  const root = path.resolve(serverPath);
+  const fullPath = path.resolve(root, "." + path.sep + filePath);
+  if (!fullPath.startsWith(root + path.sep)) return false;
 
   //   Priority 1: Try Brotli compression if supported
   if (supportsBrotli) {

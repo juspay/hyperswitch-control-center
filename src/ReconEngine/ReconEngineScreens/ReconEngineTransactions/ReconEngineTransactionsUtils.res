@@ -441,10 +441,6 @@ let getFilteredMetadataFromEntries = metadata => {
   ->Dict.fromArray
 }
 
-let getHeadersForCSV = () => {
-  "Order ID,Transaction ID,Payment Gateway,Payment Method,Txn Amount,Settlement Amount,Recon Status,Transaction Date"
-}
-
 let getTransactionsPayloadFromDict = dict => {
   dict->transactionItemToObjMapper
 }

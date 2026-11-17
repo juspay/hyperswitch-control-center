@@ -94,6 +94,29 @@ export const payoutConnectorConfig: Record<string, ConnectorConfig> = {
     },
   },
 
+  checkout: {
+    label: "checkout",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "checkout_default",
+      },
+      fieldLabels: [
+        "Checkout Public Key *",
+        "Processing Channel ID *",
+        "Checkout API Secret Key *",
+        "Checkout Client ID",
+        "Checkout Currency Account ID *",
+      ],
+    },
+    paymentSections: {
+      Wallet: {
+        label: "Wallet",
+        methods: ["apple_pay"],
+      },
+    },
+  },
+
   cybersource: {
     label: "cybersource",
     fields: {

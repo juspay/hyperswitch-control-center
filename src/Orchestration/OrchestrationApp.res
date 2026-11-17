@@ -12,8 +12,7 @@ let make = (~setScreenState) => {
   let userContext = React.useContext(UserInfoProvider.defaultContext)
   let {checkUserEntity} = userContext
   let {isCurrentMerchantPlatform, isCurrentMerchantConnected} = OMPSwitchHooks.useOMPType()
-  let {roleId, offerEngineCredentialSource} = userContext.getResolvedUserInfo()
-  let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
+  let {offerEngineCredentialSource} = userContext.getResolvedUserInfo()
 
   {
     switch url.path->HSwitchUtils.urlPath {
@@ -65,12 +64,14 @@ let make = (~setScreenState) => {
       </AccessControl>
     | list{"alerts-business-insights", ..._} =>
       <AccessControl
-        isEnabled={featureFlagDetails.devAlerts && isInternalUser} authorization=Access>
+        isEnabled={featureFlagDetails.devAlerts}
+        authorization={userHasAccess(~groupAccess=AlertsView)}>
         <AlertsContainer />
       </AccessControl>
     | list{"monitoring", ..._} =>
       <AccessControl
-        isEnabled={featureFlagDetails.devAlerts && isInternalUser} authorization=Access>
+        isEnabled={featureFlagDetails.devAlerts}
+        authorization={userHasAccess(~groupAccess=MonitoringView)}>
         <MonitoringContainer />
       </AccessControl>
     | list{"analytics-explorer"} =>
@@ -225,16 +226,6 @@ let make = (~setScreenState) => {
         <DisputeTable />
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
-    | list{"chat-bot"} =>
-      <AccessControl
-        isEnabled={featureFlagDetails.devAiChatBot && !checkUserEntity([#Profile])}
-        // TODO: Remove `MerchantDetailsView` permission in future
-        authorization={hasAnyGroupAccess(
-          userHasAccess(~groupAccess=MerchantDetailsView),
-          userHasAccess(~groupAccess=AccountView),
-        )}>
-        <ChatBot />
-      </AccessControl>
     | list{"configuration-management-default-config"}
     | list{"configuration-management-overrides"}
     | list{"configuration-management-dimensions"}

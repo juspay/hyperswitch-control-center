@@ -65,10 +65,7 @@ type options = {
 }
 
 type highcharts
-type highchartsSankey
 @module("highcharts") external highchartsModule: highcharts = "default"
-@module("highcharts/modules/sankey")
-external highchartsSankey: highcharts => unit = "default"
 
 module SankeyReact = {
   @module("highcharts-react-official") @react.component

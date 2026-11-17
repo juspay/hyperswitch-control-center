@@ -24,11 +24,17 @@ let make = () => {
   let (filters, setFilters) = React.useState(_ => None)
   let (searchText, setSearchText) = React.useState(_ => "")
   let (revenueRecoveryData, setRevenueRecoveryData) = React.useState(_ => [])
-  let {generateReport, email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {generateReport, email, isLiveMode} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let startTimeKey = OrderUIUtils.startTimeFilterKey(V2)
   let endTimeKey = OrderUIUtils.endTimeFilterKey(V2)
   let startTime = filterValueJson->getString(startTimeKey, "")
+  let showConnectorFilter = !(
+    HyperswitchAtom.recoveryProfileAtom
+    ->Recoil.useRecoilValueFromAtom
+    ->RevenueRecoveryProfileUtils.isExternalModel
+  )
 
   let portalNodes = PortalState.portalNodes->Recoil.useRecoilValueFromAtom
   let hasOmpViewPortal = portalNodes->getOptionValFromDict(`${tableTitle}OMPView`)->Option.isSome
@@ -118,7 +124,7 @@ let make = () => {
       setFilters
       endTimeFilterKey=endTimeKey
       startTimeFilterKey=startTimeKey
-      initialFilters
+      initialFilters={getInitialFilters(~showConnectorFilter)}
       initialFixedFilter={_version => initialFixedFilter(~disable=searchText->isNonEmptyString)}
       setOffset
       submitInputOnEnter=true
@@ -130,7 +136,7 @@ let make = () => {
       entityName={V2(V2_ORDER_FILTERS)}
       version=V2
     />
-  }, [searchText])
+  }, (searchText, showConnectorFilter))
 
   <ErrorBoundary>
     <div className={`flex flex-col gap-4 mx-auto h-full w-full min-h-50-vh`}>
@@ -140,9 +146,8 @@ let make = () => {
           <GenerateReport entityName={V2(REVENUE_RECOVERY_REPORT)} />
         </RenderIf>
       </div>
-      <RevenueRecoveryStatusCounts />
       {filtersUI}
-      <RenderIf condition={hasOmpViewPortal}>
+      <RenderIf condition={hasOmpViewPortal && !isLiveMode}>
         <Portal to={`${tableTitle}OMPView`}>
           <OMPSwitchHelper.OMPViews
             views={OMPSwitchUtils.transactionViewList(~checkUserEntity)}

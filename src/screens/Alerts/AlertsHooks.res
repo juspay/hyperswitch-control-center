@@ -73,8 +73,9 @@ let useAlertsDictionary = () => {
   }
 }
 
-// Internal view-only users and internal admins can act on alerts
+// Acting on alerts (resolve, snooze, blacklist, comment) needs alerts_manage;
+// internal_view_only has only alerts_view
 let useAlertsManageAccess = (): CommonAuthTypes.authorization => {
-  let {roleId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
-  roleId->HyperSwitchUtils.checkIsInternalUser ? Access : NoAccess
+  let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
+  userHasAccess(~groupAccess=AlertsManage)
 }
