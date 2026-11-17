@@ -32,11 +32,13 @@ type payoutAttempts = {
   unified_message: string,
 }
 
+type frmStatus = Fraud | ManualReview | Pending | Legit | TransactionFailure | UnknownFrmStatus
+
 type payoutFrmMessage = {
   frm_name: string,
   frm_transaction_id: string,
   frm_transaction_type: string,
-  frm_status: string,
+  frm_status: frmStatus,
   frm_score: int,
   frm_reason: string,
   frm_error: string,
@@ -492,12 +494,22 @@ let itemToObjMapperAttempts = json => {
   }
 }
 
+let getFrmStatusFromString = status =>
+  switch status {
+  | "fraud" => Fraud
+  | "manual_review" => ManualReview
+  | "pending" => Pending
+  | "legit" => Legit
+  | "transaction_failure" => TransactionFailure
+  | _ => UnknownFrmStatus
+  }
+
 let itemToObjMapperForFrmMessage = dict => {
   {
     frm_name: getString(dict, "frm_name", ""),
     frm_transaction_id: getString(dict, "frm_transaction_id", ""),
     frm_transaction_type: getString(dict, "frm_transaction_type", ""),
-    frm_status: getString(dict, "frm_status", ""),
+    frm_status: getString(dict, "frm_status", "")->getFrmStatusFromString,
     frm_score: getInt(dict, "frm_score", 0),
     frm_reason: getString(dict, "frm_reason", ""),
     frm_error: getString(dict, "frm_error", ""),
