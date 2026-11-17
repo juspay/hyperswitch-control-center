@@ -28,7 +28,14 @@ test.describe("Organization Settings - Page & Details", () => {
     orgSettings = await loginAndVisit(page);
   });
 
-  test("should load the page with heading, subtitle and organization details", async () => {
+  test("should load the page with heading, subtitle and organization details", async ({
+    context,
+    page,
+  }) => {
+    await context.grantPermissions(["clipboard-read", "clipboard-write"], {
+      origin: new URL(page.url()).origin,
+    });
+
     await expect(orgSettings.pageHeading).toBeVisible({ timeout: 10000 });
     await expect(orgSettings.organizationDetailsHeading).toBeVisible({
       timeout: 10000,

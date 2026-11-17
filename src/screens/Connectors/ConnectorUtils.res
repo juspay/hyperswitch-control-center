@@ -26,6 +26,7 @@ let getStepName = step => {
 let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(ADYEN),
   PayoutProcessor(ADYENPLATFORM),
+  PayoutProcessor(CHECKOUT),
   PayoutProcessor(CYBERSOURCE),
   PayoutProcessor(EBANX),
   PayoutProcessor(ITAUBANK),
@@ -381,6 +382,29 @@ let checkoutInfo = {
       testValidationRegex: "^sk(_sbox)?_(.+)$",
       liveExpectedFormat: "API secret key should begin with sk_ and not begin with sk_sbox_",
       testExpectedFormat: "API secret key should begin with sk_",
+    },
+    {
+      name: "connector_account_details.key1",
+      liveValidationRegex: "^pc_(.+)$",
+      testValidationRegex: "^pc_(.+)$",
+      liveExpectedFormat: "Processing Channel ID should have the prefix pc_",
+      testExpectedFormat: "Processing Channel ID should have the prefix pc_",
+    },
+    {
+      name: "metadata.connector_client_id",
+      liveValidationRegex: "^cli_(.+)$",
+      testValidationRegex: "^cli_(.+)$",
+      liveExpectedFormat: "Checkout Client ID should have the prefix cli_",
+      testExpectedFormat: "Checkout Client ID should have the prefix cli_",
+      isRequired: false,
+    },
+    {
+      name: "metadata.connector_currency_account_id",
+      liveValidationRegex: "^ca_(.+)$",
+      testValidationRegex: "^ca_(.+)$",
+      liveExpectedFormat: "Connector Currency Account ID should have the prefix ca_",
+      testExpectedFormat: "Connector Currency Account ID should have the prefix ca_",
+      isRequired: false,
     },
   ],
 }
@@ -1152,6 +1176,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   switch payoutProcessor {
   | ADYEN => "adyen"
   | ADYENPLATFORM => "adyenplatform"
+  | CHECKOUT => "checkout"
   | CYBERSOURCE => "cybersource"
   | EBANX => "ebanx"
   | ITAUBANK => "itaubank"
@@ -1382,6 +1407,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     switch connector {
     | "adyen" => PayoutProcessor(ADYEN)
     | "adyenplatform" => PayoutProcessor(ADYENPLATFORM)
+    | "checkout" => PayoutProcessor(CHECKOUT)
     | "cybersource" => PayoutProcessor(CYBERSOURCE)
     | "ebanx" => PayoutProcessor(EBANX)
     | "itaubank" => PayoutProcessor(ITAUBANK)
@@ -1589,6 +1615,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   switch payoutconnector {
   | ADYEN => adyenInfo
   | ADYENPLATFORM => adyenPlatformInfo
+  | CHECKOUT => checkoutInfo
   | CYBERSOURCE => cybersourceInfo
   | EBANX => ebanxInfo
   | ITAUBANK => itauBankInfo
@@ -2636,6 +2663,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   switch payoutProcessor {
   | ADYEN => "Adyen"
   | ADYENPLATFORM => "Adyen Platform"
+  | CHECKOUT => "Checkout"
   | CYBERSOURCE => "Cybersource"
   | EBANX => "Ebanx"
   | ITAUBANK => "Itaubank"
