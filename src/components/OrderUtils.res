@@ -231,7 +231,7 @@ module FraudRiskBanner = {
       {switch onReviewDetailsClick {
       | Some(onClick) =>
         <div
-          className={`${textColor.primaryNormal} font-semibold text-fs-16 cursor-pointer`}
+          className={`${textColor.primaryNormal} ${body.lg.semibold} cursor-pointer`}
           onClick={_ => onClick()}>
           {"Review details"->React.string}
         </div>
