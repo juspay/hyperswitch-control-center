@@ -649,6 +649,11 @@ type reconEngineStatusType = {
   pending_staging_entries: int,
 }
 
+type linkingProcessorStatusType = {
+  processor_status: reconProcessorStatus,
+  pending_entries: int,
+}
+
 type reconBusinessProfileType = {
   profile_id: string,
   merchant_id: string,

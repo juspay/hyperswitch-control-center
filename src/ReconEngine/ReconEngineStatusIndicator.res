@@ -3,113 +3,146 @@ open LogicUtils
 open APIUtils
 open ReconEngineTypes
 
+module StatusRow = {
+  @react.component
+  let make = (~label, ~data: option<linkingProcessorStatusType>, ~isFetching) => {
+    let processorStatus =
+      data->mapOptionOrDefault(UnknownReconProcessorStatus, status => status.processor_status)
+    let (statusText, dotColor) = switch processorStatus {
+    | Running => ("Running", "bg-nd_green-400")
+    | Stopped => ("Stopped", "bg-nd_gray-400")
+    | UnknownReconProcessorStatus => ("Unavailable", "bg-nd_gray-400")
+    }
+
+    let isLoading = isFetching && data->Option.isNone
+
+    <div
+      className={`grid grid-cols-[auto_auto] items-center gap-x-2 whitespace-nowrap sm:flex ${body.sm.semibold}`}>
+      <span className={`shrink-0 ${body.sm.semibold} text-nd_gray-700 dark:text-nd_gray-200`}>
+        {label->React.string}
+      </span>
+      <RenderIf condition=isLoading>
+        <Shimmer styleClass="h-4 w-32 rounded" />
+      </RenderIf>
+      <RenderIf condition={!isLoading}>
+        <span className="flex items-center gap-1.5 text-nd_gray-600 dark:text-nd_gray-300">
+          <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${dotColor}`} />
+          {statusText->React.string}
+        </span>
+        <span className="col-span-2 whitespace-nowrap text-nd_gray-600 dark:text-nd_gray-300">
+          <span
+            className={`tabular-nums ${body.sm.semibold} text-nd_gray-700 dark:text-nd_gray-200`}>
+            {data
+            ->mapOptionOrDefault("—", status => status.pending_entries->Int.toString)
+            ->React.string}
+          </span>
+          {" pending"->React.string}
+        </span>
+      </RenderIf>
+    </div>
+  }
+}
+
+module Indicator = {
+  @react.component
+  let make = () => {
+    let getURL = useGetURL()
+    let fetchDetails = useGetMethod(~showErrorToast=false)
+    let showToast = ToastAdapter.useShowToast()
+    let (reconStatus, setReconStatus) = React.useState(_ => None)
+    let (linkingStatus, setLinkingStatus) = React.useState(_ => None)
+    let (isFetching, setIsFetching) = React.useState(_ => true)
+    let getAbortSignal = AbortControllerHook.useAbortController()
+
+    let fetchStatus = async (~isRefresh=false) => {
+      let signal = getAbortSignal()
+      setIsFetching(_ => true)
+      let fetchStatusItem = async (~endpoint, ~mapStatus) => {
+        try {
+          let url = getURL(
+            ~entityName=V1(HYPERSWITCH_RECON),
+            ~methodType=Get,
+            ~hyperswitchReconType=endpoint,
+          )
+          let res = await fetchDetails(url, ~signal)
+          Some(res->getDictFromJsonObject->mapStatus)
+        } catch {
+        | _ => None
+        }
+      }
+      let results = await Promise.all([
+        fetchStatusItem(~endpoint=#RECON_ENGINE_STATUS, ~mapStatus=dict => {
+          let status = dict->ReconEngineUtils.reconEngineStatusItemToObjMapper
+          {
+            processor_status: status.processor_status,
+            pending_entries: status.pending_staging_entries,
+          }
+        }),
+        fetchStatusItem(
+          ~endpoint=#LINKING_PROCESSOR_STATUS,
+          ~mapStatus=ReconEngineUtils.linkingProcessorStatusItemToObjMapper,
+        ),
+      ])
+      if !(signal->AbortControllerHook.isAborted) {
+        switch results {
+        | [recon, linking] =>
+          setReconStatus(_ => recon)
+          setLinkingStatus(_ => linking)
+          if isRefresh && (recon->Option.isNone || linking->Option.isNone) {
+            showToast(
+              ~message="Some processor statuses could not be refreshed. Please try again.",
+              ~toastType=ToastError,
+            )
+          }
+        | _ => ()
+        }
+        setIsFetching(_ => false)
+      }
+    }
+
+    React.useEffect(() => {
+      fetchStatus()->ignore
+      None
+    }, [])
+
+    <div
+      role="group"
+      ariaLabel="Processor status"
+      ariaBusy=isFetching
+      className="flex min-h-8 items-stretch rounded-lg sm:h-8 border border-nd_gray-300 bg-white dark:bg-nd_gray-800 dark:border-nd_gray-600">
+      <div className="flex items-center gap-3 py-1 pl-3 pr-1 sm:py-0" ariaLive=#polite>
+        <StatusRow label="Recon" data=reconStatus isFetching />
+        <span
+          ariaHidden=true
+          className="w-px shrink-0 self-stretch my-1 bg-nd_gray-300 dark:bg-nd_gray-600 sm:my-2"
+        />
+        <StatusRow label="Linking" data=linkingStatus isFetching />
+      </div>
+      <Button
+        buttonType=Transparent
+        buttonSize=XSmall
+        showBorder=false
+        ariaLabel="Refresh processor statuses"
+        showTooltip=true
+        tooltipText="Refresh processor statuses"
+        buttonState={isFetching ? Disabled : Normal}
+        customBackColor="bg-transparent"
+        customRoundedClass="rounded-r-lg"
+        customPaddingClass="p-0"
+        customHeightClass="h-full"
+        customIconMargin="m-0"
+        customButtonStyle="!border-0 w-9 shrink-0 text-nd_gray-600 hover:bg-nd_gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-nd_gray-600 dark:text-nd_gray-300 dark:hover:bg-nd_gray-700"
+        leftIcon={CustomIcon(
+          <Icon name="sync-alt" size=14 className={isFetching ? "motion-safe:animate-spin" : ""} />,
+        )}
+        onClick={_ => fetchStatus(~isRefresh=true)->ignore}
+      />
+    </div>
+  }
+}
+
 @react.component
 let make = () => {
   let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod(~showErrorToast=false)
-  let showToast = ToastAdapter.useShowToast()
-  let (statusData, setStatusData) = React.useState(_ => None)
-  let (isFetching, setIsFetching) = React.useState(_ => true)
-
-  let isProcessorActive = (status: reconProcessorStatus) =>
-    switch status {
-    | Running => true
-    | Stopped | UnknownReconProcessorStatus => false
-    }
-
-  let processorStatusDescription = (status: reconProcessorStatus) =>
-    switch status {
-    | Running => "Recon processor is running"
-    | Stopped => "Recon processor is stopped"
-    | UnknownReconProcessorStatus => "Recon processor status is unavailable"
-    }
-
-  let fetchStatus = async (~isRefresh=false) => {
-    setIsFetching(_ => true)
-    try {
-      let url = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#RECON_ENGINE_STATUS,
-      )
-      let res = await fetchDetails(url)
-      let status = res->getDictFromJsonObject->ReconEngineUtils.reconEngineStatusItemToObjMapper
-      setStatusData(_ => Some(status))
-    } catch {
-    | _ =>
-      if isRefresh {
-        showToast(
-          ~message="Failed to refresh recon status. Please try again.",
-          ~toastType=ToastError,
-        )
-      }
-    }
-    setIsFetching(_ => false)
-  }
-
-  React.useEffect(() => {
-    setStatusData(_ => None)
-    fetchStatus()->ignore
-    None
-  }, [profileId])
-
-  let isActive =
-    statusData->mapOptionOrDefault(false, status => status.processor_status->isProcessorActive)
-  let dotColor = isActive ? "bg-nd_green-400" : "bg-nd_gray-400"
-  let boxClass = "h-8 bg-white border border-nd_gray-300 rounded-lg"
-
-  let statusDot =
-    <span className="relative flex h-2 w-2 cursor-default">
-      <RenderIf condition={isActive}>
-        <span
-          className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${dotColor}`}
-        />
-      </RenderIf>
-      <span className={`relative inline-flex h-2 w-2 rounded-full ${dotColor}`} />
-    </span>
-
-  let hasData = statusData->Option.isSome
-  let isReloading = isFetching && hasData
-  let dotDescription =
-    statusData->mapOptionOrDefault("", status =>
-      status.processor_status->processorStatusDescription
-    )
-  let pendingText =
-    statusData->mapOptionOrDefault("", status =>
-      `${status.pending_staging_entries->Int.toString} Pending`
-    )
-
-  <>
-    <RenderIf condition={hasData}>
-      <div className="flex items-center gap-2">
-        <div
-          className={`flex items-center gap-2 px-2 whitespace-nowrap ${boxClass} ${isReloading
-              ? "opacity-50"
-              : ""}`}>
-          <ToolTip toolTipPosition=Bottom description=dotDescription toolTipFor=statusDot />
-          <span className={`${body.sm.semibold} text-nd_gray-600`}>
-            {pendingText->React.string}
-          </span>
-        </div>
-        <div
-          className={`flex items-center justify-center w-8 cursor-pointer ${boxClass}`}
-          onClick={_ =>
-            if !isFetching {
-              fetchStatus(~isRefresh=true)->ignore
-            }}>
-          <Icon
-            name="sync-alt"
-            size=14
-            className={`text-nd_gray-600 ${isFetching
-                ? "animate-spin"
-                : "hover:rotate-180 transition-transform duration-500"}`}
-          />
-        </div>
-      </div>
-    </RenderIf>
-    <RenderIf condition={!hasData && isFetching}>
-      <Shimmer styleClass="h-4 w-20 rounded" />
-    </RenderIf>
-  </>
+  <Indicator key=profileId />
 }

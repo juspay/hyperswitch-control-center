@@ -1223,6 +1223,15 @@ let reconEngineStatusItemToObjMapper = (dict): reconEngineStatusType => {
   }
 }
 
+let linkingProcessorStatusItemToObjMapper = (dict): linkingProcessorStatusType => {
+  {
+    processor_status: dict
+    ->getString("processor_status", "")
+    ->getReconProcessorStatusVariantFromString,
+    pending_entries: dict->getInt("pending_entries", 0),
+  }
+}
+
 let reconBusinessProfileItemToObjMapper = (dict): reconBusinessProfileType => {
   {
     profile_id: dict->getString("profile_id", ""),

@@ -1,82 +1,26 @@
 open Typography
+open ReconEngineGenerateReportTypes
+open ReconEngineGenerateReportUtils
 
-@react.component
-let make = (
-  ~showModal,
-  ~setShowModal,
-  ~rule: ReconEngineRulesTypes.rulePayload,
-  ~hyperswitchReconType: APIUtilsTypes.hyperswitchReconType,
-  ~modalHeading,
-) => {
-  open APIUtils
-  open LogicUtils
-  open ReconEngineFilterUtils
+module ReportFields = {
+  @react.component
+  let make = (~reportConfig: reportConfig) => {
+    open LogicUtils
+    let form = ReactFinalForm.useForm()
+    let recipients =
+      form.getState().values
+      ->getDictFromJsonObject
+      ->getArrayFromDict("emails", [])
+      ->Array.map(email => email->getStringFromJson(""))
 
-  let getURL = useGetURL()
-  let showToast = ToastAdapter.useShowToast()
-  let updateDetails = useUpdateMethod(~showErrorToast=false)
-  let mixpanelEvent = MixpanelHook.useSendEvent()
-  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
-  let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
-
-  let (startTime, endTime) = ReconEngineFilterUtils.hasGlobalDateFilterValue(~globalDateFilters)
-    ? (globalDateFilters.startTime, globalDateFilters.endTime)
-    : (defaultDate.start_time, defaultDate.end_time)
-
-  let generateReport = async body => {
-    try {
-      let url = getURL(~entityName=V1(HYPERSWITCH_RECON), ~hyperswitchReconType, ~methodType=Post)
-      let _ = await updateDetails(url, body, Post)
-      setShowModal(_ => false)
-      showToast(~message="Email Sent", ~toastType=ToastSuccess)
-    } catch {
-    | _ => showToast(~message="Something went wrong. Please try again.", ~toastType=ToastError)
-    }
-    Nullable.null
-  }
-
-  let onSubmit = (values, _) => {
-    let metadata = values->Identity.genericTypeToJson
-    mixpanelEvent(~eventName="recon_engine_generate_report_submit", ~metadata)
-    let bodyDict = metadata->getDictFromJsonObject
-    bodyDict->Dict.set("rule_id", rule.rule_id->JSON.Encode.string)
-    bodyDict->Dict.set(
-      "start_time",
-      bodyDict->getString("start_time", "")->toReconTimeString->JSON.Encode.string,
-    )
-    bodyDict->Dict.set(
-      "end_time",
-      bodyDict->getString("end_time", "")->toReconTimeString->JSON.Encode.string,
-    )
-    generateReport(bodyDict->JSON.Encode.object)
-  }
-
-  let initialValues = {
-    "start_time": startTime,
-    "end_time": endTime,
-  }->Identity.genericTypeToJson
-
-  <Modal
-    modalHeading
-    showModal
-    modalHeadingDescriptionElement={<div className="flex items-center gap-1 mt-1 w-full min-w-0">
-      <span className={`${body.sm.regular} text-nd_gray-500 shrink-0`}>
-        {"Rule: "->React.string}
-      </span>
-      <span className={`${body.sm.medium} text-nd_gray-700 truncate`}>
-        {rule.rule_name->React.string}
-      </span>
-    </div>}
-    setShowModal
-    modalClass="w-full max-w-2xl mx-auto my-auto">
-    <Form onSubmit initialValues>
+    <>
       <div className="mb-4">
         <AlertV2Binding
           alertType=Primary
           slot={{
             slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />,
           }}
-          description="The generated report will be emailed to you and is limited to 100,000 rows. Narrow the date range if needed."
+          description=reportConfig.description
         />
       </div>
       <FormRenderer.FieldRenderer
@@ -87,11 +31,11 @@ let make = (
             ~endKey="end_time",
             ~format="YYYY-MM-DDTHH:mm:ss[Z]",
             ~showTime=true,
-            ~disablePastDates={false},
-            ~disableFutureDates={true},
-            ~predefinedDays=[Today, Yesterday, ThisMonth, LastMonth],
+            ~disablePastDates=false,
+            ~disableFutureDates=true,
+            ~predefinedDays=reportConfig.predefinedDays,
             ~numMonths=2,
-            ~dateRangeLimit=180,
+            ~dateRangeLimit=reportConfig.dateRangeLimit,
             ~disableApply=false,
             ~optFieldKey="opt",
             ~isTooltipVisible=false,
@@ -105,11 +49,121 @@ let make = (
           ~label="Additional Recipients",
           ~name="emails",
           ~customInput=(~input as _, ~placeholder as _) => {
-            <PillInput name="emails" placeholder="Enter email(s)" singleLine=true />
+            <PillInput
+              name="emails" initialItems=recipients placeholder="Enter email(s)" singleLine=true
+            />
           },
         )}
       />
       <FormRenderer.SubmitButton text="Generate" customSubmitButtonStyle="mt-5 mb-3" />
+    </>
+  }
+}
+
+module ReportTypeSelector = {
+  @react.component
+  let make = (~reportType, ~setReportType) => {
+    let tabs: array<Tabs.tab> = [TransactionReport, LinkedReport]->Array.map(selectedReport => {
+      Tabs.title: selectedReport->getReportTabTitle,
+      renderContent: () =>
+        <div className="mt-4">
+          <ReportFields reportConfig={getReportConfig(Transactions, selectedReport)} />
+        </div>,
+      onTabSelection: () => setReportType(_ => selectedReport),
+    })
+
+    <Tabs tabs initialIndex={reportType->getReportTabIndex} variant=Boxed size=Md fitContent=true />
+  }
+}
+
+@react.component
+let make = (
+  ~showModal,
+  ~setShowModal,
+  ~rule: ReconEngineRulesTypes.rulePayload,
+  ~variant: reportVariant,
+) => {
+  open APIUtils
+  open LogicUtils
+  open ReconEngineFilterUtils
+
+  let getURL = useGetURL()
+  let showToast = ToastAdapter.useShowToast()
+  let updateDetails = useUpdateMethod(~showErrorToast=false)
+  let mixpanelEvent = MixpanelHook.useSendEvent()
+  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
+  let (reportType, setReportType) = React.useState(_ => TransactionReport)
+  let reportConfig = getReportConfig(variant, reportType)
+
+  React.useEffect(() => {
+    setReportType(_ => TransactionReport)
+    None
+  }, [showModal])
+
+  let initialValues = React.useMemo(() => {
+    let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=0)
+    let (startTime, endTime) = ReconEngineFilterUtils.hasGlobalDateFilterValue(~globalDateFilters)
+      ? (globalDateFilters.startTime, globalDateFilters.endTime)
+      : (defaultDate.start_time, defaultDate.end_time)
+    {
+      "start_time": startTime,
+      "end_time": endTime,
+    }->Identity.genericTypeToJson
+  }, (showModal, globalDateFilters.startTime, globalDateFilters.endTime))
+
+  let generateReport = async body => {
+    try {
+      let url = getURL(
+        ~entityName=V1(HYPERSWITCH_RECON),
+        ~hyperswitchReconType=reportConfig.endpoint,
+        ~methodType=Post,
+      )
+      let _ = await updateDetails(url, body, Post)
+      setShowModal(_ => false)
+      showToast(
+        ~message="Report requested. You'll receive an email when it's ready.",
+        ~toastType=ToastSuccess,
+      )
+    } catch {
+    | _ => showToast(~message="Something went wrong. Please try again.", ~toastType=ToastError)
+    }
+    Nullable.null
+  }
+
+  let onSubmit = (values, _) => {
+    let metadata = values->Identity.genericTypeToJson
+    mixpanelEvent(~eventName="recon_engine_generate_report_submit", ~metadata)
+    let formValues = metadata->getDictFromJsonObject
+    let body = {
+      "rule_id": rule.rule_id,
+      "start_time": formValues->getString("start_time", "")->toReconTimeString,
+      "end_time": formValues->getString("end_time", "")->toReconTimeString,
+      "emails": formValues->getArrayFromDict("emails", []),
+    }->Identity.genericTypeToJson
+    generateReport(body)
+  }
+
+  <Modal
+    modalHeading=reportConfig.modalHeading
+    showModal
+    modalHeadingDescriptionElement={<div className="flex items-center gap-1 mt-1 w-full min-w-0">
+      <span className={`${body.sm.regular} text-nd_gray-500 shrink-0`}>
+        {"Rule: "->React.string}
+      </span>
+      <span className={`${body.sm.medium} text-nd_gray-700 truncate`}>
+        {rule.rule_name->React.string}
+      </span>
+    </div>}
+    setShowModal
+    modalClass="w-full max-w-2xl mx-auto my-auto">
+    <Form
+      onSubmit initialValues validate={values => validateReportRange(variant, reportType, values)}>
+      <RenderIf condition={variant === Transactions}>
+        <ReportTypeSelector reportType setReportType />
+      </RenderIf>
+      <RenderIf condition={variant === Exceptions}>
+        <ReportFields reportConfig />
+      </RenderIf>
     </Form>
   </Modal>
 }
