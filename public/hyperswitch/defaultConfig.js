@@ -8,5 +8,6 @@ window._env_ = {
     api_url: "",
     olap_url: "",
     euler_url: "",
+    mtls_api_url: "",
   },
 };

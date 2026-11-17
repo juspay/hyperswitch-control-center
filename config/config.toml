@@ -4,8 +4,8 @@ api_url="http://localhost:9000/api"
 olap_url=""
 # Full base URL for euler-hosted services (offer-engine); empty falls back to api_url.
 euler_url=""
-# Subdomain prefixed to api_url's host for webhooks of mTLS connectors (WASM webhook_url_type="mtls"); empty disables it.
-mtls_prefix=""
+# Full base URL for incoming webhooks of mTLS connectors (WASM webhook_url_type="mtls"); empty falls back to api_url.
+mtls_api_url=""
 sdk_url="http://localhost:9050/HyperLoader.js"
 apple_pay_certificate_url=""
 dss_certificate_us_url=""

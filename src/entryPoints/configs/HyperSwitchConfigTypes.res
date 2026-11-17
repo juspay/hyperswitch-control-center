@@ -25,7 +25,7 @@ type baseConfig = {
   apiBaseUrl: string,
   olapUrl: string,
   eulerUrl: string,
-  mtlsPrefix: option<string>,
+  mtlsApiUrl: option<string>,
   mixpanelToken: string,
   sdkBaseUrl: option<string>,
   agreementUrl: option<string>,

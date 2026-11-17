@@ -2357,13 +2357,11 @@ let getWebhookUrlTypeFromString = webhookUrlType =>
   | _ => NonMtls
   }
 
-// mTLS connectors receive webhooks on the prefixed subdomain of api_url, addressed by merchant connector id
+// mTLS connectors receive webhooks on a separate host, addressed by merchant connector id
 let getWebhooksUrl = (~connectorName, ~merchantId, ~merchantConnectorId, ~webhookUrlType) => {
-  let {apiBaseUrl, mtlsPrefix} = Window.env
-  switch (webhookUrlType, mtlsPrefix) {
-  | (Mtls, Some(prefix)) =>
-    let mtlsApiBaseUrl = apiBaseUrl->String.replace("://", `://${prefix}.`)
-    `${mtlsApiBaseUrl}/webhooks/${merchantId}/${merchantConnectorId}`
+  let {apiBaseUrl, mtlsApiUrl} = Window.env
+  switch (webhookUrlType, mtlsApiUrl) {
+  | (Mtls, Some(mtlsApiUrl)) => `${mtlsApiUrl}/webhooks/${merchantId}/${merchantConnectorId}`
   | _ => `${apiBaseUrl}/webhooks/${merchantId}/${connectorName}`
   }
 }
