@@ -29,6 +29,8 @@ type groupAccessType =
   | ReconTransactionsManage
   | ReconRulesView
   | ReconRulesManage
+  | ReconApiKeyView
+  | ReconApiKeyManage
   | ReconExceptionsView
   | ReconExceptionsManage
   | ConfigurationsView
@@ -66,6 +68,7 @@ type resourceAccessType =
   | ReconStagingEntry
   | ReconTransaction
   | ReconRule
+  | ReconApiKey
   | SuperpositionConfigs
   | Offers
   | Alert
@@ -97,6 +100,8 @@ type groupAccessJsonType = {
   reconTransactionsManage: authorization,
   reconRulesView: authorization,
   reconRulesManage: authorization,
+  reconApiKeyView: authorization,
+  reconApiKeyManage: authorization,
   reconExceptionsView: authorization,
   reconExceptionsManage: authorization,
   configurationsView: authorization,

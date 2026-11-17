@@ -9,7 +9,8 @@ let make = () => {
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let featureFlagDetails = featureFlagAtom->Recoil.useRecoilValueFromAtom
   let fetchBusinessProfile = ReconEngineHooks.useFetchBusinessProfile()
-  let {profileId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let {getCommonSessionDetails} = React.useContext(UserInfoProvider.defaultContext)
+  let {profileId} = getCommonSessionDetails()
 
   React.useEffect(() => {
     fetchBusinessProfile()->ignore
@@ -42,6 +43,13 @@ let make = () => {
           isEnabled={featureFlagDetails.devReconEngineV1}
           authorization={userHasAccess(~groupAccess=ReconRulesView)}>
           <ReconEngineRulesContainer />
+        </AccessControl>
+      | list{"v1", "recon-engine", "api-keys", ..._} =>
+        <AccessControl
+          isEnabled={featureFlagDetails.devReconEngineV1 &&
+          featureFlagDetails.devReconEngineApiKeys}
+          authorization={userHasAccess(~groupAccess=ReconApiKeyView)}>
+          <ReconEngineApiKeysContainer />
         </AccessControl>
       | list{"v1", "recon-engine", "pipelines", ..._} =>
         <AccessControl
