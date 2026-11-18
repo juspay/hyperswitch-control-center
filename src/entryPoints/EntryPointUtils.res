@@ -16,7 +16,7 @@ module ContextWrapper = {
               <BlendProvider>
                 <BlendThemeProvider foundationTokens={FoundationTokens.defaultFoundationTokens}>
                   <PopUpContainer>
-                    <SnackbarBinding position="top-center" />
+                    <SnackbarBinding position=TopCenter containerAriaLabel="Notifications" />
                     <SnackBarContainer>
                       <ToastContainer>
                         <TokenContextProvider>

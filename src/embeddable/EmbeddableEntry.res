@@ -85,7 +85,7 @@ module ContextWrapper = {
             <ErrorBoundary>
               <BlendProvider>
                 <BlendThemeProvider foundationTokens={FoundationTokens.defaultFoundationTokens}>
-                  <SnackbarBinding position="top-center" />
+                  <SnackbarBinding position=TopCenter containerAriaLabel="Notifications" />
                   <SnackBarContainer>
                     <ToastContainer>
                       <ModalContainer> {children} </ModalContainer>
