@@ -1,8 +1,8 @@
-// Ignores repeat clicks for a moment so double-clicks don't fire overlapping list requests
+// Ignores repeat clicks briefly so a double-click doesn't fire overlapping requests
 let refreshCooldownMs = 800
 
-// Refetches the list from page 1 with the same filters and search. A rolling date preset
-// (e.g. "Last 30 mins") is moved forward to now; the new dates refetch the list and counts.
+// Refetches the list from page 1 with the current filters. A rolling date preset (e.g.
+// "Last 30 mins") is first moved forward to now, and the date change triggers the refetch.
 @react.component
 let make = (~offset, ~setOffset, ~onRefresh) => {
   open Typography
@@ -24,7 +24,7 @@ let make = (~offset, ~setOffset, ~onRefresh) => {
     | Some(rolledRange) => updateExistingKeys(rolledRange)
     | None =>
       setRefreshSignal(prev => prev + 1)
-      // Lists already refetch when the offset changes, so fetch directly only on page 1
+      // Changing the offset already refetches, so call onRefresh only when on page 1
       offset === 0 ? onRefresh() : setOffset(_ => 0)
     }
 

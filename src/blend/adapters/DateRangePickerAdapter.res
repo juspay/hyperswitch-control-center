@@ -36,15 +36,8 @@ let toBlendPreset = (
   | ThisMonth => fromPreset(thisMonth)
   | LastMonth => fromPreset(lastMonth)
   | LastSixMonths => {
-      let now = Date.make()
-      let sixMonthsAgo = Date.make()
-      Date.setMonth(sixMonthsAgo, Date.getMonth(sixMonthsAgo) - 6)
-      makeCustomPreset(
-        ~id="last6Months",
-        ~label="Last 6 months",
-        ~startDate=sixMonthsAgo,
-        ~endDate=now,
-      )
+      let (startDate, endDate) = DateRangeUtils.getLastSixMonthsRange(~now=Date.make())
+      makeCustomPreset(~id="last6Months", ~label="Last 6 months", ~startDate, ~endDate)
     }
   | NextMonth => {
       let now = Date.make()
@@ -72,15 +65,9 @@ let toBlendPreset = (
       } else if x === 1.0 {
         fromPreset(last1Hour)
       } else {
-        let now = Date.make()
-        let hoursAgo = Date.fromTime(Date.getTime(now) -. x *. 3600.0 *. 1000.0)
+        let (startDate, endDate) = DateRangeUtils.getLastHoursRange(~now=Date.make(), x)
         let label = `Last ${x->Float.toString->removeTrailingZero} hours`
-        makeCustomPreset(
-          ~id=`last_${x->Float.toString}_hours`,
-          ~label,
-          ~startDate=hoursAgo,
-          ~endDate=now,
-        )
+        makeCustomPreset(~id=`last_${x->Float.toString}_hours`, ~label, ~startDate, ~endDate)
       }
     } else {
       let now = Date.make()
@@ -99,15 +86,9 @@ let toBlendPreset = (
     } else if x === 30.0 {
       fromPreset(last30Days)
     } else {
-      let now = Date.make()
-      let daysAgo = (now->DayJs.getDayJsForJsDate).subtract(x->Float.toInt, "day").toDate()
+      let (startDate, endDate) = DateRangeUtils.getLastDaysRange(~now=Date.make(), x)
       let label = `Last ${x->Float.toString->removeTrailingZero} days`
-      makeCustomPreset(
-        ~id=`last_${x->Float.toString}_days`,
-        ~label,
-        ~startDate=daysAgo,
-        ~endDate=now,
-      )
+      makeCustomPreset(~id=`last_${x->Float.toString}_days`, ~label, ~startDate, ~endDate)
     }
   }
 }

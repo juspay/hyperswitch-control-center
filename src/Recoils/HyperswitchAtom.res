@@ -105,5 +105,5 @@ let moduleListRecoil: Recoil.recoilAtom<array<UserManagementTypes.userModuleType
 
 let orchestrationVaultAtom: Recoil.recoilAtom<bool> = Recoil.atom("orchestrationVaultAtom", false)
 
-// Bumped when a list refresh keeps the dates, so status counts above the list refetch too
+// Bumped by a list refresh that keeps its dates, so the status counts refetch too
 let tableRefreshSignalAtom: Recoil.recoilAtom<int> = Recoil.atom("tableRefreshSignalAtom", 0)

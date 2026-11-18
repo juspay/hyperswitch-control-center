@@ -1,5 +1,5 @@
-// Remembers which date preset produced the current range, so a list refresh can move a rolling
-// preset (e.g. "Last 30 mins") forward to now while fixed and custom ranges stay untouched.
+// Remembers which preset produced the current date range so a list refresh can roll presets
+// like "Last 30 mins" forward to now, while fixed and custom ranges stay untouched.
 open LogicUtils
 
 type presetSelection = {
@@ -11,12 +11,10 @@ type presetSelection = {
 }
 
 let filterDateFormat = "YYYY-MM-DDTHH:mm:ss[Z]"
-let hourInMs = 3600000.0
-let dayInMs = 24.0 *. hourInMs
 
 let defaultRangePresetId = (~range) => `default_last_${range->Int.toString}_days`
 
-// One sessionStorage entry holds the last picked preset for every pair of date filter keys
+// One sessionStorage entry keyed by `startKey:endKey`
 let storageKey = "dateRangePresets"
 
 let getPresetSelections = () =>
@@ -76,7 +74,7 @@ let getLocalMidnight = (now, ~daysAgo) =>
     ~date=now->Date.getDate - daysAgo,
   )
 
-// Reads the number out of ids such as "last_2_hours" or "default_last_30_days"
+// Reads the number out of ids like "last_2_hours" or "default_last_30_days"
 let getPresetAmount = (preset, ~prefix, ~suffix) =>
   preset->String.startsWith(prefix) && preset->String.endsWith(suffix)
     ? preset
@@ -87,35 +85,30 @@ let getPresetAmount = (preset, ~prefix, ~suffix) =>
       ->Float.fromString
     : None
 
-// Mirrors Blend's preset formulas (browser-local time) and the custom presets built in
-// DateRangePickerAdapter, so a rolled range still matches the preset the user picked.
+// Recomputes a preset's range at `now` with the same formulas the picker uses (local time)
 let getRollingRange = (preset, ~now) => {
-  let lastMs = ms => Some((Date.fromTime(now->Date.getTime -. ms), now))
+  let lastHours = hours => Some(DateRangeUtils.getLastHoursRange(~now, hours))
   let fromMidnight = daysAgo => Some((now->getLocalMidnight(~daysAgo), now))
 
   switch preset {
-  | "last30Minutes" => lastMs(0.5 *. hourInMs)
-  | "last1Hour" => lastMs(hourInMs)
-  | "last6Hours" => lastMs(6.0 *. hourInMs)
-  | "last24Hours" => lastMs(24.0 *. hourInMs)
+  | "last30Minutes" => lastHours(0.5)
+  | "last1Hour" => lastHours(1.0)
+  | "last6Hours" => lastHours(6.0)
+  | "last24Hours" => lastHours(24.0)
   | "today" => fromMidnight(0)
   | "last7Days" => fromMidnight(6)
   | "last30Days" => fromMidnight(29)
   | "thisMonth" =>
     Some((Date.makeWithYMD(~year=now->Date.getFullYear, ~month=now->Date.getMonth, ~date=1), now))
-  | "last6Months" => {
-      let sixMonthsAgo = Date.fromTime(now->Date.getTime)
-      Date.setMonth(sixMonthsAgo, Date.getMonth(sixMonthsAgo) - 6)
-      Some((sixMonthsAgo, now))
-    }
+  | "last6Months" => Some(DateRangeUtils.getLastSixMonthsRange(~now))
   | _ =>
     switch (
       preset->getPresetAmount(~prefix="last_", ~suffix="_hours"),
       preset->getPresetAmount(~prefix="last_", ~suffix="_days"),
       preset->getPresetAmount(~prefix="default_last_", ~suffix="_days"),
     ) {
-    | (Some(hours), _, _) => lastMs(hours *. hourInMs)
-    | (_, Some(days), _) => lastMs(days *. dayInMs)
+    | (Some(hours), _, _) => lastHours(hours)
+    | (_, Some(days), _) => Some(DateRangeUtils.getLastDaysRange(~now, days))
     | (_, _, Some(days)) => fromMidnight(days->Float.toInt)
     | _ => None
     }
@@ -124,9 +117,8 @@ let getRollingRange = (preset, ~now) => {
 
 let formatDate = date => date->Date.toISOString->TimeZoneHook.formattedISOString(filterDateFormat)
 
-// The filter keys to update for a refresh, with the new range also stored as the preset's
-// latest. None when the range isn't a rolling preset (custom, Yesterday, Last month) or was
-// changed after it was picked.
+// New values for the date filter keys when the current range is a rolling preset that has
+// moved since it was picked. None for custom or fixed ranges, or ranges edited after picking.
 let getRolledRange = filterValueJson =>
   getPresetSelections()
   ->Dict.valuesToArray

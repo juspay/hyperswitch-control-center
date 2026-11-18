@@ -406,3 +406,21 @@ let getGapBetweenRange = (~startDate, ~endDate) => {
   let endingPoint = endDate->DayJs.getDayJsForString
   endingPoint.diff(startingPoint.toString(), "day") // diff between points
 }
+
+// Rolling ranges ending at `now`, shared by the picker's custom presets and the list refresh
+let getLastHoursRange = (~now, hours) => (
+  Date.fromTime(now->Date.getTime -. hours *. 3600.0 *. 1000.0),
+  now,
+)
+
+// Subtracts calendar days so the start keeps its wall-clock time across DST changes
+let getLastDaysRange = (~now, days) => (
+  (now->DayJs.getDayJsForJsDate).subtract(days->Float.toInt, "day").toDate(),
+  now,
+)
+
+let getLastSixMonthsRange = (~now) => {
+  let sixMonthsAgo = Date.fromTime(now->Date.getTime)
+  Date.setMonth(sixMonthsAgo, Date.getMonth(sixMonthsAgo) - 6)
+  (sixMonthsAgo, now)
+}

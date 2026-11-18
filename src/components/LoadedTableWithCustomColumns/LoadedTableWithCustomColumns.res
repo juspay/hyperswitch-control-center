@@ -105,12 +105,12 @@ let make = (
       {chooseCols}
     </div>
 
-  // Refresh shares the column button's slot so it sits between the OMP view selector and it
+  // Refresh renders in the customize-column portal, next to the column button
+  let showRefresh = onRefresh->Option.isSome && totalResults > 0
   let refreshButton = switch onRefresh {
-  | Some(onRefresh) if totalResults > 0 => <TableRefreshButton offset setOffset onRefresh />
+  | Some(onRefresh) if showRefresh => <TableRefreshButton offset setOffset onRefresh />
   | _ => React.null
   }
-  let showRefresh = refreshButton != React.null
   let hideColumnButton = hideCustomisableColumnButton || !showColumnCustomisation
 
   let customizeColumn =
