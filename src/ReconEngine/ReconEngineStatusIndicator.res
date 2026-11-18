@@ -116,7 +116,7 @@ module Indicator = {
           ariaHidden=true
           className="w-px shrink-0 self-stretch my-1 bg-nd_gray-300 dark:bg-nd_gray-600 sm:my-2"
         />
-        <StatusRow label="Linking" data=linkingStatus isFetching />
+        <StatusRow label="Flows" data=linkingStatus isFetching />
       </div>
       <Button
         buttonType=Transparent
