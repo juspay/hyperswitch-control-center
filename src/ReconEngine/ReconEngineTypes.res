@@ -644,9 +644,9 @@ type reconProcessorStatus =
   | Stopped
   | UnknownReconProcessorStatus
 
-type reconEngineStatusType = {
+type processorQueueStatus = {
   processor_status: reconProcessorStatus,
-  pending_staging_entries: int,
+  pending_entries: int,
 }
 
 type reconBusinessProfileType = {
