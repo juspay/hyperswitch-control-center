@@ -111,7 +111,7 @@ module Indicator = {
         role="group"
         ariaLabel="Processor status"
         ariaBusy=isFetching
-        className="flex min-h-8 items-stretch rounded-lg sm:h-8 border border-nd_gray-300 bg-white dark:bg-nd_gray-800 dark:border-nd_gray-600">
+        className="flex min-h-8 items-stretch rounded-lg sm:h-8 border border-nd_gray-300 bg-nd_gray-0 dark:bg-nd_gray-800 dark:border-nd_gray-600">
         <div className="flex items-center gap-3 py-1 pl-3 pr-1 sm:py-0" ariaLive=#polite>
           <RenderIf condition={!hasStatus && isFetching}>
             <Shimmer styleClass="h-4 w-32 rounded" />

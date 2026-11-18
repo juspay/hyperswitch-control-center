@@ -52,7 +52,9 @@ module ReportFields = {
             )}
           />
           <RenderIf condition={meta.error->Nullable.toOption->Option.isSome}>
-            <p role="alert" className="mt-1 text-sm text-red-700 dark:text-red-400">
+            <p
+              role="alert"
+              className={`mt-1 ml-2 text-left ${body.sm.regular} text-nd_red-600 dark:text-nd_red-400`}>
               {meta.error->Nullable.toOption->Option.getOr("")->React.string}
             </p>
           </RenderIf>
