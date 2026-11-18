@@ -7,6 +7,11 @@ module ReportFields = {
   let make = (~reportConfig: reportConfig) => {
     open LogicUtils
     let form = ReactFinalForm.useForm()
+    let validateRange = React.useCallback((_, values) =>
+      getReportDateRangeError(~limit=reportConfig.dateRangeLimit, values)
+      ->Nullable.fromOption
+      ->Promise.resolve
+    , [reportConfig.dateRangeLimit])
     let recipients =
       form.getState().values
       ->getDictFromJsonObject
@@ -23,27 +28,36 @@ module ReportFields = {
           description=reportConfig.description
         />
       </div>
-      <FormRenderer.FieldRenderer
-        field={FormRenderer.makeMultiInputFieldInfo(
-          ~label="Date Range",
-          ~comboCustomInput=InputFields.dateRangeField(
-            ~startKey="start_time",
-            ~endKey="end_time",
-            ~format="YYYY-MM-DDTHH:mm:ss[Z]",
-            ~showTime=true,
-            ~disablePastDates=false,
-            ~disableFutureDates=true,
-            ~predefinedDays=reportConfig.predefinedDays,
-            ~numMonths=2,
-            ~dateRangeLimit=reportConfig.dateRangeLimit,
-            ~disableApply=false,
-            ~optFieldKey="opt",
-            ~isTooltipVisible=false,
-          ),
-          ~inputFields=[],
-          ~isRequired=true,
-        )}
-      />
+      <ReactFinalForm.Field name="end_time" validate=validateRange>
+        {({meta}) => <>
+          <FormRenderer.FieldRenderer
+            field={FormRenderer.makeMultiInputFieldInfo(
+              ~label="Date Range",
+              ~comboCustomInput=InputFields.dateRangeField(
+                ~startKey="start_time",
+                ~endKey="end_time",
+                ~format="YYYY-MM-DDTHH:mm:ss[Z]",
+                ~showTime=true,
+                ~disablePastDates=false,
+                ~disableFutureDates=true,
+                ~predefinedDays=reportConfig.predefinedDays,
+                ~numMonths=2,
+                ~dateRangeLimit=reportConfig.dateRangeLimit,
+                ~disableApply=false,
+                ~optFieldKey="opt",
+                ~isTooltipVisible=false,
+              ),
+              ~inputFields=[],
+              ~isRequired=true,
+            )}
+          />
+          <RenderIf condition={meta.error->Nullable.toOption->Option.isSome}>
+            <p role="alert" className="mt-1 text-sm text-red-700 dark:text-red-400">
+              {meta.error->Nullable.toOption->Option.getOr("")->React.string}
+            </p>
+          </RenderIf>
+        </>}
+      </ReactFinalForm.Field>
       <FormRenderer.FieldRenderer
         field={FormRenderer.makeFieldInfo(
           ~label="Additional Recipients",
@@ -63,16 +77,96 @@ module ReportFields = {
 module ReportTypeSelector = {
   @react.component
   let make = (~reportType, ~setReportType) => {
-    let tabs: array<Tabs.tab> = [TransactionReport, LinkedReport]->Array.map(selectedReport => {
-      Tabs.title: selectedReport->getReportTabTitle,
-      renderContent: () =>
-        <div className="mt-4">
-          <ReportFields reportConfig={getReportConfig(Transactions, selectedReport)} />
-        </div>,
-      onTabSelection: () => setReportType(_ => selectedReport),
-    })
+    let tabs: array<Tabs.tab> = React.useMemo(() =>
+      [TransactionReport, LinkedReport]->Array.map(selectedReport => {
+        Tabs.title: selectedReport->getReportTabTitle,
+        renderContent: () =>
+          <div className="mt-4">
+            <ReportFields reportConfig={getReportConfig(Transactions, selectedReport)} />
+          </div>,
+        onTabSelection: () => setReportType(_ => selectedReport),
+      })
+    , [setReportType])
 
     <Tabs tabs initialIndex={reportType->getReportTabIndex} variant=Boxed size=Md fitContent=true />
+  }
+}
+
+module ReportForm = {
+  @react.component
+  let make = (~setShowModal, ~rule: ReconEngineRulesTypes.rulePayload, ~variant: reportVariant) => {
+    open APIUtils
+    open LogicUtils
+    open ReconEngineFilterUtils
+
+    let getURL = useGetURL()
+    let showToast = ToastAdapter.useShowToast()
+    let updateDetails = useUpdateMethod(~showErrorToast=false)
+    let mixpanelEvent = MixpanelHook.useSendEvent()
+    let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
+    let (reportType, setReportType) = React.useState(_ => TransactionReport)
+    let reportConfig = getReportConfig(variant, reportType)
+
+    let initialValues = React.useMemo(() => {
+      let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
+      let (startTime, endTime) = ReconEngineFilterUtils.hasGlobalDateFilterValue(~globalDateFilters)
+        ? (globalDateFilters.startTime, globalDateFilters.endTime)
+        : (defaultDate.start_time, defaultDate.end_time)
+      {
+        "start_time": startTime,
+        "end_time": endTime,
+      }->Identity.genericTypeToJson
+    }, (globalDateFilters.startTime, globalDateFilters.endTime))
+
+    let generateReport = async body => {
+      try {
+        let url = getURL(
+          ~entityName=V1(HYPERSWITCH_RECON),
+          ~hyperswitchReconType=reportConfig.endpoint,
+          ~methodType=Post,
+        )
+        let _ = await updateDetails(url, body, Post)
+        setShowModal(_ => false)
+        showToast(
+          ~message="Report requested. You'll receive an email when it's ready.",
+          ~toastType=ToastSuccess,
+        )
+      } catch {
+      | _ => showToast(~message="Something went wrong. Please try again.", ~toastType=ToastError)
+      }
+      Nullable.null
+    }
+
+    let onSubmit = (values, _) => {
+      let formValues = values->Identity.genericTypeToJson->getDictFromJsonObject
+      let startTime = formValues->getString("start_time", "")->toReconTimeString
+      let endTime = formValues->getString("end_time", "")->toReconTimeString
+      let metadata = {
+        "report_type": getReportEventType(variant, reportType),
+        "start_time": startTime,
+        "end_time": endTime,
+      }->Identity.genericTypeToJson
+      mixpanelEvent(~eventName="recon_engine_generate_report_submit", ~metadata)
+      let body =
+        {
+          "rule_id": rule.rule_id,
+          "start_time": startTime,
+          "end_time": endTime,
+        }
+        ->Identity.genericTypeToJson
+        ->getDictFromJsonObject
+      formValues->Dict.get("emails")->Option.forEach(emails => body->Dict.set("emails", emails))
+      generateReport(body->JSON.Encode.object)
+    }
+
+    <Form onSubmit initialValues>
+      <RenderIf condition={variant === Transactions}>
+        <ReportTypeSelector reportType setReportType />
+      </RenderIf>
+      <RenderIf condition={variant === Exceptions}>
+        <ReportFields reportConfig />
+      </RenderIf>
+    </Form>
   }
 }
 
@@ -83,66 +177,7 @@ let make = (
   ~rule: ReconEngineRulesTypes.rulePayload,
   ~variant: reportVariant,
 ) => {
-  open APIUtils
-  open LogicUtils
-  open ReconEngineFilterUtils
-
-  let getURL = useGetURL()
-  let showToast = ToastAdapter.useShowToast()
-  let updateDetails = useUpdateMethod(~showErrorToast=false)
-  let mixpanelEvent = MixpanelHook.useSendEvent()
-  let globalDateFilters = ReconEngineAtoms.globalDateFiltersAtom->Recoil.useRecoilValueFromAtom
-  let (reportType, setReportType) = React.useState(_ => TransactionReport)
-  let reportConfig = getReportConfig(variant, reportType)
-
-  React.useEffect(() => {
-    setReportType(_ => TransactionReport)
-    None
-  }, [showModal])
-
-  let initialValues = React.useMemo(() => {
-    let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=0)
-    let (startTime, endTime) = ReconEngineFilterUtils.hasGlobalDateFilterValue(~globalDateFilters)
-      ? (globalDateFilters.startTime, globalDateFilters.endTime)
-      : (defaultDate.start_time, defaultDate.end_time)
-    {
-      "start_time": startTime,
-      "end_time": endTime,
-    }->Identity.genericTypeToJson
-  }, (showModal, globalDateFilters.startTime, globalDateFilters.endTime))
-
-  let generateReport = async body => {
-    try {
-      let url = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~hyperswitchReconType=reportConfig.endpoint,
-        ~methodType=Post,
-      )
-      let _ = await updateDetails(url, body, Post)
-      setShowModal(_ => false)
-      showToast(
-        ~message="Report requested. You'll receive an email when it's ready.",
-        ~toastType=ToastSuccess,
-      )
-    } catch {
-    | _ => showToast(~message="Something went wrong. Please try again.", ~toastType=ToastError)
-    }
-    Nullable.null
-  }
-
-  let onSubmit = (values, _) => {
-    let metadata = values->Identity.genericTypeToJson
-    mixpanelEvent(~eventName="recon_engine_generate_report_submit", ~metadata)
-    let formValues = metadata->getDictFromJsonObject
-    let body = {
-      "rule_id": rule.rule_id,
-      "start_time": formValues->getString("start_time", "")->toReconTimeString,
-      "end_time": formValues->getString("end_time", "")->toReconTimeString,
-      "emails": formValues->getArrayFromDict("emails", []),
-    }->Identity.genericTypeToJson
-    generateReport(body)
-  }
-
+  let reportConfig = getReportConfig(variant, TransactionReport)
   <Modal
     modalHeading=reportConfig.modalHeading
     showModal
@@ -156,14 +191,6 @@ let make = (
     </div>}
     setShowModal
     modalClass="w-full max-w-2xl mx-auto my-auto">
-    <Form
-      onSubmit initialValues validate={values => validateReportRange(variant, reportType, values)}>
-      <RenderIf condition={variant === Transactions}>
-        <ReportTypeSelector reportType setReportType />
-      </RenderIf>
-      <RenderIf condition={variant === Exceptions}>
-        <ReportFields reportConfig />
-      </RenderIf>
-    </Form>
+    <ReportForm rule variant setShowModal />
   </Modal>
 }

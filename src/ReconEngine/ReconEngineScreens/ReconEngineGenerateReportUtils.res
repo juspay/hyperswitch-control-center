@@ -27,25 +27,35 @@ let getReportConfig = (variant, reportType): reportConfig => {
   }
 }
 
-let validateReportRange = (variant, reportType, values) => {
-  let errors = Dict.make()
-  switch (variant, reportType) {
-  | (Transactions, LinkedReport) =>
-    let dates = values->getDictFromJsonObject
-    let duration = DateRangeUtils.getStartEndDiff(
-      dates->getString("start_time", ""),
-      dates->getString("end_time", ""),
+// Match the pickers' inclusive calendar-day limits, including inherited form values.
+let getReportDateRangeError = (~limit, values) => {
+  let dates = values->getDictFromJsonObject
+  let start = dates->getString("start_time", "")
+  let end = dates->getString("end_time", "")
+  let startDate = start->DayJs.getDayJsForString
+  let endDate = end->DayJs.getDayJsForString
+  if start === "" || end === "" || !startDate.isValid() || !endDate.isValid() {
+    Some("Choose a valid start and end date.")
+  } else if endDate.diff(start, "millisecond") < 0 {
+    Some("End date must be after start date.")
+  } else {
+    let calendarDays = (endDate.format("YYYY-MM-DD")->DayJs.getDayJsForString).diff(
+      startDate.format("YYYY-MM-DD"),
+      "day",
     )
-    if duration > linkedReportMaxDays->Int.toFloat *. 86400000. {
-      errors->Dict.set(
-        "end_time",
-        "Choose a date range of 7 days or less for flow reports."->JSON.Encode.string,
-      )
-    }
-  | (Transactions, TransactionReport) | (Exceptions, _) => ()
+    calendarDays >= limit ||
+      DateRangeUtils.getStartEndDiff(start, end) > limit->Int.toFloat *. 86400000. -. 1000.
+      ? Some(`Choose a date range of ${limit->Int.toString} days or less.`)
+      : None
   }
-  errors->JSON.Encode.object
 }
+
+let getReportEventType = (variant, reportType) =>
+  switch (variant, reportType) {
+  | (Transactions, TransactionReport) => "transactions"
+  | (Transactions, LinkedReport) => "flows"
+  | (Exceptions, _) => "exceptions"
+  }
 
 let getReportTabIndex = reportType =>
   switch reportType {

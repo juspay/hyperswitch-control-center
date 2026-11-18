@@ -5,7 +5,7 @@ open ReconEngineTypes
 
 module StatusRow = {
   @react.component
-  let make = (~label, ~data: option<linkingProcessorStatusType>, ~isFetching) => {
+  let make = (~label, ~data: option<processorQueueStatus>, ~isFetching) => {
     let processorStatus =
       data->mapOptionOrDefault(UnknownReconProcessorStatus, status => status.processor_status)
     let (statusText, dotColor) = switch processorStatus {
@@ -71,13 +71,10 @@ module Indicator = {
         }
       }
       let results = await Promise.all([
-        fetchStatusItem(~endpoint=#RECON_ENGINE_STATUS, ~mapStatus=dict => {
-          let status = dict->ReconEngineUtils.reconEngineStatusItemToObjMapper
-          {
-            processor_status: status.processor_status,
-            pending_entries: status.pending_staging_entries,
-          }
-        }),
+        fetchStatusItem(
+          ~endpoint=#RECON_ENGINE_STATUS,
+          ~mapStatus=ReconEngineUtils.reconEngineStatusItemToObjMapper,
+        ),
         fetchStatusItem(
           ~endpoint=#LINKING_PROCESSOR_STATUS,
           ~mapStatus=ReconEngineUtils.linkingProcessorStatusItemToObjMapper,
@@ -88,9 +85,9 @@ module Indicator = {
         | [recon, linking] =>
           setReconStatus(_ => recon)
           setLinkingStatus(_ => linking)
-          if isRefresh && (recon->Option.isNone || linking->Option.isNone) {
+          if isRefresh && recon->Option.isNone && linking->Option.isNone {
             showToast(
-              ~message="Some processor statuses could not be refreshed. Please try again.",
+              ~message="Failed to refresh processor statuses. Please try again.",
               ~toastType=ToastError,
             )
           }
@@ -105,39 +102,56 @@ module Indicator = {
       None
     }, [])
 
-    <div
-      role="group"
-      ariaLabel="Processor status"
-      ariaBusy=isFetching
-      className="flex min-h-8 items-stretch rounded-lg sm:h-8 border border-nd_gray-300 bg-white dark:bg-nd_gray-800 dark:border-nd_gray-600">
-      <div className="flex items-center gap-3 py-1 pl-3 pr-1 sm:py-0" ariaLive=#polite>
-        <StatusRow label="Recon" data=reconStatus isFetching />
-        <span
-          ariaHidden=true
-          className="w-px shrink-0 self-stretch my-1 bg-nd_gray-300 dark:bg-nd_gray-600 sm:my-2"
+    let hasReconStatus = reconStatus->Option.isSome
+    let hasLinkingStatus = linkingStatus->Option.isSome
+    let hasStatus = hasReconStatus || hasLinkingStatus
+
+    <RenderIf condition={hasStatus || isFetching}>
+      <div
+        role="group"
+        ariaLabel="Processor status"
+        ariaBusy=isFetching
+        className="flex min-h-8 items-stretch rounded-lg sm:h-8 border border-nd_gray-300 bg-white dark:bg-nd_gray-800 dark:border-nd_gray-600">
+        <div className="flex items-center gap-3 py-1 pl-3 pr-1 sm:py-0" ariaLive=#polite>
+          <RenderIf condition={!hasStatus && isFetching}>
+            <Shimmer styleClass="h-4 w-32 rounded" />
+          </RenderIf>
+          <RenderIf condition=hasReconStatus>
+            <StatusRow label="Recon" data=reconStatus isFetching />
+          </RenderIf>
+          <RenderIf condition={hasReconStatus && hasLinkingStatus}>
+            <span
+              ariaHidden=true
+              className="w-px shrink-0 self-stretch my-1 bg-nd_gray-300 dark:bg-nd_gray-600 sm:my-2"
+            />
+          </RenderIf>
+          <RenderIf condition=hasLinkingStatus>
+            <StatusRow label="Flows" data=linkingStatus isFetching />
+          </RenderIf>
+        </div>
+        <Button
+          buttonType=Transparent
+          buttonSize=XSmall
+          showBorder=false
+          ariaLabel="Refresh processor statuses"
+          showTooltip=true
+          tooltipText="Refresh processor statuses"
+          buttonState={isFetching ? Disabled : Normal}
+          customBackColor="bg-transparent"
+          customRoundedClass="rounded-r-lg"
+          customPaddingClass="p-0"
+          customHeightClass="h-full"
+          customIconMargin="m-0"
+          customButtonStyle="!border-0 w-9 shrink-0 text-nd_gray-600 hover:bg-nd_gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-nd_gray-600 dark:text-nd_gray-300 dark:hover:bg-nd_gray-700"
+          leftIcon={CustomIcon(
+            <Icon
+              name="sync-alt" size=14 className={isFetching ? "motion-safe:animate-spin" : ""}
+            />,
+          )}
+          onClick={_ => fetchStatus(~isRefresh=true)->ignore}
         />
-        <StatusRow label="Flows" data=linkingStatus isFetching />
       </div>
-      <Button
-        buttonType=Transparent
-        buttonSize=XSmall
-        showBorder=false
-        ariaLabel="Refresh processor statuses"
-        showTooltip=true
-        tooltipText="Refresh processor statuses"
-        buttonState={isFetching ? Disabled : Normal}
-        customBackColor="bg-transparent"
-        customRoundedClass="rounded-r-lg"
-        customPaddingClass="p-0"
-        customHeightClass="h-full"
-        customIconMargin="m-0"
-        customButtonStyle="!border-0 w-9 shrink-0 text-nd_gray-600 hover:bg-nd_gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-nd_gray-600 dark:text-nd_gray-300 dark:hover:bg-nd_gray-700"
-        leftIcon={CustomIcon(
-          <Icon name="sync-alt" size=14 className={isFetching ? "motion-safe:animate-spin" : ""} />,
-        )}
-        onClick={_ => fetchStatus(~isRefresh=true)->ignore}
-      />
-    </div>
+    </RenderIf>
   }
 }
 

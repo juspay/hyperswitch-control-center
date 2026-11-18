@@ -644,12 +644,7 @@ type reconProcessorStatus =
   | Stopped
   | UnknownReconProcessorStatus
 
-type reconEngineStatusType = {
-  processor_status: reconProcessorStatus,
-  pending_staging_entries: int,
-}
-
-type linkingProcessorStatusType = {
+type processorQueueStatus = {
   processor_status: reconProcessorStatus,
   pending_entries: int,
 }
