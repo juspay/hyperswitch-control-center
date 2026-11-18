@@ -34,7 +34,7 @@ let getReportDateRangeError = (~limit, values) => {
   let end = dates->getString("end_time", "")
   let startDate = start->DayJs.getDayJsForString
   let endDate = end->DayJs.getDayJsForString
-  if start === "" || end === "" || !startDate.isValid() || !endDate.isValid() {
+  if start->isEmptyString || end->isEmptyString || !startDate.isValid() || !endDate.isValid() {
     Some("Choose a valid start and end date.")
   } else if endDate.diff(start, "millisecond") < 0 {
     Some("End date must be after start date.")

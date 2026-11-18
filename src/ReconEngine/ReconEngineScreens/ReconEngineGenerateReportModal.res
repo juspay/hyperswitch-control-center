@@ -149,14 +149,11 @@ module ReportForm = {
         "end_time": endTime,
       }->Identity.genericTypeToJson
       mixpanelEvent(~eventName="recon_engine_generate_report_submit", ~metadata)
-      let body =
-        {
-          "rule_id": rule.rule_id,
-          "start_time": startTime,
-          "end_time": endTime,
-        }
-        ->Identity.genericTypeToJson
-        ->getDictFromJsonObject
+      let body = Dict.fromArray([
+        ("rule_id", rule.rule_id->JSON.Encode.string),
+        ("start_time", startTime->JSON.Encode.string),
+        ("end_time", endTime->JSON.Encode.string),
+      ])
       formValues->Dict.get("emails")->Option.forEach(emails => body->Dict.set("emails", emails))
       generateReport(body->JSON.Encode.object)
     }

@@ -17,7 +17,7 @@ module StatusRow = {
     let isLoading = isFetching && data->Option.isNone
 
     <div
-      className={`grid grid-cols-[auto_auto] items-center gap-x-2 whitespace-nowrap sm:flex ${body.sm.semibold}`}>
+      className={`grid grid-cols-2 items-center gap-x-2 whitespace-nowrap sm:flex ${body.sm.semibold}`}>
       <span className={`shrink-0 ${body.sm.semibold} text-nd_gray-700 dark:text-nd_gray-200`}>
         {label->React.string}
       </span>
@@ -70,7 +70,7 @@ module Indicator = {
         | _ => None
         }
       }
-      let results = await Promise.all([
+      let (recon, linking) = await Promise.all2((
         fetchStatusItem(
           ~endpoint=#RECON_ENGINE_STATUS,
           ~mapStatus=ReconEngineUtils.reconEngineStatusItemToObjMapper,
@@ -79,19 +79,25 @@ module Indicator = {
           ~endpoint=#LINKING_PROCESSOR_STATUS,
           ~mapStatus=ReconEngineUtils.linkingProcessorStatusItemToObjMapper,
         ),
-      ])
+      ))
       if !(signal->AbortControllerHook.isAborted) {
-        switch results {
-        | [recon, linking] =>
-          setReconStatus(_ => recon)
-          setLinkingStatus(_ => linking)
-          if isRefresh && recon->Option.isNone && linking->Option.isNone {
-            showToast(
-              ~message="Failed to refresh processor statuses. Please try again.",
-              ~toastType=ToastError,
-            )
+        setReconStatus(previous =>
+          switch recon {
+          | Some(_) => recon
+          | None => previous
           }
-        | _ => ()
+        )
+        setLinkingStatus(previous =>
+          switch linking {
+          | Some(_) => linking
+          | None => previous
+          }
+        )
+        if isRefresh && recon->Option.isNone && linking->Option.isNone {
+          showToast(
+            ~message="Failed to refresh processor statuses. Please try again.",
+            ~toastType=ToastError,
+          )
         }
         setIsFetching(_ => false)
       }
