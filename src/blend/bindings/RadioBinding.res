@@ -1,35 +1,25 @@
 type size =
   | @as("sm") Small
   | @as("md") Medium
+  | @as("lg") Large
+
+type slot = {slot: React.element, maxHeight?: string}
+type maxLength = {label?: int, subLabel?: int}
 
 @module("@juspay/blend-design-system") @react.component
 external make: (
   ~value: string=?,
-  ~checked: bool=?,
-  ~defaultChecked: bool=?,
-  ~onChange: ReactEvent.Form.t => unit=?,
+  ~checked: bool,
+  ~onCheckedChange: ReactEvent.Form.t => unit=?,
   ~disabled: bool=?,
   ~size: size=?,
   ~name: string=?,
   ~id: string=?,
-  ~subtext: string=?,
+  ~label: string=?,
+  ~subLabel: string=?,
+  ~slot: slot=?,
+  ~maxLength: maxLength=?,
   ~error: bool=?,
   ~required: bool=?,
-  ~children: React.element=?,
-) => React.element = "Radio"
-
-module Group = {
-  @module("@juspay/blend-design-system") @react.component
-  external make: (
-    ~name: string,
-    ~value: string=?,
-    ~defaultValue: string=?,
-    ~onChange: string => unit=?,
-    ~disabled: bool=?,
-    ~label: string=?,
-    ~children: React.element,
-    ~id: string=?,
-    ~error: bool=?,
-    ~required: bool=?,
-  ) => React.element = "RadioGroup"
-}
+  @as("aria-label") ~ariaLabel: string=?,
+) => React.element = "RadioV2"

@@ -219,7 +219,7 @@ module ListItem = {
               </span>
             } else {
               <div className={`${toggleClass} ${customSelectStyle}`}>
-                <RadioIconAdapter isSelected size=optionSize fill isDisabled />
+                <RadioIconAdapter isSelected size=optionSize fill isDisabled ariaLabel=labelText />
               </div>
             }
           } else if multiSelect && !isMobileView {
@@ -306,7 +306,7 @@ module ListItem = {
             if multiSelect {
               <CheckBoxIconAdapter isSelected />
             } else {
-              <RadioIconAdapter isSelected isDisabled />
+              <RadioIconAdapter isSelected isDisabled ariaLabel=labelText />
             }
           } else if isDropDown {
             <div className="mr-2">
