@@ -2,24 +2,25 @@ module CheckedValue = {
   type t
   external fromBool: bool => t = "%identity"
   external fromIndeterminate: string => t = "%identity"
-  external toBool: t => bool = "%identity"
+  let toBool = value => value === fromBool(true)
 }
 
 type size =
   | @as("sm") Small
   | @as("md") Medium
+  | @as("lg") Large
 
 @module("@juspay/blend-design-system") @react.component
 external make: (
-  ~checked: CheckedValue.t=?,
-  ~defaultChecked: bool=?,
+  ~checked: CheckedValue.t,
   ~onCheckedChange: CheckedValue.t => unit=?,
   ~disabled: bool=?,
   ~size: size=?,
   ~label: string=?,
-  ~subtext: string=?,
+  ~subLabel: string=?,
+  @as("aria-label") ~ariaLabel: string=?,
   ~error: bool=?,
   ~required: bool=?,
   ~id: string=?,
   ~name: string=?,
-) => React.element = "Checkbox"
+) => React.element = "CheckboxV2"
