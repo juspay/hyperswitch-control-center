@@ -1245,6 +1245,11 @@ let useGetURL = () => {
           | Post => Default(`${reconBaseURL}/report/transactions`)
           | _ => Default("")
           }
+        | #GENERATE_LINKED_REPORT =>
+          switch methodType {
+          | Post => Default(`${reconBaseURL}/report/transaction_flows`)
+          | _ => Default("")
+          }
         | #GENERATE_EXCEPTION_REPORT =>
           switch methodType {
           | Post => Default(`${reconBaseURL}/report/exceptions`)
@@ -1478,6 +1483,12 @@ let useGetURL = () => {
         | #RECON_ENGINE_STATUS =>
           switch methodType {
           | Get => Default(`${reconBaseURL}/business_profiles/${profileId}/recon_engine/status`)
+          | _ => Default("")
+          }
+        | #LINKING_PROCESSOR_STATUS =>
+          switch methodType {
+          | Get =>
+            Default(`${reconBaseURL}/business_profiles/${profileId}/linking_processor/status`)
           | _ => Default("")
           }
         | #RECON_ENGINE_BUSINESS_PROFILE =>

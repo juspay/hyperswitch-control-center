@@ -98,11 +98,7 @@ let make = () => {
     </div>
     {selectedRule->mapOptionOrDefault(React.null, rule =>
       <ReconEngineGenerateReportModal
-        showModal=reportModal
-        setShowModal=setReportModal
-        rule
-        hyperswitchReconType=#GENERATE_EXCEPTION_REPORT
-        modalHeading="Generate Exception Report"
+        showModal=reportModal setShowModal=setReportModal rule variant=Exceptions
       />
     )}
     <ReconEngineHelper.GlobalDateFilterBanner />
