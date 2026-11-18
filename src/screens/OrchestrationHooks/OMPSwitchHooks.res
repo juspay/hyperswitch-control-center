@@ -207,6 +207,7 @@ let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productType
   } = React.useContext(UserInfoProvider.defaultContext)
   let {orgId} = getCommonSessionDetails()
   let url = RescriptReactRouter.useUrl()
+  let {hasApiVersionAccess} = ProductAccessHook.useProductAccess()
   async (
     ~expectedOrgId=None,
     ~expectedMerchantId=None,
@@ -216,6 +217,10 @@ let useInternalSwitch = (~setActiveProductValue: option<ProductTypes.productType
   ) => {
     if !isEmbeddableSession() {
       try {
+        if !(version->hasApiVersionAccess) {
+          Exn.raiseError("This merchant isn't available")
+        }
+
         let userInfoResFromSwitchOrg = await orgSwitch(
           ~expectedOrgId=expectedOrgId->Option.getOr(orgId),
           ~currentOrgId=orgId,
