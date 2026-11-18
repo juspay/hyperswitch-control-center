@@ -31,7 +31,7 @@ let make = (~path: array<breadcrumb>=[], ~currentPageTitle="") => {
         })
     | (None, None) => _ => RescriptReactRouter.push(GlobalVars.appendDashboardPath(~url=crumb.link))
     }
-    let item: BreadcrumbBinding.breadcrumbItemType = {
+    let item: BreadcrumbBinding.breadcrumbV2ItemType = {
       label: crumb.title,
       href: GlobalVars.appendDashboardPath(~url=crumb.link),
       onClick: handleClick,
@@ -39,13 +39,13 @@ let make = (~path: array<breadcrumb>=[], ~currentPageTitle="") => {
     item
   })
 
-  let currentItem: BreadcrumbBinding.breadcrumbItemType = {
+  let currentItem: BreadcrumbBinding.breadcrumbV2ItemType = {
     label: currentPageTitle,
     href: "",
   }
 
   let items = Array.concat(pathItems, [currentItem])
-  <div className="-ml-2">
+  <div className="-ml-2 max-w-full overflow-x-auto">
     <BreadcrumbBinding items />
   </div>
 }
