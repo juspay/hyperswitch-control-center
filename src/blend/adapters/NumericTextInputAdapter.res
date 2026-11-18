@@ -69,6 +69,10 @@ let make = (
       <NumberInputBinding
         value=blendValue
         onChange=blendOnChange
+        size=Medium
+        name=input.name
+        onBlur=input.onBlur
+        onFocus=input.onFocus
         disabled=isDisabled
         placeholder
         ?maxLength
