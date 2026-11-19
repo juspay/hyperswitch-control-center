@@ -7,6 +7,7 @@ let getOptionReturnUrl = (~themeConfig, ~returnUrl, ~showSavedCards) => {
   {
     displaySavedPaymentMethods: showSavedCards,
     showCardFormByDefault: false,
+    subscriptionEvents: ["surchargeInfo", "appliedOffersInfo"],
     wallets: {
       walletReturnUrl: returnUrl,
       applePay: "auto",
@@ -45,11 +46,32 @@ let make = () => {
 
   let (error, setError) = React.useState(_ => None)
   let (btnState, setBtnState) = React.useState(_ => Button.Normal)
+  let (displaySurchargeAmount, setDisplaySurchargeAmount) = React.useState(_ => 0.0)
+  let (offerAmountMinor, setOfferAmountMinor) = React.useState(_ => 0.0)
   let hyper = useHyper()
   let elements = useWidgets()
   let paymentResponseDict = paymentResult->getDictFromJsonObject
   let currency = paymentResponseDict->getString("currency", "USD")
   let amount = paymentResponseDict->getInt("amount", 0)->Int.toFloat
+
+  let handlePaymentElementChange = event => {
+    let eventDict = event->getDictFromJsonObject
+    let payload = eventDict->getDictfromDict("payload")
+    switch eventDict
+    ->getString("eventName", "")
+    ->SDKPaymentUtils.getPaymentElementEventFromString {
+    | SurchargeInfo =>
+      setDisplaySurchargeAmount(_ => payload->getFloat("displayTotalSurchargeAmount", 0.0))
+    | AppliedOffersInfo =>
+      setOfferAmountMinor(_ =>
+        SDKPaymentUtils.getAppliedOffersAmount(
+          ~offers=payload->getArrayFromDict("offers", []),
+          ~currency,
+        )
+      )
+    | UnknownEvent => ()
+    }
+  }
 
   let handleSubmit = async () => {
     setBtnState(_ => Button.Loading)
@@ -108,7 +130,12 @@ let make = () => {
     }
   }
 
-  let conversionFactor = CurrencyUtils.getCurrencyConversionFactor(currency)
+  let payableAmountLabel = SDKPaymentUtils.getPayableAmountLabel(
+    ~amount,
+    ~offerAmount=offerAmountMinor,
+    ~surchargeAmount=displaySurchargeAmount,
+    ~currency,
+  )
 
   <div>
     {switch paymentStatus {
@@ -116,9 +143,12 @@ let make = () => {
     | INCOMPLETE =>
       <>
         <div className="w-full">
-          <PaymentElement id="payment-element" options={paymentElementOptions} />
+          <PaymentElement
+            id="payment-element" options={paymentElementOptions} onChange=handlePaymentElementChange
+          />
           <Button
-            text={`Pay ${currency} ${(amount /. conversionFactor)->Float.toString}`}
+            text={`Pay ${payableAmountLabel}`}
+            dataTestId="sdk-pay-button"
             loadingText="Please wait..."
             buttonState=btnState
             buttonType={Primary}

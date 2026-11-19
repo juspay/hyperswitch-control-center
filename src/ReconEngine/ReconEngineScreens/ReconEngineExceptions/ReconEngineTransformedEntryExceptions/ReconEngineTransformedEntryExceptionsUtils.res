@@ -421,7 +421,9 @@ let constructManualReconciliationBody = (~updatedEntry: processingEntryType, ~va
     ("order_id", updatedEntry.order_id->JSON.Encode.string),
     (
       "effective_at",
-      updatedEntry.effective_at->ReconEngineFilterUtils.toReconTimeString->JSON.Encode.string,
+      updatedEntry.effective_at
+      ->ReconEngineFilterUtils.toReconTimeString(~convertToLocal=false)
+      ->JSON.Encode.string,
     ),
     (
       "transformation_id",

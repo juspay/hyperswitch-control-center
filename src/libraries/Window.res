@@ -233,6 +233,8 @@ external dateTimeFormat: unit => dateTimeFormat = "DateTimeFormat"
 
 module History = {
   @val @scope(("window", "history"))
+  external replaceState: (Nullable.t<'a>, string, string) => unit = "replaceState"
+  @val @scope(("window", "history"))
   external back: unit => unit = "back"
 
   @val @scope(("window", "history"))

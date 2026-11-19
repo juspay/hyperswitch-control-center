@@ -9,8 +9,7 @@ let useGetHsSidebarValues = () => {
   let connectorDisplayList = connectorDisplayListAtom->Recoil.useRecoilValueFromAtom
   let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {getResolvedUserInfo, checkUserEntity} = React.useContext(UserInfoProvider.defaultContext)
-  let {userEntity, roleId} = getResolvedUserInfo()
-  let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
+  let {userEntity} = getResolvedUserInfo()
   let {
     frm,
     payOut,
@@ -102,8 +101,8 @@ let useGetHsSidebarValues = () => {
       ~userHasResourceAccess,
       ~isEmbedDecisionEngineEnabled=showDecisionEngine,
     ),
-    alertsSection(~isAlertsEnabled={devAlerts && isInternalUser}),
-    monitoringSection(~isMonitoringEnabled={devAlerts && isInternalUser}),
+    alertsSection(~isAlertsEnabled=devAlerts, ~userHasAccess),
+    monitoringSection(~isMonitoringEnabled=devAlerts, ~userHasAccess),
     ...standardModules,
     default->developers(
       ~isWebhooksEnabled=devWebhooks,
@@ -180,11 +179,15 @@ let useGetAllProductSections = (~products: array<productTypes>) => {
   let orchestratorSidebars = useGetOrchestratorSidebars()
   let orchestratorV2Sidebars = OrchestrationV2SidebarValues.useGetOrchestrationV2SidebarValues()
   let {userHasResourceAccess, userHasAccess} = GroupACLHooks.useUserGroupACLHook()
-
   products->Array.map(productType => {
     let links = switch productType {
     | Recon(V1) =>
-      ReconEngineSidebarValues.reconEngineSidebars(~userHasResourceAccess, ~userHasAccess)
+      ReconEngineSidebarValues.reconEngineSidebars(
+        ~userHasResourceAccess,
+        ~userHasAccess,
+        ~isApiKeysEnabled=featureFlagDetails.devReconEngineV1 &&
+        featureFlagDetails.devReconEngineApiKeys,
+      )
     | Recon(V2) => ReconSidebarValues.reconSidebars
     | Recovery => RevenueRecoverySidebarValues.recoverySidebars(isLiveMode)
     | Vault => VaultSidebarValues.vaultSidebars
@@ -294,7 +297,12 @@ let useGetSidebarValuesForCurrentActive = () => {
   | DynamicRouting => IntelligentRoutingSidebarValues.intelligentRoutingSidebars
   | Orchestration(V2) => orchestratorV2Sidebars
   | Recon(V1) =>
-    ReconEngineSidebarValues.reconEngineSidebars(~userHasResourceAccess, ~userHasAccess)
+    ReconEngineSidebarValues.reconEngineSidebars(
+      ~userHasResourceAccess,
+      ~userHasAccess,
+      ~isApiKeysEnabled=featureFlagDetails.devReconEngineV1 &&
+      featureFlagDetails.devReconEngineApiKeys,
+    )
   | OnBoarding(_)
   | UnknownProduct => []
   }

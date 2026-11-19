@@ -10,6 +10,7 @@ import {
   signupUser,
   loginUI,
   createPayoutConnectorAPI,
+  jwtLineage,
 } from "../../support/commands";
 
 const PLAYWRIGHT_PASSWORD = process.env.PLAYWRIGHT_PASSWORD || "Playwright00#";
@@ -52,7 +53,7 @@ test.describe("Volume based payout routing", () => {
     const payoutRouting = new PayoutRouting(page);
     const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
 
-    const merchantId = await homePage.merchantID.nth(0).textContent();
+    const { merchantId } = await jwtLineage(page);
     const connectorLabel = `adyen_payout_${Date.now()}`;
     if (merchantId) {
       await createPayoutConnectorAPI(
@@ -104,7 +105,7 @@ test.describe("Volume based payout routing", () => {
     const payoutRouting = new PayoutRouting(page);
     const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
 
-    const merchantId = await homePage.merchantID.nth(0).textContent();
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createPayoutConnectorAPI(
         merchantId,
@@ -149,7 +150,7 @@ test.describe("Volume based payout routing", () => {
     const payoutRouting = new PayoutRouting(page);
     const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
 
-    const merchantId = await homePage.merchantID.nth(0).textContent();
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createPayoutConnectorAPI(
         merchantId,
@@ -195,7 +196,7 @@ test.describe("Volume based payout routing", () => {
     const payoutRouting = new PayoutRouting(page);
     const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
 
-    const merchantId = await homePage.merchantID.nth(0).textContent();
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createPayoutConnectorAPI(
         merchantId,
@@ -226,7 +227,7 @@ test.describe("Volume based payout routing", () => {
     const payoutRouting = new PayoutRouting(page);
     const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
 
-    const merchantId = await homePage.merchantID.nth(0).textContent();
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createPayoutConnectorAPI(
         merchantId,
@@ -265,7 +266,7 @@ test.describe("Rule based payout routing", () => {
   ): Promise<string | null> {
     const homePage = new HomePage(page);
     const payoutRouting = new PayoutRouting(page);
-    const merchantId = await homePage.merchantID.nth(0).textContent();
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createPayoutConnectorAPI(
         merchantId,
@@ -432,7 +433,7 @@ test.describe("Payout default fallback", () => {
     const payoutRouting = new PayoutRouting(page);
     const defaultFallback = new DefaultFallback(page);
 
-    const merchantId = await homePage.merchantID.nth(0).textContent();
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createPayoutConnectorAPI(
         merchantId,
@@ -462,7 +463,7 @@ test.describe("Payout default fallback", () => {
     const payoutRouting = new PayoutRouting(page);
     const defaultFallback = new DefaultFallback(page);
 
-    const merchantId = await homePage.merchantID.nth(0).textContent();
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createPayoutConnectorAPI(
         merchantId,
@@ -559,16 +560,6 @@ test.describe("Payout Routing list - Configuration History", () => {
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
   });
 
-  async function getMerchantId(page: Page): Promise<string | null> {
-    const homePage = new HomePage(page);
-    const merchantLocator = homePage.merchantID.nth(0);
-    if (!(await merchantLocator.isVisible().catch(() => false))) {
-      await page.goto("/dashboard/home");
-      await page.waitForLoadState("networkidle");
-    }
-    return await merchantLocator.textContent();
-  }
-
   async function createInactiveVolumePayoutRule(
     page: Page,
     context: BrowserContext,
@@ -579,7 +570,7 @@ test.describe("Payout Routing list - Configuration History", () => {
     const payoutRouting = new PayoutRouting(page);
     const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
 
-    const merchantId = await getMerchantId(page);
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createPayoutConnectorAPI(
         merchantId,
@@ -588,6 +579,9 @@ test.describe("Payout Routing list - Configuration History", () => {
         page,
       );
     }
+    // The dashboard caches the connector list from app load, so reload to
+    // pick up the connector just created via API.
+    await page.reload();
 
     await homePage.workflow.click();
     await homePage.payoutRouting.click();
@@ -617,7 +611,7 @@ test.describe("Payout Routing list - Configuration History", () => {
     const payoutRouting = new PayoutRouting(page);
     const volumeBasedConfiguration = new VolumeBasedConfiguration(page);
 
-    const merchantId = await getMerchantId(page);
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createPayoutConnectorAPI(
         merchantId,
@@ -626,6 +620,9 @@ test.describe("Payout Routing list - Configuration History", () => {
         page,
       );
     }
+    // The dashboard caches the connector list from app load, so reload to
+    // pick up the connector just created via API.
+    await page.reload();
 
     await homePage.workflow.click();
     await homePage.payoutRouting.click();
@@ -692,7 +689,7 @@ test.describe("Payout Routing list - Configuration History", () => {
     const homePage = new HomePage(page);
     const payoutRouting = new PayoutRouting(page);
 
-    const merchantId = await homePage.merchantID.nth(0).textContent();
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createPayoutConnectorAPI(
         merchantId,
@@ -834,7 +831,7 @@ test.describe("Payout Routing list - Configuration History", () => {
       "adyen_payout_volume_a",
     );
 
-    const merchantId = await getMerchantId(page);
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createPayoutConnectorAPI(
         merchantId,
@@ -843,6 +840,9 @@ test.describe("Payout Routing list - Configuration History", () => {
         page,
       );
     }
+    // The dashboard caches the connector list from app load, so reload to
+    // pick up the connector just created via API.
+    await page.reload();
 
     await openManageRulesTab(page);
     const historyRow = payoutRouting.historyCell(1, 2);
@@ -890,7 +890,7 @@ test.describe("Payout Routing list - Configuration History", () => {
     const payoutRouting = new PayoutRouting(page);
     const ruleBasedConfiguration = new RuleBasedConfiguration(page);
 
-    const merchantId = await getMerchantId(page);
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createPayoutConnectorAPI(
         merchantId,
@@ -899,6 +899,9 @@ test.describe("Payout Routing list - Configuration History", () => {
         page,
       );
     }
+    // The dashboard caches the connector list from app load, so reload to
+    // pick up the connector just created via API.
+    await page.reload();
 
     await homePage.workflow.click();
     await homePage.payoutRouting.click();
@@ -967,7 +970,7 @@ test.describe("Advanced payout rule connector selection modes", () => {
     const homePage = new HomePage(page);
     const payoutRouting = new PayoutRouting(page);
 
-    const merchantId = await homePage.merchantID.nth(0).textContent();
+    const { merchantId } = await jwtLineage(page);
     if (merchantId) {
       await createPayoutConnectorAPI(
         merchantId,

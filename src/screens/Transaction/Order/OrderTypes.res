@@ -109,10 +109,17 @@ type colType =
   | UnifiedCode
   | UnifiedMessage
 
+type offerDetailsColType =
+  | AppliedOfferAmount
+  | OfferEngineMerchantId
+  | OfferId
+  | OfferEngineTxnId
+
 type summaryColType =
   | Created
   | NetAmount
   | SurchargeAmount
+  | OfferAmount
   | LastUpdated
   | PaymentId
   | Currency

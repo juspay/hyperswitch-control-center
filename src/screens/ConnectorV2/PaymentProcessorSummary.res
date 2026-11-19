@@ -97,7 +97,13 @@ let make = (
         | AuthenticationProcessor => Window.getAuthenticationConnectorConfig(connectorName)
         | PMAuthProcessor => Window.getPMAuthenticationProcessorConfig(connectorName)
         | TaxProcessor => Window.getTaxProcessorConfig(connectorName)
-        | BillingProcessor => BillingProcessorsUtils.getConnectorConfig(connectorName)
+        | BillingProcessor =>
+          BillingProcessorsUtils.getConnectorConfig(
+            connectorName,
+            ~wasmConfig=Window.getBillingConnectorConfig(
+              connectorName->LogicUtils.capitalizeString,
+            ),
+          )
         | PaymentVas => JSON.Encode.null
         | VaultProcessor => Window.getConnectorConfig(connectorName)
         | SurchargeProcessor => Window.getSurchargeProcessorConfig(connectorName)

@@ -63,9 +63,9 @@ let getHeaders = (
       headersForXFeature(~headers, ~uri)
     }
 
-    // TODO: this header is scoped to Webhook events APIs for now;
-    // remove the uri condition once webhook CUG testing is done so it applies to all APIs
-    if cugUser && uri->String.includes("/events/") {
+    // TODO: this header is scoped to Blocklist APIs for now;
+    // remove the uri condition once blocklist CUG testing is done so it applies to all APIs
+    if cugUser && uri->String.includes("/blocklist") {
       headers->Dict.set("x-cug-user", "true")
     }
 
@@ -74,14 +74,6 @@ let getHeaders = (
       headers->Dict.set("x-feature", "dynamo-simulator")
     }
 
-    // this header is specific to Chat Bot for session tracking
-    if uri->String.includes("/chat/ai/data") {
-      let sessionKey = "chatbot_session_id"
-      switch SessionStorage.sessionStorage.getItem(sessionKey)->Nullable.toOption {
-      | Some(sessionId) => headers->Dict.set("x-chat-session-id", sessionId)
-      | None => ()
-      }
-    }
     // headers for V2
     headers->Dict.set("X-Profile-Id", profileId)
     headers->Dict.set("X-Merchant-Id", merchantId)

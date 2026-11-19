@@ -72,12 +72,13 @@ let refreshEndTimeFilter = updateExistingKeys => {
   )
 }
 
-let toReconTimeString = value =>
-  value->isNonEmptyString ? value->dateFormat("YYYY-MM-DDTHH:mm:ss[Z]") : value
+// Filters use browser wall-clock time; existing entry timestamps must not be converted again.
+let toReconTimeString = (~convertToLocal=true, value) =>
+  convertToLocal && value->isNonEmptyString ? value->dateFormat("YYYY-MM-DDTHH:mm:ss[Z]") : value
 
 let buildQueryStringFromFilters = (~filterValueJson: Dict.t<JSON.t>, ~convertToLocal=true) => {
   let queryParts = []
-  let formatTime = convertToLocal ? toReconTimeString : v => v
+  let formatTime = value => value->toReconTimeString(~convertToLocal)
 
   filterValueJson
   ->Dict.toArray

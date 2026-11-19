@@ -12,6 +12,7 @@ let make = (~children) => {
   }, [pathString])
 
   let activePopUp = openPopUps->Array.get(0)
+  let popUpTarget = FullPageModalContext.useModalTarget(~showModal=activePopUp->Option.isSome)
   let popUp = switch activePopUp {
   | Some(popUp) => {
       let handleConfirm = ev => {
@@ -95,6 +96,10 @@ let make = (~children) => {
 
   <div className="relative">
     children
-    {popUp}
+    {switch popUpTarget {
+    | Inline => popUp
+    | Waiting => React.null
+    | Portal(root) => ReactDOM.createPortal(popUp, root)
+    }}
   </div>
 }

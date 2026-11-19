@@ -83,6 +83,7 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let getURL = APIUtils.useGetURL()
   let {userHasAccess} = GroupACLHooks.useUserGroupACLHook()
   let {devSortEnabled, auditTrail} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+  let {showDashboardLinks} = DisplayOptionsContext.useDisplayOptions()
   let (screenStateForRefund, setScreenStateForRefund) = React.useState(_ =>
     PageLoaderWrapper.Loading
   )
@@ -108,19 +109,21 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         ~expectedProfileId=profileId,
       )
       let refundData = await fetchDetails(refundUrl)
-      let paymentId = refundData->getDictFromJsonObject->getString("payment_id", "")
-      let orderUrl = getURL(
-        ~entityName=V1(ORDERS),
-        ~methodType=Get,
-        ~id=Some(paymentId),
-        ~queryParameters=Some("expand_attempts=true"),
-      )
-      let orderData = await fetchDetails(orderUrl)
-      let paymentArray =
-        [orderData]
-        ->JSON.Encode.array
-        ->getArrayDataFromJson(PaymentInterfaceUtils.mapDictToPaymentPayload)
-      setOrdersData(_ => paymentArray->Array.map(Nullable.make))
+      if showDashboardLinks {
+        let paymentId = refundData->getDictFromJsonObject->getString("payment_id", "")
+        let orderUrl = getURL(
+          ~entityName=V1(ORDERS),
+          ~methodType=Get,
+          ~id=Some(paymentId),
+          ~queryParameters=Some("expand_attempts=true"),
+        )
+        let orderData = await fetchDetails(orderUrl)
+        let paymentArray =
+          [orderData]
+          ->JSON.Encode.array
+          ->getArrayDataFromJson(PaymentInterfaceUtils.mapDictToPaymentPayload)
+        setOrdersData(_ => paymentArray->Array.map(Nullable.make))
+      }
       setRefundData(_ => refundData)
       setScreenStateForRefund(_ => Success)
     } catch {
@@ -204,7 +207,8 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
           ]}
         />
       </RenderIf>
-      <RenderIf condition={userHasAccess(~groupAccess=OperationsView) === Access}>
+      <RenderIf
+        condition={showDashboardLinks && userHasAccess(~groupAccess=OperationsView) === Access}>
         <LoadedTable
           title="Payment"
           actualData=orderData

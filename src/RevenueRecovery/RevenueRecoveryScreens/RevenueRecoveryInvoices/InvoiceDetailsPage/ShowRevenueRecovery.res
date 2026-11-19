@@ -80,12 +80,19 @@ module RecoveryAmountStatus = {
     }
 
     switch status {
-    | Recovered =>
+    | Succeeded =>
       <AlertV2Binding
         alertType=Success
         slot={{slot: <Icon name="nd-toast-success" size=20 className="text-nd_green-400" />}}
-        heading="Fully recovered"
-        description="This invoice was successfully recovered."
+        heading="Payment succeeded"
+        description="This invoice was paid successfully."
+      />
+    | Cancelled =>
+      <AlertV2Binding
+        alertType=Neutral
+        slot={{slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />}}
+        heading="Invoice cancelled"
+        description="This invoice was cancelled."
       />
     | Scheduled | Processing | PartiallyCapturedAndProcessing =>
       <div className="bg-white border border-nd_gray-200 rounded-xl p-6">
@@ -115,7 +122,7 @@ module RecoveryAmountStatus = {
         | None => React.null
         }}
       </div>
-    | Queued | NoPicked =>
+    | Queued =>
       <AlertV2Binding
         alertType=Neutral
         slot={{slot: <Icon name="nd-toast-info" size=20 className="text-nd_primary_blue-450" />}}
@@ -162,7 +169,7 @@ module RecoveryAmountStatus = {
 }
 
 @react.component
-let make = (~id) => {
+let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   open APIUtils
   open RevenueRecoveryOrderUtils
   let getURL = useGetURL()
@@ -172,8 +179,50 @@ let make = (~id) => {
     Dict.make()->RevenueRecoveryEntity.itemToObjMapper
   )
   let (processTrackerData, setProcessTrackerData) = React.useState(_ => Dict.make())
+  let recoveryProfile = HyperswitchAtom.recoveryProfileAtom->Recoil.useRecoilValueFromAtom
   let showToast = ToastAdapter.useShowToast()
   let (attemptsList, setAttemptsList) = React.useState(_ => [])
+  let (startRetryThreshold, setStartRetryThreshold) = React.useState(_ => 0)
+  let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+  let {
+    orgId: sessionOrgId,
+    merchantId: sessionMerchantId,
+    profileId: sessionProfileId,
+  } = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()
+  let (hasTriedSwitch, setHasTriedSwitch) = React.useState(_ => false)
+  let isInvoiceSession =
+    orgId == Some(sessionOrgId) &&
+    merchantId == Some(sessionMerchantId) &&
+    profileId == Some(sessionProfileId)
+
+  let fetchStartRetryThreshold = async (~billingConnectorId) => {
+    try {
+      if billingConnectorId->isNonEmptyString {
+        let url = getURL(
+          ~entityName=V2(V2_CONNECTOR),
+          ~methodType=Get,
+          ~id=Some(billingConnectorId),
+        )
+        let json = await fetchDetails(url, ~version=V2)
+        let threshold =
+          json
+          ->getDictFromJsonObject
+          ->getDictfromDict("feature_metadata")
+          ->getDictfromDict("revenue_recovery")
+          ->getInt("billing_connector_retry_threshold", 0)
+        setStartRetryThreshold(_ => threshold)
+      } else {
+        let threshold =
+          recoveryProfile
+          ->Option.flatMap(profile => profile.retryConfig)
+          ->Option.getOr(Dict.make())
+          ->getInt(RevenueRecoveryProfileUtils.retryThresholdKey, 0)
+        setStartRetryThreshold(_ => threshold)
+      }
+    } catch {
+    | _ => ()
+    }
+  }
 
   let getPTDetails = async (~orderData: RevenueRecoveryOrderTypes.order) => {
     try {
@@ -224,7 +273,6 @@ let make = (~id) => {
     } catch {
     | _ => ()
     }
-    setScreenState(_ => Success)
   }
 
   let fetchOrderDetails = async _ => {
@@ -239,13 +287,22 @@ let make = (~id) => {
         ->getDictFromJsonObject
         ->RevenueRecoveryEntity.itemToObjMapperForIntents
 
-      if orderData.status->RevenueRecoveryOrderUtils.statusVariantMapper == Scheduled {
+      if recoveryProfile->RevenueRecoveryProfileUtils.isExternalModel {
+        setProcessTrackerData(_ =>
+          data->getDictFromJsonObject->RevenueRecoveryOrderUtils.getNextRetrySchedule
+        )
+        setRevenueRecoveryData(_ => orderData)
+      } else if orderData.status->RevenueRecoveryOrderUtils.statusVariantMapper == Scheduled {
         await getPTDetails(~orderData)
       } else {
         setRevenueRecoveryData(_ => orderData)
       }
 
-      fetchOrderAttemptListDetails()->ignore
+      let _ = await Promise.all2((
+        fetchStartRetryThreshold(~billingConnectorId=orderData.billing_connector_id),
+        fetchOrderAttemptListDetails(),
+      ))
+      setScreenState(_ => Success)
     } catch {
     | Exn.Error(e) =>
       switch Exn.message(e) {
@@ -262,10 +319,36 @@ let make = (~id) => {
     }
   }
 
+  let switchToInvoiceProfile = async () => {
+    try {
+      setScreenState(_ => Loading)
+      let _ = await internalSwitch(
+        ~expectedOrgId=orgId,
+        ~expectedMerchantId=merchantId,
+        ~expectedProfileId=profileId,
+        ~version=V2,
+      )
+    } catch {
+    | _ => ()
+    }
+    setHasTriedSwitch(_ => true)
+  }
+
   React.useEffect(() => {
-    fetchOrderDetails()->ignore
+    if isInvoiceSession {
+      fetchOrderDetails()->ignore
+    } else {
+      switchToInvoiceProfile()->ignore
+    }
     None
   }, [])
+
+  React.useEffect(() => {
+    if hasTriedSwitch && !isInvoiceSession {
+      setScreenState(_ => Error("Failed to Fetch!"))
+    }
+    None
+  }, [hasTriedSwitch])
 
   <div className="flex flex-col gap-8">
     <BreadCrumbNavigation
@@ -286,7 +369,10 @@ let make = (~id) => {
           <div className="w-full h-full col-span-7 flex flex-col gap-7">
             <RecoveryAmountStatus order={revenueRecoveryData} processTracker={processTrackerData} />
             <AttemptsHistory
-              order={revenueRecoveryData} attemptsList processTracker={processTrackerData->Some}
+              order={revenueRecoveryData}
+              attemptsList
+              processTracker={processTrackerData->Some}
+              startRetryThreshold
             />
           </div>
           <div className="w-full h-full col-span-3">
@@ -294,7 +380,7 @@ let make = (~id) => {
               order=revenueRecoveryData
               getHeading
               getCell
-              detailsFields=[Id, Created, OrderAmount, Status, Connector, CardAttached]
+              detailsFields=[Id, Created, OrderAmount, Status, Connector]
             />
           </div>
         </div>

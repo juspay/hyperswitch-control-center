@@ -78,6 +78,7 @@ let make = (
   ~getNewColumnDescription=_ => "",
 ) => {
   let (showColumnSelector, setShowColumnSelector) = React.useState(() => false)
+  let {showColumnCustomisation} = DisplayOptionsContext.useDisplayOptions()
   let activeColumnsAtom = customColumnMapper->Some
   let visibleColumns = customColumnMapper->Recoil.useRecoilValueFromAtom
 
@@ -171,7 +172,7 @@ let make = (
     noScrollbar
     remoteSortEnabled
     showAutoScroll
-    hideCustomisableColumnButton
+    hideCustomisableColumnButton={hideCustomisableColumnButton || !showColumnCustomisation}
     ?customSeparation
     ?visitedRows
     ?checkBoxProps

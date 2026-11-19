@@ -60,31 +60,22 @@ let make = (~onCloneStarted) => {
   }
 
   <>
-    <section
-      className="max-w-3xl border border-nd_gray-200 rounded-lg bg-white p-5 flex flex-col gap-4">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h2 className={`text-nd_gray-700 ${body.lg.semibold}`}>
-            {"Clone to Other Profiles"->React.string}
-          </h2>
-          <p className={`text-nd_gray-500 mt-1 ${body.md.medium}`}>
-            {"Copy this profile's blocklist to other profiles. Entries already on those profiles are kept."->React.string}
-          </p>
-        </div>
-        <ACLButton
-          text="Clone Blocklist"
-          buttonType=Primary
-          onClick=openModal
-          authorization={checkUserEntity([#Profile])
-            ? NoAccess
-            : userHasAccess(~groupAccess=AccountManage)}
-        />
-      </div>
-    </section>
+    <BlocklistHelper.PanelHeader
+      title="Copy to other profiles"
+      description="Apply this profile's payment and payout blocklists to other profiles. Entries already on those profiles are kept."
+      action={<ACLButton
+        text="Clone Blocklist"
+        buttonType=Secondary
+        onClick=openModal
+        authorization={checkUserEntity([#Profile])
+          ? NoAccess
+          : userHasAccess(~groupAccess=AccountManage)}
+      />}
+    />
     <RenderIf condition={showModal}>
       <Modal
         modalHeading="Clone blocklist"
-        modalHeadingDescription="Runs in the background. Track progress in the jobs table."
+        modalHeadingDescription="Runs in the background. Track progress under Background jobs."
         modalDescriptionClass={`${body.md.regular} text-nd_gray-500 mt-1`}
         showModal
         setShowModal

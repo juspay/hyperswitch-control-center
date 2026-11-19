@@ -41,6 +41,10 @@ type blocklistDataKind =
   | GenericCardBin
   | Fingerprint
 
+type blocklistTransactionType =
+  | @as("payment") Payment
+  | @as("payout") Payout
+
 type blocklistEntryOperation =
   | AddBlocklistEntry
   | DeleteBlocklistEntry

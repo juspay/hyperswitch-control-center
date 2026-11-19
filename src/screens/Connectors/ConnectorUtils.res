@@ -15,6 +15,7 @@ let getStepName = step => {
   | Preview => "Preview"
   | CustomMetadata => "Metadata"
   | AutomaticFlow => "AutomaticFlow"
+  | WebhookRegistration => "Register Webhook"
   }
 }
 // Any connector added to these lists must also be added to the matching
@@ -25,6 +26,7 @@ let getStepName = step => {
 let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(ADYEN),
   PayoutProcessor(ADYENPLATFORM),
+  PayoutProcessor(CHECKOUT),
   PayoutProcessor(CYBERSOURCE),
   PayoutProcessor(EBANX),
   PayoutProcessor(ITAUBANK),
@@ -43,6 +45,7 @@ let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(SANTANDER),
   PayoutProcessor(DEUTSCHEBANK),
   PayoutProcessor(GOTYME),
+  PayoutProcessor(MIFINITY),
 ]
 
 let payoutConnectorListForLive: array<connectorTypes> = [
@@ -367,6 +370,29 @@ let checkoutInfo = {
       testValidationRegex: "^sk(_sbox)?_(.+)$",
       liveExpectedFormat: "API secret key should begin with sk_ and not begin with sk_sbox_",
       testExpectedFormat: "API secret key should begin with sk_",
+    },
+    {
+      name: "connector_account_details.key1",
+      liveValidationRegex: "^pc_(.+)$",
+      testValidationRegex: "^pc_(.+)$",
+      liveExpectedFormat: "Processing Channel ID should have the prefix pc_",
+      testExpectedFormat: "Processing Channel ID should have the prefix pc_",
+    },
+    {
+      name: "metadata.connector_client_id",
+      liveValidationRegex: "^cli_(.+)$",
+      testValidationRegex: "^cli_(.+)$",
+      liveExpectedFormat: "Checkout Client ID should have the prefix cli_",
+      testExpectedFormat: "Checkout Client ID should have the prefix cli_",
+      isRequired: false,
+    },
+    {
+      name: "metadata.connector_currency_account_id",
+      liveValidationRegex: "^ca_(.+)$",
+      testValidationRegex: "^ca_(.+)$",
+      liveExpectedFormat: "Connector Currency Account ID should have the prefix ca_",
+      testExpectedFormat: "Connector Currency Account ID should have the prefix ca_",
+      isRequired: false,
     },
   ],
 }
@@ -718,8 +744,12 @@ let stripeBillingInfo = {
   description: "Stripe Billing connector enables automated subscription management, invoicing, and recurring payments using Stripe's billing infrastructure.",
 }
 
+let recurlyInfo = {
+  description: "Recurly is a subscription management and billing platform that automates recurring billing, invoicing, and payment recovery for subscription businesses.",
+}
+
 let customBillingInfo = {
-  description: "Stripe Billing connector enables automated subscription management, invoicing, and recurring payments using Stripe's billing infrastructure.",
+  description: "Custom Billing lets you connect your own in-house billing system for subscription management and invoicing, without needing credentials from a third-party billing platform.",
 }
 
 let nexixpayInfo = {
@@ -1134,6 +1164,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   switch payoutProcessor {
   | ADYEN => "adyen"
   | ADYENPLATFORM => "adyenplatform"
+  | CHECKOUT => "checkout"
   | CYBERSOURCE => "cybersource"
   | EBANX => "ebanx"
   | ITAUBANK => "itaubank"
@@ -1152,6 +1183,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   | SANTANDER => "santander"
   | DEUTSCHEBANK => "deutschebank"
   | GOTYME => "gotyme_sanlam"
+  | MIFINITY => "mifinity"
   }
 
 let getThreeDsAuthenticatorNameString = (threeDsAuthenticator: threeDsAuthenticatorTypes) =>
@@ -1191,6 +1223,7 @@ let getBillingProcessorNameString = (billingProcessor: billingProcessorTypes) =>
   switch billingProcessor {
   | CHARGEBEE => "chargebee"
   | STRIPE_BILLING => "stripebilling"
+  | RECURLY => "recurly"
   | CUSTOMBILLING => "custombilling"
   }
 }
@@ -1362,6 +1395,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     switch connector {
     | "adyen" => PayoutProcessor(ADYEN)
     | "adyenplatform" => PayoutProcessor(ADYENPLATFORM)
+    | "checkout" => PayoutProcessor(CHECKOUT)
     | "cybersource" => PayoutProcessor(CYBERSOURCE)
     | "ebanx" => PayoutProcessor(EBANX)
     | "itaubank" => PayoutProcessor(ITAUBANK)
@@ -1380,6 +1414,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     | "santander" => PayoutProcessor(SANTANDER)
     | "deutschebank" => PayoutProcessor(DEUTSCHEBANK)
     | "gotyme_sanlam" => PayoutProcessor(GOTYME)
+    | "mifinity" => PayoutProcessor(MIFINITY)
     | _ => UnknownConnector("Not known")
     }
   | ThreeDsAuthenticator =>
@@ -1414,6 +1449,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     switch connector {
     | "chargebee" => BillingProcessor(CHARGEBEE)
     | "stripebilling" => BillingProcessor(STRIPE_BILLING)
+    | "recurly" => BillingProcessor(RECURLY)
     | "custombilling" => BillingProcessor(CUSTOMBILLING)
     | _ => UnknownConnector("Not known")
     }
@@ -1567,6 +1603,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   switch payoutconnector {
   | ADYEN => adyenInfo
   | ADYENPLATFORM => adyenPlatformInfo
+  | CHECKOUT => checkoutInfo
   | CYBERSOURCE => cybersourceInfo
   | EBANX => ebanxInfo
   | ITAUBANK => itauBankInfo
@@ -1585,6 +1622,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   | SANTANDER => santanderInfo
   | DEUTSCHEBANK => deutscheBankInfo
   | GOTYME => gotymeInfo
+  | MIFINITY => mifinityInfo
   }
 }
 
@@ -1623,6 +1661,7 @@ let getBillingProcessorInfo = (billingProcessor: ConnectorTypes.billingProcessor
   switch billingProcessor {
   | CHARGEBEE => chargebeeInfo
   | STRIPE_BILLING => stripeBillingInfo
+  | RECURLY => recurlyInfo
   | CUSTOMBILLING => customBillingInfo
   }
 }
@@ -1674,6 +1713,7 @@ let itemProviderMapper: dict<JSON.t> => ConnectorTypes.paymentMethodConfigType =
     installment_payment_enabled: dict->getOptionBool("installment_payment_enabled"),
     payment_experience: dict->getOptionString("payment_experience"),
     card_networks: dict->getStrArrayFromDict("card_networks", []),
+    pay_via_single_use_token: ?dict->getOptionString("pay_via_single_use_token"),
   }
 }
 
@@ -1727,7 +1767,27 @@ let configKeysToIgnore = [
   "additional_merchant_data",
   "connector_wallets_details",
   "connector_webhook_register_details",
+  "pay_via_single_use_token",
+  "webhook_url_type",
 ]
+
+let getPayViaSingleUseTokenConfig = connectorConfig =>
+  connectorConfig->getJsonObjectFromDict("pay_via_single_use_token")->convertMapObjectToDict
+
+let getPayViaSingleUseTokenEntry = (payViaSingleUseTokenConfig, ~paymentMethodType) =>
+  payViaSingleUseTokenConfig->Dict.get(paymentMethodType)->Option.map(convertMapObjectToDict)
+
+let isPayViaSingleUseTokenFlow = (entry, walletFlow: walletFlow) =>
+  entry->getStrArrayFromDict("flows", [])->Array.includes((walletFlow :> string))
+
+let isPayViaSingleUseTokenInDecryptFlow = (
+  connectorConfig,
+  ~paymentMethodType: payViaSingleUseTokenWallet,
+) =>
+  connectorConfig
+  ->getPayViaSingleUseTokenConfig
+  ->getPayViaSingleUseTokenEntry(~paymentMethodType=(paymentMethodType :> string))
+  ->mapOptionOrDefault(false, entry => entry->isPayViaSingleUseTokenFlow(Decrypt))
 
 let verifyConnectorIgnoreField = [
   "business_country",
@@ -1804,9 +1864,15 @@ let addMethod = (paymentMethodsEnabled, paymentMethod, method) => {
   | _ =>
     pmts->Array.forEach((val: paymentMethodEnabled) => {
       if val.payment_method_type->String.toLowerCase === paymentMethod->String.toLowerCase {
-        val.provider
-        ->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
-        ->Array.push(method)
+        let providers = val.provider->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
+        let isAlreadyAdded =
+          providers->Array.some(provider =>
+            provider.payment_method_type === method.payment_method_type &&
+              provider.payment_experience === method.payment_experience
+          )
+        if !isAlreadyAdded {
+          providers->Array.push(method)
+        }
       }
     })
   }
@@ -1943,8 +2009,11 @@ let getDisableConnectorPayloadV2 = (connectorType, previousConnectorState, merch
 let getWebHookRequiredFields = (connector: connectorTypes, fieldName: string) => {
   switch (connector, fieldName) {
   | (Processors(ADYEN), "merchant_secret") => true
-  | (BillingProcessor(CHARGEBEE) | BillingProcessor(STRIPE_BILLING), "merchant_secret") => true
-  | (BillingProcessor(CHARGEBEE) | BillingProcessor(STRIPE_BILLING), "additional_secret") => true
+  | (
+      BillingProcessor(CHARGEBEE) | BillingProcessor(STRIPE_BILLING) | BillingProcessor(RECURLY),
+      "merchant_secret",
+    ) => true
+  | (BillingProcessor(CHARGEBEE), "additional_secret") => true
   | _ => false
   }
 }
@@ -2083,19 +2152,10 @@ let validateConnectorRequiredFields = (
     })
   }
 
-  let keys =
-    connectorMetaDataFields
-    ->Dict.keysToArray
-    ->Array.filter(ele => !Array.includes(ConnectorMetaDataUtils.metaDataInputKeysToIgnore, ele))
-
   {
-    keys->Array.forEach(field => {
-      let {\"type", name, required, label} =
-        connectorMetaDataFields
-        ->getDictfromDict(field)
-        ->JSON.Encode.object
-        ->convertMapObjectToDict
-        ->CommonConnectorUtils.inputFieldMapper
+    connectorMetaDataFields
+    ->ConnectorMetaDataUtils.getMetadataInputFields
+    ->Array.forEach(({\"type", name, required, label}) => {
       let key = `metadata.${name}`
       let value = switch \"type" {
       | Text | Select => valuesFlattenJson->getString(`${key}`, "")
@@ -2121,6 +2181,10 @@ let validateConnectorRequiredFields = (
       }
     })
   }
+
+  ConnectorMetaDataUtils.validateMetadataGroups(~connectorMetaDataFields, ~valuesFlattenJson)
+  ->Dict.toArray
+  ->Array.forEach(((key, error)) => newDict->Dict.set(key, error))
 
   connectorWebHookDetails
   ->Dict.keysToArray
@@ -2287,8 +2351,19 @@ let onSubmit = async (
   Nullable.null
 }
 
-let getWebhooksUrl = (~connectorName, ~merchantId) => {
-  `${Window.env.apiBaseUrl}/webhooks/${merchantId}/${connectorName}`
+let getWebhookUrlTypeFromString = webhookUrlType =>
+  switch webhookUrlType {
+  | "mtls" => Mtls
+  | _ => NonMtls
+  }
+
+// mTLS connectors receive webhooks on a separate host, addressed by merchant connector id
+let getWebhooksUrl = (~connectorName, ~merchantId, ~merchantConnectorId, ~webhookUrlType) => {
+  let {apiBaseUrl, mtlsApiUrl} = Window.env
+  switch (webhookUrlType, mtlsApiUrl) {
+  | (Mtls, Some(mtlsApiUrl)) => `${mtlsApiUrl}/webhooks/${merchantId}/${merchantConnectorId}`
+  | _ => `${apiBaseUrl}/webhooks/${merchantId}/${connectorName}`
+  }
 }
 
 let itemToPMAuthMapper = dict => {
@@ -2588,6 +2663,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   switch payoutProcessor {
   | ADYEN => "Adyen"
   | ADYENPLATFORM => "Adyen Platform"
+  | CHECKOUT => "Checkout"
   | CYBERSOURCE => "Cybersource"
   | EBANX => "Ebanx"
   | ITAUBANK => "Itaubank"
@@ -2606,6 +2682,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   | SANTANDER => "Santander"
   | DEUTSCHEBANK => "Deutsche Bank"
   | GOTYME => "GoTyme"
+  | MIFINITY => "MiFinity"
   }
 
 let getDisplayNameForThreedsAuthenticator = threeDsAuthenticator =>
@@ -2642,7 +2719,8 @@ let getDisplayNameForBillingProcessor = billingProcessor => {
   switch billingProcessor {
   | CHARGEBEE => "Chargebee"
   | STRIPE_BILLING => "Stripe Billing"
-  | CUSTOMBILLING => "Custom"
+  | RECURLY => "Recurly"
+  | CUSTOMBILLING => "Custom Billing"
   }
 }
 
@@ -2834,6 +2912,8 @@ let connectorTypeFromConnectorName: string => connector = connectorName =>
 let stepsArr = (~connector) => {
   switch connector->getConnectorNameTypeFromString {
   | Processors(PAYSAFE) => [IntegFields, PaymentMethods, CustomMetadata, SummaryAndTest]
+  // TODO: Gate webhook details on the WASM value. Blocked: useGetFilterDictFromUrl is initially empty when the WASM value is called.
+  | Processors(SANTANDER) => [IntegFields, PaymentMethods, WebhookRegistration, SummaryAndTest]
   | _ => [IntegFields, PaymentMethods, SummaryAndTest]
   }
 }

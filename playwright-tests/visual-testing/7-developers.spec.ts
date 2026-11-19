@@ -1,5 +1,5 @@
 import { test, expect, type Page, type Locator } from "@playwright/test";
-import { generateUniqueEmail } from "../support/helper";
+import { generateUniqueEmail, scrollIntoViewStable } from "../support/helper";
 import {
   signupUser,
   loginUI,
@@ -136,7 +136,7 @@ test.describe("Visual Testing - Developers", () => {
         mask: [infoCardValues(page)],
       });
 
-      await paymentSettings.returnUrlInput.scrollIntoViewIfNeeded();
+      await scrollIntoViewStable(paymentSettings.returnUrlInput, "center");
 
       await expect(page).toHaveScreenshot("developers-payment-settings-2.png", {
         fullPage: true,
@@ -155,7 +155,7 @@ test.describe("Visual Testing - Developers", () => {
       });
       // Acquirer config sits at the bottom of the tab — bring it into view so
       // its (empty-state) content renders before capturing.
-      await paymentSettings.acquirerConfigSettingsHeading.scrollIntoViewIfNeeded();
+      await scrollIntoViewStable(paymentSettings.acquirerConfigSettingsHeading);
 
       await expect(page).toHaveScreenshot(
         "developers-payment-settings-3ds.png",
@@ -224,7 +224,10 @@ test.describe("Visual Testing - Developers", () => {
       await expect(paymentSettings.customHeadersKeyInput).toBeVisible({
         timeout: 10000,
       });
-      await paymentSettings.customHeadersValueInput.scrollIntoViewIfNeeded();
+      await scrollIntoViewStable(
+        paymentSettings.customHeadersValueInput,
+        "center",
+      );
 
       await expect(page).toHaveScreenshot(
         "developers-payment-settings-custom-headers.png",
@@ -246,7 +249,7 @@ test.describe("Visual Testing - Developers", () => {
       await expect(paymentSettings.customMetadataHeadersHeading).toBeVisible({
         timeout: 10000,
       });
-      await paymentSettings.customMetadataHeadersHeading.scrollIntoViewIfNeeded();
+      await scrollIntoViewStable(paymentSettings.customMetadataHeadersHeading);
 
       await expect(page).toHaveScreenshot(
         "developers-payment-settings-metadata-headers.png",
@@ -266,7 +269,7 @@ test.describe("Visual Testing - Developers", () => {
       await expect(paymentSettings.paymentLinkDomainHeading).toBeVisible({
         timeout: 10000,
       });
-      await paymentSettings.allowedDomainInput.scrollIntoViewIfNeeded();
+      await scrollIntoViewStable(paymentSettings.allowedDomainInput, "center");
 
       await expect(page).toHaveScreenshot(
         "developers-payment-settings-payment-link.png",

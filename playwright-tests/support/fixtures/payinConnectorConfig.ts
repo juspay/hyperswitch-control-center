@@ -1154,6 +1154,11 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
         "Tenant ID *",
         "Webhook Secret",
         "Connector label *",
+        "Client Merchant Reference Id *",
+        "Merchant Payment Method Route Id *",
+        "Acquirer Bin",
+        "Acquirer Merchant ID",
+        "Acquirer Country Code",
       ],
     },
     paymentSections: {
@@ -2463,7 +2468,12 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
       overrides: {
         "Enter Connector label": "rapyd_default",
       },
-      fieldLabels: ["Access Key *", "API Secret *", "Source verification key"],
+      fieldLabels: [
+        "Access Key *",
+        "API Secret *",
+        "Source verification key",
+        "Rapyd country of incorporation *",
+      ],
     },
     paymentSections: {
       Credit: {
@@ -2963,7 +2973,20 @@ export const connectorConfig: Record<string, ConnectorConfig> = {
       overrides: {
         "Enter Connector label": "jpmorgan_default",
       },
-      fieldLabels: ["Client ID *", "Client Secret *"],
+      fieldLabels: [
+        "Client ID *",
+        "Certificate Thumbprint *",
+        "Private Key (Base64 encoded) *",
+        "Resource ID *",
+        "Connector label *",
+        "Company Name *",
+        "Product Name *",
+        "CAD Merchant ID",
+        "EUR Merchant ID",
+        "GBP Merchant ID",
+        "JPY Merchant ID",
+        "USD Merchant ID",
+      ],
     },
     paymentSections: {
       Credit: {

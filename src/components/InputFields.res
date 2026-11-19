@@ -252,6 +252,8 @@ let multiSelectInput = (
   ~dropdownClassName="",
   ~baseComponentMethod=?,
   ~disableSelect=false,
+  ~searchInputPlaceHolder=?,
+  ~enableVirtualization=?,
 ) => (~input: ReactFinalForm.fieldRenderPropsInput, ~placeholder as _) => {
   <SelectBoxAdapter
     input
@@ -303,6 +305,8 @@ let multiSelectInput = (
     wrapBasis
     dropdownClassName
     ?baseComponentMethod
+    ?searchInputPlaceHolder
+    ?enableVirtualization
   />
 }
 

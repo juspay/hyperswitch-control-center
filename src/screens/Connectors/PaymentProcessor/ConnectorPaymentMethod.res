@@ -52,6 +52,19 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
     None
   }, [connector])
 
+  let formInitialValues = React.useMemo(() => {
+    let config =
+      connector->isNonEmptyString
+        ? Window.getConnectorConfig(connector)->getDictFromJsonObject->getPayViaSingleUseTokenConfig
+        : Dict.make()
+    let dict = initialValues->getDictFromJsonObject->Dict.copy
+    dict->Dict.set(
+      "pay_via_single_use_token",
+      initialValues->PaymentMethodUtils.getPayViaSingleUseTokenValues(~config),
+    )
+    dict->JSON.Encode.object
+  }, (initialValues, connector))
+
   let mixpanelEventName = isUpdateFlow ? "processor_step2_onUpdate" : "processor_step2"
 
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
@@ -60,7 +73,12 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
       setScreenState(_ => Loading)
       let obj: ConnectorTypes.wasmRequest = {
         connector,
-        payment_methods_enabled: paymentMethodsEnabled,
+        payment_methods_enabled: paymentMethodsEnabled->PaymentMethodUtils.applyPayViaSingleUseToken(
+          ~config=Window.getConnectorConfig(connector)
+          ->getDictFromJsonObject
+          ->getPayViaSingleUseTokenConfig,
+          ~formValues=values,
+        ),
       }
       let body = constructConnectorRequestBody(obj, values)
       if connector->getConnectorNameTypeFromString == Processors(PAYSAFE) {
@@ -76,7 +94,12 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
         let _ = await fetchConnectorList()
         setInitialValues(_ => response)
         setScreenState(_ => Success)
-        setCurrentStep(_ => ConnectorTypes.SummaryAndTest)
+        // TODO: Gate webhook details on the WASM value. Blocked: useGetFilterDictFromUrl is initially empty when the WASM value is called.
+        let nextStep =
+          connector->getConnectorNameTypeFromString == Processors(SANTANDER) && !isUpdateFlow
+            ? ConnectorTypes.WebhookRegistration
+            : ConnectorTypes.SummaryAndTest
+        setCurrentStep(_ => nextStep)
         showToast(
           ~message=!isUpdateFlow ? "Connector Created Successfully!" : "Details Updated!",
           ~toastType=ToastSuccess,
@@ -102,7 +125,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
     Nullable.null
   }
   <PageLoaderWrapper screenState>
-    <Form onSubmit initialValues={initialValues}>
+    <Form onSubmit initialValues={formInitialValues}>
       <div className="flex flex-col">
         <div className="flex justify-between border-b p-2 md:px-10 md:py-6">
           <div className="flex gap-2 items-center">
