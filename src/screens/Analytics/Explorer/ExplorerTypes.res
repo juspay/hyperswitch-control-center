@@ -10,10 +10,11 @@ type measure = [
   | #volume
   | #successful
   | #failed
-  | #three_ds_failure_rate
+  | #authorization_rate
+  | #authorization_failure_rate
   | #not_completed_rate
+  | #not_completed
   | #processed_amount
-  | #avg_ticket
   | #lost_amount
 ]
 
@@ -61,8 +62,6 @@ type dimension = [
   | #setup_future_usage
   | #flow
 ]
-
-type authenticationType = [#three_ds | #no_three_ds]
 
 type intentStatus = [
   | #succeeded
@@ -124,13 +123,13 @@ type countField =
   | Failed
   | Excluded
   | AuthFailed
+  | AuthorizationFailed
   | Other
 
 type denominator =
   | AllRecords
-  | EligibleRecords
   | DecidedRecords
-  | ThreeDsAttempts
+  | AuthorizationRecords
 
 type amountField =
   | Processed
@@ -140,7 +139,6 @@ type formula =
   | Rate(countField, denominator)
   | Count(countField)
   | TotalAmount(amountField)
-  | AmountPerSuccess
 
 type sourceConfig = {
   domain: domain,
@@ -158,7 +156,6 @@ type counts = {
   failed: float,
   authFailed: float,
   excluded: float,
-  threeDsAttempts: float,
   amount: float,
   lostAmount: float,
 }

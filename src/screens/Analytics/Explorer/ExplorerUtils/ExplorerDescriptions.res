@@ -67,13 +67,16 @@ let measureLabel = (source: source, measure: measure) =>
   | (#attempt, #failed) => "Failed attempts"
   | (#refund, #failed) => "Failed refunds"
   | (#dispute, #failed) => "Disputes lost"
-  | (_, #three_ds_failure_rate) => "3DS failure rate"
+  | (_, #authorization_rate) => "Authorization rate"
+  | (_, #authorization_failure_rate) => "Authorization failure rate"
   | (#refund, #not_completed_rate) => "Pending rate"
   | (_, #not_completed_rate) => "Not completed rate"
+  | (#refund, #not_completed) => "Pending refunds"
+  | (#attempt, #not_completed) => "Not completed attempts"
+  | (_, #not_completed) => "Not completed payments"
   | (#refund, #processed_amount) => "Refunded amount"
   | (#dispute, #processed_amount) => "Amount won"
   | (_, #processed_amount) => "Processed amount"
-  | (_, #avg_ticket) => "Average ticket"
   | (_, #lost_amount) => "Amount lost"
   }
 
@@ -82,22 +85,28 @@ let measureDefinition = (source: source, measure: measure) =>
   | (
       #intent,
       #success_rate,
-    ) => "Share of payments that succeeded. Payments awaiting customer or merchant action are excluded."
+    ) => "Share of decided payments that were approved. Payments in progress, under review or cancelled are excluded."
   | (
       #attempt,
       #success_rate,
-    ) => "Share of attempts that were charged. Pending attempts are included."
-  | (#refund, #success_rate) => "Share of refunds that succeeded."
+    ) => "Share of decided attempts that were approved. Attempts never submitted, in progress or voided are excluded."
+  | (
+      #refund,
+      #success_rate,
+    ) => "Share of decided refunds that succeeded. Refunds pending or in manual review are excluded."
   | (#dispute, #success_rate) => "Share of decided disputes (won or lost) that were won."
   | (
       #intent,
       #failure_rate,
-    ) => "Share of payments that failed. Payments awaiting customer or merchant action are excluded."
+    ) => "Share of decided payments that failed or expired. Payments in progress, under review or cancelled are excluded."
   | (
       #attempt,
       #failure_rate,
-    ) => "Share of attempts with status failure. Attempts that failed authentication or are awaiting a payment method, confirmation, device data or resolution are excluded."
-  | (#refund, #failure_rate) => "Share of refunds that failed."
+    ) => "Share of decided attempts that were declined, failed 3DS authentication or expired. Attempts never submitted, in progress or voided are excluded."
+  | (
+      #refund,
+      #failure_rate,
+    ) => "Share of decided refunds that failed. Refunds pending or in manual review are excluded."
   | (
       #dispute,
       #failure_rate,
@@ -106,23 +115,50 @@ let measureDefinition = (source: source, measure: measure) =>
   | (#attempt, #volume) => "Attempts made, in any status. Each retry counts as an attempt."
   | (#refund, #volume) => "Refunds created, in any status."
   | (#dispute, #volume) => "Disputes opened, in any status."
-  | (#intent, #successful) => "Payments with status succeeded."
-  | (#attempt, #successful) => "Attempts with status charged."
+  | (#intent, #successful) => "Payments that were approved, whether captured or not."
+  | (#attempt, #successful) => "Attempts that were approved, whether captured or not."
   | (#refund, #successful) => "Refunds with status success."
   | (#dispute, #successful) => "Disputes with status won."
-  | (#intent, #failed) => "Payments with status failed."
-  | (#attempt, #failed) => "Attempts with status failure."
+  | (#intent, #failed) => "Payments that failed or expired."
+  | (#attempt, #failed) => "Attempts that were declined, failed 3DS authentication or expired."
   | (#refund, #failed) => "Refunds that failed at the connector or in the transaction."
   | (#dispute, #failed) => "Disputes with status lost."
-  | (_, #three_ds_failure_rate) => "Share of 3DS attempts that failed authentication."
-  | (#refund, #not_completed_rate) => "Share of refunds still pending or in manual review."
-  | (_, #not_completed_rate) => "Share of payments awaiting customer or merchant action."
+  | (
+      _,
+      #authorization_rate,
+    ) => "Share of attempts sent for authorization that were approved. Attempts that failed 3DS authentication are left out."
+  | (
+      _,
+      #authorization_failure_rate,
+    ) => "Share of attempts sent for authorization that were declined or expired. Attempts that failed 3DS authentication are left out."
+  | (
+      #refund,
+      #not_completed_rate,
+    ) => "Share of all refunds with no final outcome: pending or in manual review. These refunds are left out of the success and failure rates."
+  | (
+      #attempt,
+      #not_completed_rate,
+    ) => "Share of all attempts with no final outcome: never submitted, in progress or voided. These attempts are left out of the success, failure and authorization rates."
+  | (
+      _,
+      #not_completed_rate,
+    ) => "Share of all payments with no final outcome: awaiting customer or merchant action, processing, under review or cancelled. These payments are left out of the success and failure rates."
+  | (
+      #refund,
+      #not_completed,
+    ) => "Refunds with no final outcome: pending or in manual review. These refunds are left out of the success and failure rates."
+  | (
+      #attempt,
+      #not_completed,
+    ) => "Attempts with no final outcome: never submitted, in progress or voided. These attempts are left out of the success, failure and authorization rates."
+  | (
+      _,
+      #not_completed,
+    ) => "Payments with no final outcome: awaiting customer or merchant action, processing, under review or cancelled. These payments are left out of the success and failure rates."
   | (#intent, #processed_amount) => "Amount of succeeded payments, in one currency."
   | (#attempt, #processed_amount) => "Amount of charged attempts, in one currency."
   | (#refund, #processed_amount) => "Amount of successful refunds, in one currency."
   | (#dispute, #processed_amount) => "Amount of disputes won, in one currency."
-  | (#attempt, #avg_ticket) => "Processed amount divided by charged attempts, in one currency."
-  | (_, #avg_ticket) => "Processed amount divided by succeeded payments, in one currency."
   | (
       _,
       #lost_amount,
@@ -132,19 +168,23 @@ let measureDefinition = (source: source, measure: measure) =>
 let unmeasurableNote = (source: source, measure: measure) =>
   switch (source, measure) {
   | (#dispute, #success_rate | #failure_rate) => "No decided disputes in this period"
-  | (#intent, #success_rate | #failure_rate) => "No completed payments in this period"
-  | (#attempt, #failure_rate) => "No eligible attempts in this period"
-  | (_, #three_ds_failure_rate) => "No 3DS attempts in this period"
-  | (#attempt, #avg_ticket) => "No charged attempts in this period"
-  | (_, #avg_ticket) => "No succeeded payments in this period"
+  | (#intent, #success_rate | #failure_rate) => "No decided payments in this period"
+  | (#attempt, #success_rate | #failure_rate) => "No decided attempts in this period"
+  | (#refund, #success_rate | #failure_rate) => "No decided refunds in this period"
+  | (
+      _,
+      #authorization_rate | #authorization_failure_rate,
+    ) => "No attempts sent for authorization in this period"
   | _ => "No data in this period"
   }
 
 let unmeasurableReason = (source: source, measure: measure) =>
   switch (source, measure) {
   | (#dispute, #success_rate | #failure_rate) => "no decided disputes"
-  | (#intent, #success_rate | #failure_rate) => "all awaiting customer or merchant action"
-  | (_, #three_ds_failure_rate) => "no 3DS attempts"
+  | (#intent, #success_rate | #failure_rate) => "no decided payments"
+  | (#attempt, #success_rate | #failure_rate) => "no decided attempts"
+  | (#refund, #success_rate | #failure_rate) => "no decided refunds"
+  | (_, #authorization_rate | #authorization_failure_rate) => "none sent for authorization"
   | _ => "no eligible records"
   }
 
@@ -205,13 +245,12 @@ let dimensionDescription = (source: source, key: dimension) =>
 
 let outcomeLabel = (source: source, field) =>
   switch (source, field) {
-  | (#attempt, Success) => "Charged"
-  | (#attempt, Excluded) => "Authentication failed or awaiting action"
-  | (#attempt, Other) => "Other (pending, authorized, declined, voided, expired…)"
-  | (#intent, Excluded) => "Waiting on customer or merchant"
-  | (#intent, Other) => "Other (cancelled, processing, expired…)"
+  | (#attempt, Success) => "Approved"
+  | (#attempt, Excluded) => "Not submitted, in progress or voided"
+  | (#intent, Success) => "Approved"
+  | (#intent, Excluded) => "In progress, under review or cancelled"
   | (#refund, Excluded) => "Pending or in review"
-  | (#refund, Other) => "Other"
+  | (#attempt | #intent | #refund, Other) => "Other"
   | (#dispute, Success) => "Won"
   | (#dispute, Failed) => "Lost"
   | (#dispute, Excluded) => "Challenged"
@@ -219,6 +258,7 @@ let outcomeLabel = (source: source, field) =>
   | (_, Success) => "Succeeded"
   | (_, Failed) => "Failed"
   | (_, AuthFailed) => "Failed 3DS authentication"
+  | (_, AuthorizationFailed) => "Declined or expired"
   | (_, Total) => "All"
   }
 

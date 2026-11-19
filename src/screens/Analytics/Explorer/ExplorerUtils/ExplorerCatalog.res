@@ -28,8 +28,8 @@ let sourceConfig = (source: source) =>
         #volume,
         #successful,
         #failed,
+        #not_completed,
         #processed_amount,
-        #avg_ticket,
       ],
     }
   | #attempt => {
@@ -55,12 +55,14 @@ let sourceConfig = (source: source) =>
       measures: [
         #success_rate,
         #failure_rate,
-        #three_ds_failure_rate,
+        #authorization_rate,
+        #authorization_failure_rate,
+        #not_completed_rate,
         #volume,
         #successful,
         #failed,
+        #not_completed,
         #processed_amount,
-        #avg_ticket,
       ],
     }
   | #refund => {
@@ -85,6 +87,7 @@ let sourceConfig = (source: source) =>
         #volume,
         #successful,
         #failed,
+        #not_completed,
         #processed_amount,
       ],
     }
@@ -172,56 +175,52 @@ let refundStatuses: array<refundStatus> = [
 
 let intentStatusOutcomes = (status: intentStatus) =>
   switch status {
-  | #succeeded => [Success]
-  | #failed => [Failed]
+  | #succeeded
+  | #requires_capture
+  | #partially_authorized_and_requires_capture
+  | #partially_captured
+  | #partially_captured_and_capturable
+  | #partially_captured_and_processing
+  | #cancelled_post_capture => [Success]
+  | #failed | #expired => [Failed]
   | #requires_customer_action
   | #requires_payment_method
   | #requires_merchant_action
-  | #requires_confirmation => [Excluded]
-  | #cancelled
-  | #cancelled_post_capture
+  | #requires_confirmation
   | #processing
-  | #requires_capture
-  | #partially_captured
-  | #partially_captured_and_capturable
-  | #partially_authorized_and_requires_capture
-  | #partially_captured_and_processing
   | #conflicted
-  | #expired
-  | #review => []
+  | #review
+  | #cancelled => [Excluded]
   }
 
 let attemptStatusOutcomes = (status: attemptStatus) =>
   switch status {
-  | #charged => [Success]
-  | #failure => [Failed]
-  | #authentication_failed => [Excluded, AuthFailed]
-  | #payment_method_awaited
-  | #confirmation_awaited
-  | #device_data_collection_pending
-  | #unresolved => [Excluded]
-  | #started
-  | #router_declined
-  | #authentication_pending
-  | #authentication_successful
-  | #authorized
-  | #authorization_failed
-  | #authorizing
-  | #cod_initiated
-  | #voided
-  | #voided_post_charge
-  | #void_initiated
-  | #capture_initiated
-  | #capture_failed
-  | #void_failed
-  | #auto_refunded
+  | #charged
   | #partial_charged
+  | #authorized
   | #partially_authorized
   | #partial_charged_and_chargeable
+  | #capture_initiated
+  | #capture_review
+  | #capture_failed
+  | #void_initiated
+  | #void_failed
+  | #voided_post_charge
+  | #auto_refunded => [Success]
+  | #failure | #authorization_failed | #router_declined | #expired => [Failed]
+  | #authentication_failed => [Failed, AuthFailed]
+  | #payment_method_awaited
+  | #confirmation_awaited
+  | #started
+  | #authentication_pending
+  | #device_data_collection_pending
+  | #authentication_successful
+  | #authorizing
   | #pending
+  | #unresolved
   | #integrity_failure
-  | #expired
-  | #capture_review => []
+  | #cod_initiated
+  | #voided => [Excluded]
   }
 
 let refundStatusOutcomes = (status: refundStatus) =>
@@ -235,26 +234,28 @@ let outcomes = [Success, Failed, Excluded, Other]
 
 let getMeasureFormula = (source: source, measure: measure) =>
   switch (measure, source) {
-  | (#success_rate, #intent) => Rate(Success, EligibleRecords)
-  | (#success_rate, #dispute) => Rate(Success, DecidedRecords)
-  | (#success_rate, #attempt | #refund) => Rate(Success, AllRecords)
-  | (#failure_rate, #dispute) => Rate(Failed, DecidedRecords)
-  | (#failure_rate, #refund) => Rate(Failed, AllRecords)
-  | (#failure_rate, #intent | #attempt) => Rate(Failed, EligibleRecords)
-  | (#three_ds_failure_rate, _) => Rate(AuthFailed, ThreeDsAttempts)
+  | (#success_rate, _) => Rate(Success, DecidedRecords)
+  | (#failure_rate, _) => Rate(Failed, DecidedRecords)
+  | (#authorization_rate, _) => Rate(Success, AuthorizationRecords)
+  | (#authorization_failure_rate, _) => Rate(AuthorizationFailed, AuthorizationRecords)
   | (#not_completed_rate, _) => Rate(Excluded, AllRecords)
   | (#volume, _) => Count(Total)
   | (#successful, _) => Count(Success)
   | (#failed, _) => Count(Failed)
+  | (#not_completed, _) => Count(Excluded)
   | (#processed_amount, _) => TotalAmount(Processed)
   | (#lost_amount, _) => TotalAmount(Lost)
-  | (#avg_ticket, _) => AmountPerSuccess
   }
 
 let isLowerBetter = (measure: measure) =>
   switch measure {
-  | #failure_rate | #failed | #three_ds_failure_rate | #not_completed_rate | #lost_amount => true
-  | #success_rate | #volume | #successful | #processed_amount | #avg_ticket => false
+  | #failure_rate
+  | #failed
+  | #authorization_failure_rate
+  | #not_completed_rate
+  | #not_completed
+  | #lost_amount => true
+  | #success_rate | #authorization_rate | #volume | #successful | #processed_amount => false
   }
 
 let statusDimensions = sources->Array.filterMap(source => sourceConfig(source).statusDimension)
@@ -315,9 +316,9 @@ let presets: array<preset> = [
     view: #trend,
   },
   {
-    title: "Where does 3DS fail?",
+    title: "Which card networks approve the least?",
     source: #attempt,
-    measure: #three_ds_failure_rate,
+    measure: #authorization_rate,
     split: [#card_network],
     view: #breakdown,
   },

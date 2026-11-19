@@ -89,12 +89,10 @@ let getTotalSplitLine = (context: chartContext, ~by) => {
   switch context->getGroupsByMeasure->Array.filter(isRecordedGroup)->Array.get(0) {
   | Some(top) =>
     let value = formatValue(source, measure, top.current, ~currency=dataset.amountCurrency)
-    measure == #avg_ticket
-      ? `By ${by}, ${context->groupLabel(top)} is the highest at ${value}.`
-      : `By ${by}, ${context->groupLabel(top)} is the largest at ${value}, ${calculatePercentage(
-            getMeasureValue(source, measure, top.current),
-            getMeasureValue(source, measure, counts),
-          )->formatPercentage} of the ${isAmount(measure) ? "total amount" : "total"}.`
+    `By ${by}, ${context->groupLabel(top)} is the largest at ${value}, ${calculatePercentage(
+        getMeasureValue(source, measure, top.current),
+        getMeasureValue(source, measure, counts),
+      )->formatPercentage} of the ${isAmount(measure) ? "total amount" : "total"}.`
   | None => ""
   }
 }
@@ -132,7 +130,7 @@ let getOutcomeParts = (context: chartContext): array<StackedBarGraphTypes.dataOb
 let isExcludedFromRate = (context: chartContext) => {
   let {selection, dataset} = context
   switch getMeasureFormula(selection.source, selection.measure) {
-  | Rate(_, EligibleRecords) => dataset.overall.excluded > 0.0
+  | Rate(_, DecidedRecords | AuthorizationRecords) => dataset.overall.excluded > 0.0
   | _ => false
   }
 }
