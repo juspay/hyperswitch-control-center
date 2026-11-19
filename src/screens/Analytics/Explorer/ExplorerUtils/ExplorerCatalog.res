@@ -208,7 +208,7 @@ let attemptStatusOutcomes = (status: attemptStatus) =>
   | #voided_post_charge
   | #auto_refunded => [Success]
   | #failure | #authorization_failed | #router_declined | #expired => [Failed]
-  | #authentication_failed => [Failed, AuthFailed]
+  | #authentication_failed => [Failed, AuthenticationFailed]
   | #payment_method_awaited
   | #confirmation_awaited
   | #started

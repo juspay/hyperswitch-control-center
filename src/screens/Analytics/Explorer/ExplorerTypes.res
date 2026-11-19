@@ -122,7 +122,7 @@ type countField =
   | Success
   | Failed
   | Excluded
-  | AuthFailed
+  | AuthenticationFailed
   | AuthorizationFailed
   | Other
 
@@ -154,7 +154,7 @@ type counts = {
   total: float,
   success: float,
   failed: float,
-  authFailed: float,
+  authenticationFailed: float,
   excluded: float,
   amount: float,
   lostAmount: float,

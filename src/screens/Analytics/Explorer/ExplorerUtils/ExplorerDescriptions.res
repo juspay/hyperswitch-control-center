@@ -257,7 +257,7 @@ let outcomeLabel = (source: source, field) =>
   | (#dispute, Other) => "Open, accepted, expired or cancelled"
   | (_, Success) => "Succeeded"
   | (_, Failed) => "Failed"
-  | (_, AuthFailed) => "Failed 3DS authentication"
+  | (_, AuthenticationFailed) => "Failed 3DS authentication"
   | (_, AuthorizationFailed) => "Declined or expired"
   | (_, Total) => "All"
   }

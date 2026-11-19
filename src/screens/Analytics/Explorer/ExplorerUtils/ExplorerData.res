@@ -8,7 +8,7 @@ let emptyCounts = {
   total: 0.0,
   success: 0.0,
   failed: 0.0,
-  authFailed: 0.0,
+  authenticationFailed: 0.0,
   excluded: 0.0,
   amount: 0.0,
   lostAmount: 0.0,
@@ -18,7 +18,7 @@ let addCounts = (a, b) => {
   total: a.total +. b.total,
   success: a.success +. b.success,
   failed: a.failed +. b.failed,
-  authFailed: a.authFailed +. b.authFailed,
+  authenticationFailed: a.authenticationFailed +. b.authenticationFailed,
   excluded: a.excluded +. b.excluded,
   amount: a.amount +. b.amount,
   lostAmount: a.lostAmount +. b.lostAmount,
@@ -32,8 +32,8 @@ let getCount = (counts, field) =>
   | Success => counts.success
   | Failed => counts.failed
   | Excluded => counts.excluded
-  | AuthFailed => counts.authFailed
-  | AuthorizationFailed => counts.failed -. counts.authFailed
+  | AuthenticationFailed => counts.authenticationFailed
+  | AuthorizationFailed => counts.failed -. counts.authenticationFailed
   | Other => counts.total -. counts.success -. counts.failed -. counts.excluded
   }
 
@@ -44,7 +44,7 @@ let getDenominator = (counts, base) =>
   switch base {
   | AllRecords => counts.total
   | DecidedRecords => counts.success +. counts.failed
-  | AuthorizationRecords => counts.success +. counts.failed -. counts.authFailed
+  | AuthorizationRecords => counts.success +. counts.failed -. counts.authenticationFailed
   }
 
 let getRowCounts = (source: source, dict) => {
@@ -70,7 +70,7 @@ let getRowCounts = (source: source, dict) => {
       success: countIf(Success),
       failed: countIf(Failed),
       excluded: countIf(Excluded),
-      authFailed: countIf(AuthFailed),
+      authenticationFailed: countIf(AuthenticationFailed),
       amount: config.amountMetrics
       ->Array.map(metric => dict->getFloat((metric :> string), 0.0))
       ->getValueFromArray(0, 0.0),
