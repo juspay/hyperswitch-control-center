@@ -5,7 +5,6 @@ let refreshCooldownMs = 800
 // "Last 30 mins") is first moved forward to now, and the date change triggers the refetch.
 @react.component
 let make = (~offset, ~setOffset, ~onRefresh) => {
-  open Typography
   let {filterValueJson, updateExistingKeys} = React.useContext(FilterContext.filterContext)
   let setRefreshSignal = Recoil.useSetRecoilState(HyperswitchAtom.tableRefreshSignalAtom)
   let (isCoolingDown, setIsCoolingDown) = React.useState(_ => false)
@@ -35,13 +34,16 @@ let make = (~offset, ~setOffset, ~onRefresh) => {
     }
   }
 
-  <button
-    type_="button"
+  <Button
+    text="Refresh"
     ariaLabel="Refresh list"
-    disabled=isCoolingDown
+    leftIcon={CustomIcon(
+      <Icon name="sync-alt" size=14 className={isCoolingDown ? "animate-spin" : ""} />,
+    )}
+    buttonType=SecondaryFilled
+    buttonSize=Small
+    buttonState={isCoolingDown ? Disabled : Normal}
     onClick=handleClick
-    className={`flex items-center gap-2 ${body.md.medium} text-nd_gray-700 border border-nd_gray-200 rounded-10-px px-3.5 h-9 bg-white disabled:opacity-60 disabled:cursor-not-allowed`}>
-    <Icon name="sync-alt" size=14 className={isCoolingDown ? "animate-spin" : ""} />
-    {"Refresh"->React.string}
-  </button>
+    customButtonStyle="!rounded-10-px !bg-white !h-9 !text-nd_gray-700 border !border-nd_gray-200 disabled:opacity-60"
+  />
 }
