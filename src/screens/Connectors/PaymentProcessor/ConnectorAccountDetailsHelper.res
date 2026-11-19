@@ -387,6 +387,7 @@ module ConnectorConfigurationFields = {
     ~connectorAdditionalMerchantData,
   ) => {
     <div className="flex flex-col">
+      <UrlWhitelistAlertBanner.Connector connector />
       {switch connector {
       | Processors(CASHTOCODE) =>
         <CashToCodeMethods connectorAccountFields connector selectedConnector />

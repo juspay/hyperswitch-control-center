@@ -46,6 +46,7 @@ module PaymentBehaviour = {
           )
         }}>
         <div className="ml-1 mt-4">
+          <UrlWhitelistAlertBanner.Webhook />
           <FieldRenderer
             field={webhookUrl}
             labelClass={`!${body.lg.semibold} !text-nd-gray-700`}

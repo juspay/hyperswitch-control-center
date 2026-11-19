@@ -65,7 +65,10 @@ let make = (
     None
   }, [connector])
 
-  <ConnectorConfigurationFields
-    connector={connectorTypeFromName} connectorAccountFields selectedConnector showVertically
-  />
+  <>
+    <UrlWhitelistAlertBanner.Connector connector=connectorTypeFromName />
+    <ConnectorConfigurationFields
+      connector={connectorTypeFromName} connectorAccountFields selectedConnector showVertically
+    />
+  </>
 }
