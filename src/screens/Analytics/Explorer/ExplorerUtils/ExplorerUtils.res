@@ -21,20 +21,26 @@ let maxBreakdownGroups = 12
 
 let isRate = (measure: measure) =>
   switch measure {
-  | #success_rate | #failure_rate | #three_ds_failure_rate | #not_completed_rate => true
-  | #volume | #successful | #failed | #processed_amount | #avg_ticket | #lost_amount => false
+  | #success_rate
+  | #failure_rate
+  | #authorization_rate
+  | #authorization_failure_rate
+  | #not_completed_rate => true
+  | #volume | #successful | #failed | #not_completed | #processed_amount | #lost_amount => false
   }
 
 let isAmount = (measure: measure) =>
   switch measure {
-  | #processed_amount | #avg_ticket | #lost_amount => true
+  | #processed_amount | #lost_amount => true
   | #success_rate
   | #failure_rate
-  | #three_ds_failure_rate
+  | #authorization_rate
+  | #authorization_failure_rate
   | #not_completed_rate
   | #volume
   | #successful
-  | #failed => false
+  | #failed
+  | #not_completed => false
   }
 
 let getGrouping = (split: array<dimension>) => split->isNonEmptyArray ? Split : Overall
