@@ -13,7 +13,7 @@ set -euo pipefail
 # ---------------------------------------------------------------------------
 
 NETWORK="hyperswitch_router_net"
-PLAYWRIGHT_VERSION="v1.60.0"
+PLAYWRIGHT_VERSION="v1.65.1"
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 CONTAINER_NAME="playwright-snapshot-updater"
 FE_PORT=9000
@@ -21,9 +21,9 @@ FE_PORT=9000
 # Detect architecture for the correct Playwright image
 ARCH="$(uname -m)"
 case "$ARCH" in
-  x86_64)  IMAGE="mcr.microsoft.com/playwright:${PLAYWRIGHT_VERSION}-noble" ;;
-  aarch64) IMAGE="mcr.microsoft.com/playwright:${PLAYWRIGHT_VERSION}-noble-arm64" ;;
-  arm64)   IMAGE="mcr.microsoft.com/playwright:${PLAYWRIGHT_VERSION}-noble-arm64" ;;
+  x86_64)  IMAGE="mcr.microsoft.com/playwright:${PLAYWRIGHT_VERSION}-resolute" ;;
+  aarch64) IMAGE="mcr.microsoft.com/playwright:${PLAYWRIGHT_VERSION}-resolute-arm64" ;;
+  arm64)   IMAGE="mcr.microsoft.com/playwright:${PLAYWRIGHT_VERSION}-resolute-arm64" ;;
   *)       echo "Unsupported architecture: $ARCH"; exit 1 ;;
 esac
 

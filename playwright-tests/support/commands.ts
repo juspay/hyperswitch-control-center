@@ -1190,6 +1190,12 @@ export async function createPayoutAPI(
   const ctx = context ?? (await request.newContext());
   const jwt = page ? await getJwtFromLocalStorage(page) : "";
   const apiKey = await createAPIKey(merchantId, "", ctx, page);
+  // Payouts no longer create the customer implicitly (hyperswitch #15305).
+  await createCustomerAPI(merchantId, "test_customer", ctx, page).catch(
+    (error: Error) => {
+      if (!error.message.includes("already exists")) throw error;
+    },
+  );
 
   const response = await ctx.post(`${API_URL}/payouts/create`, {
     headers: {
