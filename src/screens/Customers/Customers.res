@@ -106,14 +106,17 @@ let make = () => {
       title="Customers" subTitle="View all customers" customHeadingStyle="mb-8"
     />
     //temporary fix for search input offset
-    <SearchInput
-      onChange=handleSearch
-      inputText=searchText
-      placeholder="Search by Customer ID"
-      onKeyDown=handleKeyDown
-      widthClass="w-80"
-      autoFocus=false
-    />
+    <div className="flex items-center justify-between gap-4">
+      <SearchInput
+        onChange=handleSearch
+        inputText=searchText
+        placeholder="Search by Customer ID"
+        onKeyDown=handleKeyDown
+        widthClass="w-80"
+        autoFocus=false
+      />
+      <PortalCapture key="CustomersCustomizeColumn" name="CustomersCustomizeColumn" />
+    </div>
     <PageLoaderWrapper screenState customUI>
       <LoadedTableWithCustomColumns
         title="Customers"
