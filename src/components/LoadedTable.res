@@ -816,6 +816,7 @@ let make = (
                 ?filterIcon
                 ?filterDropdownClass
                 maxTableHeight
+                fitToViewport=true
                 labelMargin
                 customFilterRowStyle
                 ?selectAllCheckBox
