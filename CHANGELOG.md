@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.20.0
+
+### Features
+
+- **connectors:** Add url whitelisting alert banner for webhooks and connectors ([#5801](https://github.com/juspay/hyperswitch-control-center/pull/5801)) ([`d48159d`](https://github.com/juspay/hyperswitch-control-center/commit/d48159df577136cc5a743b0b08108b4f4060d4bc))
+
+### Bug Fixes
+
+- **security:** Pin Node Docker images to 24.22.3 ([#5817](https://github.com/juspay/hyperswitch-control-center/pull/5817)) ([`6d26f8b`](https://github.com/juspay/hyperswitch-control-center/commit/6d26f8b0a13bc9cd25d692dd97d1c860dc7a475a))
+
+**Full Changelog:** [`2026.11.18.0...2026.11.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.18.0...2026.11.20.0)
+
+- - -
+
 ## 2026.11.18.0
 
 ### Features
