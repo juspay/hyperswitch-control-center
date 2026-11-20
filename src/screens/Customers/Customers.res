@@ -72,7 +72,14 @@ let make = () => {
       setScreenState(_ => PageLoaderWrapper.Error(err))
     }
   }
-  let customUI = <NoDataFound message="No results found" renderType={Painting} />
+  let refreshCustomers = () => getCustomersList(searchText)->ignore
+  let customUI =
+    <>
+      <Portal to="CustomersCustomizeColumn">
+        <TableRefreshButton onRefresh=refreshCustomers />
+      </Portal>
+      <NoDataFound message="No results found" renderType={Painting} />
+    </>
 
   let handleSearch = (searchValue: string) => {
     setSearchText(_ => searchValue)
@@ -118,7 +125,7 @@ let make = () => {
         totalResults=total
         offset
         setOffset
-        onRefresh={() => getCustomersList(searchText)->ignore}
+        onRefresh=refreshCustomers
         currentFetchCount={customersData->Array.length}
         defaultColumns={defaultColumns}
         customColumnMapper={TableAtoms.customersMapDefaultCols}

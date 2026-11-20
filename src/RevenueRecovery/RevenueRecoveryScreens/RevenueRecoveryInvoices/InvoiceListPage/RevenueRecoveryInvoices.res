@@ -114,12 +114,17 @@ let make = () => {
   }, (offset, filters, searchText, resultsPerPage, transactionEntity))
 
   let customUI =
-    <NoDataFound
-      customCssClass="my-6"
-      message="No results found"
-      renderType=ExtendDateUI
-      handleClick=handleExtendDateButtonClick
-    />
+    <>
+      <Portal to={`${tableTitle}CustomizeColumn`}>
+        <TableRefreshButton onRefresh=fetchInvoices />
+      </Portal>
+      <NoDataFound
+        customCssClass="my-6"
+        message="No results found"
+        renderType=ExtendDateUI
+        handleClick=handleExtendDateButtonClick
+      />
+    </>
 
   let filtersUI = React.useMemo(() => {
     <RemoteTableFilters

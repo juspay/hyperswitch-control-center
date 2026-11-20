@@ -18,15 +18,13 @@ let connectorFilterItemToObjMapper = (dict): connectorFilterData => {
   }
 }
 
-let formatDateString = date => {
-  date->Date.toISOString->TimeZoneHook.formattedISOString("YYYY-MM-DDTHH:mm:ss[Z]")
-}
-
 let getDateFilteredObject = (~range=7) => {
   let currentDate = Date.make()
 
   let end_time =
-    Date.fromTime(Math.ceil(currentDate->Date.getTime /. 1000.0) *. 1000.0)->formatDateString
+    Date.fromTime(
+      Math.ceil(currentDate->Date.getTime /. 1000.0) *. 1000.0,
+    )->DateRangePresetUtils.formatDateString
 
   let start_time =
     Js.Date.makeWithYMD(
@@ -37,7 +35,7 @@ let getDateFilteredObject = (~range=7) => {
     )
     ->Js.Date.setDate((currentDate->Js.Date.getDate->Float.toInt - range)->Int.toFloat)
     ->Js.Date.fromFloat
-    ->formatDateString
+    ->DateRangePresetUtils.formatDateString
 
   {
     start_time,
@@ -105,13 +103,13 @@ let useSetInitialFilters = (
         }
       })
       initialSearchParam->updateExistingKeys
-      DateRangePresetUtils.savePresetSelection(
-        ~startKey=startTimeFilterKey,
-        ~endKey=endTimeFilterKey,
-        ~preset=DateRangePresetUtils.defaultRangePresetId(~range),
-        ~startTime=defaultDate.start_time,
-        ~endTime=defaultDate.end_time,
-      )
+      DateRangePresetUtils.savePresetSelection({
+        startKey: startTimeFilterKey,
+        endKey: endTimeFilterKey,
+        preset: DateRangePresetUtils.defaultRangePresetId(~range),
+        startTime: defaultDate.start_time,
+        endTime: defaultDate.end_time,
+      })
     }
   }
 }

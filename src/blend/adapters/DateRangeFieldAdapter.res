@@ -41,17 +41,16 @@ module BlendDateRangeField = {
       endInput.onChange(formatIsoToFormat(endDate, format)->Identity.stringToFormReactEvent)
     }, (startInput.onChange, endInput.onChange, format))
 
-    // Fires before onChange so a list refresh can roll this preset forward to now
     let handlePresetSelection = React.useCallback(
       (data: DateRangePickerBinding.presetSelectionData) => {
         let {startDate, endDate} = data.dateRange
-        DateRangePresetUtils.savePresetSelection(
-          ~startKey,
-          ~endKey,
-          ~preset=data.preset,
-          ~startTime=formatIsoToFormat(startDate, format),
-          ~endTime=formatIsoToFormat(endDate->Option.getOr(startDate), format),
-        )
+        DateRangePresetUtils.savePresetSelection({
+          startKey,
+          endKey,
+          preset: data.preset,
+          startTime: formatIsoToFormat(startDate, format),
+          endTime: formatIsoToFormat(endDate->Option.getOr(startDate), format),
+        })
       },
       (startKey, endKey, format),
     )

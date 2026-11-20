@@ -37,7 +37,12 @@ let toBlendPreset = (
   | LastMonth => fromPreset(lastMonth)
   | LastSixMonths => {
       let (startDate, endDate) = DateRangeUtils.getLastSixMonthsRange(~now=Date.make())
-      makeCustomPreset(~id="last6Months", ~label="Last 6 months", ~startDate, ~endDate)
+      makeCustomPreset(
+        ~id=DateRangePresetUtils.lastSixMonthsPresetId,
+        ~label="Last 6 months",
+        ~startDate,
+        ~endDate,
+      )
     }
   | NextMonth => {
       let now = Date.make()
@@ -67,7 +72,12 @@ let toBlendPreset = (
       } else {
         let (startDate, endDate) = DateRangeUtils.getLastHoursRange(~now=Date.make(), x)
         let label = `Last ${x->Float.toString->removeTrailingZero} hours`
-        makeCustomPreset(~id=`last_${x->Float.toString}_hours`, ~label, ~startDate, ~endDate)
+        makeCustomPreset(
+          ~id=DateRangePresetUtils.lastHoursPresetId(x),
+          ~label,
+          ~startDate,
+          ~endDate,
+        )
       }
     } else {
       let now = Date.make()
@@ -88,7 +98,7 @@ let toBlendPreset = (
     } else {
       let (startDate, endDate) = DateRangeUtils.getLastDaysRange(~now=Date.make(), x)
       let label = `Last ${x->Float.toString->removeTrailingZero} days`
-      makeCustomPreset(~id=`last_${x->Float.toString}_days`, ~label, ~startDate, ~endDate)
+      makeCustomPreset(~id=DateRangePresetUtils.lastDaysPresetId(x), ~label, ~startDate, ~endDate)
     }
   }
 }

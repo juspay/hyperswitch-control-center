@@ -251,12 +251,19 @@ let make = (~previewOnly=false) => {
   let customTitleStyle = previewOnly ? "py-0 !pt-0" : ""
 
   let customUI =
-    <NoDataFound
-      customCssClass="my-6"
-      message="No results found"
-      renderType=ExtendDateUI
-      handleClick=handleExtendDateButtonClick
-    />
+    <>
+      <RenderIf condition={!previewOnly}>
+        <Portal to={`${tableTitle}CustomizeColumn`}>
+          <TableRefreshButton onRefresh=fetchOrders />
+        </Portal>
+      </RenderIf>
+      <NoDataFound
+        customCssClass="my-6"
+        message="No results found"
+        renderType=ExtendDateUI
+        handleClick=handleExtendDateButtonClick
+      />
+    </>
   let hasSearchText = searchText->isNonEmptyString
   let filtersUI = React.useMemo(() => {
     let searchPlaceholder = isAdvancedView

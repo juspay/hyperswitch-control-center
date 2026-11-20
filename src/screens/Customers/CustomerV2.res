@@ -100,7 +100,14 @@ let make = () => {
     }
   }
 
-  let customUI = <NoDataFound message="No results found" renderType={Painting} />
+  let refreshCustomers = () => getCustomersList(~skipDuplicateCheck=true, searchText)->ignore
+  let customUI =
+    <>
+      <Portal to="CustomersCustomizeColumn">
+        <TableRefreshButton onRefresh=refreshCustomers />
+      </Portal>
+      <NoDataFound message="No results found" renderType={Painting} />
+    </>
 
   React.useEffect(() => {
     let currentFilterState = {
@@ -165,7 +172,7 @@ let make = () => {
             totalResults=total
             offset
             setOffset
-            onRefresh={() => getCustomersList(~skipDuplicateCheck=true, searchText)->ignore}
+            onRefresh=refreshCustomers
             currentFetchCount={customersData->Array.length}
             defaultColumns={defaultColumns}
             customColumnMapper={TableAtoms.customersMapDefaultCols}

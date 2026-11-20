@@ -11,6 +11,8 @@ module DateRangePreset = {
   let lastMonth = "lastMonth"
   let last30Minutes = "last30Minutes"
   let last1Hour = "last1Hour"
+  let last6Hours = "last6Hours"
+  let last24Hours = "last24Hours"
   let last7Days = "last7Days"
   let last30Days = "last30Days"
 }

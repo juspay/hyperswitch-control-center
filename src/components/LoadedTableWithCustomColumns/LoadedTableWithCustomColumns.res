@@ -105,11 +105,10 @@ let make = (
       {chooseCols}
     </div>
 
-  // Refresh renders in the customize-column portal, next to the column button
-  let showRefresh = onRefresh->Option.isSome && totalResults > 0
+  let showRefresh = onRefresh->Option.isSome
   let refreshButton = switch onRefresh {
-  | Some(onRefresh) if showRefresh => <TableRefreshButton offset setOffset onRefresh />
-  | _ => React.null
+  | Some(onRefresh) => <TableRefreshButton onRefresh offset setOffset />
+  | None => React.null
   }
   let hideColumnButton = hideCustomisableColumnButton || !showColumnCustomisation
 
