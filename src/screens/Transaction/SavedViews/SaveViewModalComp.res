@@ -184,7 +184,9 @@ let make = (
 
     let startTimeKey = startTimeFilterKey(version)
     let endTimeKey = endTimeFilterKey(version)
-    let defaultDates = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
+    let defaultDates = HSwitchRemoteFilter.getDateFilteredObject(
+      ~range=HSwitchRemoteFilter.last30DaysRange,
+    )
 
     let start = merged->getString(startTimeKey, "")
     if start->isEmptyString || start->String.toLowerCase === "now" {
