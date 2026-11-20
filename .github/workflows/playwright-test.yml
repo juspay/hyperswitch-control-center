@@ -17,10 +17,6 @@ on:
           - "2"
           - "3"
           - "4"
-      update_snapshots:
-        description: "Regenerate visual snapshots and upload them as an artifact"
-        default: false
-        type: boolean
 
 concurrency:
   group: playwright-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -241,20 +237,11 @@ jobs:
           echo "$response"
 
       - name: Run Playwright visual tests
-        run: npx playwright test visual-testing ${{ inputs.update_snapshots == true && '--update-snapshots' || '' }}
+        run: npx playwright test visual-testing
         env:
           PW_COVERAGE: "1"
           PLAYWRIGHT_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           PLAYWRIGHT_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
-
-      - name: Artifact - Regenerated visual snapshots
-        uses: actions/upload-artifact@v4
-        if: ${{ inputs.update_snapshots == true }}
-        with:
-          name: playwright-visual-snapshots
-          path: playwright-tests/visual-testing/*-snapshots/
-          if-no-files-found: error
-          retention-days: 7
 
       - name: Stage visual CTRF report
         if: always()
