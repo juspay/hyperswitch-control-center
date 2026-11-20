@@ -182,7 +182,7 @@ let buildStagingEntriesV2Body = (
   ~limit=10,
 ) => {
   let statusFilter = filterValueJson->getStrArrayFromDict("status", [])
-  let detailedStatuses =
+  let statuses =
     statusFilter->isEmptyArray
       ? allStagingEntryStatuses
       : statusFilter->Array.map(value =>
@@ -194,9 +194,9 @@ let buildStagingEntriesV2Body = (
     filterValueJson->getStrArrayFromDict("transformation_history_ids", [])
 
   let filtersDict = Dict.make()
-  let detailedStatusPayload = detailedStatuses->getStagingEntryStatusPayload
+  let statusPayload = statuses->getStagingEntryStatusPayload
 
-  filtersDict->setOptionArray("detailed_status", detailedStatusPayload->getNonEmptyArray)
+  filtersDict->setOptionArray("status", statusPayload->getNonEmptyArray)
   filtersDict->setOptionArray(
     "entry_type",
     entryTypeFilter->Array.map(JSON.Encode.string)->getNonEmptyArray,
