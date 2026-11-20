@@ -6,6 +6,9 @@ type steps =
   | Preview
   | AutomaticFlow
   | WebhookRegistration
+
+type webhookUrlType = Mtls | NonMtls
+
 type connectorIntegrationField = {
   placeholder?: string,
   label?: string,

@@ -3,6 +3,36 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.20.0
+
+### Features
+
+- **connectors:** Add url whitelisting alert banner for webhooks and connectors ([#5801](https://github.com/juspay/hyperswitch-control-center/pull/5801)) ([`d48159d`](https://github.com/juspay/hyperswitch-control-center/commit/d48159df577136cc5a743b0b08108b4f4060d4bc))
+
+### Bug Fixes
+
+- **security:** Pin Node Docker images to 24.22.3 ([#5817](https://github.com/juspay/hyperswitch-control-center/pull/5817)) ([`6d26f8b`](https://github.com/juspay/hyperswitch-control-center/commit/6d26f8b0a13bc9cd25d692dd97d1c860dc7a475a))
+
+**Full Changelog:** [`2026.11.18.0...2026.11.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.18.0...2026.11.20.0)
+
+- - -
+
+## 2026.11.18.0
+
+### Features
+
+- **recon:** Show linking status and add flow reports ([#5814](https://github.com/juspay/hyperswitch-control-center/pull/5814)) ([`7519264`](https://github.com/juspay/hyperswitch-control-center/commit/75192646c1e176b94c227750425fc2e2b9d95fef))
+- Add mlts webhook url support for connectors ([#5813](https://github.com/juspay/hyperswitch-control-center/pull/5813)) ([`e955956`](https://github.com/juspay/hyperswitch-control-center/commit/e955956808ca91b006e2a6a087adfddf3bc471eb))
+
+### Bug Fixes
+
+- **deps:** Upgrade Superposition UI and XML parser ([#5815](https://github.com/juspay/hyperswitch-control-center/pull/5815)) ([`1782925`](https://github.com/juspay/hyperswitch-control-center/commit/1782925d97e22e124b7a39209df3e26051b5426c))
+- **payments:** Use selected view for payment list API ([#5623](https://github.com/juspay/hyperswitch-control-center/pull/5623)) ([`c991576`](https://github.com/juspay/hyperswitch-control-center/commit/c991576dd857405b6c93c95f88a56d2be97c3f17))
+
+**Full Changelog:** [`2026.11.13.1...2026.11.18.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.13.1...2026.11.18.0)
+
+- - -
+
 ## 2026.11.13.1
 
 ### Features

@@ -89,6 +89,18 @@ let vaultProcessorList: array<connectorTypes> = [VaultProcessor(VGS)]
 
 let surchargeProcessorList: array<connectorTypes> = [SurchargeProcessor(INTERPAYMENTS)]
 
+// Connectors whose outgoing endpoints must be whitelisted before configuring them
+let urlWhitelistingRequiredConnectorList: array<connectorTypes> = [
+  Processors(ADYEN),
+  Processors(KLARNA),
+  Processors(NOON),
+  PayoutProcessor(ADYEN),
+  PayoutProcessor(ADYENPLATFORM),
+  ThreeDsAuthenticator(NETCETERA),
+  BillingProcessor(CHARGEBEE),
+  VaultProcessor(VGS),
+]
+
 let connectorList: array<connectorTypes> = [
   Processors(STRIPE),
   Processors(PAYPAL),
@@ -1768,6 +1780,7 @@ let configKeysToIgnore = [
   "connector_wallets_details",
   "connector_webhook_register_details",
   "pay_via_single_use_token",
+  "webhook_url_type",
 ]
 
 let getPayViaSingleUseTokenConfig = connectorConfig =>
@@ -2350,8 +2363,19 @@ let onSubmit = async (
   Nullable.null
 }
 
-let getWebhooksUrl = (~connectorName, ~merchantId) => {
-  `${Window.env.apiBaseUrl}/webhooks/${merchantId}/${connectorName}`
+let getWebhookUrlTypeFromString = webhookUrlType =>
+  switch webhookUrlType {
+  | "mtls" => Mtls
+  | _ => NonMtls
+  }
+
+// mTLS connectors receive webhooks on a separate host, addressed by merchant connector id
+let getWebhooksUrl = (~connectorName, ~merchantId, ~merchantConnectorId, ~webhookUrlType) => {
+  let {apiBaseUrl, mtlsApiUrl} = Window.env
+  switch (webhookUrlType, mtlsApiUrl) {
+  | (Mtls, Some(mtlsApiUrl)) => `${mtlsApiUrl}/webhooks/${merchantId}/${merchantConnectorId}`
+  | _ => `${apiBaseUrl}/webhooks/${merchantId}/${connectorName}`
+  }
 }
 
 let itemToPMAuthMapper = dict => {
@@ -2757,14 +2781,18 @@ let getConnectorCategory = (connector: connectorTypes): option<connector> =>
   | UnknownConnector(_) => None
   }
 
+let getDisplayNameFromConnectorType = (connector: connectorTypes) => {
+  let connectorName = connector->getConnectorNameString
+  connector
+  ->getConnectorCategory
+  ->mapOptionOrDefault(connectorName, connectorType =>
+    connectorName->getDisplayNameForConnector(~connectorType)
+  )
+}
+
 let matchesConnectorTypeSearch = (connector: connectorTypes, searchText) => {
   let connectorName = connector->getConnectorNameString
-  let displayName =
-    connector
-    ->getConnectorCategory
-    ->mapOptionOrDefault(connectorName, connectorType =>
-      connectorName->getDisplayNameForConnector(~connectorType)
-    )
+  let displayName = connector->getDisplayNameFromConnectorType
 
   [connectorName, displayName]->Array.some(value => isContainingStringLowercase(value, searchText))
 }

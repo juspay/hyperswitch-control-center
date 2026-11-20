@@ -1214,12 +1214,21 @@ let getReconProcessorStatusVariantFromString = (status: string): reconProcessorS
   }
 }
 
-let reconEngineStatusItemToObjMapper = (dict): reconEngineStatusType => {
+let reconEngineStatusItemToObjMapper = (dict): processorQueueStatus => {
   {
     processor_status: dict
     ->getString("processor_status", "")
     ->getReconProcessorStatusVariantFromString,
-    pending_staging_entries: dict->getInt("pending_staging_entries", 0),
+    pending_entries: dict->getInt("pending_staging_entries", 0),
+  }
+}
+
+let linkingProcessorStatusItemToObjMapper = (dict): processorQueueStatus => {
+  {
+    processor_status: dict
+    ->getString("processor_status", "")
+    ->getReconProcessorStatusVariantFromString,
+    pending_entries: dict->getInt("pending_entries", 0),
   }
 }
 
