@@ -12,6 +12,10 @@ let gracePeriodDaysKey = "grace_period_days"
 let maxHardDeclineRetriesKey = "max_hard_decline_retries"
 let enablePartialAuthorizationKey = "enable_partial_authorization"
 
+let connectorFeatureMetadataKey = "feature_metadata"
+let connectorRevenueRecoveryKey = "revenue_recovery"
+let connectorRetryConfigPrefix = `${connectorFeatureMetadataKey}.${connectorRevenueRecoveryKey}`
+
 let webhookDetailsKey = "webhook_details"
 let webhookUrlKey = "webhook_url"
 let webhookUrlFieldName = `${webhookDetailsKey}.${webhookUrlKey}`
@@ -122,13 +126,11 @@ let getRetryConfigInitialValues = retryConfig =>
   ->Dict.fromArray
   ->JSON.Encode.object
 
-let getRetryConfigFieldName = key => `${retryConfigKey}.${key}`
+let getRetryConfigFieldName = (~prefix=retryConfigKey, key) => `${prefix}.${key}`
 
-let validateRetryConfig = values => {
-  let errors = Dict.make()
-  let retryConfig = values->getDictFromJsonObject->getDictfromDict(retryConfigKey)
+let addRetryConfigErrors = (errors, retryConfig, ~prefix) => {
   let setError = (key, message) =>
-    errors->Dict.set(key->getRetryConfigFieldName, message->JSON.Encode.string)
+    errors->Dict.set(key->getRetryConfigFieldName(~prefix), message->JSON.Encode.string)
 
   switch retryConfig->getOptionInt(retryThresholdKey) {
   | None => retryThresholdKey->setError("Please enter start retry count")
@@ -159,7 +161,25 @@ let validateRetryConfig = values => {
     maxHardDeclineRetriesKey->setError("Hard decline retries cannot be more than total retries")
   | Some(_) => ()
   }
+}
 
+let validateRetryConfig = values => {
+  let errors = Dict.make()
+  errors->addRetryConfigErrors(
+    values->getDictFromJsonObject->getDictfromDict(retryConfigKey),
+    ~prefix=retryConfigKey,
+  )
+  errors->JSON.Encode.object
+}
+
+let getConnectorRetryConfig = values =>
+  values
+  ->getDictFromJsonObject
+  ->getDictFromNestedDict(connectorFeatureMetadataKey, connectorRevenueRecoveryKey)
+
+let validateConnectorRetryConfig = values => {
+  let errors = Dict.make()
+  errors->addRetryConfigErrors(values->getConnectorRetryConfig, ~prefix=connectorRetryConfigPrefix)
   errors->JSON.Encode.object
 }
 

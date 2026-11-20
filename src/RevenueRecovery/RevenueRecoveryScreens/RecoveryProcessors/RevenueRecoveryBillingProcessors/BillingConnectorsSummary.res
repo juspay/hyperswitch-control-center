@@ -677,6 +677,13 @@ module RetriesConfiguration = {
         "grace_period_days",
         RevenueRecoveryOnboardingUtils.defaultGracePeriodDays,
       )
+    let isHardDeclineEditable = devRecoveryExternalTrigger && isEditMode
+    let hardDeclineRetries = devRecoveryExternalTrigger
+      ? revenueRecovery->getInt(
+          maxHardDeclineRetriesKey,
+          RevenueRecoveryOnboardingUtils.hardDeclineTotalRetries,
+        )
+      : RevenueRecoveryOnboardingUtils.hardDeclineTotalRetries
 
     let saveMode = async () => {
       try {
@@ -803,7 +810,9 @@ module RetriesConfiguration = {
     let hardDeclineRetriesInfo =
       <ToolTip
         toolTipPosition=Top
-        description="The total number of retries done for hard declines. This is fixed and cannot be changed"
+        description={devRecoveryExternalTrigger
+          ? hardDeclineRetriesHint
+          : "The total number of retries done for hard declines. This is fixed and cannot be changed"}
         toolTipFor={<Icon name="info-circle-unfilled" size=14 />}
       />
 
@@ -818,7 +827,10 @@ module RetriesConfiguration = {
       )
 
     <PageLoaderWrapper screenState>
-      <Form onSubmit initialValues validate=validateRetryFields>
+      <Form
+        onSubmit
+        initialValues
+        validate={devRecoveryExternalTrigger ? validateConnectorRetryConfig : validateRetryFields}>
         <div className="flex flex-col gap-7">
           <div className="flex justify-end px-2">
             <div className="flex gap-4">
@@ -914,17 +926,28 @@ module RetriesConfiguration = {
               </div>
             </RenderIf>
             <div className="flex flex-col gap-2 ">
-              <div className="flex gap-2 items-center">
-                <h4 className="text-nd_gray-400 ">
-                  {"Total retries for hard declines"->React.string}
-                </h4>
-                {hardDeclineRetriesInfo}
-              </div>
-              <p>
-                {RevenueRecoveryOnboardingUtils.hardDeclineTotalRetries
-                ->Int.toString
-                ->React.string}
-              </p>
+              <RenderIf condition={!isHardDeclineEditable}>
+                <div className="flex gap-2 items-center">
+                  <h4 className="text-nd_gray-400 ">
+                    {"Total retries for hard declines"->React.string}
+                  </h4>
+                  {hardDeclineRetriesInfo}
+                </div>
+                <p> {hardDeclineRetries->Int.toString->React.string} </p>
+              </RenderIf>
+              <RenderIf condition={isHardDeclineEditable}>
+                <FormRenderer.FieldRenderer
+                  labelClass={`!text-nd_gray-400 ${body.md.regular}`}
+                  field={retryField(
+                    ~label="Total retries for hard declines",
+                    ~customLabelIcon=hardDeclineRetriesInfo,
+                    ~name=maxHardDeclineRetriesKey->getRetryConfigFieldName(
+                      ~prefix=connectorRetryConfigPrefix,
+                    ),
+                    ~placeholder="ex 0",
+                  )}
+                />
+              </RenderIf>
             </div>
             <div className="flex flex-col gap-2 ">
               <RenderIf condition={!isEditMode}>
