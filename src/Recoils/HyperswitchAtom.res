@@ -104,3 +104,5 @@ let moduleListRecoil: Recoil.recoilAtom<array<UserManagementTypes.userModuleType
 )
 
 let orchestrationVaultAtom: Recoil.recoilAtom<bool> = Recoil.atom("orchestrationVaultAtom", false)
+
+let tableRefreshSignalAtom: Recoil.recoilAtom<int> = Recoil.atom("tableRefreshSignalAtom", 0)

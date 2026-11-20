@@ -129,12 +129,17 @@ let make = () => {
     </div>
     <PageLoaderWrapper
       screenState
-      customUI={<NoDataFound
-        customCssClass="my-6"
-        message="No results found"
-        renderType=ExtendDateUI
-        handleClick=handleExtendDateButtonClick
-      />}>
+      customUI={<>
+        <Portal to="Payment LinksCustomizeColumn">
+          <TableRefreshButton onRefresh=fetchPaymentLinks />
+        </Portal>
+        <NoDataFound
+          customCssClass="my-6"
+          message="No results found"
+          renderType=ExtendDateUI
+          handleClick=handleExtendDateButtonClick
+        />
+      </>}>
       <LoadedTableWithCustomColumns
         hideTitle=true
         title="Payment Links"
@@ -145,6 +150,7 @@ let make = () => {
         totalResults={totalCount}
         offset
         setOffset
+        onRefresh=fetchPaymentLinks
         currentFetchCount={paymentLinksData->Array.length}
         onEntityClick={paymentLink =>
           GlobalVars.appendDashboardPath(
