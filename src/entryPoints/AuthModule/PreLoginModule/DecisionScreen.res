@@ -29,9 +29,11 @@ let make = () => {
   | ACCEPT_INVITE =>
     <ListInvitationScreen />
   | TOTP => <TwoFaLanding />
-  | FORCE_SET_PASSWORD
+  | FORCE_SET_PASSWORD => <ResetPassword flowType />
   | RESET_PASSWORD =>
-    <ResetPassword flowType />
+    featureFlagDetails.forgotPasswordDisabled
+      ? <CommonAuthError onClick=onClickErrorPageButton />
+      : <ResetPassword flowType />
   | ACCEPT_INVITATION_FROM_EMAIL =>
     featureFlagDetails.devAcceptInvite
       ? {<AcceptInviteScreenV2 onClick=onClickErrorPageButton />}
