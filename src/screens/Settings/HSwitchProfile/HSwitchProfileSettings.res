@@ -225,6 +225,7 @@ module BasicDetailsSection = {
 
     let {email: isEmailEnabled, forgotPasswordDisabled} =
       HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let showPasswordRow = !(isEmailEnabled && forgotPasswordDisabled)
     <div>
       <div className="border bg-gray-50 rounded-t-lg w-full px-10 py-6">
         <p className=sectionHeadingClass> {"User Info"->React.string} </p>
@@ -242,7 +243,7 @@ module BasicDetailsSection = {
           <p className=titleClass> {"Email:"->React.string} </p>
           <p className=subTitleClass> {email->React.string} </p>
         </div>
-        <RenderIf condition={!forgotPasswordDisabled}>
+        <RenderIf condition={showPasswordRow}>
           <hr />
           <RenderIf condition={isEmailEnabled}>
             <ResetPassword />
