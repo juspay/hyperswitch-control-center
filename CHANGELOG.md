@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.21.0
+
+### Features
+
+- **auth:** Hide forgot, reset and change password behind forgot_password_disabled flag ([#5820](https://github.com/juspay/hyperswitch-control-center/pull/5820)) ([`5612e4a`](https://github.com/juspay/hyperswitch-control-center/commit/5612e4a308d9662155389e7dcdca04fa492be365))
+
+**Full Changelog:** [`2026.11.20.0...2026.11.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.20.0...2026.11.21.0)
+
+- - -
+
 ## 2026.11.20.0
 
 ### Features
