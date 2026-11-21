@@ -1,6 +1,5 @@
 open LogicUtils
 open ExplorerTypes
-open ExplorerCatalog
 open ExplorerUtils
 open ExplorerData
 open ExplorerDescriptions
@@ -9,7 +8,7 @@ let outcomeColumns = [OutcomeName, OutcomeCount, OutcomeChange, OutcomeShare]
 
 let getOutcomeRows = (selection, dataset) => {
   let hasPrevious = dataset.overallPrevious.total > 0.0
-  outcomes->Array.map(field => {
+  getVisibleOutcomes([dataset.overall, dataset.overallPrevious])->Array.map(field => {
     let current = dataset.overall->getCount(field)
     let previous = hasPrevious ? Some(dataset.overallPrevious->getCount(field)) : None
     {
