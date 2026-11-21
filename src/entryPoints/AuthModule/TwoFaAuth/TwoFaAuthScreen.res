@@ -27,9 +27,7 @@ let make = (~setAuthStatus) => {
     //redirection url check for email
     | list{"user", "verify_email"} => setAuthType(_ => EmailVerify)
     | list{"user", "set_password"} =>
-      !featureFlagDetails.forgotPasswordDisabled && checkAuthMethodExists([PASSWORD])
-        ? setAuthType(_ => ResetPassword)
-        : ()
+      checkAuthMethodExists([PASSWORD]) ? setAuthType(_ => ResetPassword) : ()
     | list{"user", "accept_invite_from_email"} => setAuthType(_ => ActivateFromEmail)
     | _ =>
       //redirection url for dashboard
