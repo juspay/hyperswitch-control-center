@@ -36,6 +36,7 @@ maintenance_alert=""
 down_time=false
 email=false
 signup_disabled=false
+forgot_password_disabled=false
 totp=true
 quick_start=false
 global_search=false

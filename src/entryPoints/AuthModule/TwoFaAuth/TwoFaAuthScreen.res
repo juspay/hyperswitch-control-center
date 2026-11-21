@@ -27,14 +27,20 @@ let make = (~setAuthStatus) => {
     //redirection url check for email
     | list{"user", "verify_email"} => setAuthType(_ => EmailVerify)
     | list{"user", "set_password"} =>
-      checkAuthMethodExists([PASSWORD]) ? setAuthType(_ => ResetPassword) : ()
+      !featureFlagDetails.forgotPasswordDisabled && checkAuthMethodExists([PASSWORD])
+        ? setAuthType(_ => ResetPassword)
+        : ()
     | list{"user", "accept_invite_from_email"} => setAuthType(_ => ActivateFromEmail)
     | _ =>
       //redirection url for dashboard
       switch url.path->HSwitchUtils.urlPath {
       | list{"login"} => setAuthType(_ => isMagicLinkEnabled() ? LoginWithEmail : LoginWithPassword)
       | list{"forget-password"} =>
-        checkAuthMethodExists([PASSWORD]) ? setAuthType(_ => ForgetPassword) : ()
+        if featureFlagDetails.forgotPasswordDisabled {
+          AuthUtils.redirectToLogin()
+        } else if checkAuthMethodExists([PASSWORD]) {
+          setAuthType(_ => ForgetPassword)
+        }
       | list{"register"} => !isLiveMode ? setAuthType(_ => SignUP) : AuthUtils.redirectToLogin()
       | _ => ()
       }
