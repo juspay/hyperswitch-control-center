@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.21.1
+
+### Bug Fixes
+
+- **auth:** Limit forgot_password_disabled to the forgot password entry points ([#5821](https://github.com/juspay/hyperswitch-control-center/pull/5821)) ([`4a6352f`](https://github.com/juspay/hyperswitch-control-center/commit/4a6352fa397ae29eeb9c0c637025d19e20146670))
+
+**Full Changelog:** [`2026.11.21.0...2026.11.21.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.21.0...2026.11.21.1)
+
+- - -
+
 ## 2026.11.21.0
 
 ### Features
