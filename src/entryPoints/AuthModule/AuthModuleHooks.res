@@ -171,27 +171,30 @@ let useNote = (authType, setAuthType) => {
         </p>
       </RenderIf>
     | ForgetPassword
+    | MagicLinkFallback
     | MagicLinkEmailSent
     | MagicLinkFallbackEmailSent
     | ForgetPasswordEmailSent
     | ResendVerifyEmailSent =>
       <div className="w-full flex justify-center">
         <div
-          onClick={_ => {
-            let backState = switch authType {
-            | ForgetPasswordEmailSent => ForgetPassword
-            | ResendVerifyEmailSent => ResendVerifyEmail
-            | MagicLinkFallbackEmailSent => MagicLinkFallback
-            | ForgetPassword | MagicLinkEmailSent | _ => LoginWithEmail
-            }
-            let backUrl = switch authType {
-            | ForgetPasswordEmailSent => "/forget-password"
-            | ResendVerifyEmailSent => "/resend-mail"
-            | ForgetPassword | MagicLinkEmailSent | _ => `/login?auth_id=${authId}`
-            }
-            setAuthType(_ => backState)
-            onCancelClick(~path=backUrl)
-          }}
+          onClick={_ =>
+            switch authType {
+            | MagicLinkFallback | MagicLinkFallbackEmailSent => setAuthType(_ => LoginWithPassword)
+            | _ =>
+              let backState = switch authType {
+              | ForgetPasswordEmailSent => ForgetPassword
+              | ResendVerifyEmailSent => ResendVerifyEmail
+              | ForgetPassword | MagicLinkEmailSent | _ => LoginWithEmail
+              }
+              let backUrl = switch authType {
+              | ForgetPasswordEmailSent => "/forget-password"
+              | ResendVerifyEmailSent => "/resend-mail"
+              | ForgetPassword | MagicLinkEmailSent | _ => `/login?auth_id=${authId}`
+              }
+              setAuthType(_ => backState)
+              onCancelClick(~path=backUrl)
+            }}
           className={`text-sm text-center ${textColor.primaryNormal} hover:underline underline-offset-2 cursor-pointer w-fit`}>
           {"Cancel"->React.string}
         </div>
