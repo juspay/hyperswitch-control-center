@@ -12,7 +12,9 @@ let make = (~setAuthStatus) => {
   let pageViewEvent = MixpanelHook.usePageView()
   let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let authInitState =
-    isMagicLinkEnabled() && !isPasswordEnabled() ? LoginWithEmail : LoginWithPassword
+    isMagicLinkEnabled() && (!isPasswordEnabled() || featureFlagDetails.passwordLoginDisabled)
+      ? LoginWithEmail
+      : LoginWithPassword
 
   let (authType, setAuthType) = React.useState(_ => authInitState)
 

@@ -130,6 +130,7 @@ let useNote = (authType, setAuthType) => {
   let authId = HyperSwitchEntryUtils.getSessionData(~key="auth_id")
 
   let {isMagicLinkEnabled, isPasswordEnabled} = useAuthMethods()
+  let {passwordLoginDisabled} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
   let getFooterLinkComponent = (~btnText, ~authType, ~path) => {
     <div
@@ -149,7 +150,7 @@ let useNote = (authType, setAuthType) => {
   <div className="w-96">
     {switch authType {
     | LoginWithEmail =>
-      <RenderIf condition={isPasswordEnabled() && isMagicLinkEnabled()}>
+      <RenderIf condition={isPasswordEnabled() && isMagicLinkEnabled() && !passwordLoginDisabled}>
         {getFooterLinkComponent(
           ~btnText="sign in using password",
           ~authType=LoginWithPassword,
