@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.22.0
+
+### Features
+
+- **auth:** Fall back to magic link when password sign in fails behind signin_magic_link_fallback flag ([#5822](https://github.com/juspay/hyperswitch-control-center/pull/5822)) ([`375691a`](https://github.com/juspay/hyperswitch-control-center/commit/375691a64c7018df499279128b28559fc6a1b454))
+
+**Full Changelog:** [`2026.11.21.1...2026.11.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.21.1...2026.11.22.0)
+
+- - -
+
 ## 2026.11.21.1
 
 ### Bug Fixes
