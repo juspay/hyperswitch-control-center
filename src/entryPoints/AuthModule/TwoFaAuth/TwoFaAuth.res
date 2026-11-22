@@ -39,6 +39,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
       }
     | UR_16 => "Please use a valid email"
     | UR_01 => "Incorrect email or password"
+    | UR_67 => "Account locked after too many failed sign in attempts. Please try again later"
     | _ => "Register failed, Try again"
     }
   }
@@ -55,7 +56,13 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
       let magicLinkSent = valuesDict->LogicUtils.getBool("is_email_sent", false)
 
       if magicLinkSent {
-        setAuthType(_ => MagicLinkEmailSent)
+        setAuthType(_ =>
+          switch authType {
+          | CommonAuthTypes.MagicLinkFallback | CommonAuthTypes.MagicLinkFallbackEmailSent =>
+            CommonAuthTypes.MagicLinkFallbackEmailSent
+          | _ => MagicLinkEmailSent
+          }
+        )
       } else {
         showToast(~message="Failed to send an email, Try again", ~toastType=ToastError)
       }
@@ -63,11 +70,10 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
     | Exn.Error(e) =>
       let errorCode =
         (e->CommonAuthUtils.parseErrorMessage).code->CommonAuthUtils.errorSubCodeMapper
-      switch (featureFlagValues.signinMagicLinkFallback, authType, errorCode) {
-      | (true, CommonAuthTypes.VerifyWithEmail, UR_01)
-      | (true, CommonAuthTypes.LoginWithEmail, UR_01)
-      | (true, CommonAuthTypes.MagicLinkEmailSent, UR_01) =>
-        setAuthType(_ => MagicLinkEmailSent)
+      switch (authType, errorCode) {
+      | (CommonAuthTypes.MagicLinkFallback, UR_01)
+      | (CommonAuthTypes.MagicLinkFallbackEmailSent, UR_01) =>
+        setAuthType(_ => MagicLinkFallbackEmailSent)
       | _ => showToast(~message={e->handleAuthError}, ~toastType=ToastError)
       }
     }
@@ -84,7 +90,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
       let errorCode =
         (e->CommonAuthUtils.parseErrorMessage).code->CommonAuthUtils.errorSubCodeMapper
       switch (fallbackToMagicLink, errorCode) {
-      | (true, UR_01) | (true, UR_67) => setAuthType(_ => CommonAuthTypes.VerifyWithEmail)
+      | (true, UR_01) | (true, UR_67) => setAuthType(_ => CommonAuthTypes.MagicLinkFallback)
       | _ => showToast(~message={e->handleAuthError}, ~toastType=ToastError)
       }
     }
@@ -179,7 +185,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
             getUserWithEmailPassword(body, #SIGNUP)
           }
 
-        | (_, _, true, LoginWithEmail) | (_, _, true, VerifyWithEmail) => {
+        | (_, _, true, LoginWithEmail) | (_, _, true, MagicLinkFallback) => {
             let body = getEmailBody(email, ~country)
             getUserWithEmail(body)
           }
@@ -241,7 +247,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
     open CommonAuthUtils
     let body = email->getEmailBody
     switch authType {
-    | MagicLinkEmailSent => getUserWithEmail(body)->ignore
+    | MagicLinkEmailSent | MagicLinkFallbackEmailSent => getUserWithEmail(body)->ignore
     | ForgetPasswordEmailSent => setForgetPassword(body)->ignore
     | ResendVerifyEmailSent => resendVerifyEmail(body)->ignore
     | _ => ()
@@ -249,7 +255,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   }
 
   let submitBtnText = switch authType {
-  | LoginWithPassword | LoginWithEmail | VerifyWithEmail => "Continue"
+  | LoginWithPassword | LoginWithEmail | MagicLinkFallback => "Continue"
   | ResetPassword => "Confirm"
   | ForgetPassword => "Reset password"
   | ResendVerifyEmail => "Send mail"
@@ -259,7 +265,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let validateKeys = switch authType {
   | ForgetPassword
   | ResendVerifyEmail
-  | VerifyWithEmail
+  | MagicLinkFallback
   | LoginWithEmail => ["email"]
   | SignUP => featureFlagValues.email ? ["email"] : ["email", "password"]
   | LoginWithPassword => ["email"]
@@ -311,9 +317,12 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
             </>
 
           | LoginWithEmail => isMagicLinkEnabled() ? <EmailForm /> : <EmailPasswordForm />
-          | VerifyWithEmail => <EmailForm />
+          | MagicLinkFallback => <EmailForm />
           | ResetPassword => <ResetPasswordForm />
-          | MagicLinkEmailSent | ForgetPasswordEmailSent | ResendVerifyEmailSent =>
+          | MagicLinkEmailSent
+          | MagicLinkFallbackEmailSent
+          | ForgetPasswordEmailSent
+          | ResendVerifyEmailSent =>
             <ResendBtn callBackFun={resendEmail} />
           | _ => React.null
           }}
@@ -322,7 +331,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
               {switch authType {
               | LoginWithPassword
               | LoginWithEmail
-              | VerifyWithEmail
+              | MagicLinkFallback
               | ResetPassword
               | ForgetPassword
               | ResendVerifyEmail

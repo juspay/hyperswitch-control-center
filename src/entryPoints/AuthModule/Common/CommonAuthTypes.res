@@ -11,7 +11,7 @@ type logoVariant = Icon | Text | IconWithText | IconWithURL
 type authFlow =
   | LoginWithPassword
   | LoginWithEmail
-  | VerifyWithEmail
+  | MagicLinkFallback
   | SignUP
   | EmailVerify
   | MagicLinkVerify
@@ -19,6 +19,7 @@ type authFlow =
   | ForgetPasswordEmailSent
   | ResendVerifyEmailSent
   | MagicLinkEmailSent
+  | MagicLinkFallbackEmailSent
   | ResetPassword
   | ResendVerifyEmail
   | LiveMode

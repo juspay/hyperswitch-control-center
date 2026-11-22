@@ -170,13 +170,18 @@ let useNote = (authType, setAuthType) => {
           {"We'll be emailing you a magic link for a password-free experience, you can always choose to setup a password later."->React.string}
         </p>
       </RenderIf>
-    | ForgetPassword | MagicLinkEmailSent | ForgetPasswordEmailSent | ResendVerifyEmailSent =>
+    | ForgetPassword
+    | MagicLinkEmailSent
+    | MagicLinkFallbackEmailSent
+    | ForgetPasswordEmailSent
+    | ResendVerifyEmailSent =>
       <div className="w-full flex justify-center">
         <div
           onClick={_ => {
             let backState = switch authType {
             | ForgetPasswordEmailSent => ForgetPassword
             | ResendVerifyEmailSent => ResendVerifyEmail
+            | MagicLinkFallbackEmailSent => MagicLinkFallback
             | ForgetPassword | MagicLinkEmailSent | _ => LoginWithEmail
             }
             let backUrl = switch authType {
