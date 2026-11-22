@@ -60,18 +60,33 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
         showToast(~message="Failed to send an email, Try again", ~toastType=ToastError)
       }
     } catch {
-    | Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError)
+    | Exn.Error(e) =>
+      let errorCode =
+        (e->CommonAuthUtils.parseErrorMessage).code->CommonAuthUtils.errorSubCodeMapper
+      switch (featureFlagValues.signinMagicLinkFallback, authType, errorCode) {
+      | (true, CommonAuthTypes.VerifyWithEmail, UR_01)
+      | (true, CommonAuthTypes.LoginWithEmail, UR_01)
+      | (true, CommonAuthTypes.MagicLinkEmailSent, UR_01) =>
+        setAuthType(_ => MagicLinkEmailSent)
+      | _ => showToast(~message={e->handleAuthError}, ~toastType=ToastError)
+      }
     }
     Nullable.null
   }
 
-  let getUserWithEmailPassword = async (body, userType) => {
+  let getUserWithEmailPassword = async (body, userType, ~fallbackToMagicLink=false) => {
     try {
       let url = getURL(~entityName=V1(USERS), ~userType, ~methodType=Post)
       let res = await updateDetails(url, body, Post)
       setAuthStatus(PreLogin(AuthUtils.getPreLoginInfo(res)))
     } catch {
-    | Exn.Error(e) => showToast(~message={e->handleAuthError}, ~toastType=ToastError)
+    | Exn.Error(e) =>
+      let errorCode =
+        (e->CommonAuthUtils.parseErrorMessage).code->CommonAuthUtils.errorSubCodeMapper
+      switch (fallbackToMagicLink, errorCode) {
+      | (true, UR_01) | (true, UR_67) => setAuthType(_ => CommonAuthTypes.VerifyWithEmail)
+      | _ => showToast(~message={e->handleAuthError}, ~toastType=ToastError)
+      }
     }
     Nullable.null
   }
@@ -164,15 +179,19 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
             getUserWithEmailPassword(body, #SIGNUP)
           }
 
-        | (_, _, true, LoginWithEmail) => {
+        | (_, _, true, LoginWithEmail) | (_, _, true, VerifyWithEmail) => {
             let body = getEmailBody(email, ~country)
             getUserWithEmail(body)
           }
 
-        | (_, _, _, LoginWithPassword) => {
+        | (_, _, magicLinkEnabled, LoginWithPassword) => {
             let password = getString(valuesDict, "password", "")
             let body = getEmailPasswordBody(email, password, country)
-            getUserWithEmailPassword(body, #SIGNINV2)
+            getUserWithEmailPassword(
+              body,
+              #SIGNINV2,
+              ~fallbackToMagicLink=featureFlagValues.signinMagicLinkFallback && magicLinkEnabled,
+            )
           }
         | (_, _, _, ResendVerifyEmail) => {
             let exists = checkAuthMethodExists([PASSWORD])
@@ -230,7 +249,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   }
 
   let submitBtnText = switch authType {
-  | LoginWithPassword | LoginWithEmail => "Continue"
+  | LoginWithPassword | LoginWithEmail | VerifyWithEmail => "Continue"
   | ResetPassword => "Confirm"
   | ForgetPassword => "Reset password"
   | ResendVerifyEmail => "Send mail"
@@ -240,6 +259,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
   let validateKeys = switch authType {
   | ForgetPassword
   | ResendVerifyEmail
+  | VerifyWithEmail
   | LoginWithEmail => ["email"]
   | SignUP => featureFlagValues.email ? ["email"] : ["email", "password"]
   | LoginWithPassword => ["email"]
@@ -291,6 +311,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
             </>
 
           | LoginWithEmail => isMagicLinkEnabled() ? <EmailForm /> : <EmailPasswordForm />
+          | VerifyWithEmail => <EmailForm />
           | ResetPassword => <ResetPasswordForm />
           | MagicLinkEmailSent | ForgetPasswordEmailSent | ResendVerifyEmailSent =>
             <ResendBtn callBackFun={resendEmail} />
@@ -301,6 +322,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
               {switch authType {
               | LoginWithPassword
               | LoginWithEmail
+              | VerifyWithEmail
               | ResetPassword
               | ForgetPassword
               | ResendVerifyEmail

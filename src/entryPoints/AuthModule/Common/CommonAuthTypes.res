@@ -11,6 +11,7 @@ type logoVariant = Icon | Text | IconWithText | IconWithURL
 type authFlow =
   | LoginWithPassword
   | LoginWithEmail
+  | VerifyWithEmail
   | SignUP
   | EmailVerify
   | MagicLinkVerify
@@ -46,5 +47,6 @@ type subCode =
   | UR_37
   | UR_39
   | UR_59
+  | UR_67
 
 type modeType = TestButtonMode | LiveButtonMode

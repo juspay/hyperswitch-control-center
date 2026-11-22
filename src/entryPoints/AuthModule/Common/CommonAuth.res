@@ -60,6 +60,7 @@ module Header = {
 
     let cardHeaderText = switch authType {
     | LoginWithPassword | LoginWithEmail => "Hey there, Welcome back!"
+    | VerifyWithEmail => "Verify your email"
     | SignUP => "Welcome to Hyperswitch"
     | MagicLinkEmailSent
     | ForgetPasswordEmailSent
@@ -159,6 +160,10 @@ module Header = {
       | ForgetPassword =>
         <div className="text-md text-center text-grey-650 w-full max-w-md">
           {"Enter your email address associated with your account, and we'll send you a link to reset your password."->React.string}
+        </div>
+      | VerifyWithEmail =>
+        <div className="text-sm text-grey-650">
+          {"We'll send a sign in link to your email to continue."->React.string}
         </div>
       | MagicLinkEmailSent => "A magic link has been sent to "->getNoteUI
       | ForgetPasswordEmailSent => "A reset password link has been sent to "->getNoteUI
