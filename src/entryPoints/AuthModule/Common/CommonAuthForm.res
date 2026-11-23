@@ -5,13 +5,14 @@ module EmailPasswordForm = {
   let make = () => {
     open CommonInputFields
     let {globalUIConfig: {font: {textColor}}} = React.useContext(ThemeProvider.themeContext)
-    let {email} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {email, forgotPasswordDisabled} =
+      HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
 
     <div className="flex flex-col gap-3">
       <FormRenderer.FieldRenderer field=emailField labelClass fieldWrapperClass />
       <div className="flex flex-col gap-3">
         <FormRenderer.FieldRenderer field=passwordField labelClass fieldWrapperClass />
-        <RenderIf condition={email}>
+        <RenderIf condition={email && !forgotPasswordDisabled}>
           <AddDataAttributes attributes=[("data-testid", "forgot-password")]>
             <label
               className={`not-italic text-[12px] font-semibold font-ibm-plex ${textColor.primaryNormal} cursor-pointer w-fit`}

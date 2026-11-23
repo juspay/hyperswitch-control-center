@@ -52,6 +52,7 @@ module Header = {
 
     let headerStyle = switch authType {
     | MagicLinkEmailSent
+    | MagicLinkFallbackEmailSent
     | ForgetPasswordEmailSent
     | ForgetPassword
     | ResendVerifyEmailSent => "flex flex-col justify-center items-center"
@@ -60,8 +61,10 @@ module Header = {
 
     let cardHeaderText = switch authType {
     | LoginWithPassword | LoginWithEmail => "Hey there, Welcome back!"
+    | MagicLinkFallback => "Verify your email"
     | SignUP => "Welcome to Hyperswitch"
     | MagicLinkEmailSent
+    | MagicLinkFallbackEmailSent
     | ForgetPasswordEmailSent
     | ResendVerifyEmailSent => "Please check your inbox"
     | ResetPassword => "Reset Password"
@@ -100,6 +103,7 @@ module Header = {
 
     let showInfoIcon = switch authType {
     | MagicLinkEmailSent
+    | MagicLinkFallbackEmailSent
     | ForgetPassword
     | ForgetPasswordEmailSent
     | ResendVerifyEmailSent
@@ -111,7 +115,10 @@ module Header = {
       <RenderIf condition={showInfoIcon}>
         <div className="flex justify-center my-5">
           {switch authType {
-          | MagicLinkEmailSent | ForgetPasswordEmailSent | ResendVerifyEmailSent =>
+          | MagicLinkEmailSent
+          | MagicLinkFallbackEmailSent
+          | ForgetPasswordEmailSent
+          | ResendVerifyEmailSent =>
             <img alt="mail" className="w-48" src={`/assets/mail.svg`} />
           | ForgetPassword =>
             <img alt="password" className="w-24" src={`/assets/key-password.svg`} />
@@ -160,7 +167,12 @@ module Header = {
         <div className="text-md text-center text-grey-650 w-full max-w-md">
           {"Enter your email address associated with your account, and we'll send you a link to reset your password."->React.string}
         </div>
-      | MagicLinkEmailSent => "A magic link has been sent to "->getNoteUI
+      | MagicLinkFallback =>
+        <div className="text-sm text-grey-650">
+          {"We'll send a sign in link to your email to continue."->React.string}
+        </div>
+      | MagicLinkEmailSent | MagicLinkFallbackEmailSent =>
+        "A magic link has been sent to "->getNoteUI
       | ForgetPasswordEmailSent => "A reset password link has been sent to "->getNoteUI
       | ResendVerifyEmailSent => "A verify email link has been sent to "->getNoteUI
       | _ => React.null
