@@ -86,8 +86,11 @@ let getTotalSplitLine = (context: chartContext, ~by) => {
   let {selection, dataset} = context
   let {source, measure} = selection
   let (counts, _) = dataset->getMeasureCounts(measure)
-  switch context->getGroupsByMeasure->Array.filter(isRecordedGroup)->Array.get(0) {
-  | Some(top) =>
+  context
+  ->getGroupsByMeasure
+  ->Array.filter(isRecordedGroup)
+  ->Array.get(0)
+  ->mapOptionOrDefault("", top => {
     let value = formatValue(source, measure, top.current, ~currency=dataset.amountCurrency)
     measure == #avg_ticket
       ? `By ${by}, ${context->groupLabel(top)} is the highest at ${value}.`
@@ -95,8 +98,7 @@ let getTotalSplitLine = (context: chartContext, ~by) => {
             getMeasureValue(source, measure, top.current),
             getMeasureValue(source, measure, counts),
           )->formatPercentage} of the ${isAmount(measure) ? "total amount" : "total"}.`
-  | None => ""
-  }
+  })
 }
 
 let getSplitLine = (context: chartContext) => {
