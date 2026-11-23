@@ -59,6 +59,18 @@ export class SignInPage {
     return this.page.locator('[data-id="Please check your registered e-mail"]');
   }
 
+  get accountLockedToast(): Locator {
+    return this.page.locator(
+      '[data-id="Account locked after too many failed sign in attempts. Please try again later"]',
+    );
+  }
+
+  get magicLinkFallbackSubtext(): Locator {
+    return this.page.getByText(
+      "We'll send a sign in link to your email to continue.",
+    );
+  }
+
   get passwordChangedToast(): Locator {
     return this.page.locator('[data-id="Password Changed Successfully"]');
   }
