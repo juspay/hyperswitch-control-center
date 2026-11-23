@@ -1,8 +1,9 @@
+import type { Page } from "@playwright/test";
 import { test, expect } from "../../support/test";
 import { HomePage } from "../../support/pages/homepage/HomePage";
 import { SignInPage } from "../../support/pages/auth/SignInPage";
 import { generateUniqueEmail } from "../../support/helper";
-import { signupUser, loginUI } from "../../support/commands";
+import { signupUser, loginUI, setFeatureFlags } from "../../support/commands";
 import { ProfilePage } from "../../support/pages/profile/ProfilePage";
 import { authenticator } from "otplib";
 
@@ -295,6 +296,64 @@ test.describe("Profile Settings - Reset Password", () => {
     await expect(
       profilePage.toastByMessage("Please check your registered e-mail"),
     ).toBeVisible({ timeout: 10000 });
+  });
+});
+
+test.describe("Profile Settings - forgot_password_disabled flag", () => {
+  const openProfileWithFlags = async (
+    page: Page,
+    flags: Record<string, boolean>,
+  ): Promise<ProfilePage> => {
+    const email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
+    await setFeatureFlags(page, flags);
+    await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+    const profilePage = new ProfilePage(page);
+    await profilePage.visit();
+    await expect(profilePage.emailLabel).toBeVisible({ timeout: 10000 });
+    return profilePage;
+  };
+
+  test("should show the Password row with Reset Password when forgot_password_disabled is OFF and email is ON", async ({
+    page,
+  }) => {
+    const profilePage = await openProfileWithFlags(page, {
+      email: true,
+      forgot_password_disabled: false,
+    });
+
+    await expect(profilePage.passwordLabel).toBeVisible();
+    await expect(profilePage.maskedPassword).toBeVisible();
+    await expect(profilePage.resetPasswordButton).toBeVisible();
+    await expect(profilePage.changePasswordButton).not.toBeAttached();
+  });
+
+  test("should hide the Password row when forgot_password_disabled is ON and email is ON", async ({
+    page,
+  }) => {
+    const profilePage = await openProfileWithFlags(page, {
+      email: true,
+      forgot_password_disabled: true,
+    });
+
+    await expect(profilePage.userInfoSectionHeading).toBeVisible();
+    await expect(profilePage.passwordLabel).not.toBeAttached();
+    await expect(profilePage.maskedPassword).not.toBeAttached();
+    await expect(profilePage.resetPasswordButton).not.toBeAttached();
+    await expect(profilePage.changePasswordButton).not.toBeAttached();
+  });
+
+  test("should keep Change Password when forgot_password_disabled is ON and email is OFF", async ({
+    page,
+  }) => {
+    const profilePage = await openProfileWithFlags(page, {
+      email: false,
+      forgot_password_disabled: true,
+    });
+
+    await expect(profilePage.passwordLabel).toBeVisible();
+    await expect(profilePage.changePasswordButton).toBeVisible();
+    await expect(profilePage.resetPasswordButton).not.toBeAttached();
   });
 });
 
