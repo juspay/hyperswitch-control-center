@@ -11,6 +11,8 @@ module DateRangePreset = {
   let lastMonth = "lastMonth"
   let last30Minutes = "last30Minutes"
   let last1Hour = "last1Hour"
+  let last6Hours = "last6Hours"
+  let last24Hours = "last24Hours"
   let last7Days = "last7Days"
   let last30Days = "last30Days"
 }
@@ -28,6 +30,11 @@ type customPresetConfig = {
 
 type dateFormatConfig = {includeTime: bool}
 
+type presetSelectionData = {
+  preset: string,
+  dateRange: dateRange,
+}
+
 module PresetsConfig = {
   type t
   external fromCustomConfig: customPresetConfig => t = "%identity"
@@ -39,6 +46,7 @@ module PresetsConfig = {
 external make: (
   ~value: dateRange=?,
   ~onChange: dateRange => unit=?,
+  ~onPresetSelection: presetSelectionData => unit=?,
   ~showDateTimePicker: bool=?,
   ~isDisabled: bool=?,
   ~disableFutureDates: bool=?,
