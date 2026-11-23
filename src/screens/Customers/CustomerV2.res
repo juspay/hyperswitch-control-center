@@ -26,7 +26,7 @@ let make = () => {
   let (lastFilterState, setLastFilterState) = React.useState(_ =>
     Dict.make()->JSON.Encode.object->JSON.stringify
   )
-  let getCustomersList = async searchValue => {
+  let getCustomersList = async (~skipDuplicateCheck=false, searchValue) => {
     try {
       setScreenState(_ => Loading)
 
@@ -53,7 +53,7 @@ let make = () => {
         ~convertToLocal=false,
       )
 
-      if queryParams === lastApiCallParams {
+      if !skipDuplicateCheck && queryParams === lastApiCallParams {
         setScreenState(_ => PageLoaderWrapper.Success)
       } else {
         setLastApiCallParams(_ => queryParams)
@@ -100,7 +100,14 @@ let make = () => {
     }
   }
 
-  let customUI = <NoDataFound message="No results found" renderType={Painting} />
+  let refreshCustomers = () => getCustomersList(~skipDuplicateCheck=true, searchText)->ignore
+  let customUI =
+    <>
+      <Portal to="CustomersCustomizeColumn">
+        <TableRefreshButton onRefresh=refreshCustomers />
+      </Portal>
+      <NoDataFound message="No results found" renderType={Painting} />
+    </>
 
   React.useEffect(() => {
     let currentFilterState = {
@@ -165,6 +172,7 @@ let make = () => {
             totalResults=total
             offset
             setOffset
+            onRefresh=refreshCustomers
             currentFetchCount={customersData->Array.length}
             defaultColumns={defaultColumns}
             customColumnMapper={TableAtoms.customersMapDefaultCols}

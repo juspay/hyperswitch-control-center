@@ -41,6 +41,20 @@ module BlendDateRangeField = {
       endInput.onChange(formatIsoToFormat(endDate, format)->Identity.stringToFormReactEvent)
     }, (startInput.onChange, endInput.onChange, format))
 
+    let handlePresetSelection = React.useCallback(
+      (data: DateRangePickerBinding.presetSelectionData) => {
+        let {startDate, endDate} = data.dateRange
+        DateRangePresetUtils.savePresetSelection({
+          startKey,
+          endKey,
+          preset: data.preset,
+          startTime: formatIsoToFormat(startDate, format),
+          endTime: formatIsoToFormat(endDate->Option.getOr(startDate), format),
+        })
+      },
+      (startKey, endKey, format),
+    )
+
     let customPresets =
       predefinedDays
       ->filterPresetsByLimit(dateRangeLimit)
@@ -53,6 +67,7 @@ module BlendDateRangeField = {
     <DateRangePickerBinding
       value=?blendValue
       onChange=handleChange
+      onPresetSelection=handlePresetSelection
       showDateTimePicker=showTime
       isDisabled=disable
       disableFutureDates
