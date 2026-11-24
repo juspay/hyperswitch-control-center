@@ -1,5 +1,5 @@
 diff --git a/node_modules/@juspay/blend-design-system/dist/main.js b/node_modules/@juspay/blend-design-system/dist/main.js
-index bab4f40..bcf9f64 100644
+index bab4f40..f3c39fb 100644
 --- a/node_modules/@juspay/blend-design-system/dist/main.js
 +++ b/node_modules/@juspay/blend-design-system/dist/main.js
 @@ -18883,7 +18883,7 @@ function sno() {
@@ -20,6 +20,24 @@ index bab4f40..bcf9f64 100644
      typeof Map == "function" && Map.prototype != null && typeof Map.prototype.forEach == "function" && typeof Set == "function" && Set.prototype != null && typeof Set.prototype.clear == "function" && typeof Set.prototype.forEach == "function" || console.error(
        "React depends on Map and Set built-in types. Make sure that you load a polyfill in older browsers. https://reactjs.org/link/react-polyfills"
      ), aK.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE = U, aK.createPortal = function(a, n) {
+@@ -86181,7 +86181,7 @@ const _i = {
+     0,
+     0,
+     0
+-  ), i = Math.abs(o.startDate.getTime() - V.getTime()) <= _K.TIMEZONE_TOLERANCE_HOURS * 60 * 60 * 1e3, K = o.endDate.getFullYear() === e.getFullYear() && o.endDate.getMonth() === e.getMonth();
++  ), i = Math.abs(o.startDate.getTime() - V.getTime()) <= _K.PRESET_DETECTION_TOLERANCE_MS, K = o.endDate.getFullYear() === e.getFullYear() && o.endDate.getMonth() === e.getMonth();
+   return i && K;
+ }, U1o = (o) => {
+   if (!o.endDate) return !1;
+@@ -86201,7 +86201,7 @@ const _i = {
+     59,
+     59,
+     999
+-  ), q = Math.abs(o.startDate.getTime() - i.getTime()) <= _K.TIMEZONE_TOLERANCE_HOURS * 60 * 60 * 1e3, t = Math.abs(o.endDate.getTime() - K.getTime()) <= _K.TIMEZONE_TOLERANCE_HOURS * 60 * 60 * 1e3;
++  ), q = Math.abs(o.startDate.getTime() - i.getTime()) <= _K.PRESET_DETECTION_TOLERANCE_MS, t = Math.abs(o.endDate.getTime() - K.getTime()) <= _K.PRESET_DETECTION_TOLERANCE_MS;
+   return q && t;
+ }, r1o = (o, e, l) => {
+   if (!o.startDate || !o.endDate)
 @@ -86228,6 +86228,22 @@ const _i = {
      if (Math.abs(n - y) <= q)
        return je.LAST_24_HOURS;

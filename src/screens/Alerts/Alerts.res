@@ -18,7 +18,9 @@ let make = () => {
   let (alertsRefetch, setAlertsRefetch) = React.useState(() => () => ())
   let (resolvedRefetch, setResolvedRefetch) = React.useState(() => () => ())
 
-  let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=7)
+  let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(
+    ~range=HSwitchRemoteFilter.last7DaysRange,
+  )
   let startTime = filterValueJson->getString(startTimeFilterKey, defaultDate.start_time)
   let endTime = filterValueJson->getString(endTimeFilterKey, defaultDate.end_time)
 

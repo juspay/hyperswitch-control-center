@@ -110,7 +110,9 @@ module ReportForm = {
     let reportConfig = getReportConfig(variant, reportType)
 
     let initialValues = React.useMemo(() => {
-      let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=30)
+      let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(
+        ~range=HSwitchRemoteFilter.last30DaysRange,
+      )
       let (startTime, endTime) = ReconEngineFilterUtils.hasGlobalDateFilterValue(~globalDateFilters)
         ? (globalDateFilters.startTime, globalDateFilters.endTime)
         : (defaultDate.start_time, defaultDate.end_time)

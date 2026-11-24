@@ -184,7 +184,9 @@ let sortByTimeStamp = (a: auditEvent, b: auditEvent) => {
 }
 
 let getInitialValues = () => {
-  let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(~range=7)
+  let defaultDate = HSwitchRemoteFilter.getDateFilteredObject(
+    ~range=HSwitchRemoteFilter.last7DaysRange,
+  )
   [
     ("startTime", defaultDate.start_time->JSON.Encode.string),
     ("endTime", defaultDate.end_time->JSON.Encode.string),
