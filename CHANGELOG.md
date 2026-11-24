@@ -3,6 +3,25 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.24.0
+
+### Features
+
+- **table:** Add refresh to list tables with rolling date presets ([#5792](https://github.com/juspay/hyperswitch-control-center/pull/5792)) ([`683fa42`](https://github.com/juspay/hyperswitch-control-center/commit/683fa4283b8e3550453b0f7559b7643940f6aeb1))
+
+### Bug Fixes
+
+- **analytics:** Hide empty explorer groups and name blank values ([#5791](https://github.com/juspay/hyperswitch-control-center/pull/5791)) ([`1c5819a`](https://github.com/juspay/hyperswitch-control-center/commit/1c5819aef8f38c82dc7af1a081c1fdf76ae75600))
+- **ci:** Boot hyperswitch 2026.11.20.0 and move Playwright to 1.65.1 on ubuntu-latest ([#5818](https://github.com/juspay/hyperswitch-control-center/pull/5818)) ([`afd9d24`](https://github.com/juspay/hyperswitch-control-center/commit/afd9d24bb184a2dd477ef6c9e36f6c910c0fd166))
+
+### Refactors
+
+- **recon:** Read staging entry status from status fields ([#5819](https://github.com/juspay/hyperswitch-control-center/pull/5819)) ([`bee393a`](https://github.com/juspay/hyperswitch-control-center/commit/bee393a267c26001bf7287ba863a74fc4a36e024))
+
+**Full Changelog:** [`2026.11.22.0...2026.11.24.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.22.0...2026.11.24.0)
+
+- - -
+
 ## 2026.11.22.0
 
 ### Features
