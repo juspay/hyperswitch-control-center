@@ -135,6 +135,8 @@ let unmeasurableNote = (source: source, measure: measure) =>
   | (#intent, #success_rate | #failure_rate) => "No completed payments in this period"
   | (#attempt, #failure_rate) => "No eligible attempts in this period"
   | (_, #three_ds_failure_rate) => "No 3DS attempts in this period"
+  | (#attempt, #avg_ticket) => "No charged attempts in this period"
+  | (_, #avg_ticket) => "No succeeded payments in this period"
   | _ => "No data in this period"
   }
 
@@ -231,7 +233,8 @@ let viewNote = (selection: selection) => {
   | (#mix, Split) =>
     `Share of each UTC day's volume by group, for the ${topGroupCount->Int.toString} largest groups.`
   | (#mix, Overall) => "Share of each UTC day's volume by outcome."
-  | (#table, Split) => `Sorted by number of ${noun}, highest first. Click a row to focus on it.`
+  | (#table, Split) =>
+    `Sorted by number of ${noun}, highest first. Click a row to focus on it. Rows with a blank value can't be focused.`
   | (#table, Overall) => "Outcomes in these dates. Add a split to compare groups."
   }
 }
@@ -257,7 +260,7 @@ let getDimensionValueLabel = (
   ~profileList: array<OMPSwitchTypes.ompListTypes>,
 ) =>
   switch (key, value) {
-  | (_, "") => "Not recorded"
+  | (_, "") => `No ${dimensionLabel(key)->String.toLowerCase}`
   | (#flow, _) => value->flowFromString->flowLabel
   | (#profile_id, _) =>
     profileList

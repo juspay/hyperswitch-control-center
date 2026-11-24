@@ -1,6 +1,5 @@
 open LogicUtils
 open ExplorerTypes
-open ExplorerCatalog
 open ExplorerUtils
 open ExplorerSelection
 open ExplorerData
@@ -306,8 +305,9 @@ let getBreakdownChartOptions = (context: chartContext) => {
 
 let getOutcomeChartOptions = (context: chartContext) => {
   let {selection, dataset} = context
+  let fields = getVisibleOutcomes([dataset.overall, dataset.overallPrevious])
   let points = counts =>
-    outcomes->Array.map(field => (outcomeLabel(selection.source, field), counts->getCount(field)))
+    fields->Array.map(field => (outcomeLabel(selection.source, field), counts->getCount(field)))
   let current = getColumnSeries(
     ~name=context->currentLabel,
     ~points=dataset.overall->points,
@@ -322,7 +322,7 @@ let getOutcomeChartOptions = (context: chartContext) => {
     ~series=context->hasPrevious(~measure=#volume) ? [current, previous] : [current],
     ~measure=#volume,
     ~currency="",
-    ~barCount=outcomes->Array.length,
+    ~barCount=fields->Array.length,
   )
 }
 
@@ -330,7 +330,7 @@ let getMixSeries = (context: chartContext, ~days) => {
   let {selection, dataset} = context
   let perDay = pick => days->Array.map(day => (day->getDayLabel, pick(day)))
   if selection.split->isEmptyArray {
-    outcomes
+    getVisibleOutcomes([dataset.inCurrency])
     ->Array.map(field =>
       getColumnSeries(
         ~name=outcomeLabel(selection.source, field),
