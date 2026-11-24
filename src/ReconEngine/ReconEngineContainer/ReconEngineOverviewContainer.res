@@ -1,4 +1,4 @@
 @react.component
-let make = () => {
-  <ReconEngineOverview />
+let make = (~setAppScreenState) => {
+  <ReconEngineOverview setAppScreenState />
 }

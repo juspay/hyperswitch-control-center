@@ -253,7 +253,7 @@ let make = () => {
                         | (OnBoarding(_), _) => <DefaultOnboardingPage />
                         /* RECON V1 PRODUCT */
 
-                        | (Recon(V1), _) => <ReconEngineApp />
+                        | (Recon(V1), _) => <ReconEngineApp setScreenState />
 
                         /* RECON V2 PRODUCT */
 

@@ -143,6 +143,9 @@ let make = (~setAppScreenState) => {
   let showToast = ToastAdapter.useShowToast()
   let fetchDetails = useGetMethod()
   let (pendingInvites, setPendingInvites) = React.useState(_ => [])
+  let fetchOrganizationList = OrganizationHooks.useFetchOrganizationList()
+  let fetchMerchantList = MerchantListHook.useFetchMerchantList()
+  let fetchProfileList = ProfileListHook.useFetchProfileList()
 
   let getListOfMerchantIds = async () => {
     try {
@@ -176,6 +179,9 @@ let make = (~setAppScreenState) => {
       let _ = await updateDetails(url, body, Post)
       setShowModal(_ => false)
       getListOfMerchantIds()->ignore
+      fetchOrganizationList()->ignore
+      fetchMerchantList()->ignore
+      fetchProfileList()->ignore
       setAppScreenState(_ => Success)
     } catch {
     | _ => showToast(~message="Failed to accept invitations!", ~toastType=ToastError)
