@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.24.1
+
+### Bug Fixes
+
+- Use one date range preset list and align default ranges with presets ([#5671](https://github.com/juspay/hyperswitch-control-center/pull/5671)) ([`b3c9fcc`](https://github.com/juspay/hyperswitch-control-center/commit/b3c9fccba10c16ca14938d63f2dc533e736fc7f8))
+
+**Full Changelog:** [`2026.11.24.0...2026.11.24.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.24.0...2026.11.24.1)
+
+- - -
+
 ## 2026.11.24.0
 
 ### Features
