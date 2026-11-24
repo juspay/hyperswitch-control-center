@@ -1,63 +1,33 @@
 #!/usr/bin/env bash
 #
-# Boots the Hyperswitch backend (router, postgres, redis, web, mailhog) from the most recent published Docker image tag, for use by the Playwright suite.
+# Boots the Hyperswitch backend (router, postgres, redis, web, mailhog) from the most
+# recent published Docker image tag, for the Playwright suite.
+#
+#   ./start_hyperswitch.sh                               # newest tag that boots
+#   HYPERSWITCH_TAG=2026.11.20.0 ./start_hyperswitch.sh  # pin a tag
 
 set -u
 
 REPO="https://github.com/juspay/hyperswitch"
 IMAGE_REPO="juspaydotin/hyperswitch-router"
-REGISTRY="docker.juspay.io"
-IMAGE="${REGISTRY}/${IMAGE_REPO}"
-MAX_TRIES=5
-# Auto-discovery walks tags newest-first. Tags with no published router image cost
-# nothing to skip, so they are not counted against MAX_TRIES; MAX_SCAN bounds how far
-# back the walk goes when a long run of tags has no image (e.g. registry outage).
-MAX_SCAN=25
-# Last tag known to boot cleanly. Tried once as a last resort when auto-discovery is
-# exhausted, so that a run of broken recent tags does not fail the suite outright.
-# Bump this when a newer tag has been verified.
-KNOWN_GOOD_TAG="${HYPERSWITCH_KNOWN_GOOD_TAG:-2026.11.06.0}"
+IMAGE="docker.juspay.io/${IMAGE_REPO}"
 
-# Optional override: pin a known-good tag and skip auto-discovery.
-# Useful when all of the most-recent tags fail to boot but an older tag is known to work.
-#   HYPERSWITCH_TAG=2026.06.16.0 ./start_hyperswitch.sh
+MAX_TRIES=5   # boot attempts before giving up on auto-discovery
+MAX_SCAN=25   # tags to look at (tags without an image are skipped for free)
+KNOWN_GOOD_TAG="${HYPERSWITCH_KNOWN_GOOD_TAG:-2026.11.20.0}"   # last resort
 OVERRIDE_TAG="${HYPERSWITCH_TAG:-}"
 
-# ---------------------------------------------------------------------------
-# Preflight: docker engine + compose
-# ---------------------------------------------------------------------------
+# --- Preflight ---------------------------------------------------------------
 
-if ! command -v docker >/dev/null 2>&1; then
-  echo "Error: 'docker' CLI not found on PATH." >&2
-  echo "Install Docker Desktop, OrbStack, or Docker Engine and retry." >&2
-  exit 1
-fi
+command -v docker >/dev/null 2>&1 || { echo "Error: 'docker' not found on PATH." >&2; exit 1; }
+docker info >/dev/null 2>&1 || { echo "Error: Docker daemon is not running." >&2; exit 1; }
+docker compose version >/dev/null 2>&1 || { echo "Error: Docker Compose v2 ('docker compose') not found." >&2; exit 1; }
 
-if ! docker info >/dev/null 2>&1; then
-  echo "Error: Docker daemon is not running / not reachable." >&2
-  echo "Start Docker Desktop / OrbStack (or 'colima start') and retry." >&2
-  exit 1
-fi
+# --- Source checkout ---------------------------------------------------------
 
-# Require the Compose v2 plugin ('docker compose'). Legacy standalone 'docker-compose' (v1) is EOL/unmaintained and is not supported.
-if ! docker compose version >/dev/null 2>&1; then
-  echo "Error: Docker Compose v2 ('docker compose') not found." >&2
-  echo "It is bundled with Docker Desktop / OrbStack / Colima." >&2
-  echo "On Linux install it with: 'sudo apt-get install docker-compose-plugin'." >&2
-  exit 1
-fi
-
-# ---------------------------------------------------------------------------
-# Source checkout
-# ---------------------------------------------------------------------------
-
-# Idempotent across repeat runs: reuse an existing checkout but scrub it back to a
-# pristine upstream tree, otherwise clone fresh. Refusing a non-git ./hyperswitch
-# avoids silently operating on an unrelated directory.
 if [ -d hyperswitch/.git ]; then
-  echo "Reusing existing ./hyperswitch checkout (refreshing)..."
-  cd hyperswitch || { echo "Error: failed to enter ./hyperswitch" >&2; exit 1; }
-  # Undo any compose/toml edits and remove leftover *.tmp files from a previous run.
+  echo "Reusing existing ./hyperswitch checkout..."
+  cd hyperswitch || exit 1
   git reset --hard --quiet || true
   git clean -fdq || true
 elif [ -e hyperswitch ]; then
@@ -65,124 +35,87 @@ elif [ -e hyperswitch ]; then
   exit 1
 else
   git clone --depth 1 "$REPO" hyperswitch || { echo "Error: git clone failed" >&2; exit 1; }
-  cd hyperswitch || { echo "Error: failed to enter ./hyperswitch" >&2; exit 1; }
+  cd hyperswitch || exit 1
 fi
 
 git fetch --tags --quiet
 
-# ---------------------------------------------------------------------------
-# Boot a single tag. Returns 0 on success, non-zero otherwise.
-# ---------------------------------------------------------------------------
+# --- Boot one tag ------------------------------------------------------------
 
+cleanup() {
+  docker compose down -v --remove-orphans >/dev/null 2>&1 || true
+  docker ps -aq --filter name=hyperswitch- | xargs docker rm -f >/dev/null 2>&1 || true
+  docker network rm -f hyperswitch_router_net >/dev/null 2>&1 || true
+}
+
+# Returns 0 on success, 2 if the tag has no image, 1 if it failed to boot.
 try_tag() {
   tag="$1"
   echo "==== Trying tag: $tag ===="
 
-  # Skip tags that have no published router image. Returns 2, not 1: nothing was
-  # booted, so the caller must not count this against its boot-attempt budget.
   if ! docker manifest inspect "$IMAGE:$tag" >/dev/null 2>&1; then
     echo "Docker image not available for $tag"
     return 2
   fi
 
-  echo "Checking out tag $tag..."
-  git reset --hard
+  git reset --hard --quiet
   git checkout --quiet "$tag"
 
-  # Pin the router image to the resolved tag.
-  sed "s|${IMAGE_REPO}:standalone|${IMAGE_REPO}:${tag}|g" \
-    docker-compose.yml > docker-compose.tmp && mv docker-compose.tmp docker-compose.yml
+  # The router refuses to start without this config row.
+  printf '%s\n' "INSERT INTO configs (key, config) VALUES ('payment_callback', '{\"mode\":\"enforced\"}') ON CONFLICT (key) DO UPDATE SET config = EXCLUDED.config;" > seed_configs.sql
 
-  sed 's|apk add --no-cache curl jq yq && sh /seed_superposition.sh|apk add --no-cache curl jq yq bash \&\& bash /seed_superposition.sh|g' \
-    docker-compose.yml > docker-compose.tmp && mv docker-compose.tmp docker-compose.yml
-
-  # The upstream migration runner installs `just` from the unauthenticated GitHub
-  # API, which gets rate-limited (403) from local Docker networks. `just migrate`
-  # only delegates to the Diesel CLI, so run that directly — and add `rustfmt`,
-  # which the CLI's build script needs and the base image lacks.
-  sed -e '/      if ! command -v just >\/dev\/null 2>\&1; then/,/      fi \&\&/d' \
-      -e 's|      just migrate"|      diesel migration run --migration-dir /app/migrations --config-file /app/diesel.toml"|' \
-      -e 's|apt-get install -y curl xz-utils|apt-get install -y curl xz-utils rustfmt|' \
-    docker-compose.yml > docker-compose.tmp && mv docker-compose.tmp docker-compose.yml
+  # Compose tweaks:
+  #  - pin the router image to this tag
+  #  - run the superposition seed with bash
+  #  - run migrations with the Diesel CLI directly (installing `just` from GitHub
+  #    gets rate-limited), then seed the config row above
+  sed -i.bak \
+    -e "s|${IMAGE_REPO}:standalone|${IMAGE_REPO}:${tag}|g" \
+    -e 's|apk add --no-cache curl jq yq && sh /seed_superposition.sh|apk add --no-cache curl jq yq bash \&\& bash /seed_superposition.sh|g' \
+    -e '/      if ! command -v just >\/dev\/null 2>\&1; then/,/      fi \&\&/d' \
+    -e 's|      just migrate"|      diesel migration run --migration-dir /app/migrations --config-file /app/diesel.toml \&\& psql $$DATABASE_URL -f /app/seed_configs.sql"|' \
+    -e 's|apt-get install -y curl xz-utils|apt-get install -y curl xz-utils rustfmt postgresql-client|' \
+    docker-compose.yml && rm -f docker-compose.yml.bak
 
   echo "Starting docker compose..."
-
-  # Start the required services in detached mode.
-  docker compose up -d pg redis-standalone migration_runner hyperswitch-server hyperswitch-web mailhog || {
-    echo "Docker compose failed for tag $tag - cleaning up and trying next tag"
-    docker compose down -v --remove-orphans || true
-    docker rm -f hyperswitch-mailhog-1 || true
-    docker rm -f hyperswitch-migration_runner-1 || true
-    docker rm -f hyperswitch-hyperswitch-web-1 || true
-    docker rm -f hyperswitch-hyperswitch-server-1 || true
-    docker rm -f hyperswitch-redis-standalone-1 || true
-    docker rm -f hyperswitch-pg-1 || true
-    docker rm -f hyperswitch-superposition-1 || true
-    docker rm -f hyperswitch-init-1 || true
-    docker network rm -f hyperswitch_router_net || true
-    return 1
-  }
-
-  if docker ps --format '{{.Names}}' | grep -q hyperswitch-server; then
-      echo "SUCCESS: Working version -> $tag"
-      return 0
+  if docker compose up -d pg redis-standalone migration_runner hyperswitch-server hyperswitch-web mailhog \
+     && docker ps --format '{{.Names}}' | grep -q hyperswitch-server; then
+    echo "SUCCESS: Working version -> $tag"
+    return 0
   fi
 
   echo "FAILED: $tag"
-  docker compose logs
-  docker compose down
+  cleanup
   return 1
 }
 
-# ---------------------------------------------------------------------------
-# If HYPERSWITCH_TAG is set, boot exactly that tag and skip auto-discovery.
-# ---------------------------------------------------------------------------
+# --- Pick a tag --------------------------------------------------------------
 
 if [ -n "$OVERRIDE_TAG" ]; then
-  echo "HYPERSWITCH_TAG override set -> using tag $OVERRIDE_TAG (skipping auto-discovery)"
-  if try_tag "$OVERRIDE_TAG"; then
-    exit 0
-  fi
+  echo "HYPERSWITCH_TAG set -> using $OVERRIDE_TAG"
+  try_tag "$OVERRIDE_TAG" && exit 0
   echo "Override tag $OVERRIDE_TAG failed to boot"
   exit 1
 fi
 
-# ---------------------------------------------------------------------------
-# Try the most recent tags until one boots successfully.
-# ---------------------------------------------------------------------------
-
-attempt=0
+attempts=0
 scanned=0
-
 for tag in $(git tag --sort=-creatordate); do
-  [ "$attempt" -ge "$MAX_TRIES" ] && break
+  [ "$attempts" -ge "$MAX_TRIES" ] && break
   [ "$scanned" -ge "$MAX_SCAN" ] && break
   scanned=$((scanned+1))
 
-  status=0
-  try_tag "$tag" || status=$?
-
-  case "$status" in
+  try_tag "$tag"
+  case $? in
     0) exit 0 ;;
-    # No published image: nothing was attempted, so keep the budget for tags that
-    # can actually boot. Counting these was letting a short run of image-less
-    # hotfix tags exhaust MAX_TRIES before any bootable tag was reached.
-    2) continue ;;
-    *) attempt=$((attempt+1)) ;;
+    2) ;;                             # no image: does not count as an attempt
+    *) attempts=$((attempts+1)) ;;
   esac
 done
 
-echo "Auto-discovery exhausted after $attempt boot attempt(s) across $scanned tag(s)"
-
-# Last resort. Auto-discovery only ever sees the newest tags, so when those are all
-# broken it never reaches an older one that works.
-if [ -n "$KNOWN_GOOD_TAG" ]; then
-  echo "Falling back to known-good tag $KNOWN_GOOD_TAG"
-  if try_tag "$KNOWN_GOOD_TAG"; then
-    exit 0
-  fi
-  echo "Known-good tag $KNOWN_GOOD_TAG failed to boot"
-fi
+echo "Auto-discovery exhausted after $attempts boot attempt(s) across $scanned tag(s)"
+echo "Falling back to known-good tag $KNOWN_GOOD_TAG"
+try_tag "$KNOWN_GOOD_TAG" && exit 0
 
 echo "No working tag found"
 exit 1

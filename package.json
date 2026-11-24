@@ -37,7 +37,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@jsdevtools/coverage-istanbul-loader": "^3.0.5",
-    "@playwright/test": "^1.58.2",
+    "@playwright/test": "^1.65.1",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.1",
     "@types/node": "^25.5.0",
     "@typescript-eslint/eslint-plugin": "^8.72.1",
