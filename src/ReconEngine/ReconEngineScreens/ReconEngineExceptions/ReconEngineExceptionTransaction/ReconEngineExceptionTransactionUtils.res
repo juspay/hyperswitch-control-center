@@ -182,8 +182,7 @@ let getSumOfAmountWithCurrency = (
 
 let exceptionTransactionProcessingEntryItemToObjMapper = (dict): processingEntryType => {
   let discardedDataDict = dict->getDictfromDict("discarded_data")
-  let discardedStatusDict = dict->getDictfromDict("detailed_discarded_status")
-  let statusDict = dict->getDictfromDict("detailed_status")
+  let discardedStatusDict = dict->getDictfromDict("discarded_status")
   {
     id: dict->getString("id", ""),
     staging_entry_id: dict->getString("staging_entry_id", ""),
@@ -194,7 +193,7 @@ let exceptionTransactionProcessingEntryItemToObjMapper = (dict): processingEntry
     effective_at: dict->getString("effective_at", ""),
     metadata: dict->getJsonObjectFromDict("metadata"),
     processing_mode: dict->getString("processing_mode", ""),
-    status: statusDict->getString("status", "")->getDomainStagingEntryStatus(statusDict),
+    status: dict->getString("status", "")->getDomainStagingEntryStatus(dict),
     transformation_config: dict
     ->getDictfromDict("transformation_config")
     ->transformationConfigRefTypeMapper,

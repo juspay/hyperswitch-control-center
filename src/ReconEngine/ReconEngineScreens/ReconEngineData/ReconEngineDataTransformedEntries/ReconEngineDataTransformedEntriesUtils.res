@@ -50,7 +50,7 @@ let buildProcessingEntriesV2Body = (
   ~transformationHistoryIds: array<string>=[],
 ) => {
   let statusFilter = filterValueJson->getStrArrayFromDict("status", [])
-  let detailedStatuses =
+  let statuses =
     statusFilter->isEmptyArray
       ? allStagingEntryStatuses
       : statusFilter->Array.map(value =>
@@ -66,9 +66,9 @@ let buildProcessingEntriesV2Body = (
   let endTime = filterValueJson->getString("endTime", "")->toReconTimeString
 
   let filtersDict = Dict.make()
-  let detailedStatusPayload = detailedStatuses->getStagingEntryStatusPayload
+  let statusPayload = statuses->getStagingEntryStatusPayload
 
-  filtersDict->setOptionArray("detailed_status", detailedStatusPayload->getNonEmptyArray)
+  filtersDict->setOptionArray("status", statusPayload->getNonEmptyArray)
   filtersDict->setOptionArray(
     "entry_type",
     entryTypeFilter->Array.map(JSON.Encode.string)->getNonEmptyArray,
