@@ -158,6 +158,8 @@ let make = () => {
   let fetchOrganizationList = OrganizationHooks.useFetchOrganizationList()
   let fetchMerchantList = MerchantListHook.useFetchMerchantList()
   let fetchProfileList = ProfileListHook.useFetchProfileList()
+  let {roleId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
+  let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
 
   let getListOfMerchantIds = async () => {
     try {
@@ -204,7 +206,9 @@ let make = () => {
   }
 
   React.useEffect(() => {
-    getListOfMerchantIds()->ignore
+    if !isInternalUser {
+      getListOfMerchantIds()->ignore
+    }
     None
   }, [])
 
