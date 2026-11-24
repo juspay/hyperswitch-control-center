@@ -1,5 +1,5 @@
 @react.component
-let make = (~setScreenState) => {
+let make = () => {
   open HSwitchUtils
   open UserManagementTypes
   open HyperswitchAtom
@@ -24,7 +24,7 @@ let make = (~setScreenState) => {
       {switch url.path->urlPath {
       | list{"v1", "recon-engine", "overview"} =>
         <AccessControl isEnabled={featureFlagDetails.devReconEngineV1} authorization=Access>
-          <ReconEngineOverviewContainer setAppScreenState=setScreenState />
+          <ReconEngineOverviewContainer />
         </AccessControl>
       | list{"v1", "recon-engine", "transactions", ..._} =>
         <AccessControl

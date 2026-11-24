@@ -1,5 +1,5 @@
 @react.component
-let make = (~setAppScreenState) => {
+let make = () => {
   open HomeUtils
   open PageUtils
   open Typography
@@ -14,7 +14,7 @@ let make = (~setAppScreenState) => {
       <RenderIf condition={recoveryCodesLeft->Option.isSome && recoveryCode < 3}>
         <HomeUtils.LowRecoveryCodeBanner recoveryCode />
       </RenderIf>
-      <PendingInvitationsHome setAppScreenState />
+      <PendingInvitationsHome />
     </div>
     <div className="w-full gap-8 flex flex-col">
       <PageHeading

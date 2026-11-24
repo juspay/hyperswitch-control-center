@@ -253,7 +253,7 @@ let make = () => {
                         | (OnBoarding(_), _) => <DefaultOnboardingPage />
                         /* RECON V1 PRODUCT */
 
-                        | (Recon(V1), _) => <ReconEngineApp setScreenState />
+                        | (Recon(V1), _) => <ReconEngineApp />
 
                         /* RECON V2 PRODUCT */
 
@@ -267,7 +267,7 @@ let make = () => {
                         | (CostObservability, _) => <HypersenseApp />
                         | (DynamicRouting, _) => <IntelligentRoutingApp />
                         | (Orchestration(V2), _) => <OrchestrationV2App />
-                        | (Orchestration(V1), _) => <OrchestrationApp setScreenState />
+                        | (Orchestration(V1), _) => <OrchestrationApp />
                         | (UnknownProduct, _) => React.null
                         }}
                       </ErrorBoundary>

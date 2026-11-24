@@ -1,7 +1,7 @@
 open Typography
 
 @react.component
-let make = (~setAppScreenState) => {
+let make = () => {
   open APIUtils
   open LogicUtils
   open ReconEngineRulesTypes
@@ -81,7 +81,7 @@ let make = (~setAppScreenState) => {
   }, [])
 
   <div className="flex flex-col w-full">
-    <PendingInvitationsHome setAppScreenState />
+    <PendingInvitationsHome />
     <div className="flex flex-row justify-between items-center">
       <PageUtils.PageHeading
         title="Recon Overview" customTitleStyle={`${heading.lg.semibold}`} customHeadingStyle="py-0"
