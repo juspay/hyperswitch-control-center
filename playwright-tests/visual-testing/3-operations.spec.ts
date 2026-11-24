@@ -2,7 +2,9 @@ import { test, expect } from "@playwright/test";
 import {
   generateUniqueEmail,
   scrollIntoViewStable,
+  TOAST_SELECTOR,
   waitForAnimationsToFinish,
+  waitForToastsToDisappear,
 } from "../support/helper";
 import {
   signupUser,
@@ -362,6 +364,8 @@ test.describe("Visual Testing - Refund Operations", () => {
     );
     await refundOperations.initiateRefundButton.click();
     await refundResponse;
+    await expect(page.locator(TOAST_SELECTOR).first()).toBeVisible();
+    await waitForToastsToDisappear(page);
 
     await homePage.refundOperations.click();
 

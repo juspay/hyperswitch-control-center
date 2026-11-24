@@ -39,6 +39,14 @@ export class VaultProcessor {
     );
   }
 
+  // Each processor card carries its connector name as data-testid; cards are
+  // sorted by that name, so pick the card instead of relying on position.
+  connectButtonFor(connectorName: string): Locator {
+    return this.page
+      .getByTestId(connectorName)
+      .getByRole("button", { name: "Connect" });
+  }
+
   get connectAndProceedButton(): Locator {
     return this.page.locator('[data-button-for="connectAndProceed"]');
   }
