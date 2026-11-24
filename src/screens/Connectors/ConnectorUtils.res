@@ -85,7 +85,10 @@ let taxProcessorList: array<connectorTypes> = [TaxProcessor(TAXJAR)]
 
 let billingProcessorList: array<connectorTypes> = [BillingProcessor(CHARGEBEE)]
 
-let vaultProcessorList: array<connectorTypes> = [VaultProcessor(VGS)]
+let vaultProcessorList: array<connectorTypes> = [
+  VaultProcessor(VGS),
+  VaultProcessor(HYPERSWITCH_VAULT),
+]
 
 let surchargeProcessorList: array<connectorTypes> = [SurchargeProcessor(INTERPAYMENTS)]
 
@@ -993,6 +996,10 @@ let vgsInfo = {
   description: "Very Good Security (VGS) is a data security platform that helps businesses protect sensitive information such as payment card data, personally identifiable information (PII), and other confidential data. VGS provides solutions for data tokenization, encryption, and secure data storage, allowing businesses to reduce their compliance scope and mitigate the risks associated with handling sensitive data.",
 }
 
+let hyperswitchVaultInfo = {
+  description: "Juspay Hosted Vault enables self-hosted Hyperswitch merchants to securely store and tokenize payment card data in Juspay's hosted vault. It keeps sensitive card data out of your infrastructure, helping defer PCI DSS compliance to Juspay's hosted vault.",
+}
+
 let interPaymentsInfo = {
   description: "InterPayments is a managed surcharge provider that handles surcharge compliance while integrating seamlessly with your existing payment systems.",
 }
@@ -1243,6 +1250,7 @@ let getBillingProcessorNameString = (billingProcessor: billingProcessorTypes) =>
 let getVaultProcessorNameString = (vaultProcessor: vaultProcessorTypes) => {
   switch vaultProcessor {
   | VGS => "vgs"
+  | HYPERSWITCH_VAULT => "hyperswitch_vault"
   }
 }
 
@@ -1468,6 +1476,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
   | VaultProcessor =>
     switch connector {
     | "vgs" => VaultProcessor(VGS)
+    | "hyperswitch_vault" => VaultProcessor(HYPERSWITCH_VAULT)
     | _ => UnknownConnector("Not known")
     }
   | SurchargeProcessor =>
@@ -1681,6 +1690,7 @@ let getBillingProcessorInfo = (billingProcessor: ConnectorTypes.billingProcessor
 let getVaultProcessorInfo = (vaultProcessor: ConnectorTypes.vaultProcessorTypes) => {
   switch vaultProcessor {
   | VGS => vgsInfo
+  | HYPERSWITCH_VAULT => hyperswitchVaultInfo
   }
 }
 
@@ -2739,6 +2749,7 @@ let getDisplayNameForBillingProcessor = billingProcessor => {
 let getDisplayNameForVaultProcessor = vaultProcessor => {
   switch vaultProcessor {
   | VGS => "VGS"
+  | HYPERSWITCH_VAULT => "Juspay Hosted Vault"
   }
 }
 

@@ -210,7 +210,7 @@ type taxProcessorTypes = TAXJAR
 
 type billingProcessorTypes = CHARGEBEE | STRIPE_BILLING | RECURLY | CUSTOMBILLING
 
-type vaultProcessorTypes = VGS
+type vaultProcessorTypes = VGS | HYPERSWITCH_VAULT
 
 type surchargeProcessorTypes = INTERPAYMENTS
 
