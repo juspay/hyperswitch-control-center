@@ -647,6 +647,12 @@ module RetriesConfiguration = {
             RevenueRecoveryOnboardingUtils.defaultGracePeriodDays->JSON.Encode.int,
           )
         }
+        if revenueRecovery->getOptionInt(maxHardDeclineRetriesKey)->Option.isNone {
+          revenueRecovery->Dict.set(
+            maxHardDeclineRetriesKey,
+            RevenueRecoveryOnboardingUtils.hardDeclineTotalRetries->JSON.Encode.int,
+          )
+        }
         setInitialValues(_ => json->removeFieldsFromResponse)
         setScreenState(_ => Success)
       } catch {
