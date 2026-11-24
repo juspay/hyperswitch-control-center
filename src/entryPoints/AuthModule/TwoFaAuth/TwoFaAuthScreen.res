@@ -34,7 +34,11 @@ let make = (~setAuthStatus) => {
       switch url.path->HSwitchUtils.urlPath {
       | list{"login"} => setAuthType(_ => isMagicLinkEnabled() ? LoginWithEmail : LoginWithPassword)
       | list{"forget-password"} =>
-        checkAuthMethodExists([PASSWORD]) ? setAuthType(_ => ForgetPassword) : ()
+        if featureFlagDetails.forgotPasswordDisabled {
+          AuthUtils.redirectToLogin()
+        } else if checkAuthMethodExists([PASSWORD]) {
+          setAuthType(_ => ForgetPassword)
+        }
       | list{"register"} => !isLiveMode ? setAuthType(_ => SignUP) : AuthUtils.redirectToLogin()
       | _ => ()
       }

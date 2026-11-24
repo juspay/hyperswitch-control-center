@@ -35,14 +35,6 @@ let make = () => {
     updateExistingKeys(Dict.fromArray([("end_time", {prevStartdate})]))
   }
 
-  let customUI = {
-    <NoDataFound
-      customCssClass="my-6"
-      message="No results found"
-      renderType=ExtendDateUI
-      handleClick=handleExtendDateButtonClick
-    />
-  }
   let hasSearchText = searchText->isNonEmptyString
   let fetchRefunds = () => {
     switch filters {
@@ -86,6 +78,19 @@ let make = () => {
     }
     None
   }, (offset, filters, searchText))
+
+  let customUI =
+    <>
+      <Portal to="RefundsCustomizeColumn">
+        <TableRefreshButton onRefresh=fetchRefunds />
+      </Portal>
+      <NoDataFound
+        customCssClass="my-6"
+        message="No results found"
+        renderType=ExtendDateUI
+        handleClick=handleExtendDateButtonClick
+      />
+    </>
 
   let {generateReport, transactionView} =
     HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
@@ -150,6 +155,7 @@ let make = () => {
           totalResults={totalCount}
           offset
           setOffset
+          onRefresh=fetchRefunds
           currentFetchCount={refundData->Array.length}
           defaultColumns={RefundEntity.defaultColumns}
           customColumnMapper=TableAtoms.refundsMapDefaultCols

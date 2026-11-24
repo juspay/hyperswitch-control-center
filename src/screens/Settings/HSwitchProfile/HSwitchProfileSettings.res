@@ -223,7 +223,9 @@ module BasicDetailsSection = {
     let {name: userName, email} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let userTitle = LogicUtils.userNameToTitle(userName)
 
-    let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let {email: isEmailEnabled, forgotPasswordDisabled} =
+      HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
+    let showPasswordRow = !(isEmailEnabled && forgotPasswordDisabled)
     <div>
       <div className="border bg-gray-50 rounded-t-lg w-full px-10 py-6">
         <p className=sectionHeadingClass> {"User Info"->React.string} </p>
@@ -241,12 +243,14 @@ module BasicDetailsSection = {
           <p className=titleClass> {"Email:"->React.string} </p>
           <p className=subTitleClass> {email->React.string} </p>
         </div>
-        <hr />
-        <RenderIf condition={featureFlagDetails.email}>
-          <ResetPassword />
-        </RenderIf>
-        <RenderIf condition={!featureFlagDetails.email}>
-          <ChangePassword />
+        <RenderIf condition={showPasswordRow}>
+          <hr />
+          <RenderIf condition={isEmailEnabled}>
+            <ResetPassword />
+          </RenderIf>
+          <RenderIf condition={!isEmailEnabled}>
+            <ChangePassword />
+          </RenderIf>
         </RenderIf>
       </div>
     </div>

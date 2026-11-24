@@ -3,6 +3,50 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.22.0
+
+### Features
+
+- **auth:** Fall back to magic link when password sign in fails behind signin_magic_link_fallback flag ([#5822](https://github.com/juspay/hyperswitch-control-center/pull/5822)) ([`375691a`](https://github.com/juspay/hyperswitch-control-center/commit/375691a64c7018df499279128b28559fc6a1b454))
+
+**Full Changelog:** [`2026.11.21.1...2026.11.22.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.21.1...2026.11.22.0)
+
+- - -
+
+## 2026.11.21.1
+
+### Bug Fixes
+
+- **auth:** Limit forgot_password_disabled to the forgot password entry points ([#5821](https://github.com/juspay/hyperswitch-control-center/pull/5821)) ([`4a6352f`](https://github.com/juspay/hyperswitch-control-center/commit/4a6352fa397ae29eeb9c0c637025d19e20146670))
+
+**Full Changelog:** [`2026.11.21.0...2026.11.21.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.21.0...2026.11.21.1)
+
+- - -
+
+## 2026.11.21.0
+
+### Features
+
+- **auth:** Hide forgot, reset and change password behind forgot_password_disabled flag ([#5820](https://github.com/juspay/hyperswitch-control-center/pull/5820)) ([`5612e4a`](https://github.com/juspay/hyperswitch-control-center/commit/5612e4a308d9662155389e7dcdca04fa492be365))
+
+**Full Changelog:** [`2026.11.20.0...2026.11.21.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.20.0...2026.11.21.0)
+
+- - -
+
+## 2026.11.20.0
+
+### Features
+
+- **connectors:** Add url whitelisting alert banner for webhooks and connectors ([#5801](https://github.com/juspay/hyperswitch-control-center/pull/5801)) ([`d48159d`](https://github.com/juspay/hyperswitch-control-center/commit/d48159df577136cc5a743b0b08108b4f4060d4bc))
+
+### Bug Fixes
+
+- **security:** Pin Node Docker images to 24.22.3 ([#5817](https://github.com/juspay/hyperswitch-control-center/pull/5817)) ([`6d26f8b`](https://github.com/juspay/hyperswitch-control-center/commit/6d26f8b0a13bc9cd25d692dd97d1c860dc7a475a))
+
+**Full Changelog:** [`2026.11.18.0...2026.11.20.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.18.0...2026.11.20.0)
+
+- - -
+
 ## 2026.11.18.0
 
 ### Features
