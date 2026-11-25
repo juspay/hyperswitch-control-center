@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.25.0
+
+### Features
+
+- Add Juspay Hosted Vault connector in dashboard ([#5823](https://github.com/juspay/hyperswitch-control-center/pull/5823)) ([`2336ca0`](https://github.com/juspay/hyperswitch-control-center/commit/2336ca033066390520d19ae2faf3113cc66ebb33))
+
+**Full Changelog:** [`2026.11.24.1...2026.11.25.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.24.1...2026.11.25.0)
+
+- - -
+
 ## 2026.11.24.1
 
 ### Bug Fixes
