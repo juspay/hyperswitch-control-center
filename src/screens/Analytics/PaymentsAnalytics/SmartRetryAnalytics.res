@@ -66,6 +66,19 @@ let itemToObjMapper = json => {
   json->getQueryData->Array.map(singleStateItemToObjMapper)
 }
 
+let countsItemToObjMapper = json => {
+  let rows = json->getQueryData->Array.map(singleStateItemToObjMapper)
+  rows->Array.length > 0
+    ? [
+        rows->Array.reduce(singleStateInitialValue, (acc, row) => {
+          ...acc,
+          successful_smart_retries: acc.successful_smart_retries + row.successful_smart_retries,
+          total_smart_retries: acc.total_smart_retries + row.total_smart_retries,
+        }),
+      ]
+    : []
+}
+
 let timeSeriesObjMapper = json =>
   json->getQueryData->Array.map(json => singleStateSeriesItemToObjMapper(json))
 
@@ -170,7 +183,7 @@ let getSmartRetriesSingleStatEntity = (metrics, defaultColumns, ~uri) => {
       metrics: metrics->getStringListFromArrayDict,
     },
   ],
-  getObjects: itemToObjMapper,
+  getObjects: countsItemToObjMapper,
   getTimeSeriesObject: timeSeriesObjMapper,
   defaultColumns,
   getData: getStatData,
@@ -249,7 +262,7 @@ let make = (~moduleName) => {
     ~uri=smartRetryAnalyticsUrl,
   )
 
-  let singleStatAMountEntity = getSmartRetriesSingleStatEntity(
+  let singleStatAmountEntity = getSmartRetriesAmountSingleStatEntity(
     smartRetrieMetrics->formatMetrics,
     smartRetrievesAmountColumns,
     ~uri=smartRetryAnalyticsUrl,
@@ -297,13 +310,13 @@ let make = (~moduleName) => {
         <div className="col-span-2 h-96 " />
         <div className="row-span-2 h-full !pointer-events-auto">
           <DynamicSingleStat
-            entity=singleStatAMountEntity
+            entity=singleStatAmountEntity
             startTimeFilterKey
             endTimeFilterKey
             filterKeys=[]
             moduleName
             showPercentage=false
-            statSentiment={singleStatAMountEntity.statSentiment->Option.getOr(Dict.make())}
+            statSentiment={singleStatAmountEntity.statSentiment->Option.getOr(Dict.make())}
             formaPayload
           />
         </div>
