@@ -7,8 +7,8 @@ let make = (~createMerchant) => {
     ProductSelectionProvider.defaultContext,
   )
   let userHasCreateMerchantAccess = OMPCreateAccessHook.useOMPCreateAccessHook([
-    #tenant_admin,
-    #org_admin,
+    #Tenant,
+    #Organization,
   ])
   let {devRecoveryExternalTrigger} = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let {merchantId} = React.useContext(UserInfoProvider.defaultContext).getCommonSessionDetails()

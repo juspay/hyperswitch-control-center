@@ -8,8 +8,8 @@ module ReconOnboardingLanding = {
     )
     let {setShowSideBar} = React.useContext(GlobalProvider.defaultContext)
     let userHasCreateMerchantAccess = OMPCreateAccessHook.useOMPCreateAccessHook([
-      #tenant_admin,
-      #org_admin,
+      #Tenant,
+      #Organization,
     ])
 
     let mixpanelEvent = MixpanelHook.useSendEvent()
