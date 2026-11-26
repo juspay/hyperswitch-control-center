@@ -76,6 +76,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
     ConnectorMetaDataUtils.validateMetadataRequiredFields(
       ~connector=connector->getConnectorNameTypeFromString,
       ~values,
+      ~connectorMetaDataFields,
     )->JSON.Encode.object
   }
   <PageLoaderWrapper screenState>
@@ -94,6 +95,7 @@ let make = (~setCurrentStep, ~connector, ~setInitialValues, ~initialValues, ~isU
         </div>
         {switch connector->getConnectorNameTypeFromString {
         | Processors(PAYSAFE) => <PaySafe connectorMetaDataFields />
+        | Processors(JPMORGAN) => <JPMorgan connectorMetaDataFields />
         | _ => React.null
         }}
       </Form>

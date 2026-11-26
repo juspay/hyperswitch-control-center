@@ -108,9 +108,31 @@ let connectorMetaDataValueInput = (~connectorMetaDataFields: CommonConnectorType
   getField(~inputType, ~name=formName, ~connectorMetaDataFields)
 }
 
-let validateMetadataRequiredFields = (~connector: ConnectorTypes.connectorTypes, ~values) => {
+// Metadata keys a connector collects on its own Metadata step instead of with the account details
+let getCustomMetadataStepKeys = (connector: ConnectorTypes.connectorTypes) =>
+  switch connector {
+  | Processors(JPMORGAN) => ["merchant_id"]
+  | _ => []
+  }
+
+let omitCustomMetadataStepKeys = (connectorMetaDataFields, ~connector) => {
+  let fields = connectorMetaDataFields->Dict.copy
+  fields->LogicUtils.deleteNestedKeys(connector->getCustomMetadataStepKeys)
+  fields
+}
+
+let validateMetadataRequiredFields = (
+  ~connector: ConnectorTypes.connectorTypes,
+  ~values,
+  ~connectorMetaDataFields,
+) => {
   switch connector {
   | Processors(PAYSAFE) => PaySafeUtils.payConnectorValidation(~values)
+  | Processors(JPMORGAN) =>
+    validateMetadataGroups(
+      ~connectorMetaDataFields,
+      ~valuesFlattenJson=values->JsonFlattenUtils.flattenObject(true),
+    )
   | _ => Dict.make()
   }
 }
