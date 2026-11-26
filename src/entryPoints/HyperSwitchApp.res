@@ -267,7 +267,7 @@ let make = () => {
                         | (CostObservability, _) => <HypersenseApp />
                         | (DynamicRouting, _) => <IntelligentRoutingApp />
                         | (Orchestration(V2), _) => <OrchestrationV2App />
-                        | (Orchestration(V1), _) => <OrchestrationApp setScreenState />
+                        | (Orchestration(V1), _) => <OrchestrationApp />
                         | (UnknownProduct, _) => React.null
                         }}
                       </ErrorBoundary>
