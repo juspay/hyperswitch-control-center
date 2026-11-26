@@ -65,18 +65,7 @@ let initialFixedFilterFields = (
   let predefinedDays = if sampleDataIsEnabled {
     []
   } else {
-    [
-      Hour(0.5),
-      Hour(1.0),
-      Hour(2.0),
-      Today,
-      Yesterday,
-      Day(2.0),
-      Day(7.0),
-      Day(30.0),
-      ThisMonth,
-      LastMonth,
-    ]
+    standardPredefinedDays
   }
   let textStyle = sampleDataIsEnabled ? "text-nd_gray-400" : "text-primary"
   let customButtonStyle = sampleDataIsEnabled
@@ -121,7 +110,7 @@ let initialFixedFilterFields = (
             ~showTime=true,
             ~disablePastDates={false},
             ~disableFutureDates={true},
-            ~predefinedDays=[Today, Yesterday, Day(2.0), Day(7.0), Day(30.0), ThisMonth, LastMonth],
+            ~predefinedDays=standardPredefinedDays,
             ~numMonths=2,
             ~disableApply=false,
             ~compareWithStartTime,

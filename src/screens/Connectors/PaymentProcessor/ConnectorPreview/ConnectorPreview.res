@@ -97,10 +97,6 @@ module ConnectorSummaryGrid = {
 
     let {merchantId} = useCommonAuthInfo()->Option.getOr(defaultAuthInfo)
     let featureFlagDetails = HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
-    let copyValueOfWebhookEndpoint = getWebhooksUrl(
-      ~connectorName={connectorInfo.connector_name},
-      ~merchantId,
-    )
     let (processorType, connectorType) =
       connectorInfo.connector_type
       ->connectorTypeTypedValueToStringMapper
@@ -140,6 +136,15 @@ module ConnectorSummaryGrid = {
         }
       }
     }, [connectorInfo.merchant_connector_id])
+    let copyValueOfWebhookEndpoint = getWebhooksUrl(
+      ~connectorName,
+      ~merchantId,
+      ~merchantConnectorId=connectorInfo.merchant_connector_id,
+      ~webhookUrlType=connectorDetails
+      ->getDictFromJsonObject
+      ->getString("webhook_url_type", "")
+      ->getWebhookUrlTypeFromString,
+    )
     let {connectorAccountFields} = getConnectorFields(connectorDetails)
     let isUpdateFlow = switch url.path->HSwitchUtils.urlPath {
     | list{_, "new"} => false

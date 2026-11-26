@@ -104,13 +104,20 @@ let make = () => {
     None
   }, (offset, filters, searchText))
 
+  let fetchDisputes = () => getDisputesList()->ignore
+
   let customUI =
-    <NoDataFound
-      customCssClass="my-6"
-      message="No results found"
-      renderType=ExtendDateUI
-      handleClick=handleExtendDateButtonClick
-    />
+    <>
+      <Portal to="DisputesCustomizeColumn">
+        <TableRefreshButton onRefresh=fetchDisputes />
+      </Portal>
+      <NoDataFound
+        customCssClass="my-6"
+        message="No results found"
+        renderType=ExtendDateUI
+        handleClick=handleExtendDateButtonClick
+      />
+    </>
 
   let filtersUI =
     <RemoteTableFilters
@@ -173,6 +180,7 @@ let make = () => {
           totalResults={disputesData->Array.length}
           offset
           setOffset
+          onRefresh=fetchDisputes
           currentFetchCount={disputesData->Array.length}
           showPagination=false
           bottomActions={<PrevNextPaginationButtons

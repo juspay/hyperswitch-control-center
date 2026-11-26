@@ -66,9 +66,9 @@ test.describe("All Vault Processors", () => {
       await gotoVault(page);
       await expect(page).toHaveURL(/.*dashboard\/vault-processor/);
 
-      const connectButtons = vaultProcessor.connectButton;
-      await expect(connectButtons.first()).toBeVisible();
-      await connectButtons.nth(0).click();
+      const connectButton = vaultProcessor.connectButtonFor(processor.label);
+      await expect(connectButton).toBeVisible();
+      await connectButton.click();
 
       await fillConnectorFields(page, processor.fields);
 

@@ -578,8 +578,7 @@ let transformationConfigRefTypeMapper = (dict): transformationConfigRefType => {
 
 let processingItemToObjMapper = (dict): processingEntryType => {
   let discardedDataDict = dict->getDictfromDict("discarded_data")
-  let discardedStatusDict = dict->getDictfromDict("detailed_discarded_status")
-  let statusDict = dict->getDictfromDict("detailed_status")
+  let discardedStatusDict = dict->getDictfromDict("discarded_status")
   {
     id: dict->getString("id", ""),
     staging_entry_id: dict->getString("staging_entry_id", ""),
@@ -589,7 +588,7 @@ let processingItemToObjMapper = (dict): processingEntryType => {
     entry_type: dict->getString("entry_type", ""),
     amount: dict->getDictfromDict("amount")->getFloat("value", 0.0),
     currency: dict->getDictfromDict("amount")->getString("currency", ""),
-    status: statusDict->getString("status", "")->getDomainStagingEntryStatus(statusDict),
+    status: dict->getString("status", "")->getDomainStagingEntryStatus(dict),
     effective_at: dict->getString("effective_at", ""),
     processing_mode: dict->getString("processing_mode", ""),
     metadata: dict->getJsonObjectFromDict("metadata"),
@@ -1167,7 +1166,7 @@ let stagingEntryOverviewStatusAmountMapper: Dict.t<
 let accountStagingEntriesOverviewMapper: Dict.t<JSON.t> => accountStagingEntriesOverview = dict => {
   {
     status_breakdown: dict
-    ->getArrayFromDict("detailed_status_breakdown", [])
+    ->getArrayFromDict("status_breakdown", [])
     ->Array.map(status => status->getDictFromJsonObject->stagingEntryOverviewStatusAmountMapper),
   }
 }
@@ -1214,12 +1213,21 @@ let getReconProcessorStatusVariantFromString = (status: string): reconProcessorS
   }
 }
 
-let reconEngineStatusItemToObjMapper = (dict): reconEngineStatusType => {
+let reconEngineStatusItemToObjMapper = (dict): processorQueueStatus => {
   {
     processor_status: dict
     ->getString("processor_status", "")
     ->getReconProcessorStatusVariantFromString,
-    pending_staging_entries: dict->getInt("pending_staging_entries", 0),
+    pending_entries: dict->getInt("pending_staging_entries", 0),
+  }
+}
+
+let linkingProcessorStatusItemToObjMapper = (dict): processorQueueStatus => {
+  {
+    processor_status: dict
+    ->getString("processor_status", "")
+    ->getReconProcessorStatusVariantFromString,
+    pending_entries: dict->getInt("pending_entries", 0),
   }
 }
 

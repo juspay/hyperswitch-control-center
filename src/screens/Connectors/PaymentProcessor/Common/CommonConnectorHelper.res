@@ -59,6 +59,18 @@ let selectInput = (
   )
 }
 
+let payViaSingleUseTokenInput = (~field: CommonConnectorTypes.inputField, ~paymentMethodType) =>
+  selectInput(
+    ~field,
+    ~formName=`pay_via_single_use_token.${paymentMethodType}`,
+    ~opt=Some(
+      field.options->Array.map((option): SelectBox.dropdownOption => {
+        label: option->LogicUtils.snakeToTitle,
+        value: option,
+      }),
+    ),
+  )
+
 let multiSelectInput = (~field: CommonConnectorTypes.inputField, ~formName) => {
   let {label, required, options} = field
   FormRenderer.makeFieldInfo(
@@ -148,3 +160,26 @@ let currencyField = (
       ~dropdownCustomWidth="",
     ),
   )
+
+module PreDecryptedTokenConfirm = {
+  @react.component
+  let make = (~description, ~onCancel, ~onProceed, ~children) => {
+    open Typography
+
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-2">
+        <p className={body.md.semibold}> {"Pre Decrypted Token"->React.string} </p>
+        <p className={`${body.md.medium} text-nd_gray-400`}> {description->React.string} </p>
+      </div>
+      children
+      <div className="flex gap-2 justify-end">
+        <Button
+          text="Cancel" buttonType={Secondary} onClick={_ => onCancel()} customButtonStyle="w-full"
+        />
+        <Button
+          text="Proceed" buttonType={Primary} onClick={_ => onProceed()} customButtonStyle="w-full"
+        />
+      </div>
+    </div>
+  }
+}

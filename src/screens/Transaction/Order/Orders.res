@@ -51,7 +51,7 @@ let make = (~previewOnly=false) => {
   let hasOmpViewPortal = portalNodes->getOptionValFromDict(ompViewPortalName)->Option.isSome
 
   let fetchOrdersWithSource = (~payload, ~version, ~signal) => {
-    isOpenSearchEnabled
+    isAdvancedView
       ? fetchAnalyticsOrdersHook(~payload, ~version, ~signal)
       : fetchNormalOrdersHook(~payload, ~version, ~signal)
   }
@@ -166,7 +166,7 @@ let make = (~previewOnly=false) => {
         filterParams->Dict.set("offset", offset->Int.toFloat->JSON.Encode.float)
         filterParams->Dict.set("limit", resultsPerPage->Int.toFloat->JSON.Encode.float)
         let trimmedSearchText = searchText->String.trim
-        if trimmedSearchText->isNonEmptyString && !isOpenSearchEnabled {
+        if trimmedSearchText->isNonEmptyString && !isAdvancedView {
           filterParams->Dict.set("payment_id", trimmedSearchText->JSON.Encode.string)
         }
 
@@ -190,11 +190,11 @@ let make = (~previewOnly=false) => {
         })
         //to delete unused keys
         filterParams->deleteNestedKeys(["start_amount", "end_amount", "amount_option"])
-        if !isOpenSearchEnabled {
+        if !isAdvancedView {
           advancedPaymentFilterCleanupKeys->Array.forEach(key => filterParams->Dict.delete(key))
         }
 
-        let requestPayload = isOpenSearchEnabled
+        let requestPayload = isAdvancedView
           ? buildAdvancedPaymentListPayload(
               ~filterParams,
               ~searchText,
@@ -251,12 +251,19 @@ let make = (~previewOnly=false) => {
   let customTitleStyle = previewOnly ? "py-0 !pt-0" : ""
 
   let customUI =
-    <NoDataFound
-      customCssClass="my-6"
-      message="No results found"
-      renderType=ExtendDateUI
-      handleClick=handleExtendDateButtonClick
-    />
+    <>
+      <RenderIf condition={!previewOnly}>
+        <Portal to={`${tableTitle}CustomizeColumn`}>
+          <TableRefreshButton onRefresh=fetchOrders />
+        </Portal>
+      </RenderIf>
+      <NoDataFound
+        customCssClass="my-6"
+        message="No results found"
+        renderType=ExtendDateUI
+        handleClick=handleExtendDateButtonClick
+      />
+    </>
   let hasSearchText = searchText->isNonEmptyString
   let filtersUI = React.useMemo(() => {
     let searchPlaceholder = isAdvancedView
@@ -384,6 +391,7 @@ let make = (~previewOnly=false) => {
           totalResults={previewOnly ? orderData->Array.length : totalCount}
           offset
           setOffset
+          onRefresh=?{previewOnly ? None : Some(fetchOrders)}
           currentFetchCount={orderData->Array.length}
           customColumnMapper
           defaultColumns

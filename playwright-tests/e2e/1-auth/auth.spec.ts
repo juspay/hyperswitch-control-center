@@ -1,3 +1,4 @@
+import type { Page } from "@playwright/test";
 import { test, expect } from "../../support/test";
 import { SignInPage } from "../../support/pages/auth/SignInPage";
 import { SignUpPage } from "../../support/pages/auth/SignUpPage";
@@ -10,8 +11,9 @@ import {
   visitSignupPage,
   redirectFromMailInbox,
   signinFromMailInbox,
-  createAuth,
-  getAuthIdByEmail,
+  setFeatureFlags,
+  mockAuthMethods,
+  requestForgotPasswordAPI,
 } from "../../support/commands";
 import { authenticator } from "otplib";
 
@@ -474,7 +476,7 @@ test.describe("Forgot password", () => {
     await expect(signinPage.cancelForgetPassword).toContainText("Cancel");
   });
 
-  test("should display fail toast when unregistered email is used", async ({
+  test("should not reveal whether email is registered when unregistered email is used", async ({
     page,
   }) => {
     const signinPage = new SignInPage(page);
@@ -484,10 +486,17 @@ test.describe("Forgot password", () => {
     await signinPage.emailInput.fill("abcde@gmail.com");
     await signinPage.resetPasswordButton.click();
 
-    await expect(signinPage.forgotPasswordFailedToast).toBeVisible();
-    await expect(signinPage.forgotPasswordFailedToast).toContainText(
-      "Forgot Password Failed, Try again",
+    await expect(signinPage.forgotPasswordSentToast).toBeVisible();
+    await expect(signinPage.forgotPasswordSentToast).toContainText(
+      "Please check your registered e-mail",
     );
+    await expect(signinPage.forgetPasswordHeader).toContainText(
+      "Please check your inbox",
+    );
+    await expect(signinPage.resetLinkSentContainer).toContainText(
+      "A reset password link has been sent to abcde@gmail.com",
+    );
+    await expect(signinPage.forgotPasswordFailedToast).toHaveCount(0);
   });
 
   test("should display success message when registered email is used", async ({
@@ -646,181 +655,6 @@ test.describe("Forgot password", () => {
     },
   );
 });
-
-const ssoBaseUrl = process.env.PLAYWRIGHT_SSO_BASE_URL;
-(ssoBaseUrl ? test.describe.serial : test.describe.skip)(
-  "Okta SSO tests",
-  () => {
-    let authId = "";
-
-    test.beforeAll(async ({ request }) => {
-      try {
-        await signupUser(
-          process.env.PLAYWRIGHT_SSO_USERNAME!,
-          process.env.PLAYWRIGHT_SSO_PASSWORD!,
-          request,
-        );
-      } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : String(error);
-        // Ignore "already exists" error on retries, rethrow all others
-        if (!errorMsg.includes("already exists")) {
-          throw error;
-        }
-      }
-      try {
-        await createAuth(request);
-      } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : String(error);
-        // Ignore "auth method already exists" error on retries, rethrow all others
-        if (!errorMsg.includes("already exists")) {
-          throw error;
-        }
-      }
-      authId = await getAuthIdByEmail(request);
-    });
-
-    test("should display 'Continue with Okta' button when login URL is accessed with valid okta enabled auth_id", async ({
-      page,
-    }) => {
-      const signinPage = new SignInPage(page);
-
-      await page.goto(`/?auth_id=${authId}`);
-      await page.waitForLoadState("networkidle");
-
-      await expect(signinPage.continueWithOktaButton).toBeVisible({
-        timeout: 30000,
-      });
-      await expect(signinPage.continueWithOktaButton).toContainText(
-        "Continue with Okta",
-      );
-    });
-
-    test("should not display the SSO button when login URL is accessed without, with empty, or with invalid auth_id parameter", async ({
-      page,
-    }) => {
-      const signinPage = new SignInPage(page);
-
-      await page.goto("/");
-      await expect(signinPage.continueWithOktaButton).not.toBeAttached();
-
-      await page.goto("/?auth_id=");
-      await expect(signinPage.continueWithOktaButton).not.toBeAttached();
-
-      await page.goto("/?auth_id=abcd");
-      await expect(signinPage.continueWithOktaButton).not.toBeAttached();
-    });
-
-    test("should redirect to Okta login page when 'Continue with Okta' button is clicked", async ({
-      page,
-    }) => {
-      const signinPage = new SignInPage(page);
-
-      await page.goto(`/?auth_id=${authId}`);
-      await signinPage.continueWithOktaButton.click();
-
-      await page.waitForURL(/.*okta\.com.*/, { timeout: 30000 });
-    });
-
-    test("should redirect to dashboard homepage after entering valid Okta credentials", async ({
-      page,
-    }) => {
-      // Cross-domain Okta round-trip + dashboard load is too slow for the
-      // default 30s test budget on CI; bump it before chaining waits.
-      test.setTimeout(90000);
-      const signinPage = new SignInPage(page);
-      const ssoUsername = process.env.PLAYWRIGHT_SSO_USERNAME || "";
-      const ssoPassword = process.env.PLAYWRIGHT_SSO_PASSWORD || "";
-
-      await page.goto(`/?auth_id=${authId}`);
-      await signinPage.continueWithOktaButton.click();
-
-      await page.waitForURL(/.*okta\.com.*/, { timeout: 30000 });
-
-      await signinPage.oktaEmailInput.fill(ssoUsername);
-      await signinPage.oktaNextButton.click();
-      await signinPage.oktaPasswordInput.fill(ssoPassword);
-      await signinPage.oktaVerifyButton.click();
-
-      await page.waitForURL(/.*dashboard\/home/, { timeout: 30000 });
-    });
-
-    test("should show authentication error after entering invalid Okta credentials and stay on Okta login page", async ({
-      page,
-    }) => {
-      const signinPage = new SignInPage(page);
-
-      await page.goto(`/?auth_id=${authId}`);
-      await signinPage.continueWithOktaButton.click();
-
-      await signinPage.oktaEmailInput.fill("demo.user@test.com");
-      await signinPage.oktaNextButton.click();
-      await signinPage.oktaPasswordInput.fill("Test@1234");
-      await signinPage.oktaVerifyButton.click();
-
-      await expect(signinPage.oktaErrorMessage).toBeVisible();
-      await expect(signinPage.oktaErrorMessage).toContainText(
-        "Unable to sign in",
-      );
-      await expect(page).toHaveURL(/.*okta\.com.*/);
-    });
-
-    test("should automatically log in and redirect to the dashboard after logout once initial Okta login is successful", async ({
-      page,
-    }) => {
-      const homePage = new HomePage(page);
-      const signinPage = new SignInPage(page);
-      const ssoUsername = process.env.PLAYWRIGHT_SSO_USERNAME || "";
-      const ssoPassword = process.env.PLAYWRIGHT_SSO_PASSWORD || "";
-
-      await page.goto(`/?auth_id=${authId}`);
-      await signinPage.continueWithOktaButton.click();
-
-      await signinPage.oktaEmailInput.fill(ssoUsername);
-      await signinPage.oktaNextButton.click();
-      await signinPage.oktaPasswordInput.fill(ssoPassword);
-      await signinPage.oktaVerifyButton.click();
-
-      await page.waitForURL(/.*dashboard\/home/, { timeout: 30000 });
-
-      await homePage.userAccount.click();
-      await homePage.signOut.click();
-
-      await signinPage.continueWithOktaButton.click();
-
-      await page.waitForURL(/.*dashboard\/home/, { timeout: 30000 });
-    });
-
-    test("should require full Okta login after logged out from okta", async ({
-      page,
-      request: _request,
-    }) => {
-      const homePage = new HomePage(page);
-      const signinPage = new SignInPage(page);
-      const ssoUsername = process.env.PLAYWRIGHT_SSO_USERNAME || "";
-      const ssoPassword = process.env.PLAYWRIGHT_SSO_PASSWORD || "";
-      const ssoBase = process.env.PLAYWRIGHT_SSO_BASE_URL || "";
-
-      await page.goto(`/?auth_id=${authId}`);
-      await signinPage.continueWithOktaButton.click();
-
-      await signinPage.oktaEmailInput.fill(ssoUsername);
-      await signinPage.oktaNextButton.click();
-      await signinPage.oktaPasswordInput.fill(ssoPassword);
-      await signinPage.oktaVerifyButton.click();
-
-      await page.waitForURL(/.*dashboard\/home/, { timeout: 30000 });
-
-      await homePage.userAccount.click();
-      await homePage.signOut.click();
-
-      await page.request.get(`${ssoBase}/login/signout`, { maxRedirects: 0 });
-
-      await signinPage.continueWithOktaButton.click();
-
-      await expect(page).toHaveURL(/.*okta\.com.*/);
-    });
-  },
-);
 
 test.describe("TOTP flows", () => {
   test("should successfully setup 2FA while signup", async ({
@@ -1076,5 +910,374 @@ test.describe("Maintenance mode and Down time", () => {
     await loginUI(page, email, PLAYWRIGHT_PASSWORD);
 
     await expect(page.getByRole("alert")).toContainText(maintenanceAlert);
+  });
+});
+
+test.describe("Forgot password disabled flag", () => {
+  test("should show Forgot Password link and page when forgot_password_disabled is OFF", async ({
+    page,
+  }) => {
+    const signinPage = new SignInPage(page);
+    await setFeatureFlags(page, {
+      email: true,
+      forgot_password_disabled: false,
+    });
+
+    await page.goto("/");
+
+    await expect(signinPage.forgetPasswordLink).toBeVisible();
+    await signinPage.forgetPasswordLink.click();
+    await expect(page).toHaveURL(/.*dashboard\/forget-password/);
+    await expect(signinPage.forgetPasswordHeader).toContainText(
+      "Forgot Password?",
+    );
+    await expect(signinPage.resetPasswordButton).toBeVisible();
+  });
+
+  test("should hide Forgot Password link on login page when forgot_password_disabled is ON", async ({
+    page,
+  }) => {
+    const signinPage = new SignInPage(page);
+    await setFeatureFlags(page, {
+      email: true,
+      forgot_password_disabled: true,
+    });
+
+    await page.goto("/");
+
+    await expect(signinPage.headerText).toContainText(
+      "Hey there, Welcome back!",
+    );
+    await expect(signinPage.passwordInput).toBeVisible();
+    await expect(signinPage.forgetPasswordLink).not.toBeAttached();
+    await expect(signinPage.emailSigninLink).toContainText(
+      "sign in with an email",
+    );
+  });
+
+  test("should redirect /forget-password to login when forgot_password_disabled is ON", async ({
+    page,
+  }) => {
+    const signinPage = new SignInPage(page);
+    await setFeatureFlags(page, {
+      email: true,
+      forgot_password_disabled: true,
+    });
+
+    await page.goto("/dashboard/forget-password");
+
+    await expect(page).toHaveURL(/.*dashboard\/login/);
+    await expect(signinPage.headerText).toContainText(
+      "Hey there, Welcome back!",
+    );
+    await expect(signinPage.resetPasswordButton).not.toBeAttached();
+  });
+
+  test("should redirect /forget-password to login when forgot_password_disabled is ON and email is OFF", async ({
+    page,
+  }) => {
+    const signinPage = new SignInPage(page);
+    await setFeatureFlags(page, {
+      email: false,
+      forgot_password_disabled: true,
+    });
+
+    await page.goto("/dashboard/forget-password");
+
+    await expect(page).toHaveURL(/.*dashboard\/login/);
+    await expect(signinPage.headerText).toContainText(
+      "Hey there, Welcome back!",
+    );
+    await expect(signinPage.resetPasswordButton).not.toBeAttached();
+  });
+
+  test(
+    "should still open the reset password link from mail when forgot_password_disabled is ON",
+    { tag: "@mail" },
+    async ({ page, context: _context }) => {
+      const email = generateUniqueEmail();
+      const newPassword = "Test@1234567";
+      const signinPage = new SignInPage(page);
+      const resetPasswordPage = new ResetPasswordPage(page);
+
+      await signupUser(email, PLAYWRIGHT_PASSWORD);
+      await requestForgotPasswordAPI(email);
+      await setFeatureFlags(page, {
+        email: true,
+        forgot_password_disabled: true,
+      });
+
+      await redirectFromMailInbox(
+        page,
+        email,
+        "Get back to Hyperswitch - Reset Your Password Now!",
+      );
+
+      await signinPage.skip2FAButton.click();
+      await expect(
+        page.getByRole("heading", { name: "Reset password" }),
+      ).toBeVisible();
+      await resetPasswordPage.newPasswordField.fill(newPassword);
+      await resetPasswordPage.confirmPasswordField.fill(newPassword);
+      await resetPasswordPage.confirmButton.click();
+      await expect(page).toHaveURL(/.*login/);
+      await expect(signinPage.passwordChangedToast).toContainText(
+        "Password Changed Successfully",
+      );
+    },
+  );
+});
+
+test.describe("Sign in magic link fallback flag", () => {
+  const signinErrorRoute = /\/user\/v2\/signin(\?|$)/;
+  const connectAccountRoute = /\/user\/connect_account(\?|$)/;
+
+  const mockSigninLocked = async (page: Page) => {
+    await page.route(signinErrorRoute, async (route) => {
+      await route.fulfill({
+        status: 429,
+        contentType: "application/json",
+        body: JSON.stringify({
+          error: {
+            code: "UR_67",
+            message:
+              "Account locked after too many failed sign in attempts. Please try again later",
+            type: "invalid_request",
+          },
+        }),
+      });
+    });
+  };
+
+  test("should show Incorrect email or password toast on wrong password when signin_magic_link_fallback is OFF", async ({
+    page,
+  }) => {
+    const email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
+    const signinPage = new SignInPage(page);
+    await setFeatureFlags(page, {
+      email: true,
+      signin_magic_link_fallback: false,
+    });
+
+    await page.goto("/");
+    await signinPage.login(email, "WrongPassword00#");
+
+    await expect(signinPage.invalidCredsToast).toBeVisible();
+    await expect(signinPage.headerText).toContainText(
+      "Hey there, Welcome back!",
+    );
+    await expect(signinPage.passwordInput).toBeVisible();
+    await expect(signinPage.magicLinkFallbackSubtext).not.toBeAttached();
+  });
+
+  test("should show account locked toast when signin_magic_link_fallback is OFF and backend returns UR_67", async ({
+    page,
+  }) => {
+    const signinPage = new SignInPage(page);
+    await setFeatureFlags(page, {
+      email: true,
+      signin_magic_link_fallback: false,
+    });
+    await mockSigninLocked(page);
+
+    await page.goto("/");
+    await signinPage.login(generateUniqueEmail(), "WrongPassword00#");
+
+    await expect(signinPage.accountLockedToast).toBeVisible();
+    await expect(signinPage.passwordInput).toBeVisible();
+    await expect(signinPage.magicLinkFallbackSubtext).not.toBeAttached();
+  });
+
+  test("should switch to Verify your email on wrong password when signin_magic_link_fallback is ON", async ({
+    page,
+  }) => {
+    const email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
+    const signinPage = new SignInPage(page);
+    await setFeatureFlags(page, {
+      email: true,
+      signin_magic_link_fallback: true,
+    });
+
+    let connectAccountCalls = 0;
+    page.on("request", (req) => {
+      if (connectAccountRoute.test(req.url())) connectAccountCalls += 1;
+    });
+
+    await page.goto("/");
+    await signinPage.login(email, "WrongPassword00#");
+
+    await expect(signinPage.headerText).toContainText("Verify your email");
+    await expect(signinPage.magicLinkFallbackSubtext).toBeVisible();
+    await expect(signinPage.emailInput).toHaveValue(email);
+    await expect(signinPage.passwordInput).not.toBeAttached();
+    await expect(signinPage.signinButton).toContainText("Continue");
+    await expect(signinPage.emailSigninLink).toHaveText("Cancel");
+    await expect(signinPage.invalidCredsToast).not.toBeAttached();
+    expect(connectAccountCalls).toBe(0);
+  });
+
+  test("should send a magic link from Verify your email when signin_magic_link_fallback is ON", async ({
+    page,
+  }) => {
+    const email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
+    const signinPage = new SignInPage(page);
+    await setFeatureFlags(page, {
+      email: true,
+      signin_magic_link_fallback: true,
+    });
+
+    await page.goto("/");
+    await signinPage.login(email, "WrongPassword00#");
+    await expect(signinPage.headerText).toContainText("Verify your email");
+
+    const connectAccount = page.waitForRequest(connectAccountRoute);
+    await signinPage.signinButton.click();
+    const request = await connectAccount;
+
+    expect(request.postDataJSON()).toMatchObject({ email });
+    await expect(signinPage.headerText).toContainText(
+      "Please check your inbox",
+    );
+    await expect(signinPage.resetLinkSentContainer).toContainText(
+      `A magic link has been sent to ${email}`,
+    );
+    await expect(signinPage.emailSigninLink).toHaveText("Cancel");
+  });
+
+  test("should not reveal an unknown email on Verify your email when signin_magic_link_fallback is ON", async ({
+    page,
+  }) => {
+    const email = generateUniqueEmail();
+    const signinPage = new SignInPage(page);
+    await setFeatureFlags(page, {
+      email: true,
+      signin_magic_link_fallback: true,
+    });
+    await page.route(connectAccountRoute, async (route) => {
+      await route.fulfill({
+        status: 401,
+        contentType: "application/json",
+        body: JSON.stringify({
+          error: {
+            code: "UR_01",
+            message: "Incorrect email or password",
+            type: "invalid_request",
+          },
+        }),
+      });
+    });
+
+    await page.goto("/");
+    await signinPage.login(email, "WrongPassword00#");
+    await expect(signinPage.headerText).toContainText("Verify your email");
+
+    await signinPage.signinButton.click();
+
+    await expect(signinPage.headerText).toContainText(
+      "Please check your inbox",
+    );
+    await expect(signinPage.invalidCredsToast).not.toBeAttached();
+  });
+
+  test("should switch to Verify your email instead of locked toast when signin_magic_link_fallback is ON and backend returns UR_67", async ({
+    page,
+  }) => {
+    const signinPage = new SignInPage(page);
+    await setFeatureFlags(page, {
+      email: true,
+      signin_magic_link_fallback: true,
+    });
+    await mockSigninLocked(page);
+
+    await page.goto("/");
+    await signinPage.login(generateUniqueEmail(), "WrongPassword00#");
+
+    await expect(signinPage.headerText).toContainText("Verify your email");
+    await expect(signinPage.accountLockedToast).not.toBeAttached();
+  });
+
+  test("should return to the password form on Cancel when signin_magic_link_fallback is ON", async ({
+    page,
+  }) => {
+    const email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
+    const signinPage = new SignInPage(page);
+    await setFeatureFlags(page, {
+      email: true,
+      signin_magic_link_fallback: true,
+    });
+
+    await page.goto("/");
+    await signinPage.login(email, "WrongPassword00#");
+    await expect(signinPage.headerText).toContainText("Verify your email");
+
+    await signinPage.emailSigninLink.getByText("Cancel").click();
+
+    await expect(signinPage.headerText).toContainText(
+      "Hey there, Welcome back!",
+    );
+    await expect(signinPage.passwordInput).toBeVisible();
+    await expect(signinPage.magicLinkFallbackSubtext).not.toBeAttached();
+  });
+
+  test("should not fall back when signin_magic_link_fallback is ON but magic link is not an auth method", async ({
+    page,
+  }) => {
+    const email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
+    const signinPage = new SignInPage(page);
+    await setFeatureFlags(page, {
+      email: true,
+      signin_magic_link_fallback: true,
+    });
+    await mockAuthMethods(page, ["password"]);
+
+    await page.goto("/");
+    await signinPage.login(email, "WrongPassword00#");
+
+    await expect(signinPage.invalidCredsToast).toBeVisible();
+    await expect(signinPage.passwordInput).toBeVisible();
+    await expect(signinPage.magicLinkFallbackSubtext).not.toBeAttached();
+  });
+
+  test("should not fall back when signin_magic_link_fallback is ON but email is OFF", async ({
+    page,
+  }) => {
+    const email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
+    const signinPage = new SignInPage(page);
+    await setFeatureFlags(page, {
+      email: false,
+      signin_magic_link_fallback: true,
+    });
+
+    await page.goto("/");
+    await signinPage.login(email, "WrongPassword00#");
+
+    await expect(signinPage.invalidCredsToast).toBeVisible();
+    await expect(signinPage.passwordInput).toBeVisible();
+    await expect(signinPage.magicLinkFallbackSubtext).not.toBeAttached();
+  });
+
+  test("should sign in normally with the correct password when signin_magic_link_fallback is ON", async ({
+    page,
+  }) => {
+    const email = generateUniqueEmail();
+    await signupUser(email, PLAYWRIGHT_PASSWORD);
+    const signinPage = new SignInPage(page);
+    await setFeatureFlags(page, {
+      email: true,
+      signin_magic_link_fallback: true,
+    });
+
+    await page.goto("/");
+    await signinPage.login(email, PLAYWRIGHT_PASSWORD);
+
+    await expect(signinPage.headerText2FA).toContainText(
+      "Enable Two Factor Authentication",
+    );
   });
 });

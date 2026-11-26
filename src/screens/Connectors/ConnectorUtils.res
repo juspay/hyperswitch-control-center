@@ -26,6 +26,7 @@ let getStepName = step => {
 let payoutConnectorList: array<connectorTypes> = [
   PayoutProcessor(ADYEN),
   PayoutProcessor(ADYENPLATFORM),
+  PayoutProcessor(CHECKOUT),
   PayoutProcessor(CYBERSOURCE),
   PayoutProcessor(EBANX),
   PayoutProcessor(ITAUBANK),
@@ -84,9 +85,24 @@ let taxProcessorList: array<connectorTypes> = [TaxProcessor(TAXJAR)]
 
 let billingProcessorList: array<connectorTypes> = [BillingProcessor(CHARGEBEE)]
 
-let vaultProcessorList: array<connectorTypes> = [VaultProcessor(VGS)]
+let vaultProcessorList: array<connectorTypes> = [
+  VaultProcessor(VGS),
+  VaultProcessor(HYPERSWITCH_VAULT),
+]
 
 let surchargeProcessorList: array<connectorTypes> = [SurchargeProcessor(INTERPAYMENTS)]
+
+// Connectors whose outgoing endpoints must be whitelisted before configuring them
+let urlWhitelistingRequiredConnectorList: array<connectorTypes> = [
+  Processors(ADYEN),
+  Processors(KLARNA),
+  Processors(NOON),
+  PayoutProcessor(ADYEN),
+  PayoutProcessor(ADYENPLATFORM),
+  ThreeDsAuthenticator(NETCETERA),
+  BillingProcessor(CHARGEBEE),
+  VaultProcessor(VGS),
+]
 
 let connectorList: array<connectorTypes> = [
   Processors(STRIPE),
@@ -369,6 +385,29 @@ let checkoutInfo = {
       testValidationRegex: "^sk(_sbox)?_(.+)$",
       liveExpectedFormat: "API secret key should begin with sk_ and not begin with sk_sbox_",
       testExpectedFormat: "API secret key should begin with sk_",
+    },
+    {
+      name: "connector_account_details.key1",
+      liveValidationRegex: "^pc_(.+)$",
+      testValidationRegex: "^pc_(.+)$",
+      liveExpectedFormat: "Processing Channel ID should have the prefix pc_",
+      testExpectedFormat: "Processing Channel ID should have the prefix pc_",
+    },
+    {
+      name: "metadata.connector_client_id",
+      liveValidationRegex: "^cli_(.+)$",
+      testValidationRegex: "^cli_(.+)$",
+      liveExpectedFormat: "Checkout Client ID should have the prefix cli_",
+      testExpectedFormat: "Checkout Client ID should have the prefix cli_",
+      isRequired: false,
+    },
+    {
+      name: "metadata.connector_currency_account_id",
+      liveValidationRegex: "^ca_(.+)$",
+      testValidationRegex: "^ca_(.+)$",
+      liveExpectedFormat: "Connector Currency Account ID should have the prefix ca_",
+      testExpectedFormat: "Connector Currency Account ID should have the prefix ca_",
+      isRequired: false,
     },
   ],
 }
@@ -957,6 +996,10 @@ let vgsInfo = {
   description: "Very Good Security (VGS) is a data security platform that helps businesses protect sensitive information such as payment card data, personally identifiable information (PII), and other confidential data. VGS provides solutions for data tokenization, encryption, and secure data storage, allowing businesses to reduce their compliance scope and mitigate the risks associated with handling sensitive data.",
 }
 
+let hyperswitchVaultInfo = {
+  description: "Juspay Hosted Vault enables self-hosted Hyperswitch merchants to securely store and tokenize payment card data in Juspay's hosted vault. It keeps sensitive card data out of your infrastructure, helping defer PCI DSS compliance to Juspay's hosted vault.",
+}
+
 let interPaymentsInfo = {
   description: "InterPayments is a managed surcharge provider that handles surcharge compliance while integrating seamlessly with your existing payment systems.",
 }
@@ -1140,6 +1183,7 @@ let getPayoutProcessorNameString = (payoutProcessor: payoutProcessorTypes) =>
   switch payoutProcessor {
   | ADYEN => "adyen"
   | ADYENPLATFORM => "adyenplatform"
+  | CHECKOUT => "checkout"
   | CYBERSOURCE => "cybersource"
   | EBANX => "ebanx"
   | ITAUBANK => "itaubank"
@@ -1206,6 +1250,7 @@ let getBillingProcessorNameString = (billingProcessor: billingProcessorTypes) =>
 let getVaultProcessorNameString = (vaultProcessor: vaultProcessorTypes) => {
   switch vaultProcessor {
   | VGS => "vgs"
+  | HYPERSWITCH_VAULT => "hyperswitch_vault"
   }
 }
 
@@ -1370,6 +1415,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
     switch connector {
     | "adyen" => PayoutProcessor(ADYEN)
     | "adyenplatform" => PayoutProcessor(ADYENPLATFORM)
+    | "checkout" => PayoutProcessor(CHECKOUT)
     | "cybersource" => PayoutProcessor(CYBERSOURCE)
     | "ebanx" => PayoutProcessor(EBANX)
     | "itaubank" => PayoutProcessor(ITAUBANK)
@@ -1430,6 +1476,7 @@ let getConnectorNameTypeFromString = (connector, ~connectorType=ConnectorTypes.P
   | VaultProcessor =>
     switch connector {
     | "vgs" => VaultProcessor(VGS)
+    | "hyperswitch_vault" => VaultProcessor(HYPERSWITCH_VAULT)
     | _ => UnknownConnector("Not known")
     }
   | SurchargeProcessor =>
@@ -1577,6 +1624,7 @@ let getPayoutProcessorInfo = (payoutconnector: ConnectorTypes.payoutProcessorTyp
   switch payoutconnector {
   | ADYEN => adyenInfo
   | ADYENPLATFORM => adyenPlatformInfo
+  | CHECKOUT => checkoutInfo
   | CYBERSOURCE => cybersourceInfo
   | EBANX => ebanxInfo
   | ITAUBANK => itauBankInfo
@@ -1642,6 +1690,7 @@ let getBillingProcessorInfo = (billingProcessor: ConnectorTypes.billingProcessor
 let getVaultProcessorInfo = (vaultProcessor: ConnectorTypes.vaultProcessorTypes) => {
   switch vaultProcessor {
   | VGS => vgsInfo
+  | HYPERSWITCH_VAULT => hyperswitchVaultInfo
   }
 }
 
@@ -1686,6 +1735,7 @@ let itemProviderMapper: dict<JSON.t> => ConnectorTypes.paymentMethodConfigType =
     installment_payment_enabled: dict->getOptionBool("installment_payment_enabled"),
     payment_experience: dict->getOptionString("payment_experience"),
     card_networks: dict->getStrArrayFromDict("card_networks", []),
+    pay_via_single_use_token: ?dict->getOptionString("pay_via_single_use_token"),
   }
 }
 
@@ -1739,7 +1789,27 @@ let configKeysToIgnore = [
   "additional_merchant_data",
   "connector_wallets_details",
   "connector_webhook_register_details",
+  "pay_via_single_use_token",
+  "webhook_url_type",
 ]
+
+let getPayViaSingleUseTokenConfig = connectorConfig =>
+  connectorConfig->getJsonObjectFromDict("pay_via_single_use_token")->convertMapObjectToDict
+
+let getPayViaSingleUseTokenEntry = (payViaSingleUseTokenConfig, ~paymentMethodType) =>
+  payViaSingleUseTokenConfig->Dict.get(paymentMethodType)->Option.map(convertMapObjectToDict)
+
+let isPayViaSingleUseTokenFlow = (entry, walletFlow: walletFlow) =>
+  entry->getStrArrayFromDict("flows", [])->Array.includes((walletFlow :> string))
+
+let isPayViaSingleUseTokenInDecryptFlow = (
+  connectorConfig,
+  ~paymentMethodType: payViaSingleUseTokenWallet,
+) =>
+  connectorConfig
+  ->getPayViaSingleUseTokenConfig
+  ->getPayViaSingleUseTokenEntry(~paymentMethodType=(paymentMethodType :> string))
+  ->mapOptionOrDefault(false, entry => entry->isPayViaSingleUseTokenFlow(Decrypt))
 
 let verifyConnectorIgnoreField = [
   "business_country",
@@ -1816,9 +1886,15 @@ let addMethod = (paymentMethodsEnabled, paymentMethod, method) => {
   | _ =>
     pmts->Array.forEach((val: paymentMethodEnabled) => {
       if val.payment_method_type->String.toLowerCase === paymentMethod->String.toLowerCase {
-        val.provider
-        ->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
-        ->Array.push(method)
+        let providers = val.provider->Option.getOr([]->JSON.Encode.array->getPaymentMethodMapper)
+        let isAlreadyAdded =
+          providers->Array.some(provider =>
+            provider.payment_method_type === method.payment_method_type &&
+              provider.payment_experience === method.payment_experience
+          )
+        if !isAlreadyAdded {
+          providers->Array.push(method)
+        }
       }
     })
   }
@@ -2297,8 +2373,19 @@ let onSubmit = async (
   Nullable.null
 }
 
-let getWebhooksUrl = (~connectorName, ~merchantId) => {
-  `${Window.env.apiBaseUrl}/webhooks/${merchantId}/${connectorName}`
+let getWebhookUrlTypeFromString = webhookUrlType =>
+  switch webhookUrlType {
+  | "mtls" => Mtls
+  | _ => NonMtls
+  }
+
+// mTLS connectors receive webhooks on a separate host, addressed by merchant connector id
+let getWebhooksUrl = (~connectorName, ~merchantId, ~merchantConnectorId, ~webhookUrlType) => {
+  let {apiBaseUrl, mtlsApiUrl} = Window.env
+  switch (webhookUrlType, mtlsApiUrl) {
+  | (Mtls, Some(mtlsApiUrl)) => `${mtlsApiUrl}/webhooks/${merchantId}/${merchantConnectorId}`
+  | _ => `${apiBaseUrl}/webhooks/${merchantId}/${connectorName}`
+  }
 }
 
 let itemToPMAuthMapper = dict => {
@@ -2598,6 +2685,7 @@ let getDisplayNameForPayoutProcessor = (payoutProcessor: ConnectorTypes.payoutPr
   switch payoutProcessor {
   | ADYEN => "Adyen"
   | ADYENPLATFORM => "Adyen Platform"
+  | CHECKOUT => "Checkout"
   | CYBERSOURCE => "Cybersource"
   | EBANX => "Ebanx"
   | ITAUBANK => "Itaubank"
@@ -2661,6 +2749,7 @@ let getDisplayNameForBillingProcessor = billingProcessor => {
 let getDisplayNameForVaultProcessor = vaultProcessor => {
   switch vaultProcessor {
   | VGS => "VGS"
+  | HYPERSWITCH_VAULT => "Juspay Hosted Vault"
   }
 }
 
@@ -2703,14 +2792,18 @@ let getConnectorCategory = (connector: connectorTypes): option<connector> =>
   | UnknownConnector(_) => None
   }
 
+let getDisplayNameFromConnectorType = (connector: connectorTypes) => {
+  let connectorName = connector->getConnectorNameString
+  connector
+  ->getConnectorCategory
+  ->mapOptionOrDefault(connectorName, connectorType =>
+    connectorName->getDisplayNameForConnector(~connectorType)
+  )
+}
+
 let matchesConnectorTypeSearch = (connector: connectorTypes, searchText) => {
   let connectorName = connector->getConnectorNameString
-  let displayName =
-    connector
-    ->getConnectorCategory
-    ->mapOptionOrDefault(connectorName, connectorType =>
-      connectorName->getDisplayNameForConnector(~connectorType)
-    )
+  let displayName = connector->getDisplayNameFromConnectorType
 
   [connectorName, displayName]->Array.some(value => isContainingStringLowercase(value, searchText))
 }

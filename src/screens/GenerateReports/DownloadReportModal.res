@@ -23,7 +23,7 @@ let make = (~reportModal, ~setReportModal, ~entityName) => {
   let {transactionEntity} = getResolvedUserInfo()
   let {version} = getCommonSessionDetails()
   let (_, getNameForId) = OMPSwitchHooks.useOMPData()
-  let defaultDate = getDateFilteredObject(~range=30)
+  let defaultDate = getDateFilteredObject(~range=last30DaysRange)
   let {filterValueJson} = FilterContext.filterContext->React.useContext
 
   let report_type = switch entityName {

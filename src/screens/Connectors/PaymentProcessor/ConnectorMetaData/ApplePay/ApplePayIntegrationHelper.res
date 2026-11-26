@@ -175,3 +175,35 @@ let applePayValueInput = (
     }
   }
 }
+
+module PayViaSingleUseTokenField = {
+  @react.component
+  let make = (~connector, ~fieldWrapperClass="flex flex-col pt-1 pl-2 pr-4") => {
+    open LogicUtils
+    let paymentMethodType = (#apple_pay: ConnectorTypes.payViaSingleUseTokenWallet :> string)
+    let formState: ReactFinalForm.formState = ReactFinalForm.useFormState(
+      ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
+    )
+    let payViaSingleUseTokenConfig = React.useMemo(() => {
+      connector->isNonEmptyString
+        ? Window.getConnectorConfig(connector)
+          ->getDictFromJsonObject
+          ->ConnectorUtils.getPayViaSingleUseTokenConfig
+        : Dict.make()
+    }, [connector])
+
+    payViaSingleUseTokenConfig
+    ->PaymentMethodUtils.getPayViaSingleUseTokenField(
+      ~formValues=formState.values,
+      ~paymentMethodType,
+    )
+    ->mapOptionOrDefault(React.null, field =>
+      <FormRenderer.FieldRenderer
+        labelClass={`${Typography.body.md.semibold} text-nd_gray-800`}
+        labelPadding="pb-2"
+        fieldWrapperClass
+        field={CommonConnectorHelper.payViaSingleUseTokenInput(~field, ~paymentMethodType)}
+      />
+    )
+  }
+}

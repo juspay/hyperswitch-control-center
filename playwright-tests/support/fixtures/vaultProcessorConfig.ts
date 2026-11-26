@@ -20,4 +20,14 @@ export const vaultProcessorConfig: Record<string, ConnectorConfig> = {
       fieldLabels: ["Client Id *", "Client Secret *", "Vault Id *"],
     },
   },
+  hyperswitch_vault: {
+    label: "hyperswitch_vault",
+    fields: {
+      default: "test_value",
+      overrides: {
+        "Enter Connector label": "hyperswitch_vault_default",
+      },
+      fieldLabels: ["API Key *", "Publishable Key *", "Profile ID *"],
+    },
+  },
 };

@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import type { Locator, Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 
 export function generateUniqueEmail(): string {
   return `playwright-${randomUUID().slice(0, 8)}@test.com`;
@@ -62,6 +62,16 @@ export async function waitForAnimationsToFinish(page: Page): Promise<void> {
         .map((a) => a.finished.catch(() => undefined)),
     ),
   );
+}
+
+export const TOAST_SELECTOR = "[data-toast], [data-sonner-toast]";
+
+// Wait till Toasts auto-dismiss after 3-5s
+export async function waitForToastsToDisappear(
+  page: Page,
+  timeout = 10_000,
+): Promise<void> {
+  await expect(page.locator(TOAST_SELECTOR)).toHaveCount(0, { timeout });
 }
 
 // scrollIntoViewIfNeeded only scrolls when the target is off-screen, and the

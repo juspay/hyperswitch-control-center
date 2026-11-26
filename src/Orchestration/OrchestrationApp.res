@@ -1,5 +1,5 @@
 @react.component
-let make = (~setScreenState) => {
+let make = () => {
   open HyperswitchAtom
 
   let url = RescriptReactRouter.useUrl()
@@ -16,7 +16,7 @@ let make = (~setScreenState) => {
 
   {
     switch url.path->HSwitchUtils.urlPath {
-    | list{"home", ..._} => <MerchantAccountContainer setAppScreenState=setScreenState />
+    | list{"home", ..._} => <MerchantAccountContainer />
     | list{"connectors", ..._}
     | list{"payoutconnectors", ..._}
     | list{"3ds-authenticators", ..._}
@@ -226,16 +226,6 @@ let make = (~setScreenState) => {
         <DisputeTable />
       </AccessControl>
     | list{"unauthorized"} => <UnauthorizedPage />
-    | list{"chat-bot"} =>
-      <AccessControl
-        isEnabled={featureFlagDetails.devAiChatBot && !checkUserEntity([#Profile])}
-        // TODO: Remove `MerchantDetailsView` permission in future
-        authorization={hasAnyGroupAccess(
-          userHasAccess(~groupAccess=MerchantDetailsView),
-          userHasAccess(~groupAccess=AccountView),
-        )}>
-        <ChatBot />
-      </AccessControl>
     | list{"configuration-management-default-config"}
     | list{"configuration-management-overrides"}
     | list{"configuration-management-dimensions"}

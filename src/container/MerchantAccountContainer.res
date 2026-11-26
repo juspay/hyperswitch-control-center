@@ -2,7 +2,7 @@
 Modules that depend on Merchant data are located within this container.
  */
 @react.component
-let make = (~setAppScreenState) => {
+let make = () => {
   open HSwitchUtils
   open HyperswitchAtom
   let url = RescriptReactRouter.useUrl()
@@ -14,7 +14,7 @@ let make = (~setAppScreenState) => {
 
   <div>
     {switch url.path->urlPath {
-    | list{"home"} => <Home setAppScreenState />
+    | list{"home"} => <Home />
     | list{"unauthorized"} => <UnauthorizedPage />
     | _ => <NotFoundPage />
     }}

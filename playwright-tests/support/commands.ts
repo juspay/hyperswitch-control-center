@@ -1190,6 +1190,12 @@ export async function createPayoutAPI(
   const ctx = context ?? (await request.newContext());
   const jwt = page ? await getJwtFromLocalStorage(page) : "";
   const apiKey = await createAPIKey(merchantId, "", ctx, page);
+  // Payouts no longer create the customer implicitly (hyperswitch #15305).
+  await createCustomerAPI(merchantId, "test_customer", ctx, page).catch(
+    (error: Error) => {
+      if (!error.message.includes("already exists")) throw error;
+    },
+  );
 
   const response = await ctx.post(`${API_URL}/payouts/create`, {
     headers: {
@@ -2417,6 +2423,7 @@ export async function ompLineage(
   } catch (e) {
     throw new Error(
       `ompLineage: Failed to parse USER_INFO from localStorage: ${(e as Error).message}`,
+      { cause: e },
     );
   }
 
@@ -2606,4 +2613,54 @@ export async function safeScrollIntoView(
 ): Promise<void> {
   await locator.waitFor({ state: "attached", timeout });
   await locator.scrollIntoViewIfNeeded();
+}
+
+export async function setFeatureFlags(
+  page: Page,
+  flags: Record<string, boolean>,
+): Promise<void> {
+  await page.route("**/dashboard/config/feature*", async (route) => {
+    const response = await route.fetch();
+    const json = await response.json();
+    json.features = { ...(json.features ?? {}), ...flags };
+    await route.fulfill({ response, json });
+  });
+}
+
+export async function mockAuthMethods(
+  page: Page,
+  methods: Array<"password" | "magic_link">,
+): Promise<void> {
+  await page.route(/\/user\/auth\/list(\?|$)/, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(
+        methods.map((type) => ({
+          id: `playwright_${type}`,
+          auth_id: "playwright_auth_id",
+          auth_method: { type, name: type },
+          allow_signup: true,
+        })),
+      ),
+    });
+  });
+}
+
+export async function requestForgotPasswordAPI(
+  email: string,
+  context?: APIRequestContext,
+): Promise<void> {
+  const ctx = context ?? (await request.newContext());
+  const response = await ctx.post(`${API_URL}/user/forgot_password`, {
+    headers: { "Content-Type": "application/json" },
+    data: { email },
+  });
+
+  if (!response.ok()) {
+    const body = await response.text();
+    throw new Error(
+      `requestForgotPasswordAPI failed (${response.status()}): ${body}`,
+    );
+  }
 }

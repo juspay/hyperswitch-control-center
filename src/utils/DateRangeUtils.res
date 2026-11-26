@@ -8,6 +8,19 @@ type customDateRange =
   | NextMonth
   | Hour(float)
   | Day(float)
+
+let standardPredefinedDays = [
+  Hour(0.5),
+  Hour(1.0),
+  Hour(6.0),
+  Today,
+  Yesterday,
+  Day(7.0),
+  Day(30.0),
+  ThisMonth,
+  LastMonth,
+]
+
 type compareOption =
   | No_Comparison
   | Previous_Period
@@ -405,4 +418,20 @@ let getGapBetweenRange = (~startDate, ~endDate) => {
   let startingPoint = startDate->DayJs.getDayJsForString
   let endingPoint = endDate->DayJs.getDayJsForString
   endingPoint.diff(startingPoint.toString(), "day") // diff between points
+}
+
+let getLastHoursRange = (~now, hours) => (
+  Date.fromTime(now->Date.getTime -. hours *. 3600.0 *. 1000.0),
+  now,
+)
+
+let getLastDaysRange = (~now, days) => (
+  (now->DayJs.getDayJsForJsDate).subtract(days->Float.toInt, "day").toDate(),
+  now,
+)
+
+let getLastSixMonthsRange = (~now) => {
+  let sixMonthsAgo = Date.fromTime(now->Date.getTime)
+  Date.setMonth(sixMonthsAgo, Date.getMonth(sixMonthsAgo) - 6)
+  (sixMonthsAgo, now)
 }

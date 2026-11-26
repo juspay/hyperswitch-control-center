@@ -842,7 +842,7 @@ test.describe("Visual Testing - Connectors", () => {
       await expect(page).toHaveURL(/.*dashboard\/vault-processor/);
 
       // Section 1 — credentials form for the selected processor.
-      await vaultProcessor.connectButton.first().click();
+      await vaultProcessor.connectButtonFor(processor.label).click();
       await fillConnectorFields(page, processor.fields);
       await page.waitForLoadState("networkidle");
 
@@ -877,6 +877,69 @@ test.describe("Visual Testing - Connectors", () => {
 
       await expect(page).toHaveScreenshot(
         "connectors-vault-processor-created.png",
+        {
+          fullPage: true,
+          animations: "disabled",
+          maxDiffPixelRatio: 0.01,
+        },
+      );
+    });
+    test("juspay hosted vault setup flow should match visual snapshot at each section", async ({
+      page,
+    }) => {
+      await mockV2MerchantList(page);
+      await enableFeatureFlags(page, ["vault", "vault_processor"]);
+
+      const homePage = new HomePage(page);
+      const vaultProcessor = new VaultProcessor(page);
+      const processor = vaultProcessorConfig.hyperswitch_vault;
+
+      const email = generateUniqueEmail();
+      await signupUser(email, PLAYWRIGHT_PASSWORD);
+      await loginUI(page, email, PLAYWRIGHT_PASSWORD);
+
+      await homePage.connectors.click();
+      await homePage.vaultConnectors.click();
+      await page.waitForLoadState("networkidle");
+
+      await expect(page).toHaveURL(/.*dashboard\/vault-processor/);
+
+      // Section 1 — credentials form for Juspay Hosted Vault.
+      await vaultProcessor.connectButtonFor(processor.label).click();
+      await fillConnectorFields(page, processor.fields);
+      await page.waitForLoadState("networkidle");
+
+      await expect(page).toHaveScreenshot(
+        "connectors-vault-processor-juspay-hosted-vault-credentials.png",
+        {
+          fullPage: true,
+          animations: "disabled",
+          maxDiffPixelRatio: 0.01,
+        },
+      );
+
+      // Section 2 — connector created and listed.
+      await vaultProcessor.saveOrConnectOrProceedButton.click();
+      await page.waitForLoadState("networkidle");
+      await expect(page).toHaveScreenshot(
+        "connectors-vault-processor-juspay-hosted-vault-created-details.png",
+        {
+          fullPage: true,
+          animations: "disabled",
+          maxDiffPixelRatio: 0.01,
+        },
+      );
+      await vaultProcessor.doneButton.click();
+
+      await expect(
+        page.getByText(processor.fields.overrides["Enter Connector label"], {
+          exact: true,
+        }),
+      ).toBeVisible({ timeout: 10000 });
+      await page.waitForLoadState("networkidle");
+
+      await expect(page).toHaveScreenshot(
+        "connectors-vault-processor-juspay-hosted-vault-created.png",
         {
           fullPage: true,
           animations: "disabled",

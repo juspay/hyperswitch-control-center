@@ -4,6 +4,10 @@ type accessMapping = {
 }
 let ompDefaultValue: OMPSwitchTypes.ompListTypes = {id: "", name: ""}
 
+let recoveryProfileAtom: Recoil.recoilAtom<
+  option<RevenueRecoveryProfileTypes.recoveryProfile>,
+> = Recoil.atom("recoveryProfileAtom", None)
+
 let merchantDetailsValueAtom: Recoil.recoilAtom<HSwitchSettingTypes.merchantPayload> = Recoil.atom(
   "merchantDetailsValue",
   JSON.Encode.null->MerchantAccountDetailsMapper.getMerchantDetails,
@@ -100,3 +104,5 @@ let moduleListRecoil: Recoil.recoilAtom<array<UserManagementTypes.userModuleType
 )
 
 let orchestrationVaultAtom: Recoil.recoilAtom<bool> = Recoil.atom("orchestrationVaultAtom", false)
+
+let tableRefreshSignalAtom: Recoil.recoilAtom<int> = Recoil.atom("tableRefreshSignalAtom", 0)
