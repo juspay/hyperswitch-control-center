@@ -68,7 +68,7 @@ let itemToObjMapper = json => {
 
 let countsItemToObjMapper = json => {
   let rows = json->getQueryData->Array.map(singleStateItemToObjMapper)
-  rows->Array.length > 0
+  rows->isNonEmptyArray
     ? [
         rows->Array.reduce(singleStateInitialValue, (acc, row) => {
           ...acc,
