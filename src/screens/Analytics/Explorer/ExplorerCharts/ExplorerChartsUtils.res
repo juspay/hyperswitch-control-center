@@ -30,7 +30,7 @@ let defaultColumnPoint: ColumnGraphTypes.point = {
 let getOutcomeColor = field =>
   switch field {
   | Success => green
-  | Failed | AuthFailed => redColor
+  | Failed | AuthenticationFailed | AuthorizationFailed => redColor
   | Excluded => goldenYellow
   | Other | Total => mutedColor
   }

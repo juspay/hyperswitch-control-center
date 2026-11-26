@@ -73,14 +73,9 @@ let getFiltersJson = selection =>
   ->getJsonFromArrayOfJson
 
 let countGroupBy = (selection): array<dimension> => {
-  let threeDsColumn = switch getMeasureFormula(selection.source, selection.measure) {
-  | Rate(_, ThreeDsAttempts) => [#authentication_type]
-  | _ => []
-  }
   let fixed =
     sourceConfig(selection.source).statusDimension
     ->mapOptionOrDefault([], key => [key])
-    ->Array.concat(threeDsColumn)
     ->Array.concat(hasFlows(selection.source) ? flowColumns : [])
     ->Array.concat(needsCurrency(selection) ? [#currency] : [])
   fixed->Array.concat(
