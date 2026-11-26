@@ -133,7 +133,7 @@ let make = (
   let updatePercentage = (item: gateway, value) => {
     if value < 100 {
       let newList = selectedOptions->Array.map(option => {
-        if option.connector.connector === item.connector.connector {
+        if option.connector.merchant_connector_id === item.connector.merchant_connector_id {
           {...option, split: value}
         } else {
           option
