@@ -262,6 +262,13 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (payoutData, setPayoutsData) = React.useState(_ => Dict.make()->PayoutsEntity.itemToObjMapper)
   let internalSwitch = OMPSwitchHooks.useInternalSwitch()
+  let frmDetailsRef = React.useRef(Nullable.null)
+  let scrollToFrmDetails = () =>
+    frmDetailsRef.current
+    ->Nullable.toOption
+    ->Option.forEach(element =>
+      element->DynamicTabs.scrollIntoView({behavior: "smooth", block: "start", inline: "nearest"})
+    )
   let fetchPayoutsData = async () => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
@@ -304,6 +311,13 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
         </div>
       </div>
       {<div className="flex flex-col gap-8">
+        <RenderIf condition={payoutData.frm_message.frm_status === "fraud"}>
+          <FraudRiskBanner
+            frmName={payoutData.frm_message.frm_name}
+            transactionLabel="payout"
+            onReviewDetailsClick=scrollToFrmDetails
+          />
+        </RenderIf>
         <PayoutInfo payoutData />
         <RenderIf
           condition={version == V1 &&
@@ -388,6 +402,29 @@ let make = (~id, ~profileId, ~merchantId, ~orgId) => {
               },
             ]
           />
+        </RenderIf>
+        <RenderIf condition={payoutData.frm_message.frm_name->isNonEmptyString}>
+          <div ref={frmDetailsRef->ReactDOM.Ref.domRef}>
+            <RenderAccordion
+              initialExpandedArray=[0]
+              accordion=[
+                {
+                  title: "FRM Details",
+                  renderContent: (~currentAccordionState as _, ~closeAccordionFn as _) => {
+                    <ShowPayoutDetails
+                      data=payoutData
+                      getHeading=getHeadingForFrm
+                      getCell=getCellForFrm
+                      detailsFields=frmDetailsFields
+                      widthClass="md:w-1/4 w-full"
+                      border=""
+                    />
+                  },
+                  renderContentOnTop: None,
+                },
+              ]
+            />
+          </div>
         </RenderIf>
       </div>}
     </div>
