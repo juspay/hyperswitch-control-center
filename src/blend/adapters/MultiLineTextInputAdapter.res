@@ -42,6 +42,7 @@ let make = (
   | _ => ""
   }
 
+  // Preserve V1's application line-height so native rows keep their existing height.
   let blendTextArea =
     <TextAreaBinding
       value
@@ -51,8 +52,8 @@ let make = (
       onFocus=input.onFocus
       name=input.name
       disabled=isDisabled
+      size=Md
       ?rows
-      ?cols
       ?maxLength
       ?readOnly
       ?autoFocus
@@ -68,7 +69,9 @@ let make = (
   }
 
   <>
-    <RenderIf condition={isBlendEnabled}> blendContent </RenderIf>
+    <RenderIf condition={isBlendEnabled}>
+      <div className="[&_textarea]:!leading-normal"> blendContent </div>
+    </RenderIf>
     <RenderIf condition={!isBlendEnabled}>
       <MultiLineTextInput
         input
