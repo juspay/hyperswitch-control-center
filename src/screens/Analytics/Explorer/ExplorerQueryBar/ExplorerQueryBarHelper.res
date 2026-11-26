@@ -22,18 +22,38 @@ module QuerySelect = {
     ~placeholder,
     ~allowDeselect=false,
     ~enableSearch=false,
-  ) =>
+  ) => {
+    let items: array<SingleSelectBinding.selectMenuGroupType> = [
+      {
+        items: options->Array.map(option => {
+          SingleSelectBinding.label: option.label,
+          value: option.value,
+          subLabel: ?option.subLabel,
+          slot1: ?option.slot1,
+          slot2: ?option.slot2,
+          disabled: ?option.disabled,
+          tooltip: ?option.tooltip,
+          disableTruncation: true,
+        }),
+      },
+    ]
     <SingleSelectBinding
       selected=value
-      onSelect=onChange
-      items=[{items: options->Array.map(option => {...option, disableTruncation: true})}]
+      onSelect={next => onChange(allowDeselect && next === value ? "" : next)}
+      items
+      customTrigger={SingleSelectBinding.Trigger.make(
+        ~items,
+        ~selected=value,
+        ~placeholder,
+        ~size=Sm,
+        (),
+      )}
       placeholder
       size=Sm
-      allowDeselect
-      enableSearch
-      minMenuWidth=300
-      maxMenuWidth=380
+      search={show: enableSearch}
+      menuDimensions={minWidth: 300, maxWidth: 380}
     />
+  }
 }
 
 module FilterChips = {
