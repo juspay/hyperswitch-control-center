@@ -3,6 +3,7 @@ module InviteForMultipleInvitation = {
   let make = (
     ~pendingInvites: array<PreLoginTypes.invitationResponseType>,
     ~acceptInvite,
+    ~isAccepting,
     ~showModal,
     ~setShowModal,
   ) => {
@@ -10,6 +11,11 @@ module InviteForMultipleInvitation = {
     let (acceptedInvites, setAcceptedInvites) = React.useState(_ =>
       JSON.Encode.null->getArrayDataFromJson(PreLoginUtils.itemToObjectMapper)
     )
+
+    React.useEffect(() => {
+      setAcceptedInvites(_ => [])
+      None
+    }, [pendingInvites])
 
     let acceptInviteOnClick = ele => setAcceptedInvites(_ => [...acceptedInvites, ele])
 
@@ -91,7 +97,11 @@ module InviteForMultipleInvitation = {
               onClick={_ => {
                 acceptInvite(acceptedInvites)->ignore
               }}
-              buttonState={acceptedInvites->Array.length > 0 ? Normal : Disabled}
+              buttonState={isAccepting
+                ? Loading
+                : acceptedInvites->Array.length > 0
+                ? Normal
+                : Disabled}
             />
           </div>
         </div>
@@ -102,7 +112,7 @@ module InviteForMultipleInvitation = {
 
 module InviteForSingleInvitation = {
   @react.component
-  let make = (~pendingInvites, ~acceptInvite) => {
+  let make = (~pendingInvites, ~acceptInvite, ~isAccepting) => {
     open LogicUtils
 
     let inviteValue =
@@ -128,13 +138,14 @@ module InviteForSingleInvitation = {
         text="Accept"
         buttonType={PrimaryOutline}
         customButtonStyle="!p-2"
+        buttonState={isAccepting ? Loading : Normal}
         onClick={_ => acceptInvite([inviteValue])->ignore}
       />
     </div>
   }
 }
 @react.component
-let make = (~setAppScreenState) => {
+let make = () => {
   open APIUtils
   open LogicUtils
   let getURL = useGetURL()
@@ -143,6 +154,12 @@ let make = (~setAppScreenState) => {
   let showToast = ToastAdapter.useShowToast()
   let fetchDetails = useGetMethod()
   let (pendingInvites, setPendingInvites) = React.useState(_ => [])
+  let (isAccepting, setIsAccepting) = React.useState(_ => false)
+  let fetchOrganizationList = OrganizationHooks.useFetchOrganizationList()
+  let fetchMerchantList = MerchantListHook.useFetchMerchantList()
+  let fetchProfileList = ProfileListHook.useFetchProfileList()
+  let {roleId} = React.useContext(UserInfoProvider.defaultContext).getResolvedUserInfo()
+  let isInternalUser = roleId->HyperSwitchUtils.checkIsInternalUser
 
   let getListOfMerchantIds = async () => {
     try {
@@ -158,7 +175,7 @@ let make = (~setAppScreenState) => {
 
   let acceptInvite = async acceptedInvitesArray => {
     try {
-      setAppScreenState(_ => PageLoaderWrapper.Loading)
+      setIsAccepting(_ => true)
       let url = getURL(~entityName=V1(USERS), ~userType=#ACCEPT_INVITATION_HOME, ~methodType=Post)
 
       let body =
@@ -175,24 +192,32 @@ let make = (~setAppScreenState) => {
 
       let _ = await updateDetails(url, body, Post)
       setShowModal(_ => false)
-      getListOfMerchantIds()->ignore
-      setAppScreenState(_ => Success)
+      fetchOrganizationList()->ignore
+      fetchMerchantList()->ignore
+      fetchProfileList()->ignore
+      await getListOfMerchantIds()
+      setIsAccepting(_ => false)
     } catch {
-    | _ => showToast(~message="Failed to accept invitations!", ~toastType=ToastError)
+    | _ => {
+        setIsAccepting(_ => false)
+        showToast(~message="Failed to accept invitations!", ~toastType=ToastError)
+      }
     }
   }
 
   React.useEffect(() => {
-    getListOfMerchantIds()->ignore
+    if !isInternalUser {
+      getListOfMerchantIds()->ignore
+    }
     None
   }, [])
 
   <RenderIf condition={pendingInvites->Array.length !== 0}>
     <RenderIf condition={pendingInvites->Array.length === 1}>
-      <InviteForSingleInvitation pendingInvites acceptInvite />
+      <InviteForSingleInvitation pendingInvites acceptInvite isAccepting />
     </RenderIf>
     <RenderIf condition={pendingInvites->Array.length > 1}>
-      <InviteForMultipleInvitation pendingInvites acceptInvite showModal setShowModal />
+      <InviteForMultipleInvitation pendingInvites acceptInvite isAccepting showModal setShowModal />
     </RenderIf>
   </RenderIf>
 }

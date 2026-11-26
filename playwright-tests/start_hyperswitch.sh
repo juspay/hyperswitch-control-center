@@ -77,6 +77,11 @@ try_tag() {
     -e 's|apt-get install -y curl xz-utils|apt-get install -y curl xz-utils rustfmt postgresql-client|' \
     docker-compose.yml && rm -f docker-compose.yml.bak
 
+  # Enable payouts (disabled by default since 2026.11.26.0).
+  sed -i.bak \
+    -e 's|^"payouts.should_allow_payouts" = { value = false,|"payouts.should_allow_payouts" = { value = true,|' \
+    config/superposition_seed.toml && rm -f config/superposition_seed.toml.bak
+
   echo "Starting docker compose..."
   if docker compose up -d pg redis-standalone migration_runner hyperswitch-server hyperswitch-web mailhog \
      && docker ps --format '{{.Names}}' | grep -q hyperswitch-server; then

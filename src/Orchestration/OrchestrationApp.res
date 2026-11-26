@@ -1,5 +1,5 @@
 @react.component
-let make = (~setScreenState) => {
+let make = () => {
   open HyperswitchAtom
 
   let url = RescriptReactRouter.useUrl()
@@ -16,7 +16,7 @@ let make = (~setScreenState) => {
 
   {
     switch url.path->HSwitchUtils.urlPath {
-    | list{"home", ..._} => <MerchantAccountContainer setAppScreenState=setScreenState />
+    | list{"home", ..._} => <MerchantAccountContainer />
     | list{"connectors", ..._}
     | list{"payoutconnectors", ..._}
     | list{"3ds-authenticators", ..._}
