@@ -547,6 +547,14 @@ module.exports = {
     },
   },
   plugins: [
+    plugin(function ({ addBase, theme }) {
+      addBase({
+        ":root": {
+          "--app-snackbar-width": theme("maxWidth.400"),
+          "--app-snackbar-gutter": theme("spacing.8"),
+        },
+      });
+    }),
     plugin(function ({ addUtilities }) {
       const newUtilities = {
         "*::-webkit-scrollbar": {

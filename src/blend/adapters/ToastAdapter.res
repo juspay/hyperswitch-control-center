@@ -39,16 +39,27 @@ let useShowToast = () => {
 
         let duration = toastDuration > 0 ? toastDuration : 3000
 
+        let actionButton = buttonText->Option.map(label => {
+          label,
+          onClick: () =>
+            RescriptReactRouter.push(
+              GlobalVars.appendDashboardPath(~url=helpLink->Option.getOr("")),
+            ),
+        })
+
         let toastOptions: addToastOptions = {
           header: message,
+          ?actionButton,
           variant,
           duration,
           position: TopCenter,
-          wrap: true,
+          width: "min(var(--app-snackbar-width), calc(100vw - var(--app-snackbar-gutter)))",
+          maxWidth: "calc(100vw - var(--app-snackbar-gutter))",
+          minWidth: "0",
         }
 
-        let _ = addSnackbar(toastOptions)
+        let _ = addSnackbarV2(toastOptions)
       }
     }
-  }, [isBlendEnabled])
+  }, (isBlendEnabled, legacyShowToast))
 }

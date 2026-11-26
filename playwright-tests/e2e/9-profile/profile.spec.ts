@@ -176,10 +176,10 @@ test.describe("Profile Settings - Change Password", () => {
       "Hey there, Welcome back!",
     );
     await expect(
-      page
-        .locator("div")
-        .filter({ hasText: /^Password Changed Successfully$/ })
-        .nth(1),
+      page.getByRole("status", {
+        name: "Password Changed Successfully",
+        exact: true,
+      }),
     ).toBeVisible();
   });
 
@@ -590,10 +590,7 @@ test.describe("Profile - Two Factor Authentication - TOTP", () => {
     await signinPage.fillOTP("000000");
     await page.getByRole("button", { name: "Verify new OTP" }).click();
     await expect(
-      page
-        .locator("div")
-        .filter({ hasText: /^Invalid TOTP$/ })
-        .nth(1),
+      page.getByRole("alert", { name: "Invalid TOTP", exact: true }),
     ).toBeVisible({ timeout: 10000 });
     await expect(signinPage.qrCode2FA).toBeVisible();
     await expect(
