@@ -7,12 +7,13 @@ let make = (~isUpdatePage=false) => {
       ReactFinalForm.useFormSubscription(["values"])->Nullable.make,
     ).values->LogicUtils.getDictFromJsonObject
 
-  let (colorsFromForm, sidebarFromForm, buttonsFromForm) = ThemePreviewUtils.getThemeFormValues(
+  let (colorsFromForm, sidebarFromForm, buttonsFromForm, _) = ThemePreviewUtils.getThemeFormValues(
     ~formValues,
   )
 
   <div className="flex flex-col gap-8">
     <BrandSettings colorsFromForm={colorsFromForm} isUpdatePage />
+    <FontSettings />
     <SidebarSettings sidebarFromForm={sidebarFromForm} />
     <ButtonSettings buttonsFromForm={buttonsFromForm} />
   </div>

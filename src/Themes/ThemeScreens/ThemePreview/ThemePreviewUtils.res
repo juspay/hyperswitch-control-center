@@ -64,8 +64,19 @@ let getThemeFormValues = (~formValues) => {
     },
   }
 
-  (colors, sidebar, buttons)
+  let font =
+    settings
+    ->getDictfromDict("typography")
+    ->getString("fontFamily", defaultThemeSettings.typography.fontFamily)
+    ->ThemeUtils.getThemeFont
+
+  (colors, sidebar, buttons, font)
 }
+
+let themeFontOptions: array<SelectBox.dropdownOption> = ThemeUtils.themeFonts->Array.map(font => {
+  SelectBox.label: font.label,
+  value: font.family,
+})
 
 let getEmailFormValues = (~formValues): HyperSwitchConfigTypes.emailConfig => {
   open LogicUtils

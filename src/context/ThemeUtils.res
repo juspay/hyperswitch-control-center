@@ -38,6 +38,72 @@ let useThemeFromEvent = () => {
 
   eventTheme
 }
+
+type themeFont = {
+  family: string,
+  label: string,
+  stack: string,
+  url: option<string>,
+}
+
+let defaultThemeFont = {
+  family: "InterDisplay",
+  label: "Inter Display",
+  stack: `"InterDisplay", sans-serif`,
+  url: None,
+}
+
+let googleFont = (~family, ~weights) => {
+  family,
+  label: family,
+  stack: `"${family}", "InterDisplay", sans-serif`,
+  url: Some(
+    `https://fonts.googleapis.com/css2?family=${family->String.replaceRegExp(
+        %re("/ /g"),
+        "+",
+      )}:wght@${weights}&display=swap`,
+  ),
+}
+
+let themeFonts = [
+  defaultThemeFont,
+  googleFont(~family="Inter", ~weights="300;400;500;600;700"),
+  googleFont(~family="Roboto", ~weights="300;400;500;600;700"),
+  googleFont(~family="Open Sans", ~weights="300;400;500;600;700"),
+  googleFont(~family="Lato", ~weights="300;400;700"),
+  googleFont(~family="Poppins", ~weights="300;400;500;600;700"),
+  googleFont(~family="Montserrat", ~weights="300;400;500;600;700"),
+  googleFont(~family="DM Sans", ~weights="300;400;500;600;700"),
+  googleFont(~family="Manrope", ~weights="300;400;500;600;700"),
+  googleFont(~family="IBM Plex Sans", ~weights="300;400;500;600;700"),
+]
+
+let getThemeFont = family => {
+  let normalizedFamily = family->String.trim->String.toLowerCase
+  themeFonts
+  ->Array.find(font => font.family->String.toLowerCase === normalizedFamily)
+  ->Option.getOr(defaultThemeFont)
+}
+
+let loadThemeFont = font =>
+  switch font.url {
+  | Some(url) => {
+      let id = `theme-font-${font.family
+        ->String.toLowerCase
+        ->String.replaceRegExp(%re("/ /g"), "-")}`
+      let existingLink = Webapi.Dom.document->Webapi.Dom.Document.getElementById(id)
+      if existingLink->Option.isNone {
+        open DOMUtils
+        let link = createElement(DOMUtils.document, "link")
+        link->setAttribute("id", id)
+        link->setAttribute("rel", "stylesheet")
+        link->setAttribute("href", url)
+        appendHead(link)
+      }
+    }
+  | None => ()
+  }
+
 open LogicUtils
 let parseThemeJson = (
   ~uiConfig: JSON.t,
@@ -70,7 +136,11 @@ let parseThemeJson = (
         ),
       },
       typography: {
-        fontFamily: typography->getString("fontFamily", defaultSettings.typography.fontFamily),
+        fontFamily: (
+          typography
+          ->getString("fontFamily", defaultSettings.typography.fontFamily)
+          ->getThemeFont
+        ).family,
         fontSize: typography->getString("fontSize", defaultSettings.typography.fontSize),
         headingFontSize: typography->getString(
           "headingFontSize",
