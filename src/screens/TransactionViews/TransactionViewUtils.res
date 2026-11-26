@@ -32,6 +32,12 @@ let getAdvancedPaymentViewDescription = view =>
   | _ => ""
   }
 
+let dateTimeFormat = "MMM DD, YYYY HH:mm"
+
+let viewsCountDescription = "Counts cover the selected date range only. Other filters apply to the table below."
+
+let viewsCountFilterHint = "Counts reflect the date range only, not the other applied filters"
+
 let paymentStatusFilterKey = (#status: OrderTypes.filter)->getValueFromFilterType
 
 let refundsStatusFilterKey = (#refunds_status: OrderTypes.filter)->getValueFromFilterType
