@@ -271,7 +271,10 @@ let make = (~previewOnly=false) => {
       : "Search by payment ID"
     let searchBar =
       <SearchBarFilter
-        placeholder=searchPlaceholder setSearchVal=setSearchTextAndResetOffset searchVal=searchText
+        placeholder=searchPlaceholder
+        setSearchVal=setSearchTextAndResetOffset
+        searchVal=searchText
+        isValidSearchInput=?{isAdvancedView ? None : Some(HSwitchRemoteFilter.isValidTransactionId)}
       />
     let searchBarWithInfo =
       <div className="flex items-center gap-2">

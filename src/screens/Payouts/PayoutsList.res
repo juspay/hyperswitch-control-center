@@ -125,7 +125,10 @@ let make = () => {
                 ->getStrArrayFromJsonArray
               )}
             customLeftView={<SearchBarFilter
-              placeholder="Search for payout ID" setSearchVal=setSearchText searchVal=searchText
+              placeholder="Search for payout ID"
+              setSearchVal=setSearchText
+              searchVal=searchText
+              isValidSearchInput=HSwitchRemoteFilter.isValidTransactionId
             />}
             entityName=V1(PAYOUTS_FILTERS)
             connectorTypes=[PayoutProcessor]
