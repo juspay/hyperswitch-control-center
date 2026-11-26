@@ -727,6 +727,7 @@ let switchInput = (
 
   <SwitchAdapter
     isSelected
+    ariaLabel=input.name
     setIsSelected=boolInput.onChange
     isDisabled
     boolCustomClass

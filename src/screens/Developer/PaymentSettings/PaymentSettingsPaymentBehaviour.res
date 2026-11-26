@@ -44,6 +44,7 @@ module CollectDetails = {
             <p className={`${body.md.medium} text-nd_gray-400 pt-2`}> {subTitle->React.string} </p>
           </div>
           <SwitchAdapter
+            ariaLabel=title
             isSelected={initValue}
             setIsSelected={handleToggle}
             isDisabled=false
