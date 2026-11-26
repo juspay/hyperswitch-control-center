@@ -276,6 +276,29 @@ test.describe.serial("Sign in", () => {
     await expect(signinPage.invalidCredsToast).toBeVisible();
   });
 
+  test("should display a rate limit message when signin returns 429", async ({
+    page,
+  }) => {
+    const signinPage = new SignInPage(page);
+
+    await page.route("**/user/v2/signin*", async (route) => {
+      await route.fulfill({
+        status: 429,
+        contentType: "text/html",
+        body: "<h1>Rate Limit Exceeded</h1>",
+      });
+    });
+
+    await page.goto("/");
+    await signinPage.emailInput.fill("abc@gmail.com");
+    await signinPage.passwordInput.fill("aAbcd?");
+    await signinPage.signinButton.click();
+
+    await expect(
+      page.getByText("Too many requests. Please try again after some time"),
+    ).toBeVisible();
+  });
+
   test(
     "should successfully login using magic link for registered user",
     { tag: "@mail" },

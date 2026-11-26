@@ -1927,12 +1927,19 @@ let responseHandler = async (
   let responseStatus = res->Fetch.Response.status
 
   let noAccessControlText = "You do not have the required permissions to access this module. Please contact your admin."
+  let rateLimitText = "Too many requests. Please try again after some time"
 
   switch responseStatus {
   | 200
   | 201 => json
   | _ => {
       let errorDict = json->getDictFromJsonObject->getObj("error", Dict.make())
+
+      // The gateway's 429 is an HTML page with no error code or message, so add them here
+      if responseStatus === 429 && errorDict->getString("code", "")->isEmptyString {
+        errorDict->Dict.set("code", "FE_429"->JSON.Encode.string)
+        errorDict->Dict.set("message", rateLimitText->JSON.Encode.string)
+      }
       let errorStringifiedJson = errorDict->JSON.Encode.object->JSON.stringify
 
       if responseStatus >= 400 && responseStatus < 600 {
@@ -2001,6 +2008,12 @@ let responseHandler = async (
             | _ => ()
             }
           }
+        | 429 =>
+          showToast(
+            ~toastType=ToastError,
+            ~message=errorDict->getString("message", rateLimitText),
+            ~autoClose=false,
+          )
         | _ =>
           showToast(
             ~toastType=ToastError,

@@ -40,6 +40,7 @@ let make = (~setAuthStatus, ~authType, ~setAuthType) => {
     | UR_16 => "Please use a valid email"
     | UR_01 => "Incorrect email or password"
     | UR_67 => "Account locked after too many failed sign in attempts. Please try again later"
+    | FE_429 => error.message
     | _ => "Register failed, Try again"
     }
   }
