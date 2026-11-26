@@ -5,7 +5,9 @@ let make = (~value: string, ~setValue: (string => string) => unit, ~hasError: bo
   <>
     <RenderIf condition=isBlendEnabled>
       <div className="flex justify-center">
-        <OTPInputBinding value onChange={str => setValue(_ => str)} error=hasError length=6 />
+        <OTPInputBinding
+          value onChange={str => setValue(_ => str)} error=hasError length=6 name="totp"
+        />
       </div>
     </RenderIf>
     <RenderIf condition={!isBlendEnabled}>
