@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.27.0
+
+### Features
+
+- **recon:** Show pending invitations banner on recon overview ([#5824](https://github.com/juspay/hyperswitch-control-center/pull/5824)) ([`eee6672`](https://github.com/juspay/hyperswitch-control-center/commit/eee667286eeff7d207842193fb7a3e7ee211c546))
+
+### Bug Fixes
+
+- Smart retries count tiles showing 0 when response has multiple rows ([#5825](https://github.com/juspay/hyperswitch-control-center/pull/5825)) ([`06e4a0f`](https://github.com/juspay/hyperswitch-control-center/commit/06e4a0f4c7cd2516e406c91f0a051a2c2872994e))
+- Show rate limit message when API returns 429 ([#5826](https://github.com/juspay/hyperswitch-control-center/pull/5826)) ([`52b45f2`](https://github.com/juspay/hyperswitch-control-center/commit/52b45f2b72f7b34def39eece37af949201f5fc06))
+
+**Full Changelog:** [`2026.11.25.0...2026.11.27.0`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.25.0...2026.11.27.0)
+
+- - -
+
 ## 2026.11.25.0
 
 ### Features
