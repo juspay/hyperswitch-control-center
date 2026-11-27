@@ -30,7 +30,7 @@ let make = (~id) => {
           ~searchType=SearchTransactionId,
           ~searchText=id,
           ~ruleId="",
-          ~sortBy={sortField: "id", cursorValue: None},
+          ~sortBy={sortField: "version", cursorValue: None},
           ~direction=#next,
           ~limit=1,
           ~includeStatusFilter=false,
