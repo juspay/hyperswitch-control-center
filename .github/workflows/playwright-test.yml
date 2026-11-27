@@ -28,10 +28,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
 
       - name: Set up Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 24
           cache: "npm"
@@ -43,7 +45,7 @@ jobs:
         run: npm run build:test
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: playwright-dist
           path: dist/
@@ -52,7 +54,7 @@ jobs:
 
       - name: Cache Playwright browsers
         id: playwright-cache
-        uses: actions/cache@v5
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -74,7 +76,9 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
 
       - name: Start backend services
         env:
@@ -84,7 +88,7 @@ jobs:
           ./playwright-tests/start_hyperswitch.sh
 
       - name: Set up Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 24
           cache: "npm"
@@ -93,14 +97,14 @@ jobs:
         run: npm ci
 
       - name: Download build artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           name: playwright-dist
           path: dist/
 
       - name: Restore Playwright browsers
         id: playwright-cache
-        uses: actions/cache@v5
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -119,7 +123,7 @@ jobs:
           echo "$response"
 
       - name: Run Playwright tests (Shard ${{ matrix.shard }}/4)
-        run: npx playwright test e2e --shard=${{ matrix.shard }}/4
+        run: npx playwright test e2e --shard=${MATRIX_SHARD}/4
         env:
           PW_COVERAGE: "1"
           PLAYWRIGHT_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
@@ -129,22 +133,25 @@ jobs:
           PLAYWRIGHT_SSO_CLIENT_SECRET: ${{ secrets.CYPRESS_SSO_CLIENT_SECRET }}
           PLAYWRIGHT_SSO_USERNAME: ${{ secrets.CYPRESS_SSO_USERNAME }}
           PLAYWRIGHT_SSO_PASSWORD: ${{ secrets.CYPRESS_SSO_PASSWORD }}
+          MATRIX_SHARD: ${{ matrix.shard }}
 
       - name: Stage shard CTRF report
         if: always()
         run: |
           src=$(ls ctrf/*.json 2>/dev/null | head -1 || true)
           if [ -z "$src" ]; then
-            echo "No CTRF report found for shard ${{ matrix.shard }}."
+            echo "No CTRF report found for shard ${MATRIX_SHARD}."
             exit 0
           fi
           # Renamed with the shard number so the merge job can attribute
           # each failed/flaky test to the shard it ran in (re-runnable via
           # the workflow_dispatch shard input).
-          cp "$src" "ctrf-shard-${{ matrix.shard }}.json"
+          cp "$src" "ctrf-shard-${MATRIX_SHARD}.json"
+        env:
+          MATRIX_SHARD: ${{ matrix.shard }}
 
       - name: Artifact - Shard CTRF report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: always()
         with:
           name: playwright-ctrf-shard-${{ matrix.shard }}
@@ -153,7 +160,7 @@ jobs:
           retention-days: 1
 
       - name: Artifact - Failed Test Artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: failure()
         with:
           name: playwright-artifacts-shard-${{ matrix.shard }}
@@ -168,16 +175,18 @@ jobs:
         if: always()
         run: |
           if [ -z "$(ls -A .nyc_output 2>/dev/null)" ]; then
-            echo "No coverage data in .nyc_output for shard ${{ matrix.shard }}; skipping."
+            echo "No coverage data in .nyc_output for shard ${MATRIX_SHARD}; skipping."
             exit 0
           fi
           # nyc merge sums Istanbul counters from every per-test file into a
           # single compact file — cheap (no V8 reprocessing, no source maps).
-          npx nyc merge .nyc_output "coverage-shard-${{ matrix.shard }}.json"
-          echo "Merged $(ls .nyc_output | wc -l) per-test file(s) for shard ${{ matrix.shard }}."
+          npx nyc merge .nyc_output "coverage-shard-${MATRIX_SHARD}.json"
+          echo "Merged $(ls .nyc_output | wc -l) per-test file(s) for shard ${MATRIX_SHARD}."
+        env:
+          MATRIX_SHARD: ${{ matrix.shard }}
 
       - name: Artifact - Playwright Coverage Report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: always()
         with:
           name: playwright-coverage-shard-${{ matrix.shard }}
@@ -193,7 +202,9 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
 
       - name: Start backend services
         env:
@@ -203,7 +214,7 @@ jobs:
           ./playwright-tests/start_hyperswitch.sh
 
       - name: Set up Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 24
           cache: "npm"
@@ -212,14 +223,14 @@ jobs:
         run: npm ci
 
       - name: Download build artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           name: playwright-dist
           path: dist/
 
       - name: Restore Playwright browsers
         id: playwright-cache
-        uses: actions/cache@v5
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5.1.0
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -254,7 +265,7 @@ jobs:
           cp "$src" "ctrf-shard-visual.json"
 
       - name: Artifact - Visual CTRF report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: always()
         with:
           name: playwright-ctrf-shard-visual
@@ -263,7 +274,7 @@ jobs:
           retention-days: 1
 
       - name: Artifact - Failed Visual Test Artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: failure()
         with:
           name: playwright-visual-artifacts
@@ -285,7 +296,7 @@ jobs:
           echo "Merged $(ls .nyc_output | wc -l) per-test file(s) for visual tests."
 
       - name: Artifact - Playwright Visual Coverage Report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: always()
         with:
           name: playwright-coverage-shard-visual
@@ -303,10 +314,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
 
       - name: Set up Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 24
           cache: "npm"
@@ -315,7 +328,7 @@ jobs:
         run: npm ci
 
       - name: Download all shard CTRF reports
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           pattern: playwright-ctrf-shard-*
           path: ctrf-shards/
@@ -327,7 +340,7 @@ jobs:
             ctrf-shards merged-ctrf/ctrf-report.json >> "$GITHUB_STEP_SUMMARY"
 
       - name: Artifact - Merged CTRF report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: always()
         with:
           name: playwright-ctrf-merged
@@ -336,7 +349,7 @@ jobs:
           retention-days: 7
 
       - name: Download all shard coverage artifacts
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           pattern: playwright-coverage-shard-*
           path: coverage-shards/
@@ -394,7 +407,7 @@ jobs:
             coverage-report-merged/coverage-summary.json >> "$GITHUB_STEP_SUMMARY"
 
       - name: Artifact - Merged Coverage Report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: always()
         with:
           name: playwright-coverage-merged
@@ -404,14 +417,14 @@ jobs:
 
       - name: Delete per-shard coverage artifacts
         if: success() && hashFiles('coverage-report-merged/coverage-summary.json') != ''
-        uses: geekyeggo/delete-artifact@v6
+        uses: geekyeggo/delete-artifact@176a747ab7e287e3ff4787bf8a148716375ca118 # v6.0.0
         with:
           name: playwright-coverage-shard-*
           failOnError: false
 
       - name: Delete per-shard CTRF artifacts
         if: success() && hashFiles('merged-ctrf/ctrf-report.json') != ''
-        uses: geekyeggo/delete-artifact@v6
+        uses: geekyeggo/delete-artifact@176a747ab7e287e3ff4787bf8a148716375ca118 # v6.0.0
         with:
           name: playwright-ctrf-shard-*
           failOnError: false

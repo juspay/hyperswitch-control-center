@@ -1,7 +1,7 @@
 name: PR Required CI Checks Passed Label
 
 on:
-  workflow_run:
+  workflow_run: # zizmor: ignore[dangerous-triggers]
     workflows:
       - "Build and Lint"
       - "Playwright Tests"
@@ -17,7 +17,7 @@ on:
   # Since we only label pull requests, do not have a checkout step in this
   # workflow, and restrict permissions on the token, this is an acceptable
   # use of this trigger.
-  pull_request_target:
+  pull_request_target: # zizmor: ignore[dangerous-triggers]
     types:
       - opened
       - reopened
@@ -44,13 +44,15 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          GITHUB_EVENT_REPOSITORY_FULL_NAME: ${{ github.event.repository.full_name }}
+          GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           set -euo pipefail
           if [[ "${{ github.event_name }}" == "pull_request_target" ]]; then
             pr_number="${{ github.event.pull_request.number }}"
           else
             # workflow_run.pull_requests is empty for fork PRs; resolve via commit -> PR lookup.
-            pr_number="$(gh api "repos/${{ github.event.repository.full_name }}/commits/${{ github.event.workflow_run.head_sha }}/pulls" \
+            pr_number="$(gh api "repos/${GITHUB_EVENT_REPOSITORY_FULL_NAME}/commits/${GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA}/pulls" \
               --jq '[.[] | select(.state == "open") | .number] | first // empty')"
           fi
           echo "pr_number=${pr_number}" >> "$GITHUB_OUTPUT"
@@ -61,6 +63,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ steps.prs.outputs.pr_number }}
+          GITHUB_EVENT_REPOSITORY_FULL_NAME: ${{ github.event.repository.full_name }}
+          GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           set -euo pipefail
 
@@ -77,7 +81,7 @@ jobs:
             "playwright-tests (4)"
           )
 
-          repo="${{ github.event.repository.full_name }}"
+          repo="${GITHUB_EVENT_REPOSITORY_FULL_NAME}"
           label="CI-required-checks-passed"
 
           pr_json="$(gh api "repos/${repo}/pulls/${PR_NUMBER}")"
@@ -97,7 +101,7 @@ jobs:
           fi
 
           # A workflow_run completion for an outdated SHA must not overwrite the latest state.
-          if [[ "${{ github.event_name }}" == "workflow_run" && "${{ github.event.workflow_run.head_sha }}" != "$pr_head_sha" ]]; then
+          if [[ "${{ github.event_name }}" == "workflow_run" && "${GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA}" != "$pr_head_sha" ]]; then
             echo "workflow_run head_sha does not match PR head; skipping stale evaluation."
             exit 0
           fi

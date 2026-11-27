@@ -8,7 +8,7 @@ on:
   # Since we only label pull requests, do not have a checkout step in this
   # workflow, and restrict permissions on the token, this is an acceptable
   # use of this trigger.
-  pull_request_target:
+  pull_request_target: # zizmor: ignore[dangerous-triggers]
     types:
       - opened
       - edited
@@ -19,6 +19,8 @@ on:
   merge_group:
     types:
       - checks_requested
+
+permissions: {}
 
 concurrency:
   group: pr-conventional-check-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -38,17 +40,23 @@ jobs:
       - name: Generate GitHub app token
         id: generate_app_token
         if: ${{ github.event_name == 'pull_request_target' }}
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1.12.0
         with:
           app-id: ${{ secrets.HYPERSWITCH_BOT_APP_ID }}
           private-key: ${{ secrets.HYPERSWITCH_BOT_APP_PRIVATE_KEY }}
-          owner: ${{ github.event.repository.owner.login }}
+          # The linked issues check reads issues linked from other repositories of the organization
+          owner: ${{ github.event.repository.owner.login }} # zizmor: ignore[github-app]
+          permission-pull-requests: read
+          permission-metadata: read
+          permission-issues: read
 
       - name: Verify PR contains one or more linked issues
         if: ${{ github.event_name == 'pull_request_target' }}
         shell: bash
         env:
           GH_TOKEN: ${{ steps.generate_app_token.outputs.token }}
+          GITHUB_EVENT_REPOSITORY_OWNER_LOGIN: ${{ github.event.repository.owner.login }}
+          GITHUB_EVENT_REPOSITORY_NAME: ${{ github.event.repository.name }}
         run: |
           # GitHub does not provide information about linked issues for a pull request via the REST API.
           # This information is available only within the GraphQL API.
@@ -74,8 +82,8 @@ jobs:
           linked_issues="$(
             gh api graphql \
               --raw-field "query=${query}" \
-              --field 'owner=${{ github.event.repository.owner.login }}' \
-              --field 'repository=${{ github.event.repository.name }}' \
+              --field "owner=${GITHUB_EVENT_REPOSITORY_OWNER_LOGIN}" \
+              --field "repository=${GITHUB_EVENT_REPOSITORY_NAME}" \
               --field 'prNumber=${{ github.event.pull_request.number }}' \
               --jq '.data.repository.pullRequest.closingIssuesReferences.nodes[] | "\(.repository.nameWithOwner)#\(.number)"'
           )"
@@ -109,7 +117,7 @@ jobs:
       - name: Verify PR title follows conventional commit standards
         id: pr_title_check
         if: ${{ github.event_name == 'pull_request_target' }}
-        uses: amannn/action-semantic-pull-request@v5
+        uses: amannn/action-semantic-pull-request@e32d7e603df1aa1ba07e981f2a23455dee596825 # v5
         env:
           GITHUB_TOKEN: ${{ github.token }}
         continue-on-error: true
@@ -148,8 +156,9 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          GITHUB_EVENT_REPOSITORY_FULL_NAME: ${{ github.event.repository.full_name }}
         run: |
-          gh --repo ${{ github.event.repository.full_name }} pr edit --add-label 'S-conventions-not-followed' ${{ github.event.pull_request.number }}
+          gh --repo "${GITHUB_EVENT_REPOSITORY_FULL_NAME}" pr edit --add-label 'S-conventions-not-followed' ${{ github.event.pull_request.number }}
           echo "::error::PR title does not follow conventional commit standards"
           exit 1
 
@@ -159,4 +168,5 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh --repo ${{ github.event.repository.full_name }} pr edit --remove-label 'S-conventions-not-followed' ${{ github.event.pull_request.number }}
+          GITHUB_EVENT_REPOSITORY_FULL_NAME: ${{ github.event.repository.full_name }}
+        run: gh --repo "${GITHUB_EVENT_REPOSITORY_FULL_NAME}" pr edit --remove-label 'S-conventions-not-followed' ${{ github.event.pull_request.number }}

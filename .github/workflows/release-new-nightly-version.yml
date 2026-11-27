@@ -10,6 +10,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions: {}
+
 # on:
 #   pull_request_target:
 #     types:
@@ -25,7 +27,7 @@ env:
 jobs:
   create-nightly-tag:
     name: Create a nightly tag
-    uses: juspay/hyperswitch/.github/workflows/release-nightly-version-reusable.yml@main
+    uses: juspay/hyperswitch/.github/workflows/release-nightly-version-reusable.yml@8ddf0f2fb1e6029d6e376b1ad39360945a2c696b # main
     secrets:
       client_id: ${{ secrets.HYPERSWITCH_BOT_APP_ID }}
       app_private_key: ${{ secrets.HYPERSWITCH_BOT_APP_PRIVATE_KEY }}
