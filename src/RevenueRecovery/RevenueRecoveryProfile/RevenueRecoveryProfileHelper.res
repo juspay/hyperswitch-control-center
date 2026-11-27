@@ -76,7 +76,7 @@ module RetryModeSelector = {
 
 module RetryConfigFields = {
   @react.component
-  let make = (~children=React.null) => {
+  let make = (~children=React.null, ~prefix=retryConfigKey) => {
     let infoIcon = description => <InfoHint description />
 
     let renderField = (~label, ~key, ~placeholder, ~description=?) =>
@@ -85,7 +85,7 @@ module RetryConfigFields = {
         field={FormRenderer.makeFieldInfo(
           ~label,
           ~customLabelIcon=?description->Option.map(infoIcon),
-          ~name=key->getRetryConfigFieldName,
+          ~name=key->getRetryConfigFieldName(~prefix),
           ~placeholder,
           ~customInput=InputFields.numericTextInput(
             ~customStyle="rounded-xl",
@@ -121,7 +121,7 @@ module RetryConfigFields = {
         field={FormRenderer.makeFieldInfo(
           ~label="Partial Authorization",
           ~customLabelIcon=infoIcon(partialAuthorizationHint),
-          ~name=enablePartialAuthorizationKey->getRetryConfigFieldName,
+          ~name=enablePartialAuthorizationKey->getRetryConfigFieldName(~prefix),
           ~customInput=InputFields.switchInput(~isDisabled=true),
           ~isRequired=false,
         )}

@@ -15,7 +15,8 @@ let make = (
   open ConnectorUtils
   open PageLoaderWrapper
   open RevenueRecoveryOnboardingUtils
-  let isLiveMode = (HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom).isLiveMode
+  let {isLiveMode, devRecoveryExternalTrigger} =
+    HyperswitchAtom.featureFlagAtom->Recoil.useRecoilValueFromAtom
   let getURL = useGetURL()
   let mixpanelEvent = MixpanelHook.useSendEvent()
   let showToast = ToastAdapter.useShowToast()
@@ -25,6 +26,11 @@ let make = (
   )
 
   let updateAPIHook = useUpdateMethod(~showErrorToast=false)
+  let updateBusinessProfile = BusinessProfileHook.useUpdateBusinessProfile(~version=V2)
+  let setRecoveryProfile = HyperswitchAtom.recoveryProfileAtom->Recoil.useSetRecoilState
+  let savedRetryMode = RevenueRecoveryHooks.useSavedRetryMode()
+  let (retryAlgorithm, setRetryAlgorithm) = React.useState(_ => savedRetryMode)
+  let createdConnector = React.useRef(None)
   let (screenState, setScreenState) = React.useState(_ => Success)
   let (initialValues, setInitialValues) = React.useState(_ => Dict.make()->JSON.Encode.object)
 
@@ -34,6 +40,7 @@ let make = (
   )
   let connectorTypeFromName =
     connector->getConnectorNameTypeFromString(~connectorType=ConnectorTypes.BillingProcessor)
+  let isProcessorSetUpStep = currentStep->getSectionVariant == (#addAPlatform, #processorSetUp)
 
   let updatedInitialVal = React.useMemo(() => {
     let initialValuesToDict = initialValues->getDictFromJsonObject
@@ -67,6 +74,10 @@ let make = (
             "grace_period_days",
             RevenueRecoveryOnboardingUtils.defaultGracePeriodDays->JSON.Encode.int,
           ),
+          (
+            RevenueRecoveryProfileUtils.maxHardDeclineRetriesKey,
+            RevenueRecoveryOnboardingUtils.hardDeclineTotalRetries->JSON.Encode.int,
+          ),
           ("billing_account_reference", billingAccountReference->JSON.Encode.object),
         ]->Dict.fromArray
 
@@ -93,19 +104,52 @@ let make = (
     onNextClick(currentStep, setNextStep, ~isLiveMode, ~billingConnector=connector)->ignore
   }
 
+  let saveRetryAlgorithm = async () => {
+    open RevenueRecoveryProfileUtils
+    if devRecoveryExternalTrigger && isProcessorSetUpStep && retryAlgorithm != Monitoring {
+      try {
+        let body =
+          [(retryAlgorithmKey, (retryAlgorithm :> string)->JSON.Encode.string)]
+          ->Dict.fromArray
+          ->JSON.Encode.object
+        let profile = await updateBusinessProfile(~body)
+        setRecoveryProfile(_ => Some(profile->mapJsonToRecoveryProfile))
+        mixpanelEvent(~eventName=`recovery_mode_saved_${(retryAlgorithm :> string)}`)
+        true
+      } catch {
+      | _ => false
+      }
+    } else {
+      true
+    }
+  }
+
+  let createConnector = async values =>
+    switch createdConnector.current {
+    | Some(response) => response
+    | None => {
+        let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Put, ~id=None)
+        let response = await updateAPIHook(connectorUrl, values, Post, ~version=V2)
+        createdConnector.current = Some(response)
+        response
+      }
+    }
+
   let onSubmit = async (values, _form: ReactFinalForm.formApi) => {
     mixpanelEvent(~eventName=currentStep->getMixpanelEventName)
     let dict = values->getDictFromJsonObject
     let values = dict->JSON.Encode.object
     try {
       setScreenState(_ => Loading)
-      let connectorUrl = getURL(~entityName=V2(V2_CONNECTOR), ~methodType=Put, ~id=None)
-      let response = await updateAPIHook(connectorUrl, values, Post, ~version=V2)
+      let response = await createConnector(values)
       setInitialValues(_ => response)
-      fetchConnectorListResponse()->ignore
+      let isRetryAlgorithmSaved = await saveRetryAlgorithm()
       setScreenState(_ => Success)
 
-      handleClick()
+      if isRetryAlgorithmSaved {
+        fetchConnectorListResponse()->ignore
+        handleClick()
+      }
     } catch {
     | Exn.Error(e) => {
         let err = Exn.message(e)->Option.getOr("Something went wrong")
@@ -161,7 +205,14 @@ let make = (
     let revenue_recovery =
       valueDict->getDictfromDict("feature_metadata")->getDictfromDict("revenue_recovery")
 
-    if currentStep->getSectionVariant == (#addAPlatform, #processorSetUp) {
+    if isProcessorSetUpStep && devRecoveryExternalTrigger {
+      errors->RevenueRecoveryProfileUtils.addRetryConfigErrors(
+        revenue_recovery,
+        ~prefix=RevenueRecoveryProfileUtils.connectorRetryConfigPrefix,
+      )
+    }
+
+    if isProcessorSetUpStep && !devRecoveryExternalTrigger {
       let billing_connector_retry_threshold =
         revenue_recovery->getOptionInt("billing_connector_retry_threshold")
       let max_retry_count = revenue_recovery->getInt("max_retry_count", 0)
@@ -198,10 +249,7 @@ let make = (
       }
     }
 
-    if (
-      currentStep->getSectionVariant == (#addAPlatform, #processorSetUp) &&
-        connector->requiresProcessorReference
-    ) {
+    if isProcessorSetUpStep && connector->requiresProcessorReference {
       let billing_account_reference =
         revenue_recovery->getObj("billing_account_reference", Dict.make())
 
@@ -274,6 +322,8 @@ let make = (
           billingConnector=connector
           onSubmit
           connector_account_reference_id=connectorID
+          retryAlgorithm
+          setRetryAlgorithm
         />
       | (#reviewDetails, _) => <BillingProcessorsReviewDetails />
       | _ => React.null
