@@ -23,6 +23,7 @@ let cursorFromPersistedDict = (dict): cursor => {
     ->Option.map((cursorValueDict): cursorValue => {
       effectiveAt: cursorValueDict->getString("effective_at", ""),
       cursorId: cursorValueDict->getString("id", ""),
+      version: cursorValueDict->getInt("version", 0),
     })
   {
     sortField: dict->getString("sort_field", "effective_at"),
@@ -51,6 +52,8 @@ let restorePersistedCursor = (persistKey): option<(cursor, cursorDirection)> => 
 let useCursorPagination = (
   ~fetchPage: (~sortBy: cursor, ~direction: cursorDirection) => promise<cursorPage<'item>>,
   ~persistKey: option<string>=None,
+  ~initialSortBy=defaultCursorSortBy,
+  ~appendPages=false,
 ) => {
   open SessionStorage
 
@@ -63,7 +66,7 @@ let useCursorPagination = (
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let page = await fetchPage(~sortBy, ~direction)
-      setItems(_ => page.items)
+      setItems(prev => appendPages ? prev->Array.concat(page.items) : page.items)
       setCursors(_ => page.cursors)
       switch persistKey {
       | Some(key) =>
@@ -84,9 +87,12 @@ let useCursorPagination = (
       ? None
       : persistKey->Option.flatMap(key => restorePersistedCursor(key))
     hasRestoredRef.current = true
+    if appendPages {
+      setItems(_ => [])
+    }
     switch restored {
     | Some(sortBy, direction) => goTo(~sortBy, ~direction)->ignore
-    | None => goTo(~sortBy=defaultCursorSortBy, ~direction=#next)->ignore
+    | None => goTo(~sortBy=initialSortBy, ~direction=#next)->ignore
     }
   }
 

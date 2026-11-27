@@ -502,13 +502,12 @@ module TransformedEntryDetailsInfo = {
 
 module AuditTrail = {
   @react.component
-  let make = (~allTransactionDetails: array<processingEntryType>) => {
-    React.useMemo(() => {
-      if allTransactionDetails->Array.length > 0 {
-        allTransactionDetails->Array.sort(ReconEngineTransformedEntryExceptionsUtils.sortByVersion)
-      }
-    }, [allTransactionDetails])
-
+  let make = (
+    ~allTransactionDetails: array<processingEntryType>,
+    ~hasMore,
+    ~isLoadingMore,
+    ~onLoadMore,
+  ) => {
     let sections = allTransactionDetails->Array.map((processingEntry: processingEntryType) => {
       let customComponent = {
         AuditTrailStepIndicatorTypes.id: processingEntry.version->Int.toString,
@@ -532,8 +531,43 @@ module AuditTrail = {
     })
 
     <div className="mt-6">
-      <AuditTrailStepIndicator sections />
+      <AuditTrailStepIndicator sections hasMore isLoadingMore onLoadMore />
     </div>
+  }
+}
+
+module AuditTrailTab = {
+  @react.component
+  let make = (~stagingEntryId: string) => {
+    let getStagingEntryVersions = ReconEngineHooks.useGetStagingEntryVersions()
+    let {
+      items: allTransactionDetails,
+      cursors,
+      screenState,
+      goToFirstPage,
+      goToNextPage,
+    } = ReconEngineCursorPaginationHook.useCursorPagination(
+      ~fetchPage=(~sortBy, ~direction as _) => getStagingEntryVersions(~stagingEntryId, ~sortBy),
+      ~initialSortBy=ReconEngineUtils.versionCursorSortBy,
+      ~appendPages=true,
+    )
+    let hasVersions = allTransactionDetails->isNonEmptyArray
+
+    React.useEffect(() => {
+      goToFirstPage()
+      None
+    }, [])
+
+    <PageLoaderWrapper
+      screenState={hasVersions ? Success : screenState}
+      customLoader={<Shimmer styleClass="h-40 w-full mt-8 rounded-xl" />}>
+      <AuditTrail
+        allTransactionDetails
+        hasMore={cursors.next->Option.isSome}
+        isLoadingMore={hasVersions && screenState == Loading}
+        onLoadMore=goToNextPage
+      />
+    </PageLoaderWrapper>
   }
 }
 

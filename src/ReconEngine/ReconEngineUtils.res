@@ -45,11 +45,13 @@ let cursorFromDict = (dict): cursor => {
     cursorValue: Some({
       effectiveAt: cursorValueDict->getString("effective_at", ""),
       cursorId: cursorValueDict->getString("id", ""),
+      version: cursorValueDict->getInt("version", 0),
     }),
   }
 }
 
 let defaultCursorSortBy: cursor = {sortField: "effective_at", cursorValue: None}
+let versionCursorSortBy: cursor = {sortField: "version", cursorValue: None}
 
 let cursorsFromDict = (dict): cursors => {
   let getCursor = key => dict->getOptionObj(key)->Option.map(cursorFromDict)

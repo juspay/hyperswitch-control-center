@@ -449,10 +449,6 @@ let transactionsEntryItemToObjMapperFromDict = dict => {
   dict->entryItemToObjMapper
 }
 
-let sortByVersion = (c1: transactionType, c2: transactionType) => {
-  compareLogic(c1.version, c2.version)
-}
-
 let getAccounts = (entries: array<transactionEntryType>, entryType: entryDirectionType): string => {
   let accounts =
     entries

@@ -3,7 +3,8 @@ open Typography
 open LogicUtils
 
 @react.component
-let make = (~sections: array<section>) => {
+let make = (~sections: array<section>, ~hasMore, ~isLoadingMore, ~onLoadMore) => {
+  let lastIndex = hasMore ? sections->Array.length : sections->Array.length - 1
   <div className="flex flex-col gap-y-6">
     <div className="w-full h-full p-2 md:p-6 bg-white rounded-xl border border-nd_gray-150">
       <div className="flex flex-col gap-y-12">
@@ -22,14 +23,14 @@ let make = (~sections: array<section>) => {
             )
           let modifiedByEmail = section.modifiedBy->mapOptionOrDefault("", user => user.email)
 
-          <React.Fragment key={randomString(~length=10)}>
+          <React.Fragment key={section.id}>
             <div className="flex flex-row gap-8 items-start">
-              <div key={section.id} className="flex gap-x-3 items-center relative">
+              <div className="flex gap-x-3 items-center relative">
                 <div
                   className="flex items-center justify-center rounded-full w-10 h-10 border bg-nd_gray-50 relative z-10">
                   {section.id->React.string}
                 </div>
-                <RenderIf condition={sectionIndex != sections->Array.length - 1}>
+                <RenderIf condition={sectionIndex != lastIndex}>
                   <div className={`absolute top-8 left-5 border-l border-nd_gray-200 h-32`} />
                 </RenderIf>
               </div>
@@ -42,7 +43,7 @@ let make = (~sections: array<section>) => {
                 }}
               </div>
             </div>
-            <RenderIf condition={hasReason && sectionIndex != sections->Array.length - 1}>
+            <RenderIf condition={hasReason && sectionIndex != lastIndex}>
               <div className="flex flex-row gap-8 items-start ">
                 <div className="flex gap-x-3 items-center relative">
                   <div
@@ -82,6 +83,28 @@ let make = (~sections: array<section>) => {
           </React.Fragment>
         })
         ->React.array}
+        <RenderIf condition=hasMore>
+          <div className="flex flex-row gap-8 items-center">
+            <div
+              className="flex items-center justify-center rounded-full w-10 h-10 border border-dashed border-nd_gray-300 bg-white relative z-10">
+              <Icon name="nd-angle-down" size=14 className="text-nd_gray-500" />
+            </div>
+            <Button
+              text="Show older versions"
+              loadingText="Loading older versions.."
+              buttonType=Transparent
+              buttonSize=XSmall
+              buttonState={isLoadingMore ? Loading : Normal}
+              customBackColor="bg-transparent"
+              customButtonStyle="!border-0"
+              customTextSize=""
+              textWeight={body.md.medium}
+              textStyle="text-nd_gray-500 group-hover:text-nd_gray-700"
+              disableRipple=true
+              onClick={_ => onLoadMore()}
+            />
+          </div>
+        </RenderIf>
       </div>
     </div>
   </div>

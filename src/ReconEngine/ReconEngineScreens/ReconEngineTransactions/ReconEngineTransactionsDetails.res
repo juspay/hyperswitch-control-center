@@ -15,27 +15,13 @@ let make = (~id) => {
     Dict.make()->getTransactionsPayloadFromDict
   )
 
-  let getTransactionsV2 = ReconEngineHooks.useGetCursorPage(
-    ~hyperswitchReconType=#TRANSACTIONS_LIST_V2,
-    ~itemMapper=ReconEngineUtils.transactionItemToObjMapper,
-  )
+  let getTransactionVersions = ReconEngineHooks.useGetTransactionVersions()
   let getAccounts = ReconEngineHooks.useGetAccounts()
 
   let getTransactionDetails = async _ => {
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
-      let transactionsPage = await getTransactionsV2(
-        ~body=buildTransactionsV2Body(
-          ~filterValueJson=Dict.make(),
-          ~searchType=SearchTransactionId,
-          ~searchText=id,
-          ~ruleId="",
-          ~sortBy={sortField: "version", cursorValue: None},
-          ~direction=#next,
-          ~limit=1,
-          ~includeStatusFilter=false,
-        ),
-      )
+      let transactionsPage = await getTransactionVersions(~transactionId=id, ~limit=1)
       let latestTransaction =
         transactionsPage.items->getValueFromArray(0, Dict.make()->getTransactionsPayloadFromDict)
 
