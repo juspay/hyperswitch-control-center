@@ -502,13 +502,12 @@ module TransformedEntryDetailsInfo = {
 
 module AuditTrail = {
   @react.component
-  let make = (~allTransactionDetails: array<processingEntryType>) => {
-    React.useMemo(() => {
-      if allTransactionDetails->Array.length > 0 {
-        allTransactionDetails->Array.sort(ReconEngineTransformedEntryExceptionsUtils.sortByVersion)
-      }
-    }, [allTransactionDetails])
-
+  let make = (
+    ~allTransactionDetails: array<processingEntryType>,
+    ~hasMore,
+    ~isLoadingMore,
+    ~onLoadMore,
+  ) => {
     let sections = allTransactionDetails->Array.map((processingEntry: processingEntryType) => {
       let customComponent = {
         AuditTrailStepIndicatorTypes.id: processingEntry.version->Int.toString,
@@ -532,8 +531,36 @@ module AuditTrail = {
     })
 
     <div className="mt-6">
-      <AuditTrailStepIndicator sections />
+      <AuditTrailStepIndicator sections hasMore />
+      <ReconEngineHelper.ShowOlderVersionsButton hasMore isLoadingMore onLoadMore />
     </div>
+  }
+}
+
+module AuditTrailTab = {
+  @react.component
+  let make = (~stagingEntryId: string) => {
+    let getStagingEntryVersions = ReconEngineHooks.useGetStagingEntryVersions()
+    let {
+      items: allTransactionDetails,
+      hasMore,
+      screenState,
+      isLoadingMore,
+      loadFirstPage,
+      loadMore,
+    } = ReconEngineCursorPaginationHook.useCursorLoadMore(~fetchPage=(~sortBy) =>
+      getStagingEntryVersions(~stagingEntryId, ~sortBy, ~limit=10)
+    )
+
+    React.useEffect(() => {
+      loadFirstPage()
+      None
+    }, [])
+
+    <PageLoaderWrapper
+      screenState customLoader={<Shimmer styleClass="h-40 w-full mt-8 rounded-xl" />}>
+      <AuditTrail allTransactionDetails hasMore isLoadingMore onLoadMore=loadMore />
+    </PageLoaderWrapper>
   }
 }
 

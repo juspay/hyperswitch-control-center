@@ -12,21 +12,17 @@ let make = (~id) => {
   let (currentExceptionsDetails, setCurrentExceptionDetails) = React.useState(_ =>
     Dict.make()->getTransactionsPayloadFromDict
   )
-  let (allExceptionDetails, setAllExceptionDetails) = React.useState(_ => [
-    Dict.make()->getTransactionsPayloadFromDict,
-  ])
   let (ruleAccountIds, setRuleAccountIds) = React.useState(_ => [])
   let (accountsData, setAccountsData) = React.useState(_ => [])
-  let getTransactions = ReconEngineHooks.useGetTransactions()
+  let getTransactionVersions = ReconEngineHooks.useGetTransactionVersions()
   let getAccounts = ReconEngineHooks.useGetAccounts()
 
   let getExceptionDetails = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let exceptions = await getTransactions(~queryParameters=Some(`transaction_id=${id}`))
-      exceptions->Array.sort(sortByVersion)
+      let exceptionsPage = await getTransactionVersions(~transactionId=id, ~limit=1)
       let currentExceptionDetails =
-        exceptions->getValueFromArray(0, Dict.make()->getTransactionsPayloadFromDict)
+        exceptionsPage.items->getValueFromArray(0, Dict.make()->getTransactionsPayloadFromDict)
       let ruleUrl = getURL(
         ~entityName=V1(HYPERSWITCH_RECON),
         ~methodType=Get,
@@ -37,7 +33,6 @@ let make = (~id) => {
       let accountData = await getAccounts()
       setRuleAccountIds(_ => rule.strategy->getRuleAccountIds)
       setCurrentExceptionDetails(_ => currentExceptionDetails)
-      setAllExceptionDetails(_ => exceptions)
       setAccountsData(_ => accountData)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
@@ -49,14 +44,6 @@ let make = (~id) => {
     getExceptionDetails()->ignore
     None
   }, [])
-
-  let auditTrailAccountIds = React.useMemo(() => {
-    allExceptionDetails
-    ->Array.flatMap(transaction =>
-      transaction.entries->Array.map(entry => entry.account.account_id)
-    )
-    ->getUniqueArray
-  }, [allExceptionDetails])
 
   let tabs: array<Tabs.tab> = React.useMemo(() => {
     open Tabs
@@ -73,12 +60,14 @@ let make = (~id) => {
       {
         title: "Audit Trail",
         renderContent: () =>
-          <AuditTrail
-            allTransactionDetails={allExceptionDetails} accountIds=auditTrailAccountIds accountsData
+          <AuditTrailTab
+            transactionId={currentExceptionsDetails.transaction_id}
+            accountIds=ruleAccountIds
+            accountsData
           />,
       },
     ]
-  }, (allExceptionDetails, ruleAccountIds, accountsData, auditTrailAccountIds))
+  }, (currentExceptionsDetails, ruleAccountIds, accountsData))
 
   <div>
     <div className="flex flex-col gap-4 mb-6">

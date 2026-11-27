@@ -186,6 +186,9 @@ module AuditTrail = {
     ~allTransactionDetails,
     ~accountIds: array<string>,
     ~accountsData: array<ReconEngineTypes.accountType>,
+    ~hasMore,
+    ~isLoadingMore,
+    ~onLoadMore,
   ) => {
     open AuditTrailStepIndicatorTypes
     open ReconEngineTransactionsUtils
@@ -194,12 +197,6 @@ module AuditTrail = {
     let (openedTransaction, setOpenedTransaction) = React.useState(_ =>
       Dict.make()->getTransactionsPayloadFromDict
     )
-
-    React.useMemo(() => {
-      if allTransactionDetails->Array.length > 0 {
-        allTransactionDetails->Array.sort(ReconEngineTransactionsUtils.sortByVersion)
-      }
-    }, [allTransactionDetails])
 
     let sections =
       allTransactionDetails->Array.map((transaction: ReconEngineTypes.transactionType) => {
@@ -259,7 +256,8 @@ module AuditTrail = {
           {"An immutable history of every version and update made to this transaction"->React.string}
         </p>
       </div>
-      <AuditTrailStepIndicator sections />
+      <AuditTrailStepIndicator sections hasMore />
+      <ReconEngineHelper.ShowOlderVersionsButton hasMore isLoadingMore onLoadMore />
       <Modal
         setShowModal
         showModal
@@ -297,31 +295,28 @@ module AuditTrailTab = {
     ~accountIds: array<string>,
     ~accountsData: array<ReconEngineTypes.accountType>,
   ) => {
-    let getTransactions = ReconEngineHooks.useGetTransactions()
-    let (allTransactionDetails, setAllTransactionDetails) = React.useState(_ => [])
-    let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-
-    let fetchTransactionVersions = async () => {
-      setScreenState(_ => PageLoaderWrapper.Loading)
-      try {
-        let transactionsList = await getTransactions(
-          ~queryParameters=Some(`transaction_id=${transactionId}`),
-        )
-        setAllTransactionDetails(_ => transactionsList)
-        setScreenState(_ => PageLoaderWrapper.Success)
-      } catch {
-      | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch transaction details"))
-      }
-    }
+    let getTransactionVersions = ReconEngineHooks.useGetTransactionVersions()
+    let {
+      items: allTransactionDetails,
+      hasMore,
+      screenState,
+      isLoadingMore,
+      loadFirstPage,
+      loadMore,
+    } = ReconEngineCursorPaginationHook.useCursorLoadMore(~fetchPage=(~sortBy) =>
+      getTransactionVersions(~transactionId, ~sortBy, ~limit=10)
+    )
 
     React.useEffect(() => {
-      fetchTransactionVersions()->ignore
+      loadFirstPage()
       None
     }, [])
 
     <PageLoaderWrapper
       screenState customLoader={<Shimmer styleClass="h-40 w-full mt-8 rounded-xl" />}>
-      <AuditTrail allTransactionDetails accountIds accountsData />
+      <AuditTrail
+        allTransactionDetails accountIds accountsData hasMore isLoadingMore onLoadMore=loadMore
+      />
     </PageLoaderWrapper>
   }
 }

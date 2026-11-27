@@ -24,28 +24,6 @@ let useGetIngestionHistory = () => {
   }
 }
 
-let useGetTransactions = () => {
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
-
-  async (~queryParameters=None) => {
-    try {
-      let url = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#TRANSACTIONS_LIST,
-        ~queryParameters,
-      )
-      let res = await fetchDetails(url)
-      let transactions = res->getArrayDataFromJson(transactionItemToObjMapper)
-      transactions->Array.sort((a, b) => compareLogic(b.created_at, a.created_at))
-      transactions
-    } catch {
-    | _ => Exn.raiseError("Something went wrong")
-    }
-  }
-}
-
 let useGetCursorPage = (
   ~hyperswitchReconType: APIUtilsTypes.hyperswitchReconType,
   ~itemMapper: Dict.t<JSON.t> => 'item,
@@ -71,6 +49,47 @@ let useGetCursorPage = (
     | _ => Exn.raiseError("Something went wrong")
     }
   }
+}
+
+let useGetTransactionVersions = () => {
+  let getTransactions = useGetCursorPage(
+    ~hyperswitchReconType=#TRANSACTIONS_LIST_V2,
+    ~itemMapper=transactionItemToObjMapper,
+  )
+
+  (~transactionId, ~sortBy=versionCursorSortBy, ~limit) =>
+    getTransactions(
+      ~body=ReconEngineTransactionsUtils.buildTransactionsV2Body(
+        ~filterValueJson=Dict.make(),
+        ~searchType=SearchTransactionId,
+        ~searchText=transactionId,
+        ~ruleId="",
+        ~sortBy,
+        ~direction=#next,
+        ~limit,
+        ~includeStatusFilter=false,
+      ),
+    )
+}
+
+let useGetStagingEntryVersions = () => {
+  let getStagingEntries = useGetCursorPage(
+    ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST_V2,
+    ~itemMapper=processingItemToObjMapper,
+  )
+
+  (~stagingEntryId, ~sortBy=versionCursorSortBy, ~limit) =>
+    getStagingEntries(
+      ~body=ReconEngineDataTransformedEntriesUtils.buildProcessingEntriesV2Body(
+        ~filterValueJson=Dict.make(),
+        ~searchType=SearchStagingEntryId,
+        ~searchText=stagingEntryId,
+        ~sortBy,
+        ~direction=#next,
+        ~limit,
+        ~includeStatusFilter=false,
+      ),
+    )
 }
 
 let useGetTransactionEntryWithStatus = () => {
@@ -254,28 +273,6 @@ let useGetOverviewRulesTimeSeries = () => {
       )
       let res = await fetchDetails(url)
       res->getArrayDataFromJson(overviewRulesTimeSeriesResponseMapper)
-    } catch {
-    | _ => Exn.raiseError("Something went wrong")
-    }
-  }
-}
-
-let useGetProcessingEntries = () => {
-  let getURL = useGetURL()
-  let fetchDetails = useGetMethod()
-
-  async (~queryParameters=None) => {
-    try {
-      let url = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#PROCESSING_ENTRIES_LIST,
-        ~queryParameters,
-      )
-      let res = await fetchDetails(url)
-      let processedEntries = res->getArrayDataFromJson(processingItemToObjMapper)
-      processedEntries->Array.sort((a, b) => compareLogic(b.effective_at, a.effective_at))
-      processedEntries
     } catch {
     | _ => Exn.raiseError("Something went wrong")
     }

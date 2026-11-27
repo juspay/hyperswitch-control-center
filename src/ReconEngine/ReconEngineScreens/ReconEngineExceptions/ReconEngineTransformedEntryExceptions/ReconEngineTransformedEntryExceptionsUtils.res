@@ -43,10 +43,6 @@ let getTransformedEntryBulkActionsCount = (
   })
 }
 
-let sortByVersion = (c1: processingEntryType, c2: processingEntryType) => {
-  compareLogic(c1.version, c2.version)
-}
-
 let getInnerVariant = (stage: exceptionResolutionStage): resolvingException =>
   switch stage {
   | ResolvingTransformedEntry(resolvingEx) => resolvingEx

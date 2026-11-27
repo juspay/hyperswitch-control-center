@@ -4,9 +4,8 @@ let make = (~id) => {
   open ReconEngineUtils
   open ReconEngineTransformedEntryExceptionsHelper
   open ReconEngineHooks
-  open ReconEngineTransformedEntryExceptionsUtils
 
-  let getProcessingEntries = useGetProcessingEntries()
+  let getStagingEntryVersions = useGetStagingEntryVersions()
 
   let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
   let (currentTransformedEntryDetails, setCurrentTransformedEntryDetails) = React.useState(_ =>
@@ -15,22 +14,14 @@ let make = (~id) => {
   let (updatedTransformedEntryDetails, setUpdatedTransformedEntryDetails) = React.useState(_ =>
     Dict.make()->processingItemToObjMapper
   )
-  let (allTransformedEntryDetails, setAllTransformedEntryDetails) = React.useState(_ => [
-    Dict.make()->processingItemToObjMapper,
-  ])
-
   let getTransformedEntryDetails = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
-      let transformedEntriesList = await getProcessingEntries(
-        ~queryParameters=Some(`staging_entry_id=${id}`),
-      )
-      transformedEntriesList->Array.sort(sortByVersion)
+      let transformedEntriesPage = await getStagingEntryVersions(~stagingEntryId=id, ~limit=1)
       let currentTransformedEntry =
-        transformedEntriesList->getValueFromArray(0, Dict.make()->processingItemToObjMapper)
+        transformedEntriesPage.items->getValueFromArray(0, Dict.make()->processingItemToObjMapper)
       setCurrentTransformedEntryDetails(_ => currentTransformedEntry)
       setUpdatedTransformedEntryDetails(_ => currentTransformedEntry)
-      setAllTransformedEntryDetails(_ => transformedEntriesList)
       setScreenState(_ => PageLoaderWrapper.Success)
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch transformed entry details"))
@@ -56,10 +47,10 @@ let make = (~id) => {
       },
       {
         title: "Audit Trail",
-        renderContent: () => <AuditTrail allTransactionDetails=allTransformedEntryDetails />,
+        renderContent: () => <AuditTrailTab stagingEntryId=id />,
       },
     ]
-  }, (allTransformedEntryDetails, currentTransformedEntryDetails, updatedTransformedEntryDetails))
+  }, (currentTransformedEntryDetails, updatedTransformedEntryDetails))
 
   <>
     <div className="flex flex-col gap-4">

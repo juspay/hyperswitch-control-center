@@ -3,7 +3,8 @@ open Typography
 open LogicUtils
 
 @react.component
-let make = (~sections: array<section>) => {
+let make = (~sections: array<section>, ~hasMore=false) => {
+  let lastIndex = hasMore ? sections->Array.length : sections->Array.length - 1
   <div className="flex flex-col gap-y-6">
     <div className="w-full h-full p-2 md:p-6 bg-white rounded-xl border border-nd_gray-150">
       <div className="flex flex-col gap-y-12">
@@ -29,7 +30,7 @@ let make = (~sections: array<section>) => {
                   className="flex items-center justify-center rounded-full w-10 h-10 border bg-nd_gray-50 relative z-10">
                   {section.id->React.string}
                 </div>
-                <RenderIf condition={sectionIndex != sections->Array.length - 1}>
+                <RenderIf condition={sectionIndex != lastIndex}>
                   <div className={`absolute top-8 left-5 border-l border-nd_gray-200 h-32`} />
                 </RenderIf>
               </div>
@@ -42,7 +43,7 @@ let make = (~sections: array<section>) => {
                 }}
               </div>
             </div>
-            <RenderIf condition={hasReason && sectionIndex != sections->Array.length - 1}>
+            <RenderIf condition={hasReason && sectionIndex != lastIndex}>
               <div className="flex flex-row gap-8 items-start ">
                 <div className="flex gap-x-3 items-center relative">
                   <div

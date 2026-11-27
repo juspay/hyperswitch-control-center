@@ -22,3 +22,19 @@ module GlobalDateFilterBanner = {
     </div>
   }
 }
+
+module ShowOlderVersionsButton = {
+  @react.component
+  let make = (~hasMore, ~isLoadingMore, ~onLoadMore) => {
+    <RenderIf condition=hasMore>
+      <div className="flex justify-center mt-4">
+        <Button
+          text="Show older versions"
+          buttonType=Secondary
+          buttonState={isLoadingMore ? Loading : Normal}
+          onClick={_ => onLoadMore()}
+        />
+      </div>
+    </RenderIf>
+  }
+}

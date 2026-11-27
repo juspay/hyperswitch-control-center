@@ -622,6 +622,7 @@ type cursorDirection = [#next | #previous]
 type cursorValue = {
   @as("effective_at") effectiveAt: string,
   @as("id") cursorId: string,
+  @as("version") version: int,
 }
 
 type cursor = {

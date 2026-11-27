@@ -1159,19 +1159,6 @@ let useGetURL = () => {
             }
           | _ => Default("")
           }
-        | #TRANSACTIONS_LIST =>
-          switch methodType {
-          | Get =>
-            switch id {
-            | Some(transactionID) => Default(`${reconBaseURL}/transactions/${transactionID}`)
-            | None =>
-              switch queryParameters {
-              | Some(queryParams) => Default(`${reconBaseURL}/transactions?${queryParams}`)
-              | None => Default(`${reconBaseURL}/transactions`)
-              }
-            }
-          | _ => Default("")
-          }
         | #TRANSACTIONS_LIST_V2 =>
           switch methodType {
           | Post => Default(`${reconBaseURL}/transactions/v2/list`)

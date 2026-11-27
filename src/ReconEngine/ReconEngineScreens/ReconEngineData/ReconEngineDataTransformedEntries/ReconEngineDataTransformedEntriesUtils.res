@@ -48,6 +48,7 @@ let buildProcessingEntriesV2Body = (
   ~order: processingEntrySortOrder=Desc,
   ~limit=10,
   ~transformationHistoryIds: array<string>=[],
+  ~includeStatusFilter=true,
 ) => {
   let statusFilter = filterValueJson->getStrArrayFromDict("status", [])
   let statuses =
@@ -68,7 +69,10 @@ let buildProcessingEntriesV2Body = (
   let filtersDict = Dict.make()
   let statusPayload = statuses->getStagingEntryStatusPayload
 
-  filtersDict->setOptionArray("status", statusPayload->getNonEmptyArray)
+  filtersDict->setOptionArray(
+    "status",
+    includeStatusFilter ? statusPayload->getNonEmptyArray : None,
+  )
   filtersDict->setOptionArray(
     "entry_type",
     entryTypeFilter->Array.map(JSON.Encode.string)->getNonEmptyArray,
