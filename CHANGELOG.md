@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file. See [conven
 
 - - -
 
+## 2026.11.27.1
+
+### Bug Fixes
+
+- **recon:** Show the latest version on the transaction detail page ([#5828](https://github.com/juspay/hyperswitch-control-center/pull/5828)) ([`f7daeee`](https://github.com/juspay/hyperswitch-control-center/commit/f7daeee3460d5c7c01b73f1c257c5d9b550d39d9))
+
+**Full Changelog:** [`2026.11.27.0...2026.11.27.1`](https://github.com/juspay/hyperswitch-control-center/compare/2026.11.27.0...2026.11.27.1)
+
+- - -
+
 ## 2026.11.27.0
 
 ### Features
