@@ -161,7 +161,7 @@ let make = (~merchantConnectorId) => {
     </div>
     <RenderIf condition={!isLoading && !hasFetchError && resources->isEmptyArray}>
       <p className={`${body.sm.regular} text-nd_gray-500`}>
-        {"No certificates available. Add one from Settings > Hierarchical Configurations."->React.string}
+        {"No certificates available. Add one from Settings > Hierarchical Resources."->React.string}
       </p>
     </RenderIf>
   </div>

@@ -1,5 +1,5 @@
 @react.component
-let make = (~showModal, ~setShowModal, ~onSuccess) => {
+let make = (~showModal, ~setShowModal, ~onSuccess, ~onResourceCreated) => {
   open APIUtils
   open LogicUtils
   open HierarchicalConfigTypes
@@ -12,10 +12,13 @@ let make = (~showModal, ~setShowModal, ~onSuccess) => {
   let updateDetails = useUpdateMethod(~showErrorToast=false)
   let showToast = ToastAdapter.useShowToast()
 
-  let (step, setStep) = React.useState(_ => Download)
+  let (step, setStep) = React.useState(_ => ChooseType)
+  let (selectedResourceType, setSelectedResourceType) = React.useState(_ => ApplePay)
   let (csrState, setCsrState) = React.useState(_ => NotGenerated)
   let (selectedFile, setSelectedFile) = React.useState(_ => None)
   let (submitState, setSubmitState) = React.useState(_ => Button.Disabled)
+  let (googleMerchantId, setGoogleMerchantId) = React.useState(_ => "")
+  let (googlePayKeyState, setGooglePayKeyState) = React.useState(_ => KeyNotGenerated)
   let (errorMessage, setErrorMessage) = React.useState(_ => None)
   let inputRef = React.useRef(Nullable.null)
 
@@ -23,22 +26,42 @@ let make = (~showModal, ~setShowModal, ~onSuccess) => {
 
   React.useEffect(() => {
     if !showModal {
-      setStep(_ => Download)
+      setStep(_ => ChooseType)
+      setSelectedResourceType(_ => ApplePay)
       setCsrState(_ => NotGenerated)
       setSelectedFile(_ => None)
       setSubmitState(_ => Disabled)
+      setGoogleMerchantId(_ => "")
+      setGooglePayKeyState(_ => KeyNotGenerated)
       setErrorMessage(_ => None)
     }
     None
   }, [showModal])
+
+  let continueWithResourceType = () => {
+    setErrorMessage(_ => None)
+    mixpanelEvent(~eventName=`hierarchical_config_${(selectedResourceType :> string)}_selected`)
+    setStep(_ =>
+      switch selectedResourceType {
+      | ApplePay => ApplePayDownload
+      | GooglePay => GooglePayGenerate
+      }
+    )
+  }
+
+  let goBackToChooseType = () => {
+    setErrorMessage(_ => None)
+    setStep(_ => ChooseType)
+  }
 
   let generateAndDownload = async () => {
     try {
       setErrorMessage(_ => None)
       setCsrState(_ => Generating)
       let url = getURL(~entityName=V1(RESOURCES), ~methodType=Post)
-      let payload = [("type", applePayCertificateResourceType->JSON.Encode.string)]->Dict.fromArray
-      let response = await updateDetails(url, payload->JSON.Encode.object, Post)
+      let payload =
+        [("type", applePayCertificateResourceType->JSON.Encode.string)]->getJsonFromArrayOfJson
+      let response = await updateDetails(url, payload, Post)
       let dict = response->getDictFromJsonObject
       let generatedCsr =
         dict
@@ -121,11 +144,11 @@ let make = (~showModal, ~setShowModal, ~onSuccess) => {
           ~id=Some(id),
           ~idType=Some(applePayCertificateResourceType),
         )
-        let payload = [("certificate", certificate->JSON.Encode.string)]->Dict.fromArray
-        let _ = await updateDetails(url, payload->JSON.Encode.object, Put)
+        let payload = [("certificate", certificate->JSON.Encode.string)]->getJsonFromArrayOfJson
+        let _ = await updateDetails(url, payload, Put)
         mixpanelEvent(~eventName="hierarchical_config_certificate_upload_success")
         showToast(~message="Certificate uploaded successfully", ~toastType=ToastSuccess)
-        onSuccess()
+        onSuccess(ApplePay)
       } catch {
       | Exn.Error(e) =>
         setErrorMessage(_ => Some(
@@ -142,6 +165,46 @@ let make = (~showModal, ~setShowModal, ~onSuccess) => {
     }
   }
 
+  let generateGooglePayKey = async () => {
+    let trimmedMerchantId = googleMerchantId->String.trim
+
+    if trimmedMerchantId->isNonEmptyString && googlePayKeyState == KeyNotGenerated {
+      try {
+        setErrorMessage(_ => None)
+        setGooglePayKeyState(_ => KeyGenerating)
+        let url = getURL(~entityName=V1(RESOURCES), ~methodType=Post)
+        let payload = getGooglePayGeneratePayload(~googleMerchantId=trimmedMerchantId)
+        let response = await updateDetails(url, payload, Post)
+        setGooglePayKeyState(_ => KeyGenerated({publicKey: response->getGooglePayPublicKey}))
+        mixpanelEvent(~eventName="hierarchical_config_google_pay_key_generate_success")
+        showToast(~message="Google Pay key generated successfully", ~toastType=ToastSuccess)
+        onResourceCreated(GooglePay)
+      } catch {
+      | Exn.Error(e) =>
+        setErrorMessage(_ => Some(
+          getFormattedErrorMessage(
+            ~error=e,
+            ~fallback="Failed to generate Google Pay key.",
+            ~retryHint="Please try again.",
+          ),
+        ))
+        setGooglePayKeyState(_ => KeyNotGenerated)
+      }
+    }
+  }
+
+  let googleMerchantIdInput: ReactFinalForm.fieldRenderPropsInput = {
+    name: "google_merchant_id",
+    onBlur: _ => (),
+    onFocus: _ => (),
+    onChange: ev => {
+      let value = ReactEvent.Form.target(ev)["value"]
+      setGoogleMerchantId(_ => value)
+    },
+    value: googleMerchantId->JSON.Encode.string,
+    checked: false,
+  }
+
   let errorBanner = switch errorMessage {
   | Some(message) =>
     <AlertV2Binding
@@ -152,6 +215,21 @@ let make = (~showModal, ~setShowModal, ~onSuccess) => {
     />
   | None => React.null
   }
+
+  let chooseTypeContent =
+    <div className="flex flex-col gap-3">
+      {resourceTypes
+      ->Array.map(resourceType =>
+        <HierarchicalConfigHelper.RadioCard
+          key={(resourceType :> string)}
+          title={resourceType->getResourceTypeLabel}
+          description={resourceType->getResourceTypeDescription}
+          isSelected={resourceType == selectedResourceType}
+          onClick={() => setSelectedResourceType(_ => resourceType)}
+        />
+      )
+      ->React.array}
+    </div>
 
   let downloadContent =
     <div className="flex flex-col gap-4">
@@ -211,46 +289,135 @@ let make = (~showModal, ~setShowModal, ~onSuccess) => {
       }}
     </div>
 
+  let googlePayContent =
+    <div className="flex flex-col gap-4">
+      {errorBanner}
+      {switch googlePayKeyState {
+      | KeyGenerated({publicKey}) =>
+        <div className="flex flex-col gap-4">
+          <p className={`${body.md.regular} text-nd_gray-700`}>
+            {"Download the public key and use it in your Google Pay tokenizationSpecification with type DIRECT. The private key is generated and stored securely by Hyperswitch and is never shown."->React.string}
+          </p>
+          <Button
+            text="Download Public Key"
+            buttonType=Primary
+            buttonSize=Small
+            customButtonStyle="w-fit"
+            onClick={_ => {
+              mixpanelEvent(~eventName="hierarchical_config_google_pay_public_key_download_clicked")
+              DownloadUtils.download(
+                ~fileName=googlePayPublicKeyFileName,
+                ~content=publicKey,
+                ~fileType=googlePayPublicKeyFileType,
+              )
+            }}
+          />
+          <p className={`${body.sm.regular} text-nd_gray-500`}>
+            {"Link this key to your merchant or a profile from the Hierarchical Resources list."->React.string}
+          </p>
+        </div>
+      | KeyNotGenerated | KeyGenerating =>
+        <div className="flex flex-col gap-4">
+          <p className={`${body.md.regular} text-nd_gray-700`}>
+            {"Enter the Google Merchant ID from your Google Pay & Wallet Console. Hyperswitch will generate a key pair for DIRECT tokenization and return the public key for your checkout."->React.string}
+          </p>
+          <div className="flex flex-col gap-1">
+            <span className={`${body.sm.medium} text-nd_gray-600`}>
+              {"Google Merchant ID"->React.string}
+            </span>
+            <TextInput
+              input=googleMerchantIdInput
+              placeholder="Enter Google Merchant ID"
+              isDisabled={googlePayKeyState == KeyGenerating}
+              autoFocus=true
+            />
+          </div>
+        </div>
+      }}
+    </div>
+
+  let footer = switch step {
+  | ChooseType =>
+    <Button
+      text="Continue"
+      buttonType=Primary
+      onClick={_ => continueWithResourceType()}
+      buttonState=Normal
+    />
+  | ApplePayDownload =>
+    <>
+      <RenderIf condition={resourceId->Option.isNone}>
+        <Button
+          text="Back"
+          buttonType=Secondary
+          onClick={_ => goBackToChooseType()}
+          buttonState={csrState == Generating ? Disabled : Normal}
+        />
+      </RenderIf>
+      <Button
+        text="Continue"
+        buttonType=Primary
+        onClick={_ => {
+          mixpanelEvent(~eventName="hierarchical_config_continue_to_upload_clicked")
+          setStep(_ => ApplePayUpload)
+        }}
+        buttonState={resourceId->Option.isSome ? Normal : Disabled}
+      />
+    </>
+  | ApplePayUpload =>
+    <Button
+      text="Submit"
+      buttonType=Primary
+      onClick={_ => {
+        mixpanelEvent(~eventName="hierarchical_config_certificate_submit_clicked")
+        submitCertificate()->ignore
+      }}
+      buttonState=submitState
+    />
+  | GooglePayGenerate =>
+    switch googlePayKeyState {
+    | KeyGenerated(_) =>
+      <Button text="Done" buttonType=Primary onClick={_ => setShowModal(_ => false)} />
+    | KeyNotGenerated | KeyGenerating =>
+      <>
+        <Button
+          text="Back"
+          buttonType=Secondary
+          onClick={_ => goBackToChooseType()}
+          buttonState={googlePayKeyState == KeyGenerating ? Disabled : Normal}
+        />
+        <Button
+          text="Generate Key"
+          buttonType=Primary
+          onClick={_ => {
+            mixpanelEvent(~eventName="hierarchical_config_google_pay_key_generate_clicked")
+            generateGooglePayKey()->ignore
+          }}
+          buttonState={getGooglePayGenerateState(~keyState=googlePayKeyState, ~googleMerchantId)}
+        />
+      </>
+    }
+  }
+
   <Modal
     showModal
     setShowModal
-    modalHeading="Add New Apple Pay Certificate"
+    modalHeading={getModalHeading(step)}
     modalHeadingDescription={getStepSubHeading(step)}
     modalDescriptionClass={`${body.md.regular} text-nd_gray-500 mt-1`}
     childClass="p-6"
     borderBottom=true
     modalClass="w-full max-w-xl mx-auto my-auto dark:!bg-nd_gray-800"
     alignModal="items-center justify-center"
-    closeOnOutsideClick=true>
+    closeOnOutsideClick=false>
     <div className="flex flex-col gap-6">
       {switch step {
-      | Download => downloadContent
-      | Upload => uploadContent
+      | ChooseType => chooseTypeContent
+      | ApplePayDownload => downloadContent
+      | ApplePayUpload => uploadContent
+      | GooglePayGenerate => googlePayContent
       }}
-      <div className="flex justify-end gap-2 w-full">
-        {switch step {
-        | Download =>
-          <Button
-            text="Continue"
-            buttonType=Primary
-            onClick={_ => {
-              mixpanelEvent(~eventName="hierarchical_config_continue_to_upload_clicked")
-              setStep(_ => Upload)
-            }}
-            buttonState={resourceId->Option.isSome ? Normal : Disabled}
-          />
-        | Upload =>
-          <Button
-            text="Submit"
-            buttonType=Primary
-            onClick={_ => {
-              mixpanelEvent(~eventName="hierarchical_config_certificate_submit_clicked")
-              submitCertificate()->ignore
-            }}
-            buttonState=submitState
-          />
-        }}
-      </div>
+      <div className="flex justify-end gap-2 w-full"> {footer} </div>
     </div>
   </Modal>
 }
