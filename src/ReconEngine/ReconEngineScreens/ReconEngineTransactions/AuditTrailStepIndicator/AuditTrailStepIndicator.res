@@ -3,7 +3,12 @@ open Typography
 open LogicUtils
 
 @react.component
-let make = (~sections: array<section>, ~hasMore=false) => {
+let make = (
+  ~sections: array<section>,
+  ~hasMore=false,
+  ~isLoadingMore=false,
+  ~onLoadMore=() => (),
+) => {
   let lastIndex = hasMore ? sections->Array.length : sections->Array.length - 1
   <div className="flex flex-col gap-y-6">
     <div className="w-full h-full p-2 md:p-6 bg-white rounded-xl border border-nd_gray-150">
@@ -83,6 +88,24 @@ let make = (~sections: array<section>, ~hasMore=false) => {
           </React.Fragment>
         })
         ->React.array}
+        <RenderIf condition=hasMore>
+          <div
+            className={`flex flex-row gap-8 items-center w-fit ${isLoadingMore
+                ? "cursor-wait"
+                : "cursor-pointer group"}`}
+            onClick={_ =>
+              if !isLoadingMore {
+                onLoadMore()
+              }}>
+            <div
+              className="flex items-center justify-center rounded-full w-10 h-10 border border-dashed border-nd_gray-300 bg-white relative z-10 group-hover:border-nd_gray-500">
+              <Icon name="nd-angle-down" size=14 className="text-nd_gray-500" />
+            </div>
+            <p className={`${body.md.medium} text-nd_gray-500 group-hover:text-nd_gray-700`}>
+              {(isLoadingMore ? "Loading older versions..." : "Show older versions")->React.string}
+            </p>
+          </div>
+        </RenderIf>
       </div>
     </div>
   </div>

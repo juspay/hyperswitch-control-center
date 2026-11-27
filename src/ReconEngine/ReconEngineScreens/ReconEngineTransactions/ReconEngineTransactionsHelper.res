@@ -256,8 +256,7 @@ module AuditTrail = {
           {"An immutable history of every version and update made to this transaction"->React.string}
         </p>
       </div>
-      <AuditTrailStepIndicator sections hasMore />
-      <ReconEngineHelper.ShowOlderVersionsButton hasMore isLoadingMore onLoadMore />
+      <AuditTrailStepIndicator sections hasMore isLoadingMore onLoadMore />
       <Modal
         setShowModal
         showModal
@@ -298,24 +297,32 @@ module AuditTrailTab = {
     let getTransactionVersions = ReconEngineHooks.useGetTransactionVersions()
     let {
       items: allTransactionDetails,
-      hasMore,
+      cursors,
       screenState,
-      isLoadingMore,
-      loadFirstPage,
-      loadMore,
-    } = ReconEngineCursorPaginationHook.useCursorLoadMore(~fetchPage=(~sortBy) =>
-      getTransactionVersions(~transactionId, ~sortBy, ~limit=10)
+      goToFirstPage,
+      goToNextPage,
+    } = ReconEngineCursorPaginationHook.useCursorPagination(
+      ~fetchPage=(~sortBy, ~direction as _) => getTransactionVersions(~transactionId, ~sortBy),
+      ~initialSortBy=ReconEngineUtils.versionCursorSortBy,
+      ~appendPages=true,
     )
+    let isLoadingMore = screenState == Loading && allTransactionDetails->isNonEmptyArray
 
     React.useEffect(() => {
-      loadFirstPage()
+      goToFirstPage()
       None
     }, [])
 
     <PageLoaderWrapper
-      screenState customLoader={<Shimmer styleClass="h-40 w-full mt-8 rounded-xl" />}>
+      screenState={isLoadingMore ? Success : screenState}
+      customLoader={<Shimmer styleClass="h-40 w-full mt-8 rounded-xl" />}>
       <AuditTrail
-        allTransactionDetails accountIds accountsData hasMore isLoadingMore onLoadMore=loadMore
+        allTransactionDetails
+        accountIds
+        accountsData
+        hasMore={cursors.next->Option.isSome}
+        isLoadingMore
+        onLoadMore=goToNextPage
       />
     </PageLoaderWrapper>
   }

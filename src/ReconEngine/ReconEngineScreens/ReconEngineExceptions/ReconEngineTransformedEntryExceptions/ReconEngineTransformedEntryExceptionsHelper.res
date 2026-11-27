@@ -531,8 +531,7 @@ module AuditTrail = {
     })
 
     <div className="mt-6">
-      <AuditTrailStepIndicator sections hasMore />
-      <ReconEngineHelper.ShowOlderVersionsButton hasMore isLoadingMore onLoadMore />
+      <AuditTrailStepIndicator sections hasMore isLoadingMore onLoadMore />
     </div>
   }
 }
@@ -543,23 +542,31 @@ module AuditTrailTab = {
     let getStagingEntryVersions = ReconEngineHooks.useGetStagingEntryVersions()
     let {
       items: allTransactionDetails,
-      hasMore,
+      cursors,
       screenState,
-      isLoadingMore,
-      loadFirstPage,
-      loadMore,
-    } = ReconEngineCursorPaginationHook.useCursorLoadMore(~fetchPage=(~sortBy) =>
-      getStagingEntryVersions(~stagingEntryId, ~sortBy, ~limit=10)
+      goToFirstPage,
+      goToNextPage,
+    } = ReconEngineCursorPaginationHook.useCursorPagination(
+      ~fetchPage=(~sortBy, ~direction as _) => getStagingEntryVersions(~stagingEntryId, ~sortBy),
+      ~initialSortBy=ReconEngineUtils.versionCursorSortBy,
+      ~appendPages=true,
     )
+    let isLoadingMore = screenState == Loading && allTransactionDetails->isNonEmptyArray
 
     React.useEffect(() => {
-      loadFirstPage()
+      goToFirstPage()
       None
     }, [])
 
     <PageLoaderWrapper
-      screenState customLoader={<Shimmer styleClass="h-40 w-full mt-8 rounded-xl" />}>
-      <AuditTrail allTransactionDetails hasMore isLoadingMore onLoadMore=loadMore />
+      screenState={isLoadingMore ? Success : screenState}
+      customLoader={<Shimmer styleClass="h-40 w-full mt-8 rounded-xl" />}>
+      <AuditTrail
+        allTransactionDetails
+        hasMore={cursors.next->Option.isSome}
+        isLoadingMore
+        onLoadMore=goToNextPage
+      />
     </PageLoaderWrapper>
   }
 }

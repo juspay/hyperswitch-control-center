@@ -57,7 +57,7 @@ let useGetTransactionVersions = () => {
     ~itemMapper=transactionItemToObjMapper,
   )
 
-  (~transactionId, ~sortBy=versionCursorSortBy, ~limit) =>
+  (~transactionId, ~sortBy=versionCursorSortBy, ~limit=10) =>
     getTransactions(
       ~body=ReconEngineTransactionsUtils.buildTransactionsV2Body(
         ~filterValueJson=Dict.make(),
@@ -78,7 +78,7 @@ let useGetStagingEntryVersions = () => {
     ~itemMapper=processingItemToObjMapper,
   )
 
-  (~stagingEntryId, ~sortBy=versionCursorSortBy, ~limit) =>
+  (~stagingEntryId, ~sortBy=versionCursorSortBy, ~limit=10) =>
     getStagingEntries(
       ~body=ReconEngineDataTransformedEntriesUtils.buildProcessingEntriesV2Body(
         ~filterValueJson=Dict.make(),

@@ -23,18 +23,22 @@ let make = (~id) => {
       let exceptionsPage = await getTransactionVersions(~transactionId=id, ~limit=1)
       let currentExceptionDetails =
         exceptionsPage.items->getValueFromArray(0, Dict.make()->getTransactionsPayloadFromDict)
-      let ruleUrl = getURL(
-        ~entityName=V1(HYPERSWITCH_RECON),
-        ~methodType=Get,
-        ~hyperswitchReconType=#RECON_RULES,
-        ~id=Some(currentExceptionDetails.rule.rule_id),
-      )
-      let rule = (await fetchDetails(ruleUrl))->getDictFromJsonObject->ruleItemToObjMapper
-      let accountData = await getAccounts()
-      setRuleAccountIds(_ => rule.strategy->getRuleAccountIds)
-      setCurrentExceptionDetails(_ => currentExceptionDetails)
-      setAccountsData(_ => accountData)
-      setScreenState(_ => PageLoaderWrapper.Success)
+      if currentExceptionDetails.id->isNonEmptyString {
+        let ruleUrl = getURL(
+          ~entityName=V1(HYPERSWITCH_RECON),
+          ~methodType=Get,
+          ~hyperswitchReconType=#RECON_RULES,
+          ~id=Some(currentExceptionDetails.rule.rule_id),
+        )
+        let rule = (await fetchDetails(ruleUrl))->getDictFromJsonObject->ruleItemToObjMapper
+        let accountData = await getAccounts()
+        setRuleAccountIds(_ => rule.strategy->getRuleAccountIds)
+        setCurrentExceptionDetails(_ => currentExceptionDetails)
+        setAccountsData(_ => accountData)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      }
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch transaction details"))
     }

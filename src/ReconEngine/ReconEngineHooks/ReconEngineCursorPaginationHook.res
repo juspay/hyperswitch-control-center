@@ -52,6 +52,8 @@ let restorePersistedCursor = (persistKey): option<(cursor, cursorDirection)> => 
 let useCursorPagination = (
   ~fetchPage: (~sortBy: cursor, ~direction: cursorDirection) => promise<cursorPage<'item>>,
   ~persistKey: option<string>=None,
+  ~initialSortBy=defaultCursorSortBy,
+  ~appendPages=false,
 ) => {
   open SessionStorage
 
@@ -64,7 +66,7 @@ let useCursorPagination = (
     setScreenState(_ => PageLoaderWrapper.Loading)
     try {
       let page = await fetchPage(~sortBy, ~direction)
-      setItems(_ => page.items)
+      setItems(prev => appendPages ? prev->Array.concat(page.items) : page.items)
       setCursors(_ => page.cursors)
       switch persistKey {
       | Some(key) =>
@@ -87,7 +89,7 @@ let useCursorPagination = (
     hasRestoredRef.current = true
     switch restored {
     | Some(sortBy, direction) => goTo(~sortBy, ~direction)->ignore
-    | None => goTo(~sortBy=defaultCursorSortBy, ~direction=#next)->ignore
+    | None => goTo(~sortBy=initialSortBy, ~direction=#next)->ignore
     }
   }
 
@@ -104,54 +106,4 @@ let useCursorPagination = (
     }
 
   {items, cursors, screenState, goToFirstPage, goToNextPage, goToPrevPage}
-}
-
-type cursorLoadMoreResult<'item> = {
-  items: array<'item>,
-  hasMore: bool,
-  screenState: PageLoaderWrapper.viewType,
-  isLoadingMore: bool,
-  loadFirstPage: unit => unit,
-  loadMore: unit => unit,
-}
-
-let useCursorLoadMore = (~fetchPage: (~sortBy: cursor) => promise<cursorPage<'item>>) => {
-  let showToast = ToastAdapter.useShowToast()
-  let (items, setItems) = React.useState(_ => [])
-  let (nextCursor, setNextCursor) = React.useState((_): option<cursor> => None)
-  let (screenState, setScreenState) = React.useState(_ => PageLoaderWrapper.Loading)
-  let (isLoadingMore, setIsLoadingMore) = React.useState(_ => false)
-
-  let fetchFirstPage = async () => {
-    setScreenState(_ => PageLoaderWrapper.Loading)
-    try {
-      let page = await fetchPage(~sortBy=versionCursorSortBy)
-      setItems(_ => page.items)
-      setNextCursor(_ => page.cursors.next)
-      setScreenState(_ => PageLoaderWrapper.Success)
-    } catch {
-    | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch"))
-    }
-  }
-
-  let fetchNextPage = async cursor => {
-    setIsLoadingMore(_ => true)
-    try {
-      let page = await fetchPage(~sortBy=cursor)
-      setItems(prev => prev->Array.concat(page.items))
-      setNextCursor(_ => page.cursors.next)
-    } catch {
-    | _ => showToast(~message="Failed to load older versions", ~toastType=ToastError)
-    }
-    setIsLoadingMore(_ => false)
-  }
-
-  {
-    items,
-    hasMore: nextCursor->Option.isSome,
-    screenState,
-    isLoadingMore,
-    loadFirstPage: () => fetchFirstPage()->ignore,
-    loadMore: () => nextCursor->Option.forEach(cursor => fetchNextPage(cursor)->ignore),
-  }
 }

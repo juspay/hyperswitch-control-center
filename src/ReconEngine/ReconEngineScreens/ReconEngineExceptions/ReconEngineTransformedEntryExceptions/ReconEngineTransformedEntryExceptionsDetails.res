@@ -20,9 +20,13 @@ let make = (~id) => {
       let transformedEntriesPage = await getStagingEntryVersions(~stagingEntryId=id, ~limit=1)
       let currentTransformedEntry =
         transformedEntriesPage.items->getValueFromArray(0, Dict.make()->processingItemToObjMapper)
-      setCurrentTransformedEntryDetails(_ => currentTransformedEntry)
-      setUpdatedTransformedEntryDetails(_ => currentTransformedEntry)
-      setScreenState(_ => PageLoaderWrapper.Success)
+      if currentTransformedEntry.id->isNonEmptyString {
+        setCurrentTransformedEntryDetails(_ => currentTransformedEntry)
+        setUpdatedTransformedEntryDetails(_ => currentTransformedEntry)
+        setScreenState(_ => PageLoaderWrapper.Success)
+      } else {
+        setScreenState(_ => PageLoaderWrapper.Custom)
+      }
     } catch {
     | _ => setScreenState(_ => PageLoaderWrapper.Error("Failed to fetch transformed entry details"))
     }
