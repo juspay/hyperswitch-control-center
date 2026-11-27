@@ -87,6 +87,9 @@ let useCursorPagination = (
       ? None
       : persistKey->Option.flatMap(key => restorePersistedCursor(key))
     hasRestoredRef.current = true
+    if appendPages {
+      setItems(_ => [])
+    }
     switch restored {
     | Some(sortBy, direction) => goTo(~sortBy, ~direction)->ignore
     | None => goTo(~sortBy=initialSortBy, ~direction=#next)->ignore

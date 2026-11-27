@@ -306,7 +306,7 @@ module AuditTrailTab = {
       ~initialSortBy=ReconEngineUtils.versionCursorSortBy,
       ~appendPages=true,
     )
-    let isLoadingMore = screenState == Loading && allTransactionDetails->isNonEmptyArray
+    let hasVersions = allTransactionDetails->isNonEmptyArray
 
     React.useEffect(() => {
       goToFirstPage()
@@ -314,14 +314,14 @@ module AuditTrailTab = {
     }, [])
 
     <PageLoaderWrapper
-      screenState={isLoadingMore ? Success : screenState}
+      screenState={hasVersions ? Success : screenState}
       customLoader={<Shimmer styleClass="h-40 w-full mt-8 rounded-xl" />}>
       <AuditTrail
         allTransactionDetails
         accountIds
         accountsData
         hasMore={cursors.next->Option.isSome}
-        isLoadingMore
+        isLoadingMore={hasVersions && screenState == Loading}
         onLoadMore=goToNextPage
       />
     </PageLoaderWrapper>

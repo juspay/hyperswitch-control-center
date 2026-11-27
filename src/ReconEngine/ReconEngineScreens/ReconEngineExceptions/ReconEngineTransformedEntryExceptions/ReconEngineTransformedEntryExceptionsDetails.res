@@ -14,6 +14,7 @@ let make = (~id) => {
   let (updatedTransformedEntryDetails, setUpdatedTransformedEntryDetails) = React.useState(_ =>
     Dict.make()->processingItemToObjMapper
   )
+
   let getTransformedEntryDetails = async _ => {
     try {
       setScreenState(_ => PageLoaderWrapper.Loading)
