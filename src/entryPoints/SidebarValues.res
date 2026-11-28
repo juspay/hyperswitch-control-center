@@ -648,13 +648,15 @@ let complianceCertificateSection = {
 
 let hierarchicalConfigurationsSection = userHasResourceAccess => {
   SubLevelLink({
-    name: "Hierarchical Configurations",
+    name: "Hierarchical Resources",
     link: `/hierarchical-configurations`,
     access: userHasResourceAccess(~resourceAccess=Connector),
     searchOptions: [
+      ("Hierarchical Resources", ""),
       ("Hierarchical Configurations", ""),
       ("Certificate management", ""),
       ("Apple Pay certificate", ""),
+      ("Google Pay key", ""),
     ],
   })
 }
